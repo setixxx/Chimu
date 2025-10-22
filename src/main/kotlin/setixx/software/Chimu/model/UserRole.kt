@@ -1,6 +1,6 @@
 package setixx.software.Chimu.model
 
-enum class UsersRole {
+enum class UserRole {
     PARTICIPANT,
     ORGANIZER,
     JUDGE,

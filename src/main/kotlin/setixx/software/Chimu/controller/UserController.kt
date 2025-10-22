@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import setixx.software.Chimu.model.Users
+import setixx.software.Chimu.model.User
 import setixx.software.Chimu.service.UserService
 
 @RestController
@@ -14,7 +14,7 @@ class UserController {
     private lateinit var userService: UserService
 
     @GetMapping("")
-    fun getUsers() : List<Users>{
+    fun getUsers() : List<User>{
         return userService.getAll()
     }
 }
