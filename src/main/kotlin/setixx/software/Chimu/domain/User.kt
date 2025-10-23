@@ -1,4 +1,4 @@
-package setixx.software.Chimu.model
+package setixx.software.Chimu.domain
 
 import jakarta.persistence.*
 import java.time.Instant

@@ -1,0 +1,14 @@
+spring:
+  application:
+    name: Chimu
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+  flyway:
+    enabled: true
+server:
+  port: 8080

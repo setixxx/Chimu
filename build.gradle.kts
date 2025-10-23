@@ -25,9 +25,12 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-security")
 	implementation("org.springframework.boot:spring-boot-starter-validation")
 	implementation("org.springframework.boot:spring-boot-starter-web")
+
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+
 	implementation("org.flywaydb:flyway-core")
 	implementation("org.flywaydb:flyway-database-postgresql")
+
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	developmentOnly("org.springframework.boot:spring-boot-devtools")
 	runtimeOnly("org.postgresql:postgresql")
@@ -35,9 +38,11 @@ dependencies {
 	testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
 	testImplementation("org.springframework.security:spring-security-test")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+
     implementation("io.jsonwebtoken:jjwt-api:0.12.5")
     runtimeOnly("io.jsonwebtoken:jjwt-impl:0.12.5")
     runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.12.5")
+
     implementation("io.minio:minio:8.5.9")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
