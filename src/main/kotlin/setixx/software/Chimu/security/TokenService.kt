@@ -12,14 +12,13 @@ import java.util.Date
 @Component
 class TokenService(
     @Value("\${JWT_SECRET}") private val secret: String,
-    @Value("\${JWT_EXPIRATION}") private val expirationTime: Long,
 ){
     private val secretKey: Key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret))
 
-    fun generateToken(subject: String, expiration: Date, additionalClaims: Map<String, Any> = emptyMap()): String {
+    fun generateToken(email: String, expiration: Date, additionalClaims: Map<String, Any> = emptyMap()): String {
         return Jwts.builder()
             .setClaims(additionalClaims)
-            .setSubject(subject)
+            .setSubject(email)
             .setIssuedAt(Date(System.currentTimeMillis()))
             .setExpiration(expiration)
             .signWith(secretKey)

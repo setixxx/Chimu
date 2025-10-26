@@ -1,4 +1,4 @@
-package setixx.software.Chimu.security
+package setixx.software.Chimu.repository
 
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Repository
