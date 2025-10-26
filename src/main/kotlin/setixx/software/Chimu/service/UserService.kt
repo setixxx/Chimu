@@ -1,6 +1,7 @@
 package setixx.software.Chimu.service
 
 import org.springframework.stereotype.Service
+import setixx.software.Chimu.domain.User
 import setixx.software.Chimu.repository.UserRepository
 import java.util.UUID
 

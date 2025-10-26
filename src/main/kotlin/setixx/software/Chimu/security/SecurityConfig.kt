@@ -17,13 +17,11 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import setixx.software.Chimu.repository.UserRepository
 
 @Configuration
-class SecurityConfig {
+class SecurityConfig(
+    private val userDetailsService: JwtUserDetailsService,
+) {
     @Bean
     fun passwordEncoder(): PasswordEncoder = BCryptPasswordEncoder()
-
-    @Bean
-    fun userDetailsService(userRepository: UserRepository): UserDetailsService =
-        JwtUserDetailsService(userRepository)
 
     @Bean
     fun authenticationManager(config: AuthenticationConfiguration): AuthenticationManager =
@@ -38,11 +36,12 @@ class SecurityConfig {
             .csrf { it.disable() }
             .authorizeHttpRequests {
                 it
-                    .requestMatchers("/api/auth", "/api/auth/refresh", "/error")
+                    .requestMatchers("/api/auth", "/api/auth/refresh", "/error", "/api/auth/register")
                     .permitAll()
                     .anyRequest()
                     .fullyAuthenticated()
             }
+            .userDetailsService(userDetailsService)
             .sessionManagement {
                 it.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             }
