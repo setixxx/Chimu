@@ -35,13 +35,10 @@ class SecurityConfig(
                         "/api/auth",
                         "/api/auth/register",
                         "/api/auth/refresh",
+                        "/api/auth/logout",
                         "/error"
                     )
                     .permitAll()
-                    .requestMatchers(
-                        "/api/auth/logout",
-                    )
-                    .authenticated()
                     .anyRequest()
                     .fullyAuthenticated()
             }

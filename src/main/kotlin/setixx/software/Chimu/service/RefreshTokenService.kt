@@ -77,10 +77,8 @@ class RefreshTokenService(
 
     @Transactional
     fun cleanupExpiredTokens() {
-        // Удаляем истекшие токены
         authTokenRepository.deleteExpiredTokens()
 
-        // Удаляем отозванные токены старше 30 дней
         val thirtyDaysAgo = Instant.now().minusSeconds(30 * 24 * 60 * 60)
         authTokenRepository.deleteRevokedTokens(thirtyDaysAgo)
     }
