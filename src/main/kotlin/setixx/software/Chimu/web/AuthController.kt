@@ -4,8 +4,6 @@ import jakarta.servlet.http.HttpServletRequest
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.security.core.annotation.AuthenticationPrincipal
-import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.web.bind.annotation.*
 import setixx.software.Chimu.repository.UserRepository
 import setixx.software.Chimu.security.AuthenticationService
@@ -43,12 +41,11 @@ class AuthController(
 
     @PostMapping("/register")
     fun register(
-        @Valid @RequestBody req: RegisterRequest
+        @Valid @RequestBody request: RegisterRequest
     ): ResponseEntity<RegisterResponse> {
         val user = registrationService.register(
-            req.email.trim(),
-            req.password,
-            req.role
+            request.email.trim(),
+            request.password,
         )
         val body = RegisterResponse(
             publicId = user.publicId.toString(),

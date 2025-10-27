@@ -11,17 +11,12 @@ class RegistrationService(
     private val userRepository: UserRepository,
     private val passwordEncoder: PasswordEncoder
 ) {
-    fun register(email: String, rawPassword: String, roleStr: String?): User{
+    fun register(email: String, rawPassword: String): User{
         val encodedPassword = passwordEncoder.encode(rawPassword)
-        val role = try {
-            roleStr?.let { UserRole.valueOf(it.uppercase()) } ?: UserRole.PARTICIPANT
-        } catch (ex: IllegalArgumentException) {
-            UserRole.PARTICIPANT
-        }
         val user = User(
             email = email,
             passwordHash = encodedPassword,
-            role = role,
+            role = UserRole.PARTICIPANT,
             displayName = email.substringBefore("@"),
         )
 

@@ -2,6 +2,7 @@ package setixx.software.Chimu.exception
 
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
 
@@ -20,5 +21,18 @@ class GlobalExceptionHandler {
         return ResponseEntity
             .status(HttpStatus.UNAUTHORIZED)
             .body(mapOf("error" to (ex.message ?: "Unauthorized")))
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException::class)
+    fun handleValidation(ex: MethodArgumentNotValidException): ResponseEntity<Map<String, Any>> {
+        val errors = ex.bindingResult.fieldErrors.associate {
+            it.field to (it.defaultMessage ?: "Invalid value")
+        }
+        return ResponseEntity
+            .status(HttpStatus.BAD_REQUEST)
+            .body(mapOf(
+                "error" to "Validation failed",
+                "details" to errors
+            ))
     }
 }

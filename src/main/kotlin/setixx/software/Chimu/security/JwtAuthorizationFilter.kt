@@ -31,19 +31,18 @@ class JwtAuthorizationFilter(
                 if (SecurityContextHolder.getContext().authentication == null) {
                     val userDetails: UserDetails = userDetailsService.loadUserByUsername(email)
 
-                    if (email == userDetails.username) {
+                    if (tokenService.isTokenValid(token, userDetails)) {
                         val authToken = UsernamePasswordAuthenticationToken(
                             userDetails, null, userDetails.authorities
                         )
                         authToken.details = WebAuthenticationDetailsSource().buildDetails(request)
                         SecurityContextHolder.getContext().authentication = authToken
                     }
+
+
                 }
             } catch (ex: Exception) {
-                response.writer.write(
-                    """{"error": "Filter Authorization error: 
-                    |${ex.message ?: "unknown error"}"}""".trimMargin()
-                )
+                logger.warn("JWT authentication failed", ex)
             }
         }
 
