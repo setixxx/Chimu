@@ -1,5 +1,6 @@
 package setixx.software.Chimu.security
 
+import jakarta.servlet.http.HttpServletRequest
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.AuthenticationServiceException
@@ -7,9 +8,10 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.stereotype.Service
-import setixx.software.Chimu.repository.RefreshTokenRepository
 import setixx.software.Chimu.security.dto.AuthenticationRequest
 import setixx.software.Chimu.security.dto.AuthenticationResponse
+import setixx.software.Chimu.service.RefreshTokenService
+import java.time.Instant
 import java.util.Date
 
 @Service
@@ -17,11 +19,14 @@ class AuthenticationService(
     private val authManager: AuthenticationManager,
     private val userDetailsService: UserDetailsService,
     private val tokenService: TokenService,
-    private val refreshTokenRepository: RefreshTokenRepository,
+    private val refreshTokenService: RefreshTokenService,
     @Value("\${JWT_ACCESS_TOKEN_EXPIRATION}") private val accessTokenExpiration: Long = 0,
     @Value("\${JWT_REFRESH_TOKEN_EXPIRATION}") private val refreshTokenExpiration: Long = 0
 ) {
-    fun authentication(authenticationRequest: AuthenticationRequest): AuthenticationResponse {
+    fun authentication(
+        authenticationRequest: AuthenticationRequest,
+        request: HttpServletRequest? = null
+    ): AuthenticationResponse {
         authManager.authenticate(
             UsernamePasswordAuthenticationToken(
                 authenticationRequest.email,
@@ -34,7 +39,8 @@ class AuthenticationService(
         val accessToken = createAccessToken(user)
         val refreshToken = createRefreshToken(user)
 
-        refreshTokenRepository.save(refreshToken, user)
+        val refreshExpiresAt = Instant.now().plusMillis(refreshTokenExpiration)
+        refreshTokenService.saveRefreshToken(refreshToken, user, refreshExpiresAt, request)
 
         return AuthenticationResponse(
             accessToken = accessToken,
@@ -47,13 +53,24 @@ class AuthenticationService(
 
         return username.let { user ->
             val currentUserDetails = userDetailsService.loadUserByUsername(user)
-            val refreshTokenUserDetails = refreshTokenRepository.findUserDetailsByToken(refreshToken)
+            val refreshTokenUserDetails = refreshTokenService.findUserDetailsByToken(refreshToken)
 
-            if (currentUserDetails.username == refreshTokenUserDetails?.username)
-                createAccessToken(currentUserDetails)
-            else
+            if (!tokenService.isTokenValid(refreshToken, currentUserDetails)) {
+                throw AuthenticationServiceException("Refresh token expired")
+            }
+
+            if (currentUserDetails.username != refreshTokenUserDetails?.username) {
                 throw AuthenticationServiceException("Invalid refresh token")
+            }
+
+            refreshTokenService.updateLastUsed(refreshToken)
+
+            createAccessToken(currentUserDetails)
         }
+    }
+
+    fun logout(refreshToken: String) {
+        refreshTokenService.revokeToken(refreshToken)
     }
 
     private fun createAccessToken(user: UserDetails): String {

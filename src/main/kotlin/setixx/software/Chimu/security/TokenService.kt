@@ -1,10 +1,14 @@
 package setixx.software.Chimu.security
 
 import io.jsonwebtoken.Claims
+import io.jsonwebtoken.ExpiredJwtException
 import io.jsonwebtoken.Jwts
+import io.jsonwebtoken.MalformedJwtException
 import io.jsonwebtoken.io.Decoders
 import io.jsonwebtoken.security.Keys
+import io.jsonwebtoken.security.SignatureException
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Component
 import java.security.Key
 import java.util.Date
@@ -35,5 +39,25 @@ class TokenService(
             .build()
             .parseClaimsJws(token)
             .body
+    }
+
+    fun isTokenValid(token: String, userDetails: UserDetails): Boolean {
+        return try {
+            val username = extractUsername(token)
+            val claims = extractAllClaims(token)
+            username == userDetails.username && !isTokenExpired(claims)
+        } catch (e: ExpiredJwtException) {
+            false
+        } catch (e: MalformedJwtException) {
+            false
+        } catch (e: SignatureException) {
+            false
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+    private fun isTokenExpired(claims: Claims): Boolean {
+        return claims.expiration.before(Date())
     }
 }

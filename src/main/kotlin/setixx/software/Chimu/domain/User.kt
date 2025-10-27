@@ -42,3 +42,11 @@ class User(
     @Column(name = "updated_at", nullable = false, insertable = false, updatable = false)
     var updatedAt: Instant? = null
 )
+
+enum class UserRole {
+    PARTICIPANT,
+    ORGANIZER,
+    JUDGE,
+    ADMIN,
+    GUEST
+}

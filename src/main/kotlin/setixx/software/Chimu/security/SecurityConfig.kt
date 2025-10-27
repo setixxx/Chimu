@@ -3,18 +3,13 @@ package setixx.software.Chimu.security
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.authentication.AuthenticationManager
-import org.springframework.security.authentication.AuthenticationProvider
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.http.SessionCreationPolicy
-import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.DefaultSecurityFilterChain
-import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
-import setixx.software.Chimu.repository.UserRepository
 
 @Configuration
 class SecurityConfig(
@@ -36,8 +31,17 @@ class SecurityConfig(
             .csrf { it.disable() }
             .authorizeHttpRequests {
                 it
-                    .requestMatchers("/api/auth", "/api/auth/refresh", "/error", "/api/auth/register")
+                    .requestMatchers(
+                        "/api/auth",
+                        "/api/auth/register",
+                        "/api/auth/refresh",
+                        "/error"
+                    )
                     .permitAll()
+                    .requestMatchers(
+                        "/api/auth/logout",
+                    )
+                    .authenticated()
                     .anyRequest()
                     .fullyAuthenticated()
             }
@@ -47,7 +51,7 @@ class SecurityConfig(
             }
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter::class.java)
             .exceptionHandling {
-                it.authenticationEntryPoint { _, response, authException ->
+                it.authenticationEntryPoint { _, response, _ ->
                     response.status = 401
                     response.contentType = "application/json"
                     response.writer.write("""{"error":"Unauthorized"}""")
