@@ -32,7 +32,9 @@ dependencies {
 	implementation("org.flywaydb:flyway-database-postgresql")
 
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
+/*
 	developmentOnly("org.springframework.boot:spring-boot-devtools")
+*/
 	runtimeOnly("org.postgresql:postgresql")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")

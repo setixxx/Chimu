@@ -37,7 +37,7 @@ class User(
     var avatarUrl: String? = null,
 
     @Column(name = "created_at", nullable = false, insertable = false, updatable = false)
-    var createdAt: Instant? = null,
+    var createdAt: Instant,
 
     @Column(name = "updated_at", nullable = false, insertable = false, updatable = false)
     var updatedAt: Instant? = null

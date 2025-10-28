@@ -49,7 +49,7 @@ class AuthenticationService(
     }
 
     fun refreshAccessToken(refreshToken: String): String {
-        val username = tokenService.extractUsername(refreshToken)
+        val username = tokenService.extractEmail(refreshToken)
 
         return username.let { user ->
             val currentUserDetails = userDetailsService.loadUserByUsername(user)

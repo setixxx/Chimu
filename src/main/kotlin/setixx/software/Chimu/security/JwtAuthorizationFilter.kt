@@ -26,7 +26,7 @@ class JwtAuthorizationFilter(
         if (null != authorizationHeader && authorizationHeader.startsWith("Bearer ")) {
             try {
                 val token: String = authorizationHeader.substringAfter("Bearer ")
-                val email: String = tokenService.extractUsername(token)
+                val email: String = tokenService.extractEmail(token)
 
                 if (SecurityContextHolder.getContext().authentication == null) {
                     val userDetails: UserDetails = userDetailsService.loadUserByUsername(email)

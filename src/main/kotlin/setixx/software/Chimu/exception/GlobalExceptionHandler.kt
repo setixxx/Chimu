@@ -35,4 +35,11 @@ class GlobalExceptionHandler {
                 "details" to errors
             ))
     }
-}
+
+    @ExceptionHandler(EmailAlreadyExistsException::class)
+    fun handleEmailAlreadyExists(ex: EmailAlreadyExistsException): ResponseEntity<Map<String, String>> {
+        return ResponseEntity
+            .status(HttpStatus.CONFLICT)
+            .body(mapOf(
+                "error" to (ex.message ?: "The email is already in use")))
+    }}

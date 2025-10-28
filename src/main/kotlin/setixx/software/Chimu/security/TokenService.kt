@@ -29,7 +29,7 @@ class TokenService(
             .compact()
     }
 
-    fun extractUsername(token: String): String {
+    fun extractEmail(token: String): String {
         return extractAllClaims(token).subject
     }
 
@@ -43,9 +43,9 @@ class TokenService(
 
     fun isTokenValid(token: String, userDetails: UserDetails): Boolean {
         return try {
-            val username = extractUsername(token)
+            val email = extractEmail(token)
             val claims = extractAllClaims(token)
-            username == userDetails.username && !isTokenExpired(claims)
+            email == userDetails.username && !isTokenExpired(claims)
         } catch (e: ExpiredJwtException) {
             false
         } catch (e: MalformedJwtException) {

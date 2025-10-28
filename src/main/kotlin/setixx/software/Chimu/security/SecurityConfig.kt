@@ -39,8 +39,13 @@ class SecurityConfig(
                         "/error"
                     )
                     .permitAll()
+                    .requestMatchers(
+                        "/api/users/me"
+                    )
+                    .authenticated()
                     .anyRequest()
                     .fullyAuthenticated()
+
             }
             .userDetailsService(userDetailsService)
             .sessionManagement {
