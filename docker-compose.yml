@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: "chimu"
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "277353"
+      PGDATA: "/var/lib/postgresql/data/pgdata"
+    volumes:
+      - chimu:/var/lib/postgresql/data/pgdata
+    ports:
+      - "5432:5432"
+volumes:
+  chimu:
