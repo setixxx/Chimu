@@ -25,7 +25,7 @@ docker-compose up -d
 ```env
 DB_URL=jdbc:postgresql://localhost:5432/chimu
 DB_USER=postgres
-DB_PASSWORD=277353
+DB_PASSWORD=postgres
 
 JWT_SECRET=<base64_secret>
 JWT_ACCESS_TOKEN_EXPIRATION=900000
