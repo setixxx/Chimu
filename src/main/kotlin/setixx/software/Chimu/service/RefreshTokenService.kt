@@ -5,8 +5,6 @@ import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import setixx.software.Chimu.domain.AuthToken
-import setixx.software.Chimu.domain.TokenType
-import setixx.software.Chimu.domain.User
 import setixx.software.Chimu.repository.AuthTokenRepository
 import setixx.software.Chimu.repository.UserRepository
 import java.security.MessageDigest
@@ -34,7 +32,6 @@ class RefreshTokenService(
         val authToken = AuthToken(
             userId = user.id!!,
             tokenHash = tokenHash,
-            tokenType = TokenType.REFRESH,
             expiresAt = expiresAt,
             userAgent = request?.getHeader("User-Agent"),
             ipAddress = request?.remoteAddr
@@ -85,7 +82,7 @@ class RefreshTokenService(
 
     @Transactional(readOnly = true)
     fun getUserActiveSessions(userId: Long): List<AuthToken> {
-        return authTokenRepository.findAllByUserIdAndTokenType(userId, TokenType.REFRESH)
+        return authTokenRepository.findAllByUserId(userId)
             .filter { it.isValid() }
     }
 

@@ -19,9 +19,17 @@ class TokenService(
 ){
     private val secretKey: Key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret))
 
-    fun generateToken(email: String, expiration: Date, additionalClaims: Map<String, Any> = emptyMap()): String {
+    fun generateToken(
+        email: String,
+        expiration: Date,
+        tokenType: String,
+        additionalClaims: Map<String, Any> = emptyMap()
+    ): String {
+        val claims = additionalClaims.toMutableMap()
+        claims["type"] = tokenType
+
         return Jwts.builder()
-            .setClaims(additionalClaims)
+            .setClaims(claims)
             .setSubject(email)
             .setIssuedAt(Date(System.currentTimeMillis()))
             .setExpiration(expiration)
@@ -31,6 +39,14 @@ class TokenService(
 
     fun extractEmail(token: String): String {
         return extractAllClaims(token).subject
+    }
+
+    fun extractTokenType(token: String): String? {
+        return try {
+            extractAllClaims(token)["type"] as? String
+        } catch (e: Exception) {
+            null
+        }
     }
 
     private fun extractAllClaims(token: String): Claims {

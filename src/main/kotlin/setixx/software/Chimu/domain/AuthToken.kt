@@ -26,10 +26,6 @@ class AuthToken(
     @Column(name = "token_hash", nullable = false, unique = true)
     var tokenHash: String,
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "token_type", nullable = false)
-    var tokenType: TokenType = TokenType.REFRESH,
-
     @Column(name = "expires_at", nullable = false)
     var expiresAt: Instant,
 
@@ -59,9 +55,4 @@ class AuthToken(
     fun updateLastUsed() {
         this.lastUsedAt = Instant.now()
     }
-}
-
-enum class TokenType {
-    REFRESH,
-    ACCESS
 }

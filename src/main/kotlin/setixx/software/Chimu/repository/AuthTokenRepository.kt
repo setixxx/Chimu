@@ -5,15 +5,12 @@ import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 import setixx.software.Chimu.domain.AuthToken
-import setixx.software.Chimu.domain.TokenType
 import java.time.Instant
 
 interface AuthTokenRepository : JpaRepository<AuthToken, Long> {
     fun findByTokenHash(tokenHash: String): AuthToken?
 
     fun findAllByUserId(userId: Long): List<AuthToken>
-
-    fun findAllByUserIdAndTokenType(userId: Long, tokenType: TokenType): List<AuthToken>
 
     @Query("""
         SELECT t FROM AuthToken t 

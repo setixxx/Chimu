@@ -1,4 +1,4 @@
-package setixx.software.Chimu.security.dto
+package setixx.software.Chimu.dto
 
 data class UserProfileResponse(
     val displayName: String,

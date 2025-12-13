@@ -5,22 +5,20 @@ import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
-import setixx.software.Chimu.repository.UserRepository
 import setixx.software.Chimu.security.AuthenticationService
-import setixx.software.Chimu.security.dto.AuthenticationRequest
-import setixx.software.Chimu.security.dto.AuthenticationResponse
-import setixx.software.Chimu.security.dto.RefreshTokenRequest
-import setixx.software.Chimu.security.dto.RegisterRequest
-import setixx.software.Chimu.security.dto.RegisterResponse
-import setixx.software.Chimu.security.dto.TokenResponse
+import setixx.software.Chimu.dto.AuthenticationRequest
+import setixx.software.Chimu.dto.AuthenticationResponse
+import setixx.software.Chimu.dto.RefreshTokenRequest
+import setixx.software.Chimu.dto.RegisterRequest
+import setixx.software.Chimu.dto.RegisterResponse
+import setixx.software.Chimu.dto.TokenResponse
 import setixx.software.Chimu.service.RegistrationService
 
 @RestController
 @RequestMapping("/api/auth")
 class AuthController(
     private val authenticationService: AuthenticationService,
-    private val registrationService: RegistrationService,
-    private val userRepository: UserRepository
+    private val registrationService: RegistrationService
 ) {
     @PostMapping
     fun authenticate(
@@ -45,12 +43,10 @@ class AuthController(
     ): ResponseEntity<RegisterResponse> {
         val user = registrationService.register(
             request.email.trim(),
-            request.password,
+            request.password
         )
         val body = RegisterResponse(
-            publicId = user.publicId.toString(),
-            email = user.email,
-            role = user.role.name
+            publicId = user.publicId.toString()
         )
         return ResponseEntity.status(HttpStatus.CREATED).body(body)
     }
