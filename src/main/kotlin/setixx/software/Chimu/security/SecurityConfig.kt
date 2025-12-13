@@ -35,7 +35,6 @@ class SecurityConfig(
                         "/api/auth",
                         "/api/auth/register",
                         "/api/auth/refresh",
-                        "/api/auth/logout",
                         "/error",
                         "/swagger-ui/**",
                         "/v3/api-docs/**",
@@ -44,7 +43,8 @@ class SecurityConfig(
                     .permitAll()
                     .requestMatchers(
                         "/api/users/me",
-                        "/api/users/change-password"
+                        "/api/users/change-password",
+                        "/api/auth/logout"
                     )
                     .authenticated()
                     .anyRequest()
