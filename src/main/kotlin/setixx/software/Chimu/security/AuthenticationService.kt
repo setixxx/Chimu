@@ -6,7 +6,6 @@ import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.AuthenticationServiceException
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.userdetails.UserDetails
-import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import setixx.software.Chimu.repository.UserRepository
@@ -21,7 +20,7 @@ import java.util.Date
 @Service
 class AuthenticationService(
     private val authManager: AuthenticationManager,
-    private val userDetailsService: UserDetailsService,
+    private val userDetailsService: JwtUserDetailsService,
     private val tokenService: TokenService,
     private val refreshTokenService: RefreshTokenService,
     private val userRepository: UserRepository,
@@ -40,7 +39,7 @@ class AuthenticationService(
             )
         )
 
-        val user = userDetailsService.loadUserByUsername(authenticationRequest.email)
+        val user = userDetailsService.loadUserByUsername(authenticationRequest.email) as CustomUserDetails
 
         val accessToken = createAccessToken(user)
         val refreshToken = createRefreshToken(user)
@@ -55,24 +54,22 @@ class AuthenticationService(
     }
 
     fun refreshAccessToken(refreshToken: String): String {
-        val username = tokenService.extractEmail(refreshToken)
+        val publicId = tokenService.extractPublicId(refreshToken)
 
-        return username.let { user ->
-            val currentUserDetails = userDetailsService.loadUserByUsername(user)
-            val refreshTokenUserDetails = refreshTokenService.findUserDetailsByToken(refreshToken)
+        val currentUserDetails = userDetailsService.loadUserByPublicId(publicId) as CustomUserDetails
+        val refreshTokenUserDetails = refreshTokenService.findUserDetailsByToken(refreshToken)
 
-            if (!tokenService.isTokenValid(refreshToken, currentUserDetails)) {
-                throw AuthenticationServiceException("Refresh token expired")
-            }
-
-            if (currentUserDetails.username != refreshTokenUserDetails?.username) {
-                throw AuthenticationServiceException("Invalid refresh token")
-            }
-
-            refreshTokenService.updateLastUsed(refreshToken)
-
-            createAccessToken(currentUserDetails)
+        if (!tokenService.isTokenValid(refreshToken, currentUserDetails)) {
+            throw AuthenticationServiceException("Refresh token expired")
         }
+
+        if (currentUserDetails.publicId != (refreshTokenUserDetails as? CustomUserDetails)?.publicId) {
+            throw AuthenticationServiceException("Invalid refresh token")
+        }
+
+        refreshTokenService.updateLastUsed(refreshToken)
+
+        return createAccessToken(currentUserDetails)
     }
 
     fun logout(refreshToken: String) {
@@ -102,7 +99,7 @@ class AuthenticationService(
 
         refreshTokenService.revokeAllUserTokens(user.id!!)
 
-        val userDetails = userDetailsService.loadUserByUsername(userEmail)
+        val userDetails = userDetailsService.loadUserByUsername(userEmail) as CustomUserDetails
         val newAccessToken = createAccessToken(userDetails)
         val newRefreshToken = createRefreshToken(userDetails)
 
@@ -116,17 +113,17 @@ class AuthenticationService(
         )
     }
 
-    private fun createAccessToken(user: UserDetails): String {
+    private fun createAccessToken(user: CustomUserDetails): String {
         return tokenService.generateToken(
-            email = user.username,
+            publicId = user.publicId,
             expiration = Date(System.currentTimeMillis() + accessTokenExpiration),
             tokenType = "access"
         )
     }
 
-    private fun createRefreshToken(user: UserDetails): String {
+    private fun createRefreshToken(user: CustomUserDetails): String {
         return tokenService.generateToken(
-            email = user.username,
+            publicId = user.publicId,
             expiration = Date(System.currentTimeMillis() + refreshTokenExpiration),
             tokenType = "refresh"
         )

@@ -6,14 +6,13 @@ import jakarta.servlet.http.HttpServletResponse
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.userdetails.UserDetails
-import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource
 import org.springframework.stereotype.Component
 import org.springframework.web.filter.OncePerRequestFilter
 
 @Component
 class JwtAuthorizationFilter(
-    private val userDetailsService: UserDetailsService,
+    private val userDetailsService: JwtUserDetailsService,
     private val tokenService: TokenService
 ) : OncePerRequestFilter() {
     override fun doFilterInternal(
@@ -26,10 +25,10 @@ class JwtAuthorizationFilter(
         if (null != authorizationHeader && authorizationHeader.startsWith("Bearer ")) {
             try {
                 val token: String = authorizationHeader.substringAfter("Bearer ")
-                val email: String = tokenService.extractEmail(token)
+                val publicId = tokenService.extractPublicId(token)
 
                 if (SecurityContextHolder.getContext().authentication == null) {
-                    val userDetails: UserDetails = userDetailsService.loadUserByUsername(email)
+                    val userDetails: UserDetails = userDetailsService.loadUserByPublicId(publicId)
 
                     if (tokenService.isTokenValid(token, userDetails)) {
                         val authToken = UsernamePasswordAuthenticationToken(
@@ -38,8 +37,6 @@ class JwtAuthorizationFilter(
                         authToken.details = WebAuthenticationDetailsSource().buildDetails(request)
                         SecurityContextHolder.getContext().authentication = authToken
                     }
-
-
                 }
             } catch (ex: Exception) {
                 logger.warn("JWT authentication failed", ex)

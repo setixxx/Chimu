@@ -12,15 +12,16 @@ import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Component
 import java.security.Key
 import java.util.Date
+import java.util.UUID
 
 @Component
 class TokenService(
     @Value("\${JWT_SECRET}") private val secret: String,
-){
+) {
     private val secretKey: Key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret))
 
     fun generateToken(
-        email: String,
+        publicId: UUID,
         expiration: Date,
         tokenType: String,
         additionalClaims: Map<String, Any> = emptyMap()
@@ -29,16 +30,17 @@ class TokenService(
         claims["type"] = tokenType
 
         return Jwts.builder()
+            .setHeaderParam("typ", "JWT")
             .setClaims(claims)
-            .setSubject(email)
+            .setSubject(publicId.toString())
             .setIssuedAt(Date(System.currentTimeMillis()))
             .setExpiration(expiration)
             .signWith(secretKey)
             .compact()
     }
 
-    fun extractEmail(token: String): String {
-        return extractAllClaims(token).subject
+    fun extractPublicId(token: String): UUID {
+        return UUID.fromString(extractAllClaims(token).subject)
     }
 
     fun extractTokenType(token: String): String? {
@@ -59,9 +61,10 @@ class TokenService(
 
     fun isTokenValid(token: String, userDetails: UserDetails): Boolean {
         return try {
-            val email = extractEmail(token)
+            val publicId = extractPublicId(token)
             val claims = extractAllClaims(token)
-            email == userDetails.username && !isTokenExpired(claims)
+            val customUserDetails = userDetails as? CustomUserDetails
+            publicId == customUserDetails?.publicId && !isTokenExpired(claims)
         } catch (e: ExpiredJwtException) {
             false
         } catch (e: MalformedJwtException) {

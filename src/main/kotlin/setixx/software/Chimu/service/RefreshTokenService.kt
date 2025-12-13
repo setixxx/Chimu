@@ -1,12 +1,14 @@
 package setixx.software.Chimu.service
 
 import jakarta.servlet.http.HttpServletRequest
+import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import setixx.software.Chimu.domain.AuthToken
 import setixx.software.Chimu.repository.AuthTokenRepository
 import setixx.software.Chimu.repository.UserRepository
+import setixx.software.Chimu.security.CustomUserDetails
 import java.security.MessageDigest
 import java.time.Instant
 import java.util.*
@@ -24,7 +26,8 @@ class RefreshTokenService(
         expiresAt: Instant,
         request: HttpServletRequest? = null
     ) {
-        val user = userRepository.findByEmail(userDetails.username)
+        val customUserDetails = userDetails as CustomUserDetails
+        val user = userRepository.findByPublicId(customUserDetails.publicId)
             ?: throw IllegalStateException("User not found")
 
         val tokenHash = hashToken(token)
@@ -47,11 +50,12 @@ class RefreshTokenService(
 
         val user = userRepository.findById(authToken.userId).orElse(null) ?: return null
 
-        return org.springframework.security.core.userdetails.User.builder()
-            .username(user.email)
-            .password(user.passwordHash)
-            .roles(user.role.name)
-            .build()
+        return CustomUserDetails(
+            publicId = user.publicId,
+            email = user.email,
+            passwordHash = user.passwordHash,
+            authorities = listOf(SimpleGrantedAuthority("ROLE_${user.role.name}"))
+        )
     }
 
     @Transactional
