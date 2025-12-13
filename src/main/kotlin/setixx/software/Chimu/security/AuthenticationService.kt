@@ -76,6 +76,12 @@ class AuthenticationService(
     }
 
     fun logout(refreshToken: String) {
+        val tokenType = tokenService.extractTokenType(refreshToken)
+
+        if (tokenType != "refresh") {
+            throw AuthenticationServiceException("Invalid token type. Expected a refresh token")
+        }
+
         refreshTokenService.revokeToken(refreshToken)
     }
 
