@@ -27,11 +27,17 @@ class UserController(
         @AuthenticationPrincipal userDetails: UserDetails
     ): ResponseEntity<UserProfileResponse> {
         val user = userService.getCurrentUser(userDetails.username)
+
         val body = UserProfileResponse(
-            displayName = user.displayName,
+            id = user.publicId.toString(),
             email = user.email,
+            nickname = user.nickname,
+            firstName = user.firstName,
+            lastName = user.lastName,
+            primaryRole = user.primaryRole,
             avatarUrl = user.avatarUrl,
-            createdAt = user.createdAt.toString()
+            createdAt = user.createdAt.toString(),
+            skills = user.skills.map { it.name }
         )
         return ResponseEntity.ok(body)
     }

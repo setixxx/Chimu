@@ -13,16 +13,17 @@ class RegistrationService(
     private val userRepository: UserRepository,
     private val passwordEncoder: PasswordEncoder
 ) {
-    fun register(email: String, rawPassword: String): User{
+    fun register(email: String, rawPassword: String): User {
         val encodedPassword = passwordEncoder.encode(rawPassword)
         if (userRepository.findByEmail(email) != null) {
             throw EmailAlreadyExistsException("User with email $email already exists")
         }
+
         val user = User(
             email = email,
             passwordHash = encodedPassword,
             role = UserRole.PARTICIPANT,
-            displayName = email.substringBefore("@"),
+            nickname = email.substringBefore("@"),
             createdAt = Instant.now()
         )
 

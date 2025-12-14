@@ -18,7 +18,7 @@ ALTER TABLE users
 DROP COLUMN IF EXISTS display_name,
     ADD COLUMN first_name VARCHAR(100),
     ADD COLUMN last_name VARCHAR(100),
-    ADD COLUMN nickname VARCHAR(50),
+    ADD COLUMN nickname VARCHAR(50) NOT NULL,
     ADD COLUMN bio TEXT,
     ADD COLUMN primary_role user_primary_role,
     ADD COLUMN skills TEXT[],
