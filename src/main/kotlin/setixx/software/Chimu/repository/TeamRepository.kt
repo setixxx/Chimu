@@ -11,6 +11,8 @@ interface TeamRepository : JpaRepository<Team, Long> {
 
     fun findByInviteToken(inviteToken: String): Team?
 
+    fun findByName(name: String): Team?
+
     fun findAllByLeaderId(leaderId: Long): List<Team>
 
     @Query("""

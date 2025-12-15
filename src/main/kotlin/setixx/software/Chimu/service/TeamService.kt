@@ -26,6 +26,10 @@ class TeamService(
         val user = userRepository.findById(userId)
             .orElseThrow { IllegalArgumentException("User not found") }
 
+        if (teamRepository.findByName(request.name) != null) {
+            throw IllegalArgumentException("Team with name '${request.name}' already exists")
+        }
+
         val inviteToken = generateInviteToken()
 
         val team = Team(
@@ -37,7 +41,6 @@ class TeamService(
 
         val savedTeam = teamRepository.save(team)
 
-        // Автоматически добавляем создателя в команду
         val teamMember = TeamMember(
             teamId = savedTeam.id!!,
             userId = userId,
@@ -109,7 +112,15 @@ class TeamService(
             throw IllegalArgumentException("Only team leader can update team information")
         }
 
-        request.name?.let { team.name = it }
+        request.name?.let { newName ->
+            if (newName != team.name) {
+                val existingTeam = teamRepository.findByName(newName)
+                if (existingTeam != null && existingTeam.id != teamId) {
+                    throw IllegalArgumentException("Team with name '$newName' already exists")
+                }
+                team.name = newName
+            }
+        }
         request.description?.let { team.description = it }
 
         teamRepository.save(team)
@@ -186,6 +197,36 @@ class TeamService(
         val team = teamRepository.findByPublicId(UUID.fromString(teamPublicId))
             ?: throw IllegalArgumentException("Team not found")
         deleteTeam(team.id!!, userId)
+    }
+
+    @Transactional
+    fun kickMember(teamId: Long, leaderId: Long, memberPublicId: String) {
+        val team = teamRepository.findById(teamId)
+            .orElseThrow { IllegalArgumentException("Team not found") }
+
+        if (team.leaderId != leaderId) {
+            throw IllegalArgumentException("Only team leader can kick members")
+        }
+
+        val memberUser = userRepository.findByPublicId(UUID.fromString(memberPublicId))
+            ?: throw IllegalArgumentException("User not found")
+
+        if (memberUser.id == leaderId) {
+            throw IllegalArgumentException("Team leader cannot kick themselves")
+        }
+
+        if (!teamMemberRepository.existsByTeamIdAndUserId(teamId, memberUser.id!!)) {
+            throw IllegalArgumentException("User is not a member of this team")
+        }
+
+        teamMemberRepository.deleteByTeamIdAndUserId(teamId, memberUser.id!!)
+    }
+
+    @Transactional
+    fun kickMemberByPublicId(teamPublicId: String, leaderId: Long, memberPublicId: String) {
+        val team = teamRepository.findByPublicId(UUID.fromString(teamPublicId))
+            ?: throw IllegalArgumentException("Team not found")
+        kickMember(team.id!!, leaderId, memberPublicId)
     }
 
     @Transactional

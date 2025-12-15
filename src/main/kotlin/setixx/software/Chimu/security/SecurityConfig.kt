@@ -49,7 +49,8 @@ class SecurityConfig(
                         "/api/users/change-password",
                         "/api/auth/logout",
                         "/api/teams/**",
-                        "/api/specializations"
+                        "/api/specializations",
+                        "/api/skills"
                     )
                     .authenticated()
                     .anyRequest()

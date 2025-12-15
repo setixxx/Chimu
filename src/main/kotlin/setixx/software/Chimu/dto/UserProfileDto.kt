@@ -39,3 +39,8 @@ data class UpdateProfileRequest(
 
     val skillIds: List<Long>? = null
 )
+
+data class SkillResponse(
+    val id: Long,
+    val name: String
+)

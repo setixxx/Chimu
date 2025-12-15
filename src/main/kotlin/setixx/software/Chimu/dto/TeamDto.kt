@@ -1,11 +1,16 @@
 package setixx.software.Chimu.dto
 
 import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.Pattern
 import jakarta.validation.constraints.Size
 
 data class CreateTeamRequest(
     @field:NotBlank(message = "Team name is required")
     @field:Size(min = 3, max = 100, message = "Team name must be between 3 and 100 characters")
+    @field:Pattern(
+        regexp = "^[a-zA-Z0-9]+( [a-zA-Z0-9]+)*$",
+        message = "Team name can only contain letters, numbers, and single spaces between words"
+    )
     val name: String,
 
     @field:Size(max = 1000, message = "Description must not exceed 1000 characters")
@@ -14,6 +19,10 @@ data class CreateTeamRequest(
 
 data class UpdateTeamRequest(
     @field:Size(min = 3, max = 100, message = "Team name must be between 3 and 100 characters")
+    @field:Pattern(
+        regexp = "^[a-zA-Z0-9]+( [a-zA-Z0-9]+)*$",
+        message = "Team name can only contain letters, numbers, and single spaces between words"
+    )
     val name: String? = null,
 
     @field:Size(max = 1000, message = "Description must not exceed 1000 characters")
@@ -52,6 +61,11 @@ data class TeamMemberResponse(
 data class JoinTeamRequest(
     @field:NotBlank(message = "Invite token is required")
     val inviteToken: String
+)
+
+data class KickMemberRequest(
+    @field:NotBlank(message = "User ID is required")
+    val userId: String
 )
 
 data class UpdateMemberSpecializationRequest(

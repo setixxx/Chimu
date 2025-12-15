@@ -64,15 +64,15 @@ class TeamController(
         return ResponseEntity.ok(team)
     }
 
-    @PostMapping("/join")
+    @PostMapping("/{inviteToken}")
     fun joinTeam(
         @AuthenticationPrincipal userDetails: CustomUserDetails,
-        @Valid @RequestBody request: JoinTeamRequest
+        @PathVariable inviteToken: String
     ): ResponseEntity<TeamDetailsResponse> {
         val user = userRepository.findByPublicId(userDetails.publicId)
             ?: throw IllegalStateException("User not found")
 
-        val team = teamService.joinTeamByToken(user.id!!, request.inviteToken)
+        val team = teamService.joinTeamByToken(user.id!!, inviteToken)
         return ResponseEntity.ok(team)
     }
 
@@ -98,6 +98,19 @@ class TeamController(
 
         teamService.deleteTeamByPublicId(teamId, user.id!!)
         return ResponseEntity.ok(mapOf("message" to "Team successfully deleted"))
+    }
+
+    @DeleteMapping("/{teamId}/members/{userId}")
+    fun kickMember(
+        @AuthenticationPrincipal userDetails: CustomUserDetails,
+        @PathVariable teamId: String,
+        @PathVariable userId: String
+    ): ResponseEntity<Map<String, String>> {
+        val leader = userRepository.findByPublicId(userDetails.publicId)
+            ?: throw IllegalStateException("User not found")
+
+        teamService.kickMemberByPublicId(teamId, leader.id!!, userId)
+        return ResponseEntity.ok(mapOf("message" to "Member successfully kicked from team"))
     }
 
     @PatchMapping("/{teamId}/specialization")
