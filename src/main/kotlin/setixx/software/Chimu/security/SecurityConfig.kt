@@ -43,8 +43,13 @@ class SecurityConfig(
                     .permitAll()
                     .requestMatchers(
                         "/api/users/me",
+                        "/api/users/profile",
+                        "/api/users/email",
+                        "/api/users/skills/**",
                         "/api/users/change-password",
-                        "/api/auth/logout"
+                        "/api/auth/logout",
+                        "/api/teams/**",
+                        "/api/specializations"
                     )
                     .authenticated()
                     .anyRequest()

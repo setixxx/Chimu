@@ -7,15 +7,18 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.web.bind.annotation.*
 import setixx.software.Chimu.domain.User
-import setixx.software.Chimu.dto.ChangePasswordRequest
-import setixx.software.Chimu.dto.ChangePasswordResponse
-import setixx.software.Chimu.dto.UserProfileResponse
+import setixx.software.Chimu.dto.*
+import setixx.software.Chimu.security.CustomUserDetails
 import setixx.software.Chimu.service.UserService
+import setixx.software.Chimu.service.SpecializationService
+import setixx.software.Chimu.repository.UserRepository
 
 @RestController
 @RequestMapping("/api/users")
 class UserController(
-    private val userService: UserService
+    private val userService: UserService,
+    private val specializationService: SpecializationService,
+    private val userRepository: UserRepository
 ) {
     @GetMapping("/{publicId}")
     fun getUserById(@PathVariable publicId: String): User? {
@@ -28,16 +31,50 @@ class UserController(
     ): ResponseEntity<UserProfileResponse> {
         val user = userService.getCurrentUser(userDetails.username)
 
+        val specialization = user.specializationId?.let { specId ->
+            val spec = specializationService.getSpecializationById(specId)
+            SpecializationResponse(spec.id!!, spec.name, spec.description)
+        }
+
         val body = UserProfileResponse(
             id = user.publicId.toString(),
             email = user.email,
             nickname = user.nickname,
             firstName = user.firstName,
             lastName = user.lastName,
-            primaryRole = user.primaryRole,
+            specialization = specialization,
             avatarUrl = user.avatarUrl,
             createdAt = user.createdAt.toString(),
             skills = user.skills.map { it.name }
+        )
+        return ResponseEntity.ok(body)
+    }
+
+    @PatchMapping("/me")
+    fun updateProfile(
+        @AuthenticationPrincipal userDetails: CustomUserDetails,
+        @Valid @RequestBody request: UpdateProfileRequest
+    ): ResponseEntity<UserProfileResponse> {
+        val user = userRepository.findByPublicId(userDetails.publicId)
+            ?: throw IllegalStateException("User not found")
+
+        val updatedUser = userService.updateProfile(user.id!!, request)
+
+        val specialization = updatedUser.specializationId?.let { specId ->
+            val spec = specializationService.getSpecializationById(specId)
+            SpecializationResponse(spec.id!!, spec.name, spec.description)
+        }
+
+        val body = UserProfileResponse(
+            id = updatedUser.publicId.toString(),
+            email = updatedUser.email,
+            nickname = updatedUser.nickname,
+            firstName = updatedUser.firstName,
+            lastName = updatedUser.lastName,
+            specialization = specialization,
+            avatarUrl = updatedUser.avatarUrl,
+            createdAt = updatedUser.createdAt.toString(),
+            skills = updatedUser.skills.map { it.name }
         )
         return ResponseEntity.ok(body)
     }

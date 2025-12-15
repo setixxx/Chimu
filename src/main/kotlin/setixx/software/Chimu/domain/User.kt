@@ -1,8 +1,6 @@
 package setixx.software.Chimu.domain
 
 import jakarta.persistence.*
-import org.hibernate.annotations.JdbcTypeCode
-import org.hibernate.type.SqlTypes
 import java.time.Instant
 import java.util.UUID
 
@@ -13,6 +11,9 @@ import java.util.UUID
         UniqueConstraint(name = "uq_users_public_id", columnNames = ["public_id"]),
         UniqueConstraint(name = "uq_users_email", columnNames = ["email"]),
         UniqueConstraint(name = "uq_users_nickname", columnNames = ["nickname"])
+    ],
+    indexes = [
+        Index(name = "idx_users_specialization_id", columnList = "specialization_id")
     ]
 )
 class User(
@@ -45,10 +46,8 @@ class User(
     @Column(name = "bio", columnDefinition = "text")
     var bio: String? = null,
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "primary_role")
-    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
-    var primaryRole: UserPrimaryRole? = null,
+    @Column(name = "specialization_id")
+    var specializationId: Long? = null,
 
     @Column(name = "github_url")
     var githubUrl: String? = null,
