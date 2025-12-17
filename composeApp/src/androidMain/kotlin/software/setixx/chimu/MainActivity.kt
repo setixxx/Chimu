@@ -6,6 +6,12 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
+import org.koin.android.ext.koin.androidContext
+import org.koin.compose.KoinApplication
+import software.setixx.chimu.di.appModule
+import software.setixx.chimu.di.platformModule
+import software.setixx.chimu.presentation.navigation.AppNavigation
+import software.setixx.chimu.presentation.theme.ChimuTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -13,7 +19,16 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-            App()
+            KoinApplication(
+                application = {
+                    androidContext(this@MainActivity)
+                    modules(platformModule(), appModule)
+                }
+            ) {
+                ChimuTheme(darkTheme = true) {
+                    AppNavigation()
+                }
+            }
         }
     }
 }
@@ -21,5 +36,7 @@ class MainActivity : ComponentActivity() {
 @Preview
 @Composable
 fun AppAndroidPreview() {
-    App()
+    ChimuTheme {
+        AppNavigation()
+    }
 }
