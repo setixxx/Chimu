@@ -1,1 +1,1 @@
-rootProject.name = "Chimu"
+rootProject.name = "chimu-api"
