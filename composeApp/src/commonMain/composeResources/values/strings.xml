@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">Chimu</string>
+    <string name="sign_in_title">Log in to your\n Chimu account</string>
+    <string name="sign_up_title">Create a Chimu account</string>
+    <string name="email_hint">Email address</string>
+    <string name="password_hint">Password</string>
+    <string name="password_confirm_hint">Password confirmation</string>
+    <string name="remember_user_title">Remember me</string>
+    <string name="sign_in_button">Sign in</string>
+    <string name="sign_up_button">Create account</string>
+    <string name="hide_password_hint">Hide password</string>
+    <string name="show_password_hint">Show password</string>
+    <string name="weak_password_label">Weak password</string>
+    <string name="medium_password_label">Medium password</string>
+    <string name="strong_password_label">Strong password</string>
+</resources>

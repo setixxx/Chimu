@@ -1,10 +1,19 @@
 package software.setixx.chimu.data.remote
 
-import io.ktor.client.*
-import io.ktor.client.call.*
-import io.ktor.client.request.*
-import io.ktor.http.*
-import software.setixx.chimu.data.remote.dto.*
+import io.ktor.client.HttpClient
+import io.ktor.client.call.body
+import io.ktor.client.request.get
+import io.ktor.client.request.header
+import io.ktor.client.request.post
+import io.ktor.client.request.setBody
+import io.ktor.http.HttpHeaders
+import software.setixx.chimu.data.remote.dto.AuthResponse
+import software.setixx.chimu.data.remote.dto.LoginRequest
+import software.setixx.chimu.data.remote.dto.RefreshTokenRequest
+import software.setixx.chimu.data.remote.dto.RegisterRequest
+import software.setixx.chimu.data.remote.dto.RegisterResponse
+import software.setixx.chimu.data.remote.dto.TokenResponse
+import software.setixx.chimu.data.remote.dto.UserProfileResponse
 
 class AuthApi(private val client: HttpClient) {
 

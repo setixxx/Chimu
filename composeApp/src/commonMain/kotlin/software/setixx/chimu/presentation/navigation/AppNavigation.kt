@@ -1,9 +1,11 @@
 package software.setixx.chimu.presentation.navigation
 
+import androidx.annotation.FloatRange
 import androidx.compose.runtime.*
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import software.setixx.chimu.getPlatform
 import software.setixx.chimu.presentation.auth.login.LoginScreen
 import software.setixx.chimu.presentation.auth.register.RegisterScreen
 import software.setixx.chimu.presentation.home.HomeScreen
@@ -41,7 +43,8 @@ fun AppNavigation() {
                     navController.navigate(Screen.Home) {
                         popUpTo(Screen.Login) { inclusive = true }
                     }
-                }
+                },
+                platformSizeModifier = calculatePlatformSizeModifier()
             )
         }
 
@@ -54,7 +57,8 @@ fun AppNavigation() {
                     navController.navigate(Screen.Login) {
                         popUpTo(Screen.Register) { inclusive = true }
                     }
-                }
+                },
+                platformSizeModifier = calculatePlatformSizeModifier()
             )
         }
 
@@ -68,4 +72,11 @@ fun AppNavigation() {
             )
         }
     }
+}
+
+fun calculatePlatformSizeModifier() : Float {
+    return if (getPlatform().name == "Android" || getPlatform().name == "iOS") {
+        0.35f
+    } else
+        0f
 }

@@ -11,10 +11,13 @@ import io.ktor.serialization.kotlinx.json.*
 import io.ktor.http.*
 import kotlinx.serialization.json.Json
 import software.setixx.chimu.data.local.TokenStorage
+import software.setixx.chimu.getPlatform
 
 class KtorClient(
-    private val tokenStorage: TokenStorage
+    private val tokenStorage: TokenStorage,
 ) {
+    private var address: String = if (getPlatform().name == "Android") "10.0.2.2" else "localhost"
+
     val httpClient = HttpClient {
         install(ContentNegotiation) {
             json(Json {
@@ -37,7 +40,7 @@ class KtorClient(
         defaultRequest {
             url {
                 protocol = URLProtocol.HTTP
-                host = "localhost"
+                host = address
                 port = 8080
             }
             contentType(ContentType.Application.Json)
