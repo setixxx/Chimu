@@ -5,6 +5,7 @@ import org.springframework.transaction.annotation.Transactional
 import software.setixx.chimu.api.domain.Team
 import software.setixx.chimu.api.domain.TeamMember
 import software.setixx.chimu.api.domain.User
+import software.setixx.chimu.api.domain.UserRole
 import software.setixx.chimu.api.dto.CreateTeamRequest
 import software.setixx.chimu.api.dto.SpecializationResponse
 import software.setixx.chimu.api.dto.TeamDetailsResponse
@@ -33,6 +34,10 @@ class TeamService(
 
         if (teamRepository.findByName(request.name) != null) {
             throw IllegalArgumentException("Team with name '${request.name}' already exists")
+        }
+
+        if (user.role != UserRole.PARTICIPANT && user.role != UserRole.ADMIN) {
+            throw IllegalArgumentException("Only participant or admin can create a team")
         }
 
         val inviteToken = generateInviteToken()
@@ -151,6 +156,10 @@ class TeamService(
 
         val user = userRepository.findById(userId)
             .orElseThrow { IllegalArgumentException("User not found") }
+
+        if (user.role != UserRole.PARTICIPANT && user.role != UserRole.ADMIN) {
+            throw IllegalArgumentException("Only participant or admin can join to the team")
+        }
 
         val teamMember = TeamMember(
             teamId = team.id!!,

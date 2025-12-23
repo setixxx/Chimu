@@ -77,6 +77,5 @@ enum class UserRole {
     PARTICIPANT,
     ORGANIZER,
     JUDGE,
-    ADMIN,
-    GUEST
+    ADMIN
 }
