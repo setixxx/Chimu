@@ -19,6 +19,8 @@ import software.setixx.chimu.api.repository.JamTeamRegistrationRepository
 import software.setixx.chimu.api.repository.ProjectRepository
 import software.setixx.chimu.api.repository.RatingCriteriaRepository
 import software.setixx.chimu.api.repository.UserRepository
+import java.time.Duration
+import java.time.Instant
 import java.util.UUID
 
 @Service
@@ -40,7 +42,14 @@ class GameJamService(
             throw IllegalArgumentException("Only organizers can create game jams")
         }
 
-        validateDates(request.startDate, request.endDate, request.submissionDeadline, request.judgingEndDate)
+        validateDates(
+            request.registrationStart,
+            request.registrationEnd,
+            request.jamStart,
+            request.jamEnd,
+            request.judgingStart,
+            request.judgingEnd
+        )
         validateTeamSizes(request.minTeamSize, request.maxTeamSize)
 
         val gameJam = GameJam(
@@ -49,13 +58,15 @@ class GameJamService(
             description = request.description,
             theme = request.theme,
             rules = request.rules,
-            startDate = request.startDate,
-            endDate = request.endDate,
-            submissionDeadline = request.submissionDeadline,
-            judgingEndDate = request.judgingEndDate,
+            registrationStart = request.registrationStart,
+            registrationEnd = request.registrationEnd,
+            jamStart = request.jamStart,
+            jamEnd = request.jamEnd,
+            judgingStart = request.judgingStart,
+            judgingEnd = request.judgingEnd,
             minTeamSize = request.minTeamSize,
             maxTeamSize = request.maxTeamSize,
-            status = GameJamStatus.DRAFT
+            status = GameJamStatus.REGISTRATION_OPEN
         )
 
         val saved = gameJamRepository.save(gameJam)
@@ -97,7 +108,7 @@ class GameJamService(
             throw IllegalArgumentException("Only the organizer or admin can update this game jam")
         }
 
-        if (jam.status !in listOf(GameJamStatus.DRAFT, GameJamStatus.ANNOUNCED)) {
+        if (jam.status !in listOf(GameJamStatus.REGISTRATION_OPEN, GameJamStatus.REGISTRATION_CLOSED)) {
             throw IllegalArgumentException("Cannot update game jam after it has started")
         }
 
@@ -105,14 +116,23 @@ class GameJamService(
         request.description?.let { jam.description = it }
         request.theme?.let { jam.theme = it }
         request.rules?.let { jam.rules = it }
-        request.startDate?.let { jam.startDate = it }
-        request.endDate?.let { jam.endDate = it }
-        request.submissionDeadline?.let { jam.submissionDeadline = it }
-        request.judgingEndDate?.let { jam.judgingEndDate = it }
+        request.registrationStart?.let { jam.registrationStart = it }
+        request.registrationEnd?.let { jam.registrationEnd = it }
+        request.jamStart?.let { jam.jamStart = it }
+        request.jamEnd?.let { jam.jamEnd = it }
+        request.judgingStart?.let { jam.judgingStart = it }
+        request.judgingEnd?.let { jam.judgingEnd = it }
         request.minTeamSize?.let { jam.minTeamSize = it }
         request.maxTeamSize?.let { jam.maxTeamSize = it }
 
-        validateDates(jam.startDate, jam.endDate, jam.submissionDeadline, jam.judgingEndDate)
+        validateDates(
+            jam.registrationStart,
+            jam.registrationEnd,
+            jam.jamStart,
+            jam.jamEnd,
+            jam.judgingStart,
+            jam.judgingEnd
+        )
         validateTeamSizes(jam.minTeamSize, jam.maxTeamSize)
 
         gameJamRepository.save(jam)
@@ -152,23 +172,40 @@ class GameJamService(
             throw IllegalArgumentException("Only the organizer or admin can delete this game jam")
         }
 
-        if (jam.status !in listOf(GameJamStatus.DRAFT, GameJamStatus.ANNOUNCED)) {
+        if (jam.status !in listOf(GameJamStatus.REGISTRATION_OPEN, GameJamStatus.REGISTRATION_CLOSED)) {
             throw IllegalArgumentException("Cannot delete game jam after it has started")
         }
 
         gameJamRepository.delete(jam)
     }
 
-    private fun validateDates(start: java.time.Instant, end: java.time.Instant,
-                              submission: java.time.Instant, judging: java.time.Instant?) {
-        if (start >= end) {
-            throw IllegalArgumentException("Start date must be before end date")
+    private fun validateDates(
+        registrationStart: Instant,
+        registrationEnd: Instant,
+        jamStart: Instant,
+        jamEnd: Instant,
+        judgingStart: Instant,
+        judgingEnd: Instant
+    ) {
+        if (registrationStart >= registrationEnd) {
+            throw IllegalArgumentException("Registration start must be before registration end")
         }
-        if (submission < end) {
-            throw IllegalArgumentException("Submission deadline must be after or equal to end date")
+        if (registrationEnd > jamStart) {
+            throw IllegalArgumentException("Registration end must be before or equal to jam start")
         }
-        if (judging != null && judging < submission) {
-            throw IllegalArgumentException("Judging end date must be after submission deadline")
+        if (jamStart >= jamEnd) {
+            throw IllegalArgumentException("Jam start must be before jam end")
+        }
+        if (jamEnd > judgingStart) {
+            throw IllegalArgumentException("Jam end must be before or equal to judging start")
+        }
+        if (judgingStart >= judgingEnd) {
+            throw IllegalArgumentException("Judging start must be before judging end")
+        }
+
+        val registrationDuration = Duration.between(registrationStart, registrationEnd)
+        if (registrationDuration.toMinutes() < 30) {
+            throw IllegalArgumentException("Registration period must be at least 30 minutes")
         }
     }
 
@@ -183,10 +220,22 @@ class GameJamService(
 
     private fun validateStatusTransition(current: GameJamStatus, new: GameJamStatus) {
         val validTransitions = mapOf(
-            GameJamStatus.DRAFT to listOf(GameJamStatus.ANNOUNCED, GameJamStatus.CANCELLED),
-            GameJamStatus.ANNOUNCED to listOf(GameJamStatus.IN_PROGRESS, GameJamStatus.CANCELLED),
-            GameJamStatus.IN_PROGRESS to listOf(GameJamStatus.JUDGING, GameJamStatus.CANCELLED),
-            GameJamStatus.JUDGING to listOf(GameJamStatus.COMPLETED, GameJamStatus.CANCELLED),
+            GameJamStatus.REGISTRATION_OPEN to listOf(
+                GameJamStatus.REGISTRATION_CLOSED,
+                GameJamStatus.CANCELLED
+            ),
+            GameJamStatus.REGISTRATION_CLOSED to listOf(
+                GameJamStatus.IN_PROGRESS,
+                GameJamStatus.CANCELLED
+            ),
+            GameJamStatus.IN_PROGRESS to listOf(
+                GameJamStatus.JUDGING,
+                GameJamStatus.CANCELLED
+            ),
+            GameJamStatus.JUDGING to listOf(
+                GameJamStatus.COMPLETED,
+                GameJamStatus.CANCELLED
+            ),
             GameJamStatus.COMPLETED to emptyList(),
             GameJamStatus.CANCELLED to emptyList()
         )
@@ -202,9 +251,12 @@ class GameJamService(
             name = jam.name,
             description = jam.description,
             theme = jam.theme,
-            startDate = jam.startDate.toString(),
-            endDate = jam.endDate.toString(),
-            submissionDeadline = jam.submissionDeadline.toString(),
+            registrationStart = jam.registrationStart.toString(),
+            registrationEnd = jam.registrationEnd.toString(),
+            jamStart = jam.jamStart.toString(),
+            jamEnd = jam.jamEnd.toString(),
+            judgingStart = jam.judgingStart.toString(),
+            judgingEnd = jam.judgingEnd.toString(),
             status = jam.status,
             organizerId = organizer.publicId.toString(),
             organizerNickname = organizer.nickname,
@@ -240,10 +292,12 @@ class GameJamService(
             description = jam.description,
             theme = jam.theme,
             rules = jam.rules,
-            startDate = jam.startDate.toString(),
-            endDate = jam.endDate.toString(),
-            submissionDeadline = jam.submissionDeadline.toString(),
-            judgingEndDate = jam.judgingEndDate?.toString(),
+            registrationStart = jam.registrationStart.toString(),
+            registrationEnd = jam.registrationEnd.toString(),
+            jamStart = jam.jamStart.toString(),
+            jamEnd = jam.jamEnd.toString(),
+            judgingStart = jam.judgingStart.toString(),
+            judgingEnd = jam.judgingEnd.toString(),
             status = jam.status,
             organizerId = organizer.publicId.toString(),
             organizerNickname = organizer.nickname,

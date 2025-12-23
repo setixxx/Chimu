@@ -18,38 +18,52 @@ interface GameJamRepository : JpaRepository<GameJam, Long> {
     @Query("""
         SELECT gj FROM GameJam gj 
         WHERE gj.status IN :statuses 
-        ORDER BY gj.startDate ASC
+        ORDER BY gj.registrationStart ASC
     """)
     fun findAllByStatusIn(@Param("statuses") statuses: List<GameJamStatus>): List<GameJam>
 
     @Query("""
         SELECT gj FROM GameJam gj 
-        WHERE gj.startDate > :now 
-        AND gj.status IN ('ANNOUNCED', 'DRAFT')
-        ORDER BY gj.startDate ASC
+        WHERE gj.registrationStart > :now 
+        AND gj.status = 'REGISTRATION_OPEN'
+        ORDER BY gj.registrationStart ASC
     """)
     fun findUpcomingJams(@Param("now") now: Instant = Instant.now()): List<GameJam>
 
     @Query("""
         SELECT gj FROM GameJam gj 
         WHERE gj.status = 'IN_PROGRESS' 
-        AND gj.startDate <= :now 
-        AND gj.endDate >= :now
-        ORDER BY gj.endDate ASC
+        AND gj.jamStart <= :now 
+        AND gj.jamEnd >= :now
+        ORDER BY gj.jamEnd ASC
     """)
     fun findActiveJams(@Param("now") now: Instant = Instant.now()): List<GameJam>
 
     @Query("""
         SELECT gj FROM GameJam gj 
-        WHERE gj.status = 'ANNOUNCED' 
-        AND gj.startDate <= :now
+        WHERE gj.status = 'REGISTRATION_OPEN' 
+        AND gj.registrationEnd <= :now
+    """)
+    fun findJamsToCloseRegistration(@Param("now") now: Instant = Instant.now()): List<GameJam>
+
+    @Query("""
+        SELECT gj FROM GameJam gj 
+        WHERE gj.status = 'REGISTRATION_CLOSED' 
+        AND gj.jamStart <= :now
     """)
     fun findJamsToStart(@Param("now") now: Instant = Instant.now()): List<GameJam>
 
     @Query("""
         SELECT gj FROM GameJam gj 
         WHERE gj.status = 'IN_PROGRESS' 
-        AND gj.submissionDeadline <= :now
+        AND gj.judgingStart <= :now
     """)
     fun findJamsToStartJudging(@Param("now") now: Instant = Instant.now()): List<GameJam>
+
+    @Query("""
+        SELECT gj FROM GameJam gj 
+        WHERE gj.status = 'JUDGING' 
+        AND gj.judgingEnd <= :now
+    """)
+    fun findJamsToComplete(@Param("now") now: Instant = Instant.now()): List<GameJam>
 }

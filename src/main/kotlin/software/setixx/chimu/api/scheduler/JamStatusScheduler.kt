@@ -19,12 +19,23 @@ class JamStatusScheduler(
         logger.info("Starting automatic jam status update")
 
         try {
+            var totalUpdated = 0
+
+            val jamsToCloseRegistration = gameJamRepository.findJamsToCloseRegistration()
+            jamsToCloseRegistration.forEach { jam ->
+                jam.status = GameJamStatus.REGISTRATION_CLOSED
+                gameJamRepository.save(jam)
+                logger.info("Changed jam ${jam.name} (${jam.publicId}) status to REGISTRATION_CLOSED")
+            }
+            totalUpdated += jamsToCloseRegistration.size
+
             val jamsToStart = gameJamRepository.findJamsToStart()
             jamsToStart.forEach { jam ->
                 jam.status = GameJamStatus.IN_PROGRESS
                 gameJamRepository.save(jam)
                 logger.info("Changed jam ${jam.name} (${jam.publicId}) status to IN_PROGRESS")
             }
+            totalUpdated += jamsToStart.size
 
             val jamsToJudge = gameJamRepository.findJamsToStartJudging()
             jamsToJudge.forEach { jam ->
@@ -32,8 +43,23 @@ class JamStatusScheduler(
                 gameJamRepository.save(jam)
                 logger.info("Changed jam ${jam.name} (${jam.publicId}) status to JUDGING")
             }
+            totalUpdated += jamsToJudge.size
 
-            logger.info("Automatic jam status update completed. Started: ${jamsToStart.size}, Judging: ${jamsToJudge.size}")
+            val jamsToComplete = gameJamRepository.findJamsToComplete()
+            jamsToComplete.forEach { jam ->
+                jam.status = GameJamStatus.COMPLETED
+                gameJamRepository.save(jam)
+                logger.info("Changed jam ${jam.name} (${jam.publicId}) status to COMPLETED")
+            }
+            totalUpdated += jamsToComplete.size
+
+            logger.info(
+                "Automatic jam status update completed. Total updated: $totalUpdated " +
+                        "(Closed registration: ${jamsToCloseRegistration.size}, " +
+                        "Started: ${jamsToStart.size}, " +
+                        "Judging: ${jamsToJudge.size}, " +
+                        "Completed: ${jamsToComplete.size})"
+            )
         } catch (e: Exception) {
             logger.error("Error during automatic jam status update", e)
         }

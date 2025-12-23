@@ -18,16 +18,23 @@ data class CreateGameJamRequest(
     @field:Size(max = 5000, message = "Rules must not exceed 5000 characters")
     val rules: String? = null,
 
-    @field:NotNull(message = "Start date is required")
-    val startDate: Instant,
+    @field:NotNull(message = "Registration start date is required")
+    val registrationStart: Instant,
 
-    @field:NotNull(message = "End date is required")
-    val endDate: Instant,
+    @field:NotNull(message = "Registration end date is required")
+    val registrationEnd: Instant,
 
-    @field:NotNull(message = "Submission deadline is required")
-    val submissionDeadline: Instant,
+    @field:NotNull(message = "Jam start date is required")
+    val jamStart: Instant,
 
-    val judgingEndDate: Instant? = null,
+    @field:NotNull(message = "Jam end date is required")
+    val jamEnd: Instant,
+
+    @field:NotNull(message = "Judging start date is required")
+    val judgingStart: Instant,
+
+    @field:NotNull(message = "Judging end date is required")
+    val judgingEnd: Instant,
 
     @field:Min(value = 1, message = "Minimum team size must be at least 1")
     @field:Max(value = 100, message = "Minimum team size must not exceed 100")
@@ -51,13 +58,17 @@ data class UpdateGameJamRequest(
     @field:Size(max = 5000, message = "Rules must not exceed 5000 characters")
     val rules: String? = null,
 
-    val startDate: Instant? = null,
+    val registrationStart: Instant? = null,
 
-    val endDate: Instant? = null,
+    val registrationEnd: Instant? = null,
 
-    val submissionDeadline: Instant? = null,
+    val jamStart: Instant? = null,
 
-    val judgingEndDate: Instant? = null,
+    val jamEnd: Instant? = null,
+
+    val judgingStart: Instant? = null,
+
+    val judgingEnd: Instant? = null,
 
     @field:Min(value = 1, message = "Minimum team size must be at least 1")
     @field:Max(value = 100, message = "Minimum team size must not exceed 100")
@@ -78,9 +89,12 @@ data class GameJamResponse(
     val name: String,
     val description: String?,
     val theme: String?,
-    val startDate: String,
-    val endDate: String,
-    val submissionDeadline: String,
+    val registrationStart: String,
+    val registrationEnd: String,
+    val jamStart: String,
+    val jamEnd: String,
+    val judgingStart: String,
+    val judgingEnd: String,
     val status: GameJamStatus,
     val organizerId: String,
     val organizerNickname: String,
@@ -96,10 +110,12 @@ data class GameJamDetailsResponse(
     val description: String?,
     val theme: String?,
     val rules: String?,
-    val startDate: String,
-    val endDate: String,
-    val submissionDeadline: String,
-    val judgingEndDate: String?,
+    val registrationStart: String,
+    val registrationEnd: String,
+    val jamStart: String,
+    val jamEnd: String,
+    val judgingStart: String,
+    val judgingEnd: String,
     val status: GameJamStatus,
     val organizerId: String,
     val organizerNickname: String,

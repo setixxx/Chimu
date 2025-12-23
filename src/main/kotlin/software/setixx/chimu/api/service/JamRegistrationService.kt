@@ -37,7 +37,7 @@ class JamRegistrationService(
             throw IllegalArgumentException("Only team leader can register the team")
         }
 
-        if (jam.status != GameJamStatus.ANNOUNCED) {
+        if (jam.status != GameJamStatus.REGISTRATION_OPEN) {
             throw IllegalArgumentException("Game jam is not open for registration")
         }
 
@@ -148,8 +148,8 @@ class JamRegistrationService(
             throw IllegalArgumentException("Registration is already withdrawn")
         }
 
-        if (jam.status !in listOf(GameJamStatus.ANNOUNCED, GameJamStatus.DRAFT)) {
-            throw IllegalArgumentException("Cannot withdraw registration after jam has started")
+        if (jam.status != GameJamStatus.REGISTRATION_OPEN) {
+            throw IllegalArgumentException("Game jam is not open for registration")
         }
 
         registration.status = RegistrationStatus.WITHDRAWN

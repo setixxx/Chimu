@@ -15,7 +15,9 @@ import java.util.UUID
     indexes = [
         Index(name = "idx_game_jams_organizer_id", columnList = "organizer_id"),
         Index(name = "idx_game_jams_status", columnList = "status"),
-        Index(name = "idx_game_jams_dates", columnList = "start_date,end_date"),
+        Index(name = "idx_game_jams_registration_dates", columnList = "registration_start,registration_end"),
+        Index(name = "idx_game_jams_jam_dates", columnList = "jam_start,jam_end"),
+        Index(name = "idx_game_jams_judging_dates", columnList = "judging_start,judging_end"),
         Index(name = "idx_game_jams_created_at", columnList = "created_at")
     ]
 )
@@ -42,17 +44,23 @@ class GameJam(
     @Column(columnDefinition = "TEXT")
     var rules: String? = null,
 
-    @Column(name = "start_date", nullable = false)
-    var startDate: Instant,
+    @Column(name = "registration_start", nullable = false)
+    var registrationStart: Instant,
 
-    @Column(name = "end_date", nullable = false)
-    var endDate: Instant,
+    @Column(name = "registration_end", nullable = false)
+    var registrationEnd: Instant,
 
-    @Column(name = "submission_deadline", nullable = false)
-    var submissionDeadline: Instant,
+    @Column(name = "jam_start", nullable = false)
+    var jamStart: Instant,
 
-    @Column(name = "judging_end_date")
-    var judgingEndDate: Instant? = null,
+    @Column(name = "jam_end", nullable = false)
+    var jamEnd: Instant,
+
+    @Column(name = "judging_start", nullable = false)
+    var judgingStart: Instant,
+
+    @Column(name = "judging_end", nullable = false)
+    var judgingEnd: Instant,
 
     @Column(name = "max_team_size", nullable = false)
     var maxTeamSize: Int = 10,
@@ -63,7 +71,7 @@ class GameJam(
     @Column(nullable = false, columnDefinition = "game_jam_status")
     @Enumerated(EnumType.STRING)
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
-    var status: GameJamStatus = GameJamStatus.DRAFT,
+    var status: GameJamStatus = GameJamStatus.REGISTRATION_OPEN,
 
     @Column(name = "created_at", nullable = false, insertable = false, updatable = false)
     var createdAt: Instant? = null,
@@ -73,8 +81,8 @@ class GameJam(
 )
 
 enum class GameJamStatus {
-    DRAFT,
-    ANNOUNCED,
+    REGISTRATION_OPEN,
+    REGISTRATION_CLOSED,
     IN_PROGRESS,
     JUDGING,
     COMPLETED,
