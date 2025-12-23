@@ -12,6 +12,7 @@ import software.setixx.chimu.domain.usecase.*
 import software.setixx.chimu.presentation.auth.login.LoginViewModel
 import software.setixx.chimu.presentation.auth.register.RegisterViewModel
 import software.setixx.chimu.presentation.home.HomeViewModel
+import software.setixx.chimu.presentation.main.MainViewModel
 import software.setixx.chimu.presentation.splash.SplashViewModel
 
 val appModule = module {
@@ -30,5 +31,6 @@ val appModule = module {
     viewModel { LoginViewModel(get(), get()) }
     viewModel { RegisterViewModel(get()) }
     viewModel { HomeViewModel(get(), get()) }
+    viewModel { MainViewModel(get(), get()) }
     viewModel { SplashViewModel(get()) }
 }

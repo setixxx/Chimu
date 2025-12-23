@@ -1,6 +1,5 @@
 package software.setixx.chimu.presentation.navigation
 
-import androidx.annotation.FloatRange
 import androidx.compose.runtime.*
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -8,7 +7,7 @@ import androidx.navigation.compose.rememberNavController
 import software.setixx.chimu.getPlatform
 import software.setixx.chimu.presentation.auth.login.LoginScreen
 import software.setixx.chimu.presentation.auth.register.RegisterScreen
-import software.setixx.chimu.presentation.home.HomeScreen
+import software.setixx.chimu.presentation.main.MainScreen
 import software.setixx.chimu.presentation.splash.SplashScreen
 
 @Composable
@@ -63,7 +62,7 @@ fun AppNavigation() {
         }
 
         composable<Screen.Home> {
-            HomeScreen(
+            MainScreen(
                 onLogout = {
                     navController.navigate(Screen.Login) {
                         popUpTo(Screen.Home) { inclusive = true }
