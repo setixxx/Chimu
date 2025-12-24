@@ -9,12 +9,14 @@ import software.setixx.chimu.api.domain.RegistrationStatus
 import software.setixx.chimu.api.repository.GameJamRepository
 import software.setixx.chimu.api.repository.JamTeamRegistrationRepository
 import software.setixx.chimu.api.repository.TeamMemberRepository
+import software.setixx.chimu.api.service.RatingService
 
 @Component
 class JamStatusScheduler(
     private val gameJamRepository: GameJamRepository,
     private val registrationRepository: JamTeamRegistrationRepository,
-    private val teamMemberRepository: TeamMemberRepository
+    private val teamMemberRepository: TeamMemberRepository,
+    private val ratingService: RatingService
 ) {
     private val logger = LoggerFactory.getLogger(JamStatusScheduler::class.java)
 
@@ -79,6 +81,8 @@ class JamStatusScheduler(
 
             val jamsToComplete = gameJamRepository.findJamsToComplete()
             jamsToComplete.forEach { jam ->
+                ratingService.validateAndCleanupIncompleteRatings(jam.id!!)
+
                 jam.status = GameJamStatus.COMPLETED
                 gameJamRepository.save(jam)
                 logger.info("Changed jam ${jam.name} (${jam.publicId}) status to COMPLETED")

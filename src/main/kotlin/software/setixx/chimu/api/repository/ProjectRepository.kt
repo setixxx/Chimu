@@ -32,4 +32,18 @@ interface ProjectRepository : JpaRepository<Project, Long> {
         @Param("jamId") jamId: Long,
         @Param("status") status: ProjectStatus
     ): List<Project>
+
+    @Query("""
+        SELECT p FROM Project p 
+        WHERE p.jamId = :jamId 
+        AND p.status IN ('PUBLISHED')
+    """)
+    fun findPublishedProjectsByJamId(@Param("jamId") jamId: Long): List<Project>
+
+    @Query("""
+        SELECT p FROM Project p 
+        JOIN TeamMember tm ON p.teamId = tm.teamId 
+        WHERE tm.userId = :userId
+    """)
+    fun findAllByUserId(@Param("userId") userId: Long): List<Project>
 }

@@ -61,6 +61,25 @@ class SecurityConfig(
                     .requestMatchers(HttpMethod.PATCH, "/api/jams/*/registrations/**").hasAnyRole("ORGANIZER", "ADMIN")
                     .requestMatchers(HttpMethod.DELETE, "/api/jams/*/registrations/**").hasAnyRole("PARTICIPANT", "ADMIN")
 
+                    .requestMatchers(HttpMethod.POST, "/api/jams/*/projects").authenticated()
+                    .requestMatchers(HttpMethod.GET, "/api/projects/**").permitAll()
+                    .requestMatchers(HttpMethod.PATCH, "/api/projects/**").authenticated()
+                    .requestMatchers(HttpMethod.DELETE, "/api/projects/**").authenticated()
+                    .requestMatchers(HttpMethod.POST, "/api/projects/*/submit").authenticated()
+                    .requestMatchers(HttpMethod.POST, "/api/projects/*/return-draft").hasAnyRole("ORGANIZER", "ADMIN")
+                    .requestMatchers(HttpMethod.POST, "/api/projects/*/publish").hasAnyRole("ORGANIZER", "ADMIN")
+                    .requestMatchers(HttpMethod.POST, "/api/projects/*/disqualify").hasAnyRole("ORGANIZER", "ADMIN")
+
+                    .requestMatchers(HttpMethod.POST, "/api/projects/*/ratings").hasAnyRole("JUDGE", "ADMIN")
+                    .requestMatchers(HttpMethod.PATCH, "/api/ratings/**").hasAnyRole("JUDGE", "ADMIN")
+                    .requestMatchers(HttpMethod.DELETE, "/api/ratings/**").hasAnyRole("JUDGE", "ADMIN")
+                    .requestMatchers(HttpMethod.GET, "/api/projects/*/ratings").authenticated()
+                    .requestMatchers(HttpMethod.GET, "/api/projects/*/my-ratings").hasAnyRole("JUDGE", "ADMIN")
+                    .requestMatchers(HttpMethod.GET, "/api/jams/*/my-progress").hasAnyRole("JUDGE", "ADMIN")
+
+                    .requestMatchers(HttpMethod.GET, "/api/jams/*/leaderboard").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/api/jams/*/statistics").hasAnyRole("ORGANIZER", "ADMIN")
+
                     .requestMatchers(
                         "/api/users/me",
                         "/api/users/profile",
