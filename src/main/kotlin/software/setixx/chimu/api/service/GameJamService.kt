@@ -1,5 +1,6 @@
 package software.setixx.chimu.api.service
 
+import jakarta.persistence.OptimisticLockException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import software.setixx.chimu.api.domain.GameJam
@@ -40,6 +41,10 @@ class GameJamService(
 
         if (organizer.role != UserRole.ORGANIZER && organizer.role != UserRole.ADMIN) {
             throw IllegalArgumentException("Only organizers can create game jams")
+        }
+
+        if (gameJamRepository.existsByName(request.name)) {
+            throw IllegalArgumentException("Game jam with name '${request.name}' already exists")
         }
 
         validateDates(
@@ -112,7 +117,14 @@ class GameJamService(
             throw IllegalArgumentException("Cannot update game jam after it has started")
         }
 
-        request.name?.let { jam.name = it }
+        request.name?.let { newName ->
+            if (newName != jam.name) {
+                if (gameJamRepository.existsByName(newName)) {
+                    throw IllegalArgumentException("Game jam with name '$newName' already exists")
+                }
+                jam.name = newName
+            }
+        }
         request.description?.let { jam.description = it }
         request.theme?.let { jam.theme = it }
         request.rules?.let { jam.rules = it }
@@ -135,27 +147,11 @@ class GameJamService(
         )
         validateTeamSizes(jam.minTeamSize, jam.maxTeamSize)
 
-        gameJamRepository.save(jam)
-
-        val organizer = userRepository.findById(jam.organizerId).orElseThrow()
-        return toDetailsResponse(jam, organizer)
-    }
-
-    @Transactional
-    fun changeGameJamStatus(jamId: String, userId: Long, newStatus: GameJamStatus): GameJamDetailsResponse {
-        val jam = gameJamRepository.findByPublicId(UUID.fromString(jamId))
-            ?: throw IllegalArgumentException("Game jam not found")
-
-        val user = userRepository.findById(userId).orElseThrow()
-
-        if (jam.organizerId != userId && user.role != UserRole.ADMIN) {
-            throw IllegalArgumentException("Only the organizer or admin can change game jam status")
+        try {
+            gameJamRepository.save(jam)
+        } catch (e: OptimisticLockException) {
+            throw IllegalStateException("Game jam was modified by another user. Please refresh and try again.")
         }
-
-        validateStatusTransition(jam.status, newStatus)
-
-        jam.status = newStatus
-        gameJamRepository.save(jam)
 
         val organizer = userRepository.findById(jam.organizerId).orElseThrow()
         return toDetailsResponse(jam, organizer)

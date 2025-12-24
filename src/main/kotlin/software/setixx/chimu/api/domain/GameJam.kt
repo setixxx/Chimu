@@ -73,6 +73,10 @@ class GameJam(
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     var status: GameJamStatus = GameJamStatus.REGISTRATION_OPEN,
 
+    @Version
+    @Column(nullable = false)
+    var version: Long? = null,
+
     @Column(name = "created_at", nullable = false, insertable = false, updatable = false)
     var createdAt: Instant? = null,
 

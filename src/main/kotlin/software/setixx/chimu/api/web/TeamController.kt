@@ -1,5 +1,10 @@
 package software.setixx.chimu.api.web
 
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.Parameter
+import io.swagger.v3.oas.annotations.responses.ApiResponse
+import io.swagger.v3.oas.annotations.responses.ApiResponses
+import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -17,11 +22,17 @@ import software.setixx.chimu.api.service.TeamService
 
 @RestController
 @RequestMapping("/api/teams")
+@Tag(name = "Teams", description = "Team management endpoints")
 class TeamController(
     private val teamService: TeamService,
     private val userRepository: UserRepository
 ) {
     @PostMapping
+    @Operation(summary = "Create team", description = "Creates a new team. Maximum 10 teams per user.")
+    @ApiResponses(
+        ApiResponse(responseCode = "201", description = "Team created successfully"),
+        ApiResponse(responseCode = "400", description = "Invalid request or team limit reached")
+    )
     fun createTeam(
         @AuthenticationPrincipal userDetails: CustomUserDetails,
         @Valid @RequestBody request: CreateTeamRequest
@@ -34,6 +45,8 @@ class TeamController(
     }
 
     @GetMapping
+    @Operation(summary = "Get user teams", description = "Retrieves all teams the current user is a member of")
+    @ApiResponse(responseCode = "200", description = "Teams retrieved successfully")
     fun getUserTeams(
         @AuthenticationPrincipal userDetails: CustomUserDetails
     ): ResponseEntity<List<TeamResponse>> {
@@ -45,8 +58,14 @@ class TeamController(
     }
 
     @GetMapping("/{teamId}")
+    @Operation(summary = "Get team details", description = "Retrieves detailed information about a team")
+    @ApiResponses(
+        ApiResponse(responseCode = "200", description = "Team details retrieved successfully"),
+        ApiResponse(responseCode = "404", description = "Team not found")
+    )
     fun getTeamDetails(
         @AuthenticationPrincipal userDetails: CustomUserDetails,
+        @Parameter(description = "Team public ID")
         @PathVariable teamId: String
     ): ResponseEntity<TeamDetailsResponse> {
         val user = userRepository.findByPublicId(userDetails.publicId)
@@ -57,8 +76,15 @@ class TeamController(
     }
 
     @PatchMapping("/{teamId}")
+    @Operation(summary = "Update team", description = "Updates team information. Only team leaders can update.")
+    @ApiResponses(
+        ApiResponse(responseCode = "200", description = "Team updated successfully"),
+        ApiResponse(responseCode = "403", description = "Not authorized to update this team"),
+        ApiResponse(responseCode = "404", description = "Team not found")
+    )
     fun updateTeam(
         @AuthenticationPrincipal userDetails: CustomUserDetails,
+        @Parameter(description = "Team public ID")
         @PathVariable teamId: String,
         @Valid @RequestBody request: UpdateTeamRequest
     ): ResponseEntity<TeamDetailsResponse> {
@@ -70,8 +96,14 @@ class TeamController(
     }
 
     @PostMapping("/{inviteToken}")
+    @Operation(summary = "Join team", description = "Joins a team using an invite token")
+    @ApiResponses(
+        ApiResponse(responseCode = "200", description = "Joined team successfully"),
+        ApiResponse(responseCode = "400", description = "Invalid invite token or already a member")
+    )
     fun joinTeam(
         @AuthenticationPrincipal userDetails: CustomUserDetails,
+        @Parameter(description = "Team invite token")
         @PathVariable inviteToken: String
     ): ResponseEntity<TeamDetailsResponse> {
         val user = userRepository.findByPublicId(userDetails.publicId)
@@ -82,8 +114,15 @@ class TeamController(
     }
 
     @DeleteMapping("/{teamId}/leave")
+    @Operation(summary = "Leave team", description = "Leaves a team. Team leaders cannot leave; they must transfer leadership or delete the team. Cannot leave if team has active jam registrations.")
+    @ApiResponses(
+        ApiResponse(responseCode = "200", description = "Left team successfully"),
+        ApiResponse(responseCode = "400", description = "Cannot leave team with active registrations"),
+        ApiResponse(responseCode = "403", description = "Team leader cannot leave")
+    )
     fun leaveTeam(
         @AuthenticationPrincipal userDetails: CustomUserDetails,
+        @Parameter(description = "Team public ID")
         @PathVariable teamId: String
     ): ResponseEntity<Map<String, String>> {
         val user = userRepository.findByPublicId(userDetails.publicId)
@@ -94,8 +133,15 @@ class TeamController(
     }
 
     @DeleteMapping("/{teamId}")
+    @Operation(summary = "Delete team", description = "Deletes a team. Only team leaders can delete. Cannot delete if team has active jam registrations.")
+    @ApiResponses(
+        ApiResponse(responseCode = "200", description = "Team deleted successfully"),
+        ApiResponse(responseCode = "400", description = "Cannot delete team with active registrations"),
+        ApiResponse(responseCode = "403", description = "Not authorized to delete this team")
+    )
     fun deleteTeam(
         @AuthenticationPrincipal userDetails: CustomUserDetails,
+        @Parameter(description = "Team public ID")
         @PathVariable teamId: String
     ): ResponseEntity<Map<String, String>> {
         val user = userRepository.findByPublicId(userDetails.publicId)
@@ -106,9 +152,17 @@ class TeamController(
     }
 
     @DeleteMapping("/{teamId}/members/{userId}")
+    @Operation(summary = "Kick member", description = "Removes a member from the team. Only team leaders can kick members. Cannot kick if team has active registrations.")
+    @ApiResponses(
+        ApiResponse(responseCode = "200", description = "Member kicked successfully"),
+        ApiResponse(responseCode = "400", description = "Cannot kick member with active registrations"),
+        ApiResponse(responseCode = "403", description = "Not authorized to kick members")
+    )
     fun kickMember(
         @AuthenticationPrincipal userDetails: CustomUserDetails,
+        @Parameter(description = "Team public ID")
         @PathVariable teamId: String,
+        @Parameter(description = "User public ID to kick")
         @PathVariable userId: String
     ): ResponseEntity<Map<String, String>> {
         val leader = userRepository.findByPublicId(userDetails.publicId)
@@ -119,8 +173,15 @@ class TeamController(
     }
 
     @PatchMapping("/{teamId}/specialization")
+    @Operation(summary = "Update member specialization", description = "Updates the specialization of the current user in the team")
+    @ApiResponses(
+        ApiResponse(responseCode = "200", description = "Specialization updated successfully"),
+        ApiResponse(responseCode = "403", description = "Not a member of this team"),
+        ApiResponse(responseCode = "404", description = "Team or specialization not found")
+    )
     fun updateMemberSpecialization(
         @AuthenticationPrincipal userDetails: CustomUserDetails,
+        @Parameter(description = "Team public ID")
         @PathVariable teamId: String,
         @Valid @RequestBody request: UpdateMemberSpecializationRequest
     ): ResponseEntity<TeamMemberResponse> {
@@ -136,8 +197,14 @@ class TeamController(
     }
 
     @PostMapping("/{teamId}/regenerate-token")
+    @Operation(summary = "Regenerate invite token", description = "Generates a new invite token for the team. Only team leaders can regenerate tokens.")
+    @ApiResponses(
+        ApiResponse(responseCode = "200", description = "Token regenerated successfully"),
+        ApiResponse(responseCode = "403", description = "Not authorized to regenerate token")
+    )
     fun regenerateInviteToken(
         @AuthenticationPrincipal userDetails: CustomUserDetails,
+        @Parameter(description = "Team public ID")
         @PathVariable teamId: String
     ): ResponseEntity<Map<String, String>> {
         val user = userRepository.findByPublicId(userDetails.publicId)

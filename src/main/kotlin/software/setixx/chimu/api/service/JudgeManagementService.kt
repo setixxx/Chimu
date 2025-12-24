@@ -39,6 +39,10 @@ class JudgeManagementService(
             throw IllegalArgumentException("User must have JUDGE or ADMIN role")
         }
 
+        if (judge.id == jam.organizerId) {
+            throw IllegalArgumentException("Organizer cannot be a judge for their own jam")
+        }
+
         if (jamJudgeRepository.existsByJamIdAndJudgeId(jam.id!!, judge.id!!)) {
             throw IllegalArgumentException("This judge is already assigned to this jam")
         }

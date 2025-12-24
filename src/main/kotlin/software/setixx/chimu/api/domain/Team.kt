@@ -32,6 +32,17 @@ class Team(
     @Column(name = "invite_token", nullable = false, length = 64)
     var inviteToken: String,
 
+    @Version
+    @Column(nullable = false)
+    var version: Long? = null,
+
     @Column(name = "created_at", nullable = false, insertable = false, updatable = false)
     var createdAt: Instant? = null
-)
+) {
+    @PrePersist
+    fun prePersist() {
+        if (createdAt == null) {
+            createdAt = Instant.now()
+        }
+    }
+}

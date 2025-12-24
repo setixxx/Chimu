@@ -29,8 +29,8 @@ class Project(
     @Column(name = "public_id", nullable = false, columnDefinition = "uuid")
     var publicId: UUID = UUID.randomUUID(),
 
-    @Column(name = "team_id", nullable = false)
-    var teamId: Long,
+    @Column(name = "team_id")
+    var teamId: Long?,
 
     @Column(name = "jam_id", nullable = false)
     var jamId: Long,
@@ -51,6 +51,10 @@ class Project(
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(nullable = false, columnDefinition = "project_status")
     var status: ProjectStatus = ProjectStatus.DRAFT,
+
+    @Version
+    @Column(nullable = false)
+    var version: Long? = null,
 
     @Column(name = "submitted_at")
     var submittedAt: Instant? = null,

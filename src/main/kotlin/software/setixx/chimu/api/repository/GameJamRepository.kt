@@ -15,6 +15,8 @@ interface GameJamRepository : JpaRepository<GameJam, Long> {
 
     fun findAllByOrganizerId(organizerId: Long): List<GameJam>
 
+    fun existsByName(name: String): Boolean
+
     @Query("""
         SELECT gj FROM GameJam gj 
         WHERE gj.status IN :statuses 

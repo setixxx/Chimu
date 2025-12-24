@@ -45,19 +45,21 @@ class SecurityConfig(
                     .requestMatchers(HttpMethod.GET, "/api/jams", "/api/jams/**").permitAll()
 
                     .requestMatchers(HttpMethod.POST, "/api/jams").hasAnyRole("ORGANIZER", "ADMIN")
+                    .requestMatchers(HttpMethod.PATCH, "/api/jams/**").hasAnyRole("ORGANIZER", "ADMIN")
+                    .requestMatchers(HttpMethod.DELETE, "/api/jams/**").hasAnyRole("ORGANIZER", "ADMIN")
+                    .requestMatchers(HttpMethod.POST, "/api/jams/*/status").hasAnyRole("ORGANIZER", "ADMIN")
 
-                    .requestMatchers(HttpMethod.PATCH, "/api/jams/**").authenticated()
-                    .requestMatchers(HttpMethod.DELETE, "/api/jams/**").authenticated()
-                    .requestMatchers(HttpMethod.POST, "/api/jams/*/status").authenticated()
+                    .requestMatchers(HttpMethod.POST, "/api/jams/*/criteria").hasAnyRole("ORGANIZER", "ADMIN")
+                    .requestMatchers(HttpMethod.PATCH, "/api/jams/*/criteria/**").hasAnyRole("ORGANIZER", "ADMIN")
+                    .requestMatchers(HttpMethod.DELETE, "/api/jams/*/criteria/**").hasAnyRole("ORGANIZER", "ADMIN")
 
-                    .requestMatchers(HttpMethod.POST, "/api/jams/*/criteria").authenticated()
-                    .requestMatchers(HttpMethod.PATCH, "/api/jams/*/criteria/**").authenticated()
-                    .requestMatchers(HttpMethod.DELETE, "/api/jams/*/criteria/**").authenticated()
+                    .requestMatchers(HttpMethod.POST, "/api/jams/*/judges").hasAnyRole("ORGANIZER", "ADMIN")
+                    .requestMatchers(HttpMethod.DELETE, "/api/jams/*/judges/**").hasAnyRole("ORGANIZER", "ADMIN")
 
-                    .requestMatchers(HttpMethod.POST, "/api/jams/*/judges").authenticated()
-                    .requestMatchers(HttpMethod.DELETE, "/api/jams/*/judges/**").authenticated()
-
-                    .requestMatchers("/api/jams/*/registrations/**").authenticated()
+                    .requestMatchers(HttpMethod.GET, "/api/jams/*/registrations").authenticated()
+                    .requestMatchers(HttpMethod.POST, "/api/jams/*/registrations").hasAnyRole("PARTICIPANT", "ADMIN")
+                    .requestMatchers(HttpMethod.PATCH, "/api/jams/*/registrations/**").hasAnyRole("ORGANIZER", "ADMIN")
+                    .requestMatchers(HttpMethod.DELETE, "/api/jams/*/registrations/**").hasAnyRole("PARTICIPANT", "ADMIN")
 
                     .requestMatchers(
                         "/api/users/me",

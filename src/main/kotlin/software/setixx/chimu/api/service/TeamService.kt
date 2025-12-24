@@ -1,7 +1,9 @@
 package software.setixx.chimu.api.service
 
+import jakarta.persistence.OptimisticLockException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import software.setixx.chimu.api.domain.RegistrationStatus
 import software.setixx.chimu.api.domain.Team
 import software.setixx.chimu.api.domain.TeamMember
 import software.setixx.chimu.api.domain.User
@@ -12,6 +14,7 @@ import software.setixx.chimu.api.dto.TeamDetailsResponse
 import software.setixx.chimu.api.dto.TeamMemberResponse
 import software.setixx.chimu.api.dto.TeamResponse
 import software.setixx.chimu.api.dto.UpdateTeamRequest
+import software.setixx.chimu.api.repository.JamTeamRegistrationRepository
 import software.setixx.chimu.api.repository.TeamMemberRepository
 import software.setixx.chimu.api.repository.TeamRepository
 import software.setixx.chimu.api.repository.UserRepository
@@ -23,7 +26,8 @@ class TeamService(
     private val teamRepository: TeamRepository,
     private val teamMemberRepository: TeamMemberRepository,
     private val userRepository: UserRepository,
-    private val specializationService: SpecializationService
+    private val specializationService: SpecializationService,
+    private val registrationRepository: JamTeamRegistrationRepository
 ) {
     private val secureRandom = SecureRandom()
 
@@ -38,6 +42,11 @@ class TeamService(
 
         if (user.role != UserRole.PARTICIPANT && user.role != UserRole.ADMIN) {
             throw IllegalArgumentException("Only participant or admin can create a team")
+        }
+
+        val userTeamsCount = teamRepository.findAllByLeaderId(userId).size
+        if (userTeamsCount >= 10) {
+            throw IllegalArgumentException("You cannot create more than 10 teams")
         }
 
         val inviteToken = generateInviteToken()
@@ -133,7 +142,11 @@ class TeamService(
         }
         request.description?.let { team.description = it }
 
-        teamRepository.save(team)
+        try {
+            teamRepository.save(team)
+        } catch (e: OptimisticLockException) {
+            throw IllegalStateException("Team was modified by another user. Please refresh and try again.")
+        }
 
         return getTeamDetails(teamId, userId)
     }
@@ -184,6 +197,11 @@ class TeamService(
             throw IllegalArgumentException("You are not a member of this team")
         }
 
+        val activeRegistrations = registrationRepository.findActiveRegistrationsByTeamId(teamId)
+        if (activeRegistrations.isNotEmpty()) {
+            throw IllegalArgumentException("Cannot leave team while it has active jam registrations. Withdraw from jams first.")
+        }
+
         teamMemberRepository.deleteByTeamIdAndUserId(teamId, userId)
     }
 
@@ -201,6 +219,11 @@ class TeamService(
 
         if (team.leaderId != userId) {
             throw IllegalArgumentException("Only team leader can delete the team")
+        }
+
+        val activeRegistrations = registrationRepository.findActiveRegistrationsByTeamId(teamId)
+        if (activeRegistrations.isNotEmpty()) {
+            throw IllegalArgumentException("Cannot delete team while it has active jam registrations")
         }
 
         teamRepository.delete(team)
@@ -231,6 +254,11 @@ class TeamService(
 
         if (!teamMemberRepository.existsByTeamIdAndUserId(teamId, memberUser.id!!)) {
             throw IllegalArgumentException("User is not a member of this team")
+        }
+
+        val activeRegistrations = registrationRepository.findActiveRegistrationsByTeamId(teamId)
+        if (activeRegistrations.isNotEmpty()) {
+            throw IllegalArgumentException("Cannot kick members while team has active jam registrations")
         }
 
         teamMemberRepository.deleteByTeamIdAndUserId(teamId, memberUser.id!!)
@@ -287,7 +315,12 @@ class TeamService(
 
         val newToken = generateInviteToken()
         team.inviteToken = newToken
-        teamRepository.save(team)
+
+        try {
+            teamRepository.save(team)
+        } catch (e: OptimisticLockException) {
+            throw IllegalStateException("Team was modified by another user. Please refresh and try again.")
+        }
 
         return newToken
     }

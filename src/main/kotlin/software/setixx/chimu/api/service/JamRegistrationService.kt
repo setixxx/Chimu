@@ -14,6 +14,7 @@ import software.setixx.chimu.api.repository.JamTeamRegistrationRepository
 import software.setixx.chimu.api.repository.TeamMemberRepository
 import software.setixx.chimu.api.repository.TeamRepository
 import software.setixx.chimu.api.repository.UserRepository
+import java.time.Instant
 import java.util.UUID
 
 @Service
@@ -43,6 +44,20 @@ class JamRegistrationService(
 
         if (registrationRepository.existsByJamIdAndTeamId(jam.id!!, team.id!!)) {
             throw IllegalArgumentException("Team is already registered for this game jam")
+        }
+
+        val activeRegistrations = registrationRepository.findActiveRegistrationsByTeamId(team.id!!)
+        if (activeRegistrations.isNotEmpty()) {
+            val activeJams = gameJamRepository.findAllById(activeRegistrations.map { it.jamId })
+            val conflictingJam = activeJams.find { activeJam ->
+                isJamActive(activeJam) && (activeJam.id != jam.id)
+            }
+
+            if (conflictingJam != null) {
+                throw IllegalArgumentException(
+                    "Team is already registered for another active jam: ${conflictingJam.name}"
+                )
+            }
         }
 
         val teamMembers = teamMemberRepository.findAllByTeamId(team.id!!)
@@ -149,13 +164,25 @@ class JamRegistrationService(
         }
 
         if (jam.status != GameJamStatus.REGISTRATION_OPEN) {
-            throw IllegalArgumentException("Game jam is not open for registration")
+            throw IllegalArgumentException("Cannot withdraw registration after registration period has ended")
         }
 
         registration.status = RegistrationStatus.WITHDRAWN
         registrationRepository.save(registration)
 
         return toRegistrationResponse(registration, jam, team, registration.registeredBy)
+    }
+
+    private fun isJamActive(jam: GameJam): Boolean {
+        val now = Instant.now()
+        return when (jam.status) {
+            GameJamStatus.REGISTRATION_OPEN,
+            GameJamStatus.REGISTRATION_CLOSED,
+            GameJamStatus.IN_PROGRESS,
+            GameJamStatus.JUDGING -> now.isBefore(jam.judgingEnd)
+            GameJamStatus.COMPLETED,
+            GameJamStatus.CANCELLED -> false
+        }
     }
 
     private fun toRegistrationResponse(

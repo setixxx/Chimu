@@ -1,5 +1,9 @@
 package software.setixx.chimu.api.web
 
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.responses.ApiResponse
+import io.swagger.v3.oas.annotations.responses.ApiResponses
+import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.validation.Valid
 import org.springframework.http.ResponseEntity
@@ -19,17 +23,25 @@ import software.setixx.chimu.api.service.UserService
 
 @RestController
 @RequestMapping("/api/users")
+@Tag(name = "Users", description = "User profile management endpoints")
 class UserController(
     private val userService: UserService,
     private val specializationService: SpecializationService,
     private val userRepository: UserRepository
 ) {
     @GetMapping("/{publicId}")
+    @Operation(summary = "Get user by ID", description = "Retrieves user information by public ID")
+    @ApiResponses(
+        ApiResponse(responseCode = "200", description = "User retrieved successfully"),
+        ApiResponse(responseCode = "404", description = "User not found")
+    )
     fun getUserById(@PathVariable publicId: String): User? {
         return userService.getUserByPublicId(java.util.UUID.fromString(publicId))
     }
 
     @GetMapping("/me")
+    @Operation(summary = "Get current user", description = "Retrieves the profile of the currently authenticated user")
+    @ApiResponse(responseCode = "200", description = "Profile retrieved successfully")
     fun getCurrentUser(
         @AuthenticationPrincipal userDetails: UserDetails
     ): ResponseEntity<UserProfileResponse> {
@@ -55,6 +67,11 @@ class UserController(
     }
 
     @PatchMapping("/me")
+    @Operation(summary = "Update profile", description = "Updates the profile of the currently authenticated user")
+    @ApiResponses(
+        ApiResponse(responseCode = "200", description = "Profile updated successfully"),
+        ApiResponse(responseCode = "400", description = "Invalid request data")
+    )
     fun updateProfile(
         @AuthenticationPrincipal userDetails: CustomUserDetails,
         @Valid @RequestBody request: UpdateProfileRequest
@@ -84,6 +101,11 @@ class UserController(
     }
 
     @PostMapping("/change-password")
+    @Operation(summary = "Change password", description = "Changes the password of the currently authenticated user")
+    @ApiResponses(
+        ApiResponse(responseCode = "200", description = "Password changed successfully"),
+        ApiResponse(responseCode = "400", description = "Invalid old password or new password doesn't meet requirements")
+    )
     fun changePassword(
         @AuthenticationPrincipal userDetails: UserDetails,
         @Valid @RequestBody request: ChangePasswordRequest,

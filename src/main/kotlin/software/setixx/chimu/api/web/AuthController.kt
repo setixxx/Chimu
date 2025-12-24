@@ -1,5 +1,9 @@
 package software.setixx.chimu.api.web
 
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.responses.ApiResponse
+import io.swagger.v3.oas.annotations.responses.ApiResponses
+import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
@@ -16,11 +20,17 @@ import software.setixx.chimu.api.service.RegistrationService
 
 @RestController
 @RequestMapping("/api/auth")
+@Tag(name = "Authentication", description = "Authentication and registration endpoints")
 class AuthController(
     private val authenticationService: AuthenticationService,
     private val registrationService: RegistrationService
 ) {
     @PostMapping
+    @Operation(summary = "Authenticate user", description = "Authenticates a user and returns access and refresh tokens")
+    @ApiResponses(
+        ApiResponse(responseCode = "200", description = "Authentication successful"),
+        ApiResponse(responseCode = "401", description = "Invalid credentials")
+    )
     fun authenticate(
         @Valid @RequestBody authRequest: AuthenticationRequest,
         request: HttpServletRequest
@@ -30,6 +40,11 @@ class AuthController(
     }
 
     @PostMapping("/refresh")
+    @Operation(summary = "Refresh access token", description = "Generates a new access token using a valid refresh token")
+    @ApiResponses(
+        ApiResponse(responseCode = "200", description = "Token refreshed successfully"),
+        ApiResponse(responseCode = "401", description = "Invalid or expired refresh token")
+    )
     fun refreshAccessToken(
         @Valid @RequestBody request: RefreshTokenRequest
     ): ResponseEntity<TokenResponse> {
@@ -38,6 +53,12 @@ class AuthController(
     }
 
     @PostMapping("/register")
+    @Operation(summary = "Register new user", description = "Registers a new user account")
+    @ApiResponses(
+        ApiResponse(responseCode = "201", description = "User registered successfully"),
+        ApiResponse(responseCode = "400", description = "Invalid request data"),
+        ApiResponse(responseCode = "409", description = "Email already exists")
+    )
     fun register(
         @Valid @RequestBody request: RegisterRequest
     ): ResponseEntity<RegisterResponse> {
@@ -52,6 +73,11 @@ class AuthController(
     }
 
     @PostMapping("/logout")
+    @Operation(summary = "Logout user", description = "Revokes the provided refresh token, logging out the user")
+    @ApiResponses(
+        ApiResponse(responseCode = "200", description = "Logged out successfully"),
+        ApiResponse(responseCode = "400", description = "Invalid refresh token")
+    )
     fun logout(
         @Valid @RequestBody request: RefreshTokenRequest
     ): ResponseEntity<Map<String, String>> {

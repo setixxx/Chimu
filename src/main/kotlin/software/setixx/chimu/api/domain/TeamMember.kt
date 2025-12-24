@@ -31,4 +31,11 @@ class TeamMember(
 
     @Column(name = "joined_at", nullable = false, insertable = false, updatable = false)
     var joinedAt: Instant? = null
-)
+) {
+    @PrePersist
+    fun prePersist() {
+        if (joinedAt == null) {
+            joinedAt = Instant.now()
+        }
+    }
+}
