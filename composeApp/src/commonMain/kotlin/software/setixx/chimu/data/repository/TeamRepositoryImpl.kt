@@ -30,7 +30,7 @@ class TeamRepositoryImpl(
             }
             Result.success(teams)
         } catch (e: Exception) {
-            println("❌ Error loading teams: ${e.message}")
+            println("Error loading teams: ${e.message}")
             e.printStackTrace()
             Result.failure(e)
         }
@@ -59,7 +59,7 @@ class TeamRepositoryImpl(
 
             Result.success(team)
         } catch (e: Exception) {
-            println("❌ Error creating team: ${e.message}")
+            println("Error creating team: ${e.message}")
             e.printStackTrace()
             Result.failure(e)
         }

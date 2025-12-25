@@ -3,8 +3,7 @@ package software.setixx.chimu.data.repository
 import software.setixx.chimu.data.local.TokenStorage
 import software.setixx.chimu.data.remote.ProfileApi
 import software.setixx.chimu.data.remote.dto.UpdateProfileRequest
-import software.setixx.chimu.domain.model.ProfileUpdateRequest
-import software.setixx.chimu.domain.model.User
+import software.setixx.chimu.domain.model.*
 import software.setixx.chimu.domain.repository.ProfileRepository
 
 class ProfileRepositoryImpl(
@@ -30,6 +29,18 @@ class ProfileRepositoryImpl(
 
             val response = api.updateProfile(token, apiRequest)
 
+            val specialization = response.specialization?.let {
+                Specialization(
+                    id = it.id,
+                    name = it.name,
+                    description = it.description
+                )
+            }
+
+            val skills = response.skills.mapIndexed { index, name ->
+                Skill(id = index.toLong(), name = name)
+            }
+
             val user = User(
                 id = response.id,
                 email = response.email,
@@ -38,12 +49,17 @@ class ProfileRepositoryImpl(
                 lastName = response.lastName,
                 avatarUrl = response.avatarUrl,
                 createdAt = response.createdAt,
-                role = response.role
+                role = response.role,
+                specialization = specialization,
+                skills = skills,
+                bio = response.bio,
+                githubUrl = response.githubUrl,
+                telegramUsername = response.telegramUrl
             )
 
             Result.success(user)
         } catch (e: Exception) {
-            println("❌ Error updating profile: ${e.message}")
+            println("Error updating profile: ${e.message}")
             e.printStackTrace()
             Result.failure(e)
         }

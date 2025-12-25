@@ -10,6 +10,7 @@ import software.setixx.chimu.presentation.auth.login.LoginViewModel
 import software.setixx.chimu.presentation.auth.register.RegisterViewModel
 import software.setixx.chimu.presentation.main.MainViewModel
 import software.setixx.chimu.presentation.profile.ProfileViewModel
+import software.setixx.chimu.presentation.splash.SplashViewModel
 import software.setixx.chimu.presentation.team.CreateTeamViewModel
 
 val appModule = module {
@@ -28,8 +29,8 @@ val appModule = module {
     single<TeamRepository> { TeamRepositoryImpl(get(), get()) }
     single<ProjectRepository> { ProjectRepositoryImpl(get(), get()) }
     single<ProfileRepository> { ProfileRepositoryImpl(get(), get()) }
-    single<SpecializationRepository> { SpecializationRepositoryImpl(get()) }
-    single<SkillRepository> { SkillRepositoryImpl(get()) }
+    single<SpecializationRepository> { SpecializationRepositoryImpl(get(), get()) }
+    single<SkillRepository> { SkillRepositoryImpl(get(), get()) }
 
     factory { LoginUseCase(get()) }
     factory { RegisterUseCase(get()) }
@@ -46,6 +47,7 @@ val appModule = module {
     factory { GetAllSkillsUseCase(get()) }
     factory { CreateTeamUseCase(get()) }
 
+    viewModel { SplashViewModel(get()) }
     viewModel { LoginViewModel(get(), get()) }
     viewModel { RegisterViewModel(get()) }
     viewModel { MainViewModel(get(), get(), get(), get(), get()) }

@@ -4,13 +4,9 @@ import io.ktor.client.plugins.*
 import software.setixx.chimu.data.local.TokenStorage
 import software.setixx.chimu.data.remote.AuthApi
 import software.setixx.chimu.data.remote.dto.ErrorResponse
-import software.setixx.chimu.domain.model.AuthResult
-import software.setixx.chimu.domain.model.AuthTokens
-import software.setixx.chimu.domain.model.User
+import software.setixx.chimu.domain.model.*
 import software.setixx.chimu.domain.repository.AuthRepository
 import io.ktor.client.call.*
-import io.ktor.client.statement.bodyAsText
-import kotlinx.serialization.json.Json
 
 class AuthRepositoryImpl(
     private val authApi: AuthApi,
@@ -93,6 +89,17 @@ class AuthRepositoryImpl(
 
             val response = authApi.getCurrentUser(accessToken)
 
+            val specialization = response.specialization?.let {
+                Specialization(
+                    id = it.id,
+                    name = it.name,
+                    description = it.description
+                )
+            }
+
+            val skills = response.skills.mapIndexed { index, name ->
+                Skill(id = index.toLong(), name = name)
+            }
 
             AuthResult.Success(
                 User(
@@ -103,7 +110,12 @@ class AuthRepositoryImpl(
                     lastName = response.lastName,
                     avatarUrl = response.avatarUrl,
                     createdAt = response.createdAt,
-                    role = response.role
+                    role = response.role,
+                    specialization = specialization,
+                    skills = skills,
+                    bio = response.bio,
+                    githubUrl = response.githubUrl,
+                    telegramUsername = response.telegramUrl
                 )
             )
         } catch (e: ClientRequestException) {

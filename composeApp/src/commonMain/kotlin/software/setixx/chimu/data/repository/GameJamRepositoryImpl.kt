@@ -35,7 +35,7 @@ class GameJamRepositoryImpl(
             }
             Result.success(jams)
         } catch (e: Exception) {
-            println("❌ Error loading all jams: ${e.message}")
+            println("Error loading all jams: ${e.message}")
             e.printStackTrace()
             Result.failure(e)
         }
@@ -74,7 +74,7 @@ class GameJamRepositoryImpl(
 
             Result.success(allJams)
         } catch (e: Exception) {
-            println("❌ Error loading active jams: ${e.message}")
+            println("Error loading active jams: ${e.message}")
             e.printStackTrace()
             Result.failure(e)
         }
@@ -91,7 +91,7 @@ class GameJamRepositoryImpl(
 
             if (days < 0) null else days.toInt()
         } catch (e: Exception) {
-            println("⚠️ Error calculating days remaining: ${e.message}")
+            println("Error calculating days remaining: ${e.message}")
             null
         }
     }

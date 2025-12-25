@@ -14,7 +14,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import org.koin.compose.viewmodel.koinViewModel
-import software.setixx.chimu.domain.model.Specialization
 import software.setixx.chimu.domain.model.Skill
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -170,7 +169,7 @@ fun ProfileScreen(
 
                             ExposedDropdownMenuBox(
                                 expanded = expandedSpec,
-                                onExpandedChange = { expandedSpec = it }
+                                onExpandedChange = { expandedSpec = !state.isSaving && it }
                             ) {
                                 OutlinedTextField(
                                     value = state.selectedSpecialization?.name ?: "Не выбрано",
@@ -183,7 +182,8 @@ fun ProfileScreen(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .menuAnchor(),
-                                    leadingIcon = { Icon(Icons.Default.Work, null) }
+                                    leadingIcon = { Icon(Icons.Default.Work, null) },
+                                    enabled = !state.isSaving
                                 )
 
                                 ExposedDropdownMenu(
@@ -199,7 +199,18 @@ fun ProfileScreen(
                                     )
                                     state.availableSpecializations.forEach { spec ->
                                         DropdownMenuItem(
-                                            text = { Text(spec.name) },
+                                            text = {
+                                                Column {
+                                                    Text(spec.name)
+                                                    spec.description?.let {
+                                                        Text(
+                                                            it,
+                                                            style = MaterialTheme.typography.bodySmall,
+                                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                                        )
+                                                    }
+                                                }
+                                            },
                                             onClick = {
                                                 viewModel.updateSpecialization(spec)
                                                 expandedSpec = false
@@ -245,26 +256,12 @@ fun ProfileScreen(
                         )
 
                         if (state.isEditing) {
-                            Text(
-                                "Навыки",
-                                style = MaterialTheme.typography.titleSmall
+                            SkillsSelector(
+                                availableSkills = state.availableSkills,
+                                selectedSkills = state.selectedSkills,
+                                onSkillToggle = { viewModel.toggleSkill(it) },
+                                enabled = !state.isSaving
                             )
-
-                            FlowRow(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                verticalArrangement = Arrangement.spacedBy(8.dp)
-                            ) {
-                                state.availableSkills.forEach { skill ->
-                                    val isSelected = state.selectedSkills.contains(skill)
-                                    FilterChip(
-                                        selected = isSelected,
-                                        onClick = { viewModel.toggleSkill(skill) },
-                                        label = { Text(skill.name) },
-                                        enabled = !state.isSaving
-                                    )
-                                }
-                            }
                         } else if (state.selectedSkills.isNotEmpty()) {
                             Text(
                                 "Навыки",
@@ -293,6 +290,109 @@ fun ProfileScreen(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center
                 )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SkillsSelector(
+    availableSkills: List<Skill>,
+    selectedSkills: List<Skill>,
+    onSkillToggle: (Skill) -> Unit,
+    enabled: Boolean
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Text(
+            "Навыки",
+            style = MaterialTheme.typography.titleSmall
+        )
+
+        ExposedDropdownMenuBox(
+            expanded = expanded,
+            onExpandedChange = { expanded = enabled && it }
+        ) {
+            OutlinedButton(
+                onClick = { if (enabled) expanded = true },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .menuAnchor(),
+                enabled = enabled
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        if (selectedSkills.isEmpty())
+                            "Выберите навыки"
+                        else
+                            "${selectedSkills.size} выбрано"
+                    )
+                    Icon(
+                        if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                        contentDescription = null
+                    )
+                }
+            }
+
+            ExposedDropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false },
+                modifier = Modifier.heightIn(max = 400.dp)
+            ) {
+                availableSkills.forEach { skill ->
+                    val isSelected = selectedSkills.contains(skill)
+                    DropdownMenuItem(
+                        text = {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Checkbox(
+                                    checked = isSelected,
+                                    onCheckedChange = null
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(skill.name)
+                            }
+                        },
+                        onClick = { onSkillToggle(skill) }
+                    )
+                }
+            }
+        }
+
+        if (selectedSkills.isNotEmpty()) {
+            FlowRow(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                selectedSkills.forEach { skill ->
+                    InputChip(
+                        selected = true,
+                        onClick = { if (enabled) onSkillToggle(skill) },
+                        label = { Text(skill.name) },
+                        trailingIcon = {
+                            if (enabled) {
+                                Icon(
+                                    Icons.Default.Close,
+                                    contentDescription = "Удалить",
+                                    modifier = Modifier.size(18.dp)
+                                )
+                            }
+                        },
+                        enabled = enabled
+                    )
+                }
             }
         }
     }

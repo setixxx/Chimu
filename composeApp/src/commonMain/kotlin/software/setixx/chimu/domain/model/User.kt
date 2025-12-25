@@ -8,5 +8,10 @@ data class User(
     val lastName: String?,
     val avatarUrl: String?,
     val createdAt: String,
-    val role: String
+    val role: String,
+    val specialization: Specialization?,
+    val skills: List<Skill>,
+    val bio: String?,
+    val githubUrl: String?,
+    val telegramUsername: String?
 )

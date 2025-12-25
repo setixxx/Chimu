@@ -3,11 +3,15 @@ package software.setixx.chimu.data.remote
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
+import io.ktor.client.request.header
+import io.ktor.http.HttpHeaders
 import software.setixx.chimu.data.remote.dto.SkillResponse
 
 class SkillApi(private val client: HttpClient) {
 
-    suspend fun getAllSkills(): List<SkillResponse> {
-        return client.get("/api/skills").body()
+    suspend fun getAllSkills(accessToken: String): List<SkillResponse> {
+        return client.get("/api/skills"){
+            header(HttpHeaders.Authorization, "Bearer $accessToken")
+        }.body()
     }
 }

@@ -45,7 +45,11 @@ data class UserProfileResponse(
     val avatarUrl: String?,
     val createdAt: String,
     val skills: List<String>,
-    val role: String
+    val role: String,
+    val specialization: SpecializationResponse?,
+    val bio: String?,
+    val githubUrl: String?,
+    val telegramUrl: String?
 )
 
 @Serializable

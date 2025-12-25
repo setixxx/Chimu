@@ -9,6 +9,7 @@ import software.setixx.chimu.presentation.auth.login.LoginScreen
 import software.setixx.chimu.presentation.auth.register.RegisterScreen
 import software.setixx.chimu.presentation.main.MainScreen
 import software.setixx.chimu.presentation.profile.ProfileScreen
+import software.setixx.chimu.presentation.splash.SplashScreen
 import software.setixx.chimu.presentation.team.CreateTeamScreen
 
 @Composable
@@ -17,8 +18,23 @@ fun AppNavigation() {
 
     NavHost(
         navController = navController,
-        startDestination = Screen.Login
+        startDestination = Screen.Splash
     ) {
+        composable<Screen.Splash> {
+            SplashScreen(
+                onNavigateToLogin = {
+                    navController.navigate(Screen.Login) {
+                        popUpTo(Screen.Splash) { inclusive = true }
+                    }
+                },
+                onNavigateToHome = {
+                    navController.navigate(Screen.Home) {
+                        popUpTo(Screen.Splash) { inclusive = true }
+                    }
+                }
+            )
+        }
+
         composable<Screen.Login> {
             LoginScreen(
                 onNavigateToRegister = {

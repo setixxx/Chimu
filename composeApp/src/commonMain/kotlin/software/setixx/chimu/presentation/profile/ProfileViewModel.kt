@@ -27,41 +27,69 @@ class ProfileViewModel(
         viewModelScope.launch {
             _state.value = _state.value.copy(isLoading = true)
 
+            val availableSpecs = mutableListOf<Specialization>()
+            val availableSkills = mutableListOf<Skill>()
+
             getAllSpecializationsUseCase().fold(
                 onSuccess = { specs ->
-                    _state.value = _state.value.copy(availableSpecializations = specs)
+                    availableSpecs.addAll(specs)
                 },
-                onFailure = { }
+                onFailure = {
+                    println("Error loading specializations: ${it.message}")
+                }
             )
 
             getAllSkillsUseCase().fold(
                 onSuccess = { skills ->
-                    _state.value = _state.value.copy(availableSkills = skills)
+                    availableSkills.addAll(skills)
                 },
-                onFailure = { }
+                onFailure = {
+                    println("Error loading skills: ${it.message}")
+                }
             )
 
             when (val result = getCurrentUserUseCase()) {
                 is AuthResult.Success -> {
                     val user = result.data
+
+                    val currentSpec = user.specialization?.let { userSpec ->
+                        availableSpecs.find { it.id == userSpec.id }
+                    }
+
+                    val currentSkills = user.skills.mapNotNull { userSkill ->
+                        availableSkills.find { it.name == userSkill.name }
+                    }
+
                     _state.value = _state.value.copy(
                         user = user,
                         nickname = user.nickname,
                         firstName = user.firstName ?: "",
                         lastName = user.lastName ?: "",
-                        bio = "",
-                        githubUrl = "",
-                        telegramUsername = "",
+                        bio = user.bio ?: "",
+                        githubUrl = user.githubUrl ?: "",
+                        telegramUsername = user.telegramUsername ?: "",
+                        selectedSpecialization = currentSpec,
+                        selectedSkills = currentSkills,
+                        availableSpecializations = availableSpecs,
+                        availableSkills = availableSkills,
                         isLoading = false
                     )
                 }
                 is AuthResult.Error -> {
                     _state.value = _state.value.copy(
                         isLoading = false,
-                        errorMessage = result.message
+                        errorMessage = result.message,
+                        availableSpecializations = availableSpecs,
+                        availableSkills = availableSkills
                     )
                 }
-                else -> {}
+                else -> {
+                    _state.value = _state.value.copy(
+                        isLoading = false,
+                        availableSpecializations = availableSpecs,
+                        availableSkills = availableSkills
+                    )
+                }
             }
         }
     }
@@ -142,8 +170,24 @@ class ProfileViewModel(
 
             updateProfileUseCase(request).fold(
                 onSuccess = { user ->
+                    val updatedSpec = user.specialization?.let { userSpec ->
+                        _state.value.availableSpecializations.find { it.id == userSpec.id }
+                    }
+
+                    val updatedSkills = user.skills.mapNotNull { userSkill ->
+                        _state.value.availableSkills.find { it.name == userSkill.name }
+                    }
+
                     _state.value = _state.value.copy(
                         user = user,
+                        nickname = user.nickname,
+                        firstName = user.firstName ?: "",
+                        lastName = user.lastName ?: "",
+                        bio = user.bio ?: "",
+                        githubUrl = user.githubUrl ?: "",
+                        telegramUsername = user.telegramUsername ?: "",
+                        selectedSpecialization = updatedSpec,
+                        selectedSkills = updatedSkills,
                         isEditing = false,
                         isSaving = false,
                         successMessage = "Профиль успешно обновлен"

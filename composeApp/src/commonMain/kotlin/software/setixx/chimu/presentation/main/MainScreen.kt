@@ -38,7 +38,12 @@ fun MainScreen(
 
     val availableDestinations = remember(state.user?.role) {
         when (state.user?.role) {
-            "ORGANIZER", "ADMIN" -> NavigationDestination.entries.toList()
+            "ADMIN" -> NavigationDestination.entries.toList()
+            "ORGANIZER" -> listOf(
+                NavigationDestination.HOME,
+                NavigationDestination.GAME_JAMS,
+                NavigationDestination.JUDGING
+            )
             "JUDGE" -> listOf(
                 NavigationDestination.HOME,
                 NavigationDestination.GAME_JAMS,
