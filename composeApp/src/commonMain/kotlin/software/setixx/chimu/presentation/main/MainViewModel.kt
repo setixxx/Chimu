@@ -11,104 +11,111 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import software.setixx.chimu.domain.model.AuthResult
+import software.setixx.chimu.domain.usecase.GetActiveJamsUseCase
 import software.setixx.chimu.domain.usecase.GetCurrentUserUseCase
+import software.setixx.chimu.domain.usecase.GetUserProjectsUseCase
+import software.setixx.chimu.domain.usecase.GetUserTeamsUseCase
 import software.setixx.chimu.domain.usecase.LogoutUseCase
 
 class MainViewModel(
     private val getCurrentUserUseCase: GetCurrentUserUseCase,
-    private val logoutUseCase: LogoutUseCase
+    private val logoutUseCase: LogoutUseCase,
+    private val getActiveJamsUseCase: GetActiveJamsUseCase,
+    private val getUserTeamsUseCase: GetUserTeamsUseCase,
+    private val getUserProjectsUseCase: GetUserProjectsUseCase
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(MainState())
     val state: StateFlow<MainState> = _state.asStateFlow()
 
     init {
-        loadUserData()
-        loadActiveJams()
-        loadNotifications()
+        loadAllData()
     }
 
-    private fun loadUserData() {
+    private fun loadAllData() {
         viewModelScope.launch {
-            when (val result = getCurrentUserUseCase()) {
-                is AuthResult.Success -> {
-                    _state.value = _state.value.copy(
-                        user = result.data,
-                        isLoading = false
-                    )
-                }
-                is AuthResult.Error -> {
-                    _state.value = _state.value.copy(
-                        errorMessage = result.message,
-                        isLoading = false
-                    )
-                }
-                else -> {}
+            _state.value = _state.value.copy(isLoading = true)
+
+            loadUserData()
+            loadActiveJams()
+            loadUserTeams()
+            loadUserProjects()
+            loadNotifications()
+
+            _state.value = _state.value.copy(isLoading = false)
+        }
+    }
+
+    private suspend fun loadUserData() {
+        when (val result = getCurrentUserUseCase()) {
+            is AuthResult.Success -> {
+                _state.value = _state.value.copy(user = result.data)
             }
+            is AuthResult.Error -> {
+                _state.value = _state.value.copy(
+                    errorMessage = result.message
+                )
+            }
+            else -> {}
         }
     }
 
-    private fun loadActiveJams() {
-        viewModelScope.launch {
-            val mockJams = listOf(
-                GameJamPreview(
-                    id = "1",
-                    name = "Winter Game Jam 2024",
-                    theme = "Создание инновационных игровых механик",
-                    status = "В процессе",
-                    teamsCount = 15,
-                    daysRemaining = 3
-                ),
-                GameJamPreview(
-                    id = "2",
-                    name = "Indie Showcase Jam",
-                    theme = "Минимализм в дизайне",
-                    status = "В процессе",
-                    teamsCount = 20,
-                    daysRemaining = 2
-                ),
-                GameJamPreview(
-                    id = "3",
-                    name = "New Year Game Jam",
-                    theme = "Праздничная атмосфера",
-                    status = "Регистрация",
-                    teamsCount = 25,
-                    daysRemaining = 1
+    private suspend fun loadActiveJams() {
+        getActiveJamsUseCase().fold(
+            onSuccess = { jams ->
+                _state.value = _state.value.copy(activeJams = jams)
+            },
+            onFailure = { error ->
+                _state.value = _state.value.copy(
+                    errorMessage = error.message ?: "Failed to load jams"
                 )
-            )
+            }
+        )
+    }
 
-            _state.value = _state.value.copy(
-                activeJams = mockJams,
-                isLoading = false
-            )
-        }
+    private suspend fun loadUserTeams() {
+        getUserTeamsUseCase().fold(
+            onSuccess = { teams ->
+                _state.value = _state.value.copy(userTeams = teams)
+            },
+            onFailure = { error ->
+            }
+        )
+    }
+
+    private suspend fun loadUserProjects() {
+        getUserProjectsUseCase().fold(
+            onSuccess = { projects ->
+                _state.value = _state.value.copy(userProjects = projects)
+            },
+            onFailure = { error ->
+            }
+        )
     }
 
     private fun loadNotifications() {
-        viewModelScope.launch {
-            val mockNotifications = listOf(
-                Notification(
-                    id = "1",
-                    message = "Новый джем начался!",
-                    icon = Icons.Default.Event
-                ),
-                Notification(
-                    id = "2",
-                    message = "Приглашение в команду",
-                    icon = Icons.Default.Group
-                ),
-                Notification(
-                    id = "3",
-                    message = "Новый комментарий",
-                    icon = Icons.Default.Comment
-                )
+        val mockNotifications = listOf(
+            Notification(
+                id = "1",
+                message = "Новый джем начался!",
+                icon = Icons.Default.Event
+            ),
+            Notification(
+                id = "2",
+                message = "Приглашение в команду",
+                icon = Icons.Default.Group
+            ),
+            Notification(
+                id = "3",
+                message = "Новый комментарий",
+                icon = Icons.Default.Comment
             )
+        )
 
-            _state.value = _state.value.copy(
-                notifications = mockNotifications,
-                notificationCount = mockNotifications.size
-            )
-        }
+        _state.value = _state.value.copy(
+            notifications = mockNotifications,
+            notificationCount = mockNotifications.size
+        )
     }
 
     fun onLogout(onLogoutSuccess: () -> Unit) {
@@ -129,5 +136,9 @@ class MainViewModel(
 
     fun clearError() {
         _state.value = _state.value.copy(errorMessage = null)
+    }
+
+    fun refresh() {
+        loadAllData()
     }
 }

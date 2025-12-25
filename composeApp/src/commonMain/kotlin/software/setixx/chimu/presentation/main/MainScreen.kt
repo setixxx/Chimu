@@ -2,6 +2,7 @@ package software.setixx.chimu.presentation.main
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -10,8 +11,14 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import org.koin.compose.viewmodel.koinViewModel
+import software.setixx.chimu.domain.model.GameJam
+import software.setixx.chimu.domain.model.GameJamStatus
+import software.setixx.chimu.domain.model.Project
+import software.setixx.chimu.domain.model.ProjectStatus
+import software.setixx.chimu.domain.model.Team
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -25,12 +32,27 @@ fun MainScreen(
     var showNotifications by remember { mutableStateOf(false) }
 
     val state by viewModel.state.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(state.errorMessage) {
+        state.errorMessage?.let { error ->
+            snackbarHostState.showSnackbar(
+                message = error,
+                duration = SnackbarDuration.Short
+            )
+            viewModel.clearError()
+        }
+    }
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text(selectedDestination.title) },
                 actions = {
+                    IconButton(onClick = { viewModel.refresh() }) {
+                        Icon(Icons.Default.Refresh, "Обновить")
+                    }
+
                     Box {
                         BadgedBox(
                             badge = {
@@ -42,10 +64,7 @@ fun MainScreen(
                             }
                         ) {
                             IconButton(onClick = { showNotifications = true }) {
-                                Icon(
-                                    imageVector = Icons.Default.Notifications,
-                                    contentDescription = "Уведомления"
-                                )
+                                Icon(Icons.Default.Notifications, "Уведомления")
                             }
                         }
 
@@ -71,11 +90,11 @@ fun MainScreen(
                                         text = { Text(notification.message) },
                                         onClick = { showNotifications = false },
                                         leadingIcon = {
-                                            Icon(notification.icon, contentDescription = null)
+                                            Icon(notification.icon, null)
                                         }
                                     )
                                     if (notification != state.notifications.last()) {
-                                        Divider()
+                                        HorizontalDivider()
                                     }
                                 }
                             }
@@ -90,17 +109,13 @@ fun MainScreen(
                             modifier = Modifier.size(40.dp)
                         ) {
                             Surface(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .clip(CircleShape),
+                                modifier = Modifier.fillMaxSize().clip(CircleShape),
                                 color = MaterialTheme.colorScheme.primaryContainer
                             ) {
-                                Box(
-                                    contentAlignment = Alignment.Center
-                                ) {
+                                Box(contentAlignment = Alignment.Center) {
                                     Icon(
-                                        imageVector = Icons.Default.Person,
-                                        contentDescription = "Профиль",
+                                        Icons.Default.Person,
+                                        "Профиль",
                                         tint = MaterialTheme.colorScheme.onPrimaryContainer
                                     )
                                 }
@@ -126,45 +141,35 @@ fun MainScreen(
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                 }
-                                Divider()
+                                HorizontalDivider()
                             }
 
                             DropdownMenuItem(
                                 text = { Text("Профиль") },
-                                onClick = {
-                                    showUserMenu = false
-                                },
-                                leadingIcon = {
-                                    Icon(Icons.Default.Person, contentDescription = null)
-                                }
+                                onClick = { showUserMenu = false },
+                                leadingIcon = { Icon(Icons.Default.Person, null) }
                             )
                             DropdownMenuItem(
                                 text = { Text("Настройки") },
-                                onClick = {
-                                    showUserMenu = false
-                                },
-                                leadingIcon = {
-                                    Icon(Icons.Default.Settings, contentDescription = null)
-                                }
+                                onClick = { showUserMenu = false },
+                                leadingIcon = { Icon(Icons.Default.Settings, null) }
                             )
-                            Divider()
+                            HorizontalDivider()
                             DropdownMenuItem(
                                 text = { Text("Выйти") },
                                 onClick = {
                                     showUserMenu = false
                                     viewModel.onLogout(onLogout)
                                 },
-                                leadingIcon = {
-                                    Icon(Icons.Default.ExitToApp, contentDescription = null)
-                                }
+                                leadingIcon = { Icon(Icons.Default.ExitToApp, null) }
                             )
                         }
                     }
-
                     Spacer(modifier = Modifier.width(8.dp))
                 }
             )
-        }
+        },
+        snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { paddingValues ->
         Row(
             modifier = Modifier
@@ -176,18 +181,10 @@ fun MainScreen(
                     .fillMaxHeight()
                     .then(if (isRailExpanded) Modifier.width(250.dp) else Modifier),
                 header = {
-                    IconButton(
-                        onClick = { isRailExpanded = !isRailExpanded }
-                    ) {
+                    IconButton(onClick = { isRailExpanded = !isRailExpanded }) {
                         Icon(
-                            imageVector = if (isRailExpanded)
-                                Icons.Default.MenuOpen
-                            else
-                                Icons.Default.Menu,
-                            contentDescription = if (isRailExpanded)
-                                "Свернуть меню"
-                            else
-                                "Развернуть меню"
+                            if (isRailExpanded) Icons.Default.MenuOpen else Icons.Default.Menu,
+                            if (isRailExpanded) "Свернуть меню" else "Развернуть меню"
                         )
                     }
                 }
@@ -199,12 +196,7 @@ fun MainScreen(
                         NavigationDrawerItem(
                             selected = selectedDestination == destination,
                             onClick = { selectedDestination = destination },
-                            icon = {
-                                Icon(
-                                    imageVector = destination.icon,
-                                    contentDescription = destination.title
-                                )
-                            },
+                            icon = { Icon(destination.icon, destination.title) },
                             label = { Text(destination.title) },
                             modifier = Modifier.padding(horizontal = 12.dp)
                         )
@@ -212,12 +204,7 @@ fun MainScreen(
                         NavigationRailItem(
                             selected = selectedDestination == destination,
                             onClick = { selectedDestination = destination },
-                            icon = {
-                                Icon(
-                                    imageVector = destination.icon,
-                                    contentDescription = destination.title
-                                )
-                            },
+                            icon = { Icon(destination.icon, destination.title) },
                             label = { Text(destination.title) },
                             alwaysShowLabel = true
                         )
@@ -231,9 +218,9 @@ fun MainScreen(
             ) {
                 when (selectedDestination) {
                     NavigationDestination.HOME -> HomeContent(state)
-                    NavigationDestination.GAME_JAMS -> GameJamsContent()
-                    NavigationDestination.TEAMS -> TeamsContent()
-                    NavigationDestination.PROJECTS -> ProjectsContent()
+                    NavigationDestination.GAME_JAMS -> GameJamsContent(state)
+                    NavigationDestination.TEAMS -> TeamsContent(state)
+                    NavigationDestination.PROJECTS -> ProjectsContent(state)
                 }
             }
         }
@@ -266,7 +253,7 @@ fun HomeContent(state: MainState) {
         modifier = Modifier
             .fillMaxSize()
             .padding(24.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
         item {
             Text(
@@ -277,51 +264,61 @@ fun HomeContent(state: MainState) {
 
         if (state.activeJams.isEmpty()) {
             item {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant
-                    )
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(32.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Event,
-                            contentDescription = null,
-                            modifier = Modifier.size(48.dp),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Text(
-                            text = "Нет активных джемов",
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                }
+                EmptyStateCard(
+                    icon = Icons.Default.Event,
+                    title = "Нет активных джемов",
+                    description = "Джемы появятся здесь, когда начнется регистрация"
+                )
             }
         } else {
             items(state.activeJams.size) { index ->
-                val jam = state.activeJams[index]
-                GameJamCard(jam = jam)
+                GameJamCard(jam = state.activeJams[index])
+            }
+        }
+
+        if (state.userTeams.isNotEmpty()) {
+            item {
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "Мои команды",
+                    style = MaterialTheme.typography.headlineMedium
+                )
+            }
+
+            item {
+                LazyRow(
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    items(state.userTeams.size) { index ->
+                        TeamCard(team = state.userTeams[index])
+                    }
+                }
+            }
+        }
+
+        if (state.userProjects.isNotEmpty()) {
+            item {
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "Мои проекты",
+                    style = MaterialTheme.typography.headlineMedium
+                )
+            }
+
+            items(state.userProjects.size) { index ->
+                ProjectCard(project = state.userProjects[index])
             }
         }
     }
 }
 
 @Composable
-fun GameJamCard(jam: GameJamPreview) {
+fun GameJamCard(jam: GameJam) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
-        Column(
-            modifier = Modifier.padding(16.dp)
-        ) {
+        Column(modifier = Modifier.padding(16.dp)) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -329,36 +326,27 @@ fun GameJamCard(jam: GameJamPreview) {
             ) {
                 Text(
                     text = jam.name,
-                    style = MaterialTheme.typography.titleLarge
+                    style = MaterialTheme.typography.titleLarge,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f)
                 )
-                AssistChip(
-                    onClick = { },
-                    label = { Text(jam.status) },
-                    leadingIcon = {
-                        Icon(
-                            imageVector = Icons.Default.Circle,
-                            contentDescription = null,
-                            modifier = Modifier.size(8.dp),
-                            tint = when (jam.status) {
-                                "В процессе" -> MaterialTheme.colorScheme.primary
-                                "Регистрация" -> MaterialTheme.colorScheme.tertiary
-                                else -> MaterialTheme.colorScheme.secondary
-                            }
-                        )
-                    }
-                )
+                Spacer(modifier = Modifier.width(8.dp))
+                StatusChip(status = jam.status)
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
-
             jam.theme?.let { theme ->
+                Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     text = "Тема: $theme",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
                 )
-                Spacer(modifier = Modifier.height(8.dp))
             }
+
+            Spacer(modifier = Modifier.height(12.dp))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -366,28 +354,32 @@ fun GameJamCard(jam: GameJamPreview) {
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
-                        imageVector = Icons.Default.Group,
-                        contentDescription = null,
-                        modifier = Modifier.size(16.dp)
+                        Icons.Default.Group,
+                        null,
+                        modifier = Modifier.size(16.dp),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
-                        text = "${jam.teamsCount} команд",
-                        style = MaterialTheme.typography.bodySmall
+                        text = "${jam.registeredTeamsCount} команд",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
 
                 jam.daysRemaining?.let { days ->
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
-                            imageVector = Icons.Default.Schedule,
-                            contentDescription = null,
-                            modifier = Modifier.size(16.dp)
+                            Icons.Default.Schedule,
+                            null,
+                            modifier = Modifier.size(16.dp),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                            text = "$days ${if (days == 1) "день" else if (days < 5) "дня" else "дней"} осталось",
-                            style = MaterialTheme.typography.bodySmall
+                            text = "$days ${getDaysWord(days)} осталось",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }
@@ -406,88 +398,319 @@ fun GameJamCard(jam: GameJamPreview) {
 }
 
 @Composable
-fun GameJamsContent() {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
+fun StatusChip(status: GameJamStatus) {
+    val (text, color) = when (status) {
+        GameJamStatus.REGISTRATION_OPEN -> "Регистрация" to MaterialTheme.colorScheme.tertiary
+        GameJamStatus.IN_PROGRESS -> "В процессе" to MaterialTheme.colorScheme.primary
+        GameJamStatus.JUDGING -> "Оценивание" to MaterialTheme.colorScheme.secondary
+        GameJamStatus.COMPLETED -> "Завершен" to MaterialTheme.colorScheme.surfaceVariant
+        GameJamStatus.CANCELLED -> "Отменен" to MaterialTheme.colorScheme.error
+        else -> status.name to MaterialTheme.colorScheme.surfaceVariant
+    }
+
+    AssistChip(
+        onClick = { },
+        label = { Text(text) },
+        leadingIcon = {
             Icon(
-                imageVector = Icons.Default.Event,
-                contentDescription = null,
-                modifier = Modifier.size(64.dp),
-                tint = MaterialTheme.colorScheme.primary
+                Icons.Default.Circle,
+                null,
+                modifier = Modifier.size(8.dp),
+                tint = color
             )
-            Text(
-                text = "Game Jams",
-                style = MaterialTheme.typography.headlineMedium
-            )
-            Text(
-                text = "Здесь будет список всех джемов",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+        }
+    )
+}
+
+@Composable
+fun TeamCard(team: Team) {
+    Card(
+        modifier = Modifier.width(280.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = team.name,
+                    style = MaterialTheme.typography.titleMedium,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f)
+                )
+                if (team.isLeader) {
+                    Icon(
+                        Icons.Default.Star,
+                        "Лидер",
+                        modifier = Modifier.size(20.dp),
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
+            }
+
+            team.description?.let { desc ->
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = desc,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    Icons.Default.Person,
+                    null,
+                    modifier = Modifier.size(16.dp),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(
+                    text = "${team.memberCount} участников",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
         }
     }
 }
 
 @Composable
-fun TeamsContent() {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
+fun ProjectCard(project: Project) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            Icon(
-                imageVector = Icons.Default.Group,
-                contentDescription = null,
-                modifier = Modifier.size(64.dp),
-                tint = MaterialTheme.colorScheme.primary
-            )
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = project.title,
+                    style = MaterialTheme.typography.titleMedium,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                ProjectStatusChip(status = project.status)
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
             Text(
-                text = "Мои команды",
-                style = MaterialTheme.typography.headlineMedium
-            )
-            Text(
-                text = "Здесь будут ваши команды",
-                style = MaterialTheme.typography.bodyMedium,
+                text = "Джем: ${project.jamName}",
+                style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
+
+            project.teamName?.let { teamName ->
+                Text(
+                    text = "Команда: $teamName",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
         }
     }
 }
 
 @Composable
-fun ProjectsContent() {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
+fun ProjectStatusChip(status: ProjectStatus) {
+    val (text, color) = when (status) {
+        ProjectStatus.DRAFT -> "Черновик" to MaterialTheme.colorScheme.surfaceVariant
+        ProjectStatus.SUBMITTED -> "Отправлен" to MaterialTheme.colorScheme.primary
+        ProjectStatus.PUBLISHED -> "Опубликован" to MaterialTheme.colorScheme.tertiary
+        ProjectStatus.DISQUALIFIED -> "Дисквалифицирован" to MaterialTheme.colorScheme.error
+        else -> status.name to MaterialTheme.colorScheme.surfaceVariant
+    }
+
+    AssistChip(
+        onClick = { },
+        label = { Text(text, style = MaterialTheme.typography.labelSmall) },
+        leadingIcon = {
+            Icon(
+                Icons.Default.Circle,
+                null,
+                modifier = Modifier.size(6.dp),
+                tint = color
+            )
+        }
+    )
+}
+
+@Composable
+fun EmptyStateCard(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    title: String,
+    description: String? = null
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        )
     ) {
         Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(32.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Icon(
-                imageVector = Icons.Default.Gamepad,
-                contentDescription = null,
-                modifier = Modifier.size(64.dp),
-                tint = MaterialTheme.colorScheme.primary
+                icon,
+                null,
+                modifier = Modifier.size(48.dp),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Text(
-                text = "Проекты",
-                style = MaterialTheme.typography.headlineMedium
-            )
-            Text(
-                text = "Здесь будут ваши проекты",
-                style = MaterialTheme.typography.bodyMedium,
+                text = title,
+                style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
+            description?.let {
+                Text(
+                    text = it,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
         }
+    }
+}
+
+@Composable
+fun GameJamsContent(state: MainState) {
+    if (state.isLoading) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            CircularProgressIndicator()
+        }
+        return
+    }
+
+    LazyColumn(
+        modifier = Modifier.fillMaxSize().padding(24.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        item {
+            Text(
+                text = "Все Game Jams",
+                style = MaterialTheme.typography.headlineMedium
+            )
+        }
+
+        if (state.activeJams.isEmpty()) {
+            item {
+                EmptyStateCard(
+                    icon = Icons.Default.Event,
+                    title = "Нет джемов"
+                )
+            }
+        } else {
+            items(state.activeJams.size) { index ->
+                GameJamCard(jam = state.activeJams[index])
+            }
+        }
+    }
+}
+
+@Composable
+fun TeamsContent(state: MainState) {
+    if (state.isLoading) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            CircularProgressIndicator()
+        }
+        return
+    }
+
+    LazyColumn(
+        modifier = Modifier.fillMaxSize().padding(24.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        item {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Мои команды",
+                    style = MaterialTheme.typography.headlineMedium
+                )
+                Button(onClick = { }) {
+                    Icon(Icons.Default.Add, null, modifier = Modifier.size(18.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Создать команду")
+                }
+            }
+        }
+
+        if (state.userTeams.isEmpty()) {
+            item {
+                EmptyStateCard(
+                    icon = Icons.Default.Group,
+                    title = "У вас пока нет команд",
+                    description = "Создайте команду или присоединитесь к существующей"
+                )
+            }
+        } else {
+            items(state.userTeams.size) { index ->
+                TeamCard(team = state.userTeams[index])
+            }
+        }
+    }
+}
+
+@Composable
+fun ProjectsContent(state: MainState) {
+    if (state.isLoading) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            CircularProgressIndicator()
+        }
+        return
+    }
+
+    LazyColumn(
+        modifier = Modifier.fillMaxSize().padding(24.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        item {
+            Text(
+                text = "Мои проекты",
+                style = MaterialTheme.typography.headlineMedium
+            )
+        }
+
+        if (state.userProjects.isEmpty()) {
+            item {
+                EmptyStateCard(
+                    icon = Icons.Default.Gamepad,
+                    title = "У вас пока нет проектов",
+                    description = "Зарегистрируйтесь на джем и создайте проект"
+                )
+            }
+        } else {
+            items(state.userProjects.size) { index ->
+                ProjectCard(project = state.userProjects[index])
+            }
+        }
+    }
+}
+
+private fun getDaysWord(days: Int): String {
+    return when {
+        days % 10 == 1 && days % 100 != 11 -> "день"
+        days % 10 in 2..4 && days % 100 !in 12..14 -> "дня"
+        else -> "дней"
     }
 }
