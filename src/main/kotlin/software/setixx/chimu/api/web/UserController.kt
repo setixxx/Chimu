@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.validation.Valid
+import org.springframework.boot.info.GitProperties
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.core.userdetails.UserDetails
@@ -27,7 +28,7 @@ import software.setixx.chimu.api.service.UserService
 class UserController(
     private val userService: UserService,
     private val specializationService: SpecializationService,
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
 ) {
     @GetMapping("/{publicId}")
     @Operation(summary = "Get user by ID", description = "Retrieves user information by public ID")
@@ -61,7 +62,11 @@ class UserController(
             specialization = specialization,
             avatarUrl = user.avatarUrl,
             createdAt = user.createdAt.toString(),
-            skills = user.skills.map { it.name }
+            skills = user.skills.map { it.name },
+            role = user.role,
+            bio = user.bio,
+            githubUrl = user.githubUrl,
+            telegramUrl = user.telegramUsername
         )
         return ResponseEntity.ok(body)
     }
@@ -95,7 +100,11 @@ class UserController(
             specialization = specialization,
             avatarUrl = updatedUser.avatarUrl,
             createdAt = updatedUser.createdAt.toString(),
-            skills = updatedUser.skills.map { it.name }
+            skills = updatedUser.skills.map { it.name },
+            role = user.role,
+            bio = user.bio,
+            githubUrl = user.githubUrl,
+            telegramUrl = user.telegramUsername
         )
         return ResponseEntity.ok(body)
     }
