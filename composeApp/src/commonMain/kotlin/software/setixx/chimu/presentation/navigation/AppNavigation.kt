@@ -4,6 +4,7 @@ import androidx.compose.runtime.*
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import software.setixx.chimu.getPlatform
 import software.setixx.chimu.presentation.auth.login.LoginScreen
 import software.setixx.chimu.presentation.auth.register.RegisterScreen
@@ -11,6 +12,8 @@ import software.setixx.chimu.presentation.main.MainScreen
 import software.setixx.chimu.presentation.profile.ProfileScreen
 import software.setixx.chimu.presentation.splash.SplashScreen
 import software.setixx.chimu.presentation.team.CreateTeamScreen
+import software.setixx.chimu.presentation.team.JoinTeamScreen
+import software.setixx.chimu.presentation.team.TeamDetailsScreen
 
 @Composable
 fun AppNavigation() {
@@ -75,6 +78,12 @@ fun AppNavigation() {
                 },
                 onNavigateToCreateTeam = {
                     navController.navigate(Screen.CreateTeam)
+                },
+                onNavigateToTeam = { teamId ->
+                    navController.navigate(Screen.TeamDetails(teamId))
+                },
+                onNavigateToJoinTeam = {
+                    navController.navigate(Screen.JoinTeam)
                 }
             )
         }
@@ -97,10 +106,33 @@ fun AppNavigation() {
                 }
             )
         }
+
+        composable<Screen.TeamDetails> {
+            val args = it.toRoute<Screen.TeamDetails>()
+            TeamDetailsScreen(
+                teamId = args.teamId,
+                onBack = {
+                    navController.popBackStack()
+                }
+            )
+        }
+
+        composable<Screen.JoinTeam> {
+            JoinTeamScreen(
+                onBack = {
+                    navController.popBackStack()
+                },
+                onTeamJoined = { teamId ->
+                    navController.navigate(Screen.TeamDetails(teamId)) {
+                        popUpTo(Screen.JoinTeam) { inclusive = true }
+                    }
+                }
+            )
+        }
     }
 }
 
-fun calculatePlatformSizeModifier() : Float {
+fun calculatePlatformSizeModifier(): Float {
     return if (getPlatform().name == "Android" || getPlatform().name == "iOS") {
         0.35f
     } else

@@ -1,5 +1,6 @@
 package software.setixx.chimu.presentation.main
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -26,6 +27,8 @@ fun MainScreen(
     onLogout: () -> Unit,
     onNavigateToProfile: () -> Unit,
     onNavigateToCreateTeam: () -> Unit,
+    onNavigateToTeam: (String) -> Unit,
+    onNavigateToJoinTeam: () -> Unit,
     viewModel: MainViewModel = koinViewModel()
 ) {
     var selectedDestination by remember { mutableStateOf(NavigationDestination.HOME) }
@@ -244,9 +247,9 @@ fun MainScreen(
                 color = MaterialTheme.colorScheme.surfaceContainerLow
             ) {
                 when (selectedDestination) {
-                    NavigationDestination.HOME -> HomeContent(state)
+                    NavigationDestination.HOME -> HomeContent(state, onNavigateToTeam)
                     NavigationDestination.GAME_JAMS -> GameJamsContent(state)
-                    NavigationDestination.TEAMS -> TeamsContent(state, onNavigateToCreateTeam)
+                    NavigationDestination.TEAMS -> TeamsContent(state, onNavigateToCreateTeam, onNavigateToJoinTeam, onNavigateToTeam)
                     NavigationDestination.PROJECTS -> ProjectsContent(state)
                     NavigationDestination.JUDGING -> JudgingContent(state)
                 }
@@ -267,7 +270,7 @@ enum class NavigationDestination(
 }
 
 @Composable
-fun HomeContent(state: MainState) {
+fun HomeContent(state: MainState, onNavigateToTeam: (String) -> Unit) {
     if (state.isLoading) {
         Box(
             modifier = Modifier.fillMaxSize(),
@@ -319,7 +322,7 @@ fun HomeContent(state: MainState) {
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     items(state.userTeams.size) { index ->
-                        TeamCard(team = state.userTeams[index])
+                        TeamCard(team = state.userTeams[index], onClick = { onNavigateToTeam(state.userTeams[index].id) })
                     }
                 }
             }
@@ -452,9 +455,11 @@ fun StatusChip(status: GameJamStatus) {
 }
 
 @Composable
-fun TeamCard(team: Team) {
+fun TeamCard(team: Team, onClick: () -> Unit) {
     Card(
-        modifier = Modifier.width(280.dp),
+        modifier = Modifier
+            .width(280.dp)
+            .clickable(onClick = onClick),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
@@ -654,7 +659,12 @@ fun GameJamsContent(state: MainState) {
 }
 
 @Composable
-fun TeamsContent(state: MainState, onNavigateToCreateTeam: () -> Unit) {
+fun TeamsContent(
+    state: MainState,
+    onNavigateToCreateTeam: () -> Unit,
+    onNavigateToJoinTeam: () -> Unit,
+    onNavigateToTeam: (String) -> Unit
+) {
     if (state.isLoading) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             CircularProgressIndicator()
@@ -676,10 +686,17 @@ fun TeamsContent(state: MainState, onNavigateToCreateTeam: () -> Unit) {
                     text = "Мои команды",
                     style = MaterialTheme.typography.headlineMedium
                 )
-                Button(onClick = onNavigateToCreateTeam) {
-                    Icon(Icons.Default.Add, null, modifier = Modifier.size(18.dp))
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("Создать команду")
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    OutlinedButton(onClick = onNavigateToJoinTeam) {
+                        Icon(Icons.Default.Login, null, modifier = Modifier.size(18.dp))
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Присоединиться")
+                    }
+                    Button(onClick = onNavigateToCreateTeam) {
+                        Icon(Icons.Default.Add, null, modifier = Modifier.size(18.dp))
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Создать")
+                    }
                 }
             }
         }
@@ -694,7 +711,64 @@ fun TeamsContent(state: MainState, onNavigateToCreateTeam: () -> Unit) {
             }
         } else {
             items(state.userTeams.size) { index ->
-                TeamCard(team = state.userTeams[index])
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { onNavigateToTeam(state.userTeams[index].id) },
+                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = state.userTeams[index].name,
+                                style = MaterialTheme.typography.titleMedium,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                modifier = Modifier.weight(1f)
+                            )
+                            if (state.userTeams[index].isLeader) {
+                                Icon(
+                                    Icons.Default.Star,
+                                    "Лидер",
+                                    modifier = Modifier.size(20.dp),
+                                    tint = MaterialTheme.colorScheme.primary
+                                )
+                            }
+                        }
+
+                        state.userTeams[index].description?.let { desc ->
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(
+                                text = desc,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                maxLines = 2,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(12.dp))
+
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                Icons.Default.Person,
+                                null,
+                                modifier = Modifier.size(16.dp),
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                text = "${state.userTeams[index].memberCount} участников",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                }
             }
         }
     }

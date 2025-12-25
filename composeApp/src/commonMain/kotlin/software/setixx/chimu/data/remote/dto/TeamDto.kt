@@ -23,6 +23,7 @@ data class TeamDetailsResponse(
     val createdAt: String,
     val members: List<TeamMemberResponse>
 )
+
 @Serializable
 data class TeamMemberResponse(
     val userId: String,
@@ -37,4 +38,15 @@ data class TeamMemberResponse(
 data class CreateTeamRequest(
     val name: String,
     val description: String? = null
+)
+
+@Serializable
+data class UpdateTeamRequest(
+    val name: String? = null,
+    val description: String? = null
+)
+
+@Serializable
+data class UpdateMemberSpecializationRequest(
+    val specializationId: Long?
 )
