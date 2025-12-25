@@ -9,6 +9,7 @@ import software.setixx.chimu.domain.model.AuthTokens
 import software.setixx.chimu.domain.model.User
 import software.setixx.chimu.domain.repository.AuthRepository
 import io.ktor.client.call.*
+import io.ktor.client.statement.bodyAsText
 import kotlinx.serialization.json.Json
 
 class AuthRepositoryImpl(
@@ -40,13 +41,13 @@ class AuthRepositoryImpl(
         } catch (e: ClientRequestException) {
             val errorMessage = try {
                 val errorResponse = e.response.body<ErrorResponse>()
-                errorResponse.error
+                errorResponse.message
             } catch (_: Exception) {
                 "Неверный email или пароль"
             }
             AuthResult.Error(errorMessage)
         } catch (e: Exception) {
-            AuthResult.Error(e.message ?: "Ошибка подключения к серверу")
+            AuthResult.Error(e.message ?: "Неизвестная ошибка")
         }
     }
 
@@ -57,7 +58,7 @@ class AuthRepositoryImpl(
         } catch (e: ClientRequestException) {
             val errorMessage = try {
                 val errorResponse = e.response.body<ErrorResponse>()
-                errorResponse.error
+                errorResponse.message
             } catch (_: Exception) {
                 when (e.response.status.value) {
                     409 -> "Пользователь с таким email уже существует"
@@ -92,6 +93,7 @@ class AuthRepositoryImpl(
 
             val response = authApi.getCurrentUser(accessToken)
 
+
             AuthResult.Success(
                 User(
                     id = response.id,
@@ -100,7 +102,8 @@ class AuthRepositoryImpl(
                     firstName = response.firstName,
                     lastName = response.lastName,
                     avatarUrl = response.avatarUrl,
-                    createdAt = response.createdAt
+                    createdAt = response.createdAt,
+                    role = response.role
                 )
             )
         } catch (e: ClientRequestException) {

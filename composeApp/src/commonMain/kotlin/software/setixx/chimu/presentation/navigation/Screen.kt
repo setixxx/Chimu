@@ -11,4 +11,10 @@ sealed interface Screen {
 
     @Serializable
     data object Home : Screen
+
+    @Serializable
+    data object Profile : Screen
+
+    @Serializable
+    data object CreateTeam : Screen
 }

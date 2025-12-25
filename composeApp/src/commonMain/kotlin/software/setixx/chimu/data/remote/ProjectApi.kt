@@ -8,6 +8,7 @@ import io.ktor.http.HttpHeaders
 import software.setixx.chimu.data.remote.dto.ProjectResponse
 
 class ProjectApi(private val client: HttpClient) {
+
     suspend fun getUserProjects(accessToken: String): List<ProjectResponse> {
         return client.get("/api/users/me/projects") {
             header(HttpHeaders.Authorization, "Bearer $accessToken")

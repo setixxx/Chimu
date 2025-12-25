@@ -44,11 +44,11 @@ data class UserProfileResponse(
     val lastName: String?,
     val avatarUrl: String?,
     val createdAt: String,
-    val skills: List<String>
+    val skills: List<String>,
+    val role: String
 )
 
 @Serializable
 data class ErrorResponse(
-    val error: String,
-    val details: Map<String, String>? = null
+    val message: String
 )

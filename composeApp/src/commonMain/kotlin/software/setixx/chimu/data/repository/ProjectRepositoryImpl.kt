@@ -29,6 +29,8 @@ class ProjectRepositoryImpl(
             }
             Result.success(projects)
         } catch (e: Exception) {
+            println("❌ Error loading projects: ${e.message}")
+            e.printStackTrace()
             Result.failure(e)
         }
     }

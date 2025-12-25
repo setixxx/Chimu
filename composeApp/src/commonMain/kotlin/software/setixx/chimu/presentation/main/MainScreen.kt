@@ -24,6 +24,8 @@ import software.setixx.chimu.domain.model.Team
 @Composable
 fun MainScreen(
     onLogout: () -> Unit,
+    onNavigateToProfile: () -> Unit,
+    onNavigateToCreateTeam: () -> Unit,
     viewModel: MainViewModel = koinViewModel()
 ) {
     var selectedDestination by remember { mutableStateOf(NavigationDestination.HOME) }
@@ -33,6 +35,23 @@ fun MainScreen(
 
     val state by viewModel.state.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
+
+    val availableDestinations = remember(state.user?.role) {
+        when (state.user?.role) {
+            "ORGANIZER", "ADMIN" -> NavigationDestination.entries.toList()
+            "JUDGE" -> listOf(
+                NavigationDestination.HOME,
+                NavigationDestination.GAME_JAMS,
+                NavigationDestination.JUDGING
+            )
+            else -> listOf(
+                NavigationDestination.HOME,
+                NavigationDestination.GAME_JAMS,
+                NavigationDestination.TEAMS,
+                NavigationDestination.PROJECTS
+            )
+        }
+    }
 
     LaunchedEffect(state.errorMessage) {
         state.errorMessage?.let { error ->
@@ -146,7 +165,10 @@ fun MainScreen(
 
                             DropdownMenuItem(
                                 text = { Text("Профиль") },
-                                onClick = { showUserMenu = false },
+                                onClick = {
+                                    showUserMenu = false
+                                    onNavigateToProfile()
+                                },
                                 leadingIcon = { Icon(Icons.Default.Person, null) }
                             )
                             DropdownMenuItem(
@@ -191,7 +213,7 @@ fun MainScreen(
             ) {
                 Spacer(modifier = Modifier.height(16.dp))
 
-                NavigationDestination.entries.forEach { destination ->
+                availableDestinations.forEach { destination ->
                     if (isRailExpanded) {
                         NavigationDrawerItem(
                             selected = selectedDestination == destination,
@@ -219,8 +241,9 @@ fun MainScreen(
                 when (selectedDestination) {
                     NavigationDestination.HOME -> HomeContent(state)
                     NavigationDestination.GAME_JAMS -> GameJamsContent(state)
-                    NavigationDestination.TEAMS -> TeamsContent(state)
+                    NavigationDestination.TEAMS -> TeamsContent(state, onNavigateToCreateTeam)
                     NavigationDestination.PROJECTS -> ProjectsContent(state)
+                    NavigationDestination.JUDGING -> JudgingContent(state)
                 }
             }
         }
@@ -234,7 +257,8 @@ enum class NavigationDestination(
     HOME("Главная", Icons.Default.Home),
     GAME_JAMS("Game Jams", Icons.Default.Event),
     TEAMS("Мои команды", Icons.Default.Group),
-    PROJECTS("Проекты", Icons.Default.Gamepad)
+    PROJECTS("Проекты", Icons.Default.Gamepad),
+    JUDGING("Оценивание", Icons.Default.Star)
 }
 
 @Composable
@@ -625,7 +649,7 @@ fun GameJamsContent(state: MainState) {
 }
 
 @Composable
-fun TeamsContent(state: MainState) {
+fun TeamsContent(state: MainState, onNavigateToCreateTeam: () -> Unit) {
     if (state.isLoading) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             CircularProgressIndicator()
@@ -647,7 +671,7 @@ fun TeamsContent(state: MainState) {
                     text = "Мои команды",
                     style = MaterialTheme.typography.headlineMedium
                 )
-                Button(onClick = { }) {
+                Button(onClick = onNavigateToCreateTeam) {
                     Icon(Icons.Default.Add, null, modifier = Modifier.size(18.dp))
                     Spacer(modifier = Modifier.width(8.dp))
                     Text("Создать команду")
@@ -667,6 +691,35 @@ fun TeamsContent(state: MainState) {
             items(state.userTeams.size) { index ->
                 TeamCard(team = state.userTeams[index])
             }
+        }
+    }
+}
+
+@Composable
+fun JudgingContent(state: MainState) {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.Star,
+                contentDescription = null,
+                modifier = Modifier.size(64.dp),
+                tint = MaterialTheme.colorScheme.primary
+            )
+            Text(
+                text = "Оценивание",
+                style = MaterialTheme.typography.headlineMedium
+            )
+            Text(
+                text = "Функционал оценивания в разработке",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
     }
 }

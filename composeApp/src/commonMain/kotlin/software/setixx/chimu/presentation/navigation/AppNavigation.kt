@@ -8,6 +8,8 @@ import software.setixx.chimu.getPlatform
 import software.setixx.chimu.presentation.auth.login.LoginScreen
 import software.setixx.chimu.presentation.auth.register.RegisterScreen
 import software.setixx.chimu.presentation.main.MainScreen
+import software.setixx.chimu.presentation.profile.ProfileScreen
+import software.setixx.chimu.presentation.team.CreateTeamScreen
 
 @Composable
 fun AppNavigation() {
@@ -51,6 +53,31 @@ fun AppNavigation() {
                     navController.navigate(Screen.Login) {
                         popUpTo(Screen.Home) { inclusive = true }
                     }
+                },
+                onNavigateToProfile = {
+                    navController.navigate(Screen.Profile)
+                },
+                onNavigateToCreateTeam = {
+                    navController.navigate(Screen.CreateTeam)
+                }
+            )
+        }
+
+        composable<Screen.Profile> {
+            ProfileScreen(
+                onBack = {
+                    navController.popBackStack()
+                }
+            )
+        }
+
+        composable<Screen.CreateTeam> {
+            CreateTeamScreen(
+                onBack = {
+                    navController.popBackStack()
+                },
+                onTeamCreated = {
+                    navController.popBackStack()
                 }
             )
         }

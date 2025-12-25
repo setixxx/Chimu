@@ -30,7 +30,6 @@ private val DarkOnBackground = Color(0xFFE1E2E5)
 private val DarkSurface = Color(0xFF191C1E)
 private val DarkOnSurface = Color(0xFFE1E2E5)
 
-// Light Theme Colors (Серая палитра)
 private val LightPrimary = Color(0xFF005A92)
 private val LightOnPrimary = Color(0xFFFFFFFF)
 private val LightPrimaryContainer = Color(0xFFCCE5FF)
