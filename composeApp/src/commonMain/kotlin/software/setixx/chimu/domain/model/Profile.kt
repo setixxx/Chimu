@@ -11,7 +11,7 @@ data class Skill(
     val name: String
 )
 
-data class ProfileUpdateRequest(
+data class ProfileUpdate(
     val firstName: String? = null,
     val lastName: String? = null,
     val nickname: String? = null,

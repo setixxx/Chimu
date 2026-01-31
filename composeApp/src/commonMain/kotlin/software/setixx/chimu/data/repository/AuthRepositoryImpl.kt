@@ -34,14 +34,6 @@ class AuthRepositoryImpl(
                     refreshToken = response.refreshToken
                 )
             )
-        } catch (e: ClientRequestException) {
-            val errorMessage = try {
-                val errorResponse = e.response.body<ErrorResponse>()
-                errorResponse.message
-            } catch (_: Exception) {
-                "Неверный email или пароль"
-            }
-            AuthResult.Error(errorMessage)
         } catch (e: Exception) {
             AuthResult.Error(e.message ?: "Неизвестная ошибка")
         }

@@ -23,18 +23,12 @@ class AuthApi(private val client: HttpClient) {
         val response = client.post("/api/auth") {
             setBody(LoginRequest(email, password))
         }
-        if (!response.status.isSuccess()) {
-            throw ClientRequestException(response, "")
-        }
         return response.body()
     }
 
     suspend fun register(email: String, password: String): RegisterResponse {
         val response = client.post("/api/auth/register") {
             setBody(RegisterRequest(email, password))
-        }
-        if (!response.status.isSuccess()) {
-            throw ClientRequestException(response, "")
         }
         return response.body()
     }
@@ -43,9 +37,6 @@ class AuthApi(private val client: HttpClient) {
         val response = client.post("/api/auth/refresh") {
             setBody(RefreshTokenRequest(refreshToken))
         }
-        if (!response.status.isSuccess()) {
-            throw ClientRequestException(response, "")
-        }
         return response.body()
     }
 
@@ -53,17 +44,12 @@ class AuthApi(private val client: HttpClient) {
         val response = client.post("/api/auth/logout") {
             setBody(RefreshTokenRequest(refreshToken))
         }
-        if (!response.status.isSuccess()) {
-            throw ClientRequestException(response, "")
-        }
+        return response.body()
     }
 
     suspend fun getCurrentUser(accessToken: String): UserProfileResponse {
         val response = client.get("/api/users/me") {
             header(HttpHeaders.Authorization, "Bearer $accessToken")
-        }
-        if (!response.status.isSuccess()) {
-            throw ClientRequestException(response, "")
         }
         return response.body()
     }

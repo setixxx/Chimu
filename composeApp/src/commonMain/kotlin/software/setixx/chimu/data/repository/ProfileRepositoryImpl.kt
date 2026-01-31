@@ -11,7 +11,7 @@ class ProfileRepositoryImpl(
     private val tokenStorage: TokenStorage
 ) : ProfileRepository {
 
-    override suspend fun updateProfile(request: ProfileUpdateRequest): Result<User> {
+    override suspend fun updateProfile(request: ProfileUpdate): Result<User> {
         return try {
             val token = tokenStorage.getAccessToken()
                 ?: return Result.failure(Exception("Not authenticated"))

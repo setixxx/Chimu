@@ -66,3 +66,11 @@ class RegenerateInviteTokenUseCase(
         return repository.regenerateInviteToken(teamId)
     }
 }
+
+class CreateTeamUseCase(
+    private val repository: TeamRepository
+) {
+    suspend operator fun invoke(data: CreateTeamData): Result<Team> {
+        return repository.createTeam(data)
+    }
+}

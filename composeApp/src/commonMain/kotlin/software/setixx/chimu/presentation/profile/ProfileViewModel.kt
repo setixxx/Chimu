@@ -157,7 +157,7 @@ class ProfileViewModel(
         viewModelScope.launch {
             _state.value = _state.value.copy(isSaving = true)
 
-            val request = ProfileUpdateRequest(
+            val request = ProfileUpdate(
                 firstName = _state.value.firstName.takeIf { it.isNotBlank() },
                 lastName = _state.value.lastName.takeIf { it.isNotBlank() },
                 nickname = _state.value.nickname.takeIf { it != _state.value.user?.nickname },
