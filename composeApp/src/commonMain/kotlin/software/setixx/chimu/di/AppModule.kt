@@ -11,8 +11,8 @@ import software.setixx.chimu.presentation.auth.register.RegisterViewModel
 import software.setixx.chimu.presentation.main.MainViewModel
 import software.setixx.chimu.presentation.profile.ProfileViewModel
 import software.setixx.chimu.presentation.splash.SplashViewModel
-import software.setixx.chimu.presentation.team.CreateTeamViewModel
 import software.setixx.chimu.presentation.team.TeamDetailsViewModel
+import software.setixx.chimu.presentation.team.create.CreateTeamViewModel
 
 val appModule = module {
     single { KtorClient(get()) }
@@ -29,7 +29,7 @@ val appModule = module {
     single<GameJamRepository> { GameJamRepositoryImpl(get(), get()) }
     single<TeamRepository> { TeamRepositoryImpl(get(), get()) }
     single<ProjectRepository> { ProjectRepositoryImpl(get(), get()) }
-    single<ProfileRepository> { ProfileRepositoryImpl(get(), get()) }
+    single<UserRepository> { UserRepositoryImpl(get(), get()) }
     single<SpecializationRepository> { SpecializationRepositoryImpl(get(), get()) }
     single<SkillRepository> { SkillRepositoryImpl(get(), get()) }
 

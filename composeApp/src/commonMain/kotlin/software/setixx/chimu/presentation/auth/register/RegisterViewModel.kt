@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import software.setixx.chimu.domain.model.AuthResult
+import software.setixx.chimu.domain.model.ApiResult
 import software.setixx.chimu.domain.usecase.RegisterUseCase
 
 class RegisterViewModel(
@@ -63,11 +63,11 @@ class RegisterViewModel(
                 email = _state.value.email.trim(),
                 password = _state.value.password
             )) {
-                is AuthResult.Success -> {
+                is ApiResult.Success -> {
                     _state.value = _state.value.copy(isLoading = false)
                     onSuccess()
                 }
-                is AuthResult.Error -> {
+                is ApiResult.Error -> {
                     _state.value = _state.value.copy(
                         isLoading = false,
                         errorMessage = result.message

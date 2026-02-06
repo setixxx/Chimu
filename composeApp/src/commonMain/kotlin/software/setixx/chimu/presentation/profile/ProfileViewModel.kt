@@ -30,26 +30,32 @@ class ProfileViewModel(
             val availableSpecs = mutableListOf<Specialization>()
             val availableSkills = mutableListOf<Skill>()
 
-            getAllSpecializationsUseCase().fold(
-                onSuccess = { specs ->
-                    availableSpecs.addAll(specs)
-                },
-                onFailure = {
-                    println("Error loading specializations: ${it.message}")
+            when (val result = getAllSpecializationsUseCase()) {
+                is ApiResult.Success -> {
+                    availableSpecs.addAll(result.data)
                 }
-            )
+                is ApiResult.Error -> {
+                    _state.value = _state.value.copy(
+                        isLoading = false,
+                        errorMessage = result.message
+                    )
+                }
+            }
 
-            getAllSkillsUseCase().fold(
-                onSuccess = { skills ->
-                    availableSkills.addAll(skills)
-                },
-                onFailure = {
-                    println("Error loading skills: ${it.message}")
+            when (val result = getAllSkillsUseCase()) {
+                is ApiResult.Success -> {
+                    availableSkills.addAll(result.data)
                 }
-            )
+                is ApiResult.Error -> {
+                    _state.value = _state.value.copy(
+                        isLoading = false,
+                        errorMessage = result.message
+                    )
+                }
+            }
 
             when (val result = getCurrentUserUseCase()) {
-                is AuthResult.Success -> {
+                is ApiResult.Success -> {
                     val user = result.data
 
                     val currentSpec = user.specialization?.let { userSpec ->
@@ -75,17 +81,10 @@ class ProfileViewModel(
                         isLoading = false
                     )
                 }
-                is AuthResult.Error -> {
+                is ApiResult.Error -> {
                     _state.value = _state.value.copy(
                         isLoading = false,
                         errorMessage = result.message,
-                        availableSpecializations = availableSpecs,
-                        availableSkills = availableSkills
-                    )
-                }
-                else -> {
-                    _state.value = _state.value.copy(
-                        isLoading = false,
                         availableSpecializations = availableSpecs,
                         availableSkills = availableSkills
                     )
@@ -168,38 +167,21 @@ class ProfileViewModel(
                 skillIds = _state.value.selectedSkills.map { it.id }
             )
 
-            updateProfileUseCase(request).fold(
-                onSuccess = { user ->
-                    val updatedSpec = user.specialization?.let { userSpec ->
-                        _state.value.availableSpecializations.find { it.id == userSpec.id }
-                    }
-
-                    val updatedSkills = user.skills.mapNotNull { userSkill ->
-                        _state.value.availableSkills.find { it.name == userSkill.name }
-                    }
-
+            when (val result = updateProfileUseCase(request)) {
+                is ApiResult.Success -> {
                     _state.value = _state.value.copy(
-                        user = user,
-                        nickname = user.nickname,
-                        firstName = user.firstName ?: "",
-                        lastName = user.lastName ?: "",
-                        bio = user.bio ?: "",
-                        githubUrl = user.githubUrl ?: "",
-                        telegramUsername = user.telegramUsername ?: "",
-                        selectedSpecialization = updatedSpec,
-                        selectedSkills = updatedSkills,
-                        isEditing = false,
+                        user = result.data,
                         isSaving = false,
                         successMessage = "Профиль успешно обновлен"
                     )
-                },
-                onFailure = { error ->
+                }
+                is ApiResult.Error -> {
                     _state.value = _state.value.copy(
                         isSaving = false,
-                        errorMessage = error.message ?: "Ошибка при сохранении профиля"
+                        errorMessage = result.message
                     )
                 }
-            )
+            }
         }
     }
 

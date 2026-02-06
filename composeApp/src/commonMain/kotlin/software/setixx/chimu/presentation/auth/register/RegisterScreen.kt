@@ -63,7 +63,7 @@ fun RegisterScreen(
         ) {
             Column(
                 modifier = Modifier
-                    .fillMaxWidth(0.5f + platformSizeModifier),
+                    .fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {

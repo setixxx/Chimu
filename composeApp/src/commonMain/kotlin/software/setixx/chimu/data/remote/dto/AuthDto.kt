@@ -15,7 +15,7 @@ data class RegisterRequest(
 )
 
 @Serializable
-data class AuthResponse(
+data class LoginResponse(
     val accessToken: String,
     val refreshToken: String
 )

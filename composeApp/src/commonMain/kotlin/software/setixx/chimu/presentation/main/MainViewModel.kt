@@ -6,11 +6,12 @@ import androidx.compose.material.icons.filled.Event
 import androidx.compose.material.icons.filled.Group
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import io.ktor.http.cio.expectHttpBody
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import software.setixx.chimu.domain.model.AuthResult
+import software.setixx.chimu.domain.model.ApiResult
 import software.setixx.chimu.domain.usecase.GetActiveJamsUseCase
 import software.setixx.chimu.domain.usecase.GetCurrentUserUseCase
 import software.setixx.chimu.domain.usecase.GetUserProjectsUseCase
@@ -48,49 +49,54 @@ class MainViewModel(
 
     private suspend fun loadUserData() {
         when (val result = getCurrentUserUseCase()) {
-            is AuthResult.Success -> {
+            is ApiResult.Success -> {
                 _state.value = _state.value.copy(user = result.data)
             }
-            is AuthResult.Error -> {
+            is ApiResult.Error -> {
                 _state.value = _state.value.copy(
                     errorMessage = result.message
                 )
             }
-            else -> {}
         }
     }
 
     private suspend fun loadActiveJams() {
-        getActiveJamsUseCase().fold(
-            onSuccess = { jams ->
-                _state.value = _state.value.copy(activeJams = jams)
-            },
-            onFailure = { error ->
+        when (val result = getActiveJamsUseCase()) {
+            is ApiResult.Success -> {
+                _state.value = _state.value.copy(activeJams = result.data)
+            }
+            is ApiResult.Error -> {
                 _state.value = _state.value.copy(
-                    errorMessage = error.message ?: "Failed to load jams"
+                    errorMessage = result.message
                 )
             }
-        )
+        }
     }
 
     private suspend fun loadUserTeams() {
-        getUserTeamsUseCase().fold(
-            onSuccess = { teams ->
-                _state.value = _state.value.copy(userTeams = teams)
-            },
-            onFailure = { error ->
+        when (val result = getUserTeamsUseCase()) {
+            is ApiResult.Success -> {
+                _state.value = _state.value.copy(userTeams = result.data)
             }
-        )
+            is ApiResult.Error -> {
+                _state.value = _state.value.copy(
+                    errorMessage = result.message
+                )
+            }
+        }
     }
 
     private suspend fun loadUserProjects() {
-        getUserProjectsUseCase().fold(
-            onSuccess = { projects ->
-                _state.value = _state.value.copy(userProjects = projects)
-            },
-            onFailure = { error ->
+        when (val result = getUserProjectsUseCase()) {
+            is ApiResult.Success -> {
+                _state.value = _state.value.copy(userProjects = result.data)
             }
-        )
+            is ApiResult.Error -> {
+                _state.value = _state.value.copy(
+                    errorMessage = result.message
+                )
+            }
+        }
     }
 
     private fun loadNotifications() {
@@ -121,10 +127,10 @@ class MainViewModel(
     fun onLogout(onLogoutSuccess: () -> Unit) {
         viewModelScope.launch {
             when (logoutUseCase()) {
-                is AuthResult.Success -> {
+                is ApiResult.Success -> {
                     onLogoutSuccess()
                 }
-                is AuthResult.Error -> {
+                is ApiResult.Error -> {
                     _state.value = _state.value.copy(
                         errorMessage = "Ошибка при выходе"
                     )

@@ -32,42 +32,51 @@ class TeamDetailsViewModel(
             _state.value = _state.value.copy(isLoading = true)
 
             when (val userResult = getCurrentUserUseCase()) {
-                is AuthResult.Success -> {
+                is ApiResult.Success -> {
                     currentUserId = userResult.data.id
                 }
-                else -> {}
+                is ApiResult.Error -> {
+                    _state.value = _state.value.copy(
+                        isLoading = false,
+                        errorMessage = userResult.message
+                    )
+                }
             }
 
-            getTeamDetailsUseCase(teamId).fold(
-                onSuccess = { team ->
+            when (val result = getTeamDetailsUseCase(teamId)) {
+                is ApiResult.Success -> {
                     _state.value = _state.value.copy(
-                        team = team,
-                        editName = team.name,
-                        editDescription = team.description ?: "",
+                        team = result.data,
+                        editName = result.data.name,
+                        editDescription = result.data.description ?: "",
                         isLoading = false
                     )
                     loadSpecializations()
-                },
-                onFailure = { error ->
+                }
+                is ApiResult.Error -> {
                     _state.value = _state.value.copy(
                         isLoading = false,
-                        errorMessage = error.message ?: "Ошибка загрузки команды"
+                        errorMessage = result.message
                     )
                 }
-            )
+            }
         }
     }
 
     private fun loadSpecializations() {
         viewModelScope.launch {
-            getAllSpecializationsUseCase().fold(
-                onSuccess = { specs ->
+            when (val result = getAllSpecializationsUseCase()) {
+                is ApiResult.Success -> {
                     _state.value = _state.value.copy(
-                        availableSpecializations = specs
+                        availableSpecializations = result.data
                     )
-                },
-                onFailure = {}
-            )
+                }
+                is ApiResult.Error -> {
+                    _state.value = _state.value.copy(
+                        errorMessage = result.message
+                    )
+                }
+            }
         }
     }
 
@@ -103,29 +112,29 @@ class TeamDetailsViewModel(
         viewModelScope.launch {
             _state.value = _state.value.copy(isSaving = true)
 
-            val data = UpdateTeamData(
+            val data = UpdateTeam(
                 name = _state.value.editName.trim().takeIf { it != team.name },
                 description = _state.value.editDescription.trim().takeIf { it != team.description }
             )
 
-            updateTeamUseCase(team.id, data).fold(
-                onSuccess = { updatedTeam ->
+            when (val result = updateTeamUseCase(team.id, data)) {
+                is ApiResult.Success -> {
                     _state.value = _state.value.copy(
-                        team = updatedTeam,
-                        editName = updatedTeam.name,
-                        editDescription = updatedTeam.description ?: "",
+                        team = result.data,
+                        editName = result.data.name,
+                        editDescription = result.data.description ?: "",
                         isEditing = false,
                         isSaving = false,
                         successMessage = "Команда обновлена"
                     )
-                },
-                onFailure = { error ->
+                }
+                is ApiResult.Error -> {
                     _state.value = _state.value.copy(
                         isSaving = false,
-                        errorMessage = error.message ?: "Ошибка обновления команды"
+                        errorMessage = result.message
                     )
                 }
-            )
+            }
         }
     }
 
@@ -170,18 +179,17 @@ class TeamDetailsViewModel(
             hideLeaveDialog()
             _state.value = _state.value.copy(isLoading = true)
 
-            leaveTeamUseCase(team.id).fold(
-                onSuccess = {
+            when (val result = leaveTeamUseCase(team.id)) {
+                is ApiResult.Success -> {
                     _state.value = _state.value.copy(isLoading = false)
-                    onSuccess()
-                },
-                onFailure = { error ->
+                }
+                is ApiResult.Error -> {
                     _state.value = _state.value.copy(
                         isLoading = false,
-                        errorMessage = error.message ?: "Ошибка выхода из команды"
+                        errorMessage = result.message
                     )
                 }
-            )
+            }
         }
     }
 
@@ -200,18 +208,19 @@ class TeamDetailsViewModel(
             hideDeleteDialog()
             _state.value = _state.value.copy(isLoading = true)
 
-            deleteTeamUseCase(team.id).fold(
-                onSuccess = {
+            when (val result = deleteTeamUseCase(team.id)) {
+                is ApiResult.Success -> {
                     _state.value = _state.value.copy(isLoading = false)
                     onSuccess()
-                },
-                onFailure = { error ->
+                }
+
+                is ApiResult.Error -> {
                     _state.value = _state.value.copy(
                         isLoading = false,
-                        errorMessage = error.message ?: "Ошибка удаления команды"
+                        errorMessage = result.message
                     )
                 }
-            )
+            }
         }
     }
 
@@ -236,19 +245,19 @@ class TeamDetailsViewModel(
         viewModelScope.launch {
             hideKickDialog()
 
-            kickMemberUseCase(team.id, member.userId).fold(
-                onSuccess = {
+            when (val result = kickMemberUseCase(team.id, member.userId)) {
+                is ApiResult.Success -> {
                     loadTeamDetails(team.id)
                     _state.value = _state.value.copy(
                         successMessage = "Участник исключен"
                     )
-                },
-                onFailure = { error ->
+                }
+                is ApiResult.Error -> {
                     _state.value = _state.value.copy(
-                        errorMessage = error.message ?: "Ошибка исключения участника"
+                        errorMessage = result.message
                     )
                 }
-            )
+            }
         }
     }
 
@@ -264,19 +273,19 @@ class TeamDetailsViewModel(
         val team = _state.value.team ?: return
 
         viewModelScope.launch {
-            regenerateInviteTokenUseCase(team.id).fold(
-                onSuccess = { newToken ->
+            when (val result = regenerateInviteTokenUseCase(team.id)) {
+                is ApiResult.Success -> {
                     _state.value = _state.value.copy(
-                        team = _state.value.team?.copy(inviteToken = newToken),
+                        team = _state.value.team?.copy(inviteToken = result.data),
                         successMessage = "Токен обновлен"
                     )
-                },
-                onFailure = { error ->
+                }
+                is ApiResult.Error -> {
                     _state.value = _state.value.copy(
-                        errorMessage = error.message ?: "Ошибка обновления токена"
+                        errorMessage = result.message
                     )
                 }
-            )
+            }
         }
     }
 
@@ -307,18 +316,18 @@ class TeamDetailsViewModel(
             hideJoinDialog()
             _state.value = _state.value.copy(isLoading = true)
 
-            joinTeamUseCase(token).fold(
-                onSuccess = { team ->
+            when (val result = joinTeamUseCase(token)) {
+                is ApiResult.Success -> {
                     _state.value = _state.value.copy(isLoading = false)
-                    onSuccess(team.id)
-                },
-                onFailure = { error ->
+                    onSuccess(result.data.id)
+                }
+                is ApiResult.Error -> {
                     _state.value = _state.value.copy(
                         isLoading = false,
-                        errorMessage = error.message ?: "Ошибка присоединения к команде"
+                        errorMessage = result.message
                     )
                 }
-            )
+            }
         }
     }
 
@@ -342,25 +351,24 @@ class TeamDetailsViewModel(
 
     fun saveSpecialization() {
         val team = _state.value.team ?: return
+        val specId = _state.value.selectedSpecialization?.id
 
         viewModelScope.launch {
             hideSpecializationDialog()
 
-            val specId = _state.value.selectedSpecialization?.id
-
-            updateMemberSpecializationUseCase(team.id, specId).fold(
-                onSuccess = {
+            when (val result = updateMemberSpecializationUseCase(team.id, specId)) {
+                is ApiResult.Success -> {
                     loadTeamDetails(team.id)
                     _state.value = _state.value.copy(
                         successMessage = "Специализация обновлена"
                     )
-                },
-                onFailure = { error ->
+                }
+                is ApiResult.Error -> {
                     _state.value = _state.value.copy(
-                        errorMessage = error.message ?: "Ошибка обновления специализации"
+                        errorMessage = result.message
                     )
                 }
-            )
+            }
         }
     }
 

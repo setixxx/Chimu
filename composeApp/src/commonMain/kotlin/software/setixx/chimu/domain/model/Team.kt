@@ -1,5 +1,14 @@
 package software.setixx.chimu.domain.model
 
+data class Team(
+    val id: String,
+    val name: String,
+    val description: String?,
+    val memberCount: Int,
+    val isLeader: Boolean,
+    val createdAt: String
+)
+
 data class TeamDetails(
     val id: String,
     val name: String,
@@ -19,7 +28,12 @@ data class TeamMember(
     val isLeader: Boolean
 )
 
-data class UpdateTeamData(
+data class UpdateTeam(
     val name: String?,
     val description: String?
+)
+
+data class CreateTeam(
+    val name: String,
+    val description: String? = null
 )

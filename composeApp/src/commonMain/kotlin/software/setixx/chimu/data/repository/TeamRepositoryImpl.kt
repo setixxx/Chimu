@@ -11,10 +11,10 @@ class TeamRepositoryImpl(
     private val tokenStorage: TokenStorage
 ) : TeamRepository {
 
-    override suspend fun getUserTeams(): Result<List<Team>> {
+    override suspend fun getUserTeams(): ApiResult<List<Team>> {
         return try {
             val token = tokenStorage.getAccessToken()
-                ?: return Result.failure(Exception("Not authenticated"))
+                ?: return ApiResult.Error("Ошибка аутентификации")
 
             val response = api.getUserTeams(token)
             val teams = response.map { dto ->
@@ -27,18 +27,16 @@ class TeamRepositoryImpl(
                     createdAt = dto.createdAt
                 )
             }
-            Result.success(teams)
+            ApiResult.Success(teams)
         } catch (e: Exception) {
-            println("Error loading teams: ${e.message}")
-            e.printStackTrace()
-            Result.failure(e)
+            ApiResult.Error(e.message ?: "Ошибка подключения к серверу")
         }
     }
 
-    override suspend fun createTeam(data: CreateTeamData): Result<Team> {
+    override suspend fun createTeam(data: CreateTeam): ApiResult<Team> {
         return try {
             val token = tokenStorage.getAccessToken()
-                ?: return Result.failure(Exception("Not authenticated"))
+                ?: return ApiResult.Error("Ошибка аутентификации")
 
             val request = CreateTeamRequest(
                 name = data.name,
@@ -56,33 +54,29 @@ class TeamRepositoryImpl(
                 createdAt = response.createdAt
             )
 
-            Result.success(team)
+            ApiResult.Success(team)
         } catch (e: Exception) {
-            println("Error creating team: ${e.message}")
-            e.printStackTrace()
-            Result.failure(e)
+            ApiResult.Error(e.message ?: "Ошибка подключения к серверу")
         }
     }
 
-    override suspend fun getTeamDetails(teamId: String): Result<TeamDetails> {
+    override suspend fun getTeamDetails(teamId: String): ApiResult<TeamDetails> {
         return try {
             val token = tokenStorage.getAccessToken()
-                ?: return Result.failure(Exception("Not authenticated"))
+                ?: return ApiResult.Error("Ошибка аутентификации")
 
             val response = api.getTeamDetails(token, teamId)
             val details = response.toTeamDetails()
-            Result.success(details)
+            ApiResult.Success(details)
         } catch (e: Exception) {
-            println("Error loading team details: ${e.message}")
-            e.printStackTrace()
-            Result.failure(e)
+            ApiResult.Error(e.message ?: "Ошибка подключения к серверу")
         }
     }
 
-    override suspend fun updateTeam(teamId: String, data: UpdateTeamData): Result<TeamDetails> {
+    override suspend fun updateTeam(teamId: String, data: UpdateTeam): ApiResult<TeamDetails> {
         return try {
             val token = tokenStorage.getAccessToken()
-                ?: return Result.failure(Exception("Not authenticated"))
+                ?: return ApiResult.Error("Ошибка аутентификации")
 
             val request = UpdateTeamRequest(
                 name = data.name,
@@ -91,102 +85,88 @@ class TeamRepositoryImpl(
 
             val response = api.updateTeam(token, teamId, request)
             val details = response.toTeamDetails()
-            Result.success(details)
+            ApiResult.Success(details)
         } catch (e: Exception) {
-            println("Error updating team: ${e.message}")
-            e.printStackTrace()
-            Result.failure(e)
+            ApiResult.Error(e.message ?: "Ошибка подключения к серверу")
         }
     }
 
-    override suspend fun joinTeam(inviteToken: String): Result<TeamDetails> {
+    override suspend fun joinTeam(inviteToken: String): ApiResult<TeamDetails> {
         return try {
             val token = tokenStorage.getAccessToken()
-                ?: return Result.failure(Exception("Not authenticated"))
+                ?: return ApiResult.Error("Ошибка аутентификации")
 
             val response = api.joinTeam(token, inviteToken)
             val details = response.toTeamDetails()
-            Result.success(details)
+            ApiResult.Success(details)
         } catch (e: Exception) {
-            println("Error joining team: ${e.message}")
-            e.printStackTrace()
-            Result.failure(e)
+            ApiResult.Error(e.message ?: "Ошибка подключения к серверу")
         }
     }
 
-    override suspend fun leaveTeam(teamId: String): Result<Unit> {
+    override suspend fun leaveTeam(teamId: String): ApiResult<Unit> {
         return try {
             val token = tokenStorage.getAccessToken()
-                ?: return Result.failure(Exception("Not authenticated"))
+                ?: return ApiResult.Error("Ошибка аутентификации")
 
             api.leaveTeam(token, teamId)
-            Result.success(Unit)
+            ApiResult.Success(Unit)
         } catch (e: Exception) {
-            println("Error leaving team: ${e.message}")
-            e.printStackTrace()
-            Result.failure(e)
+            ApiResult.Error(e.message ?: "Ошибка подключения к серверу")
         }
     }
 
-    override suspend fun deleteTeam(teamId: String): Result<Unit> {
+    override suspend fun deleteTeam(teamId: String): ApiResult<Unit> {
         return try {
             val token = tokenStorage.getAccessToken()
-                ?: return Result.failure(Exception("Not authenticated"))
+                ?: return ApiResult.Error("Ошибка аутентификации")
 
             api.deleteTeam(token, teamId)
-            Result.success(Unit)
+            ApiResult.Success(Unit)
         } catch (e: Exception) {
-            println("Error deleting team: ${e.message}")
-            e.printStackTrace()
-            Result.failure(e)
+            ApiResult.Error(e.message ?: "Ошибка подключения к серверу")
         }
     }
 
-    override suspend fun kickMember(teamId: String, userId: String): Result<Unit> {
+    override suspend fun kickMember(teamId: String, userId: String): ApiResult<Unit> {
         return try {
             val token = tokenStorage.getAccessToken()
-                ?: return Result.failure(Exception("Not authenticated"))
+                ?: return ApiResult.Error("Ошибка аутентификации")
 
             api.kickMember(token, teamId, userId)
-            Result.success(Unit)
+            ApiResult.Success(Unit)
         } catch (e: Exception) {
-            println("Error kicking member: ${e.message}")
-            e.printStackTrace()
-            Result.failure(e)
+            ApiResult.Error(e.message ?: "Ошибка подключения к серверу")
         }
     }
 
     override suspend fun updateMemberSpecialization(
         teamId: String,
         specializationId: Long?
-    ): Result<TeamMember> {
+    ): ApiResult<TeamMember> {
         return try {
             val token = tokenStorage.getAccessToken()
-                ?: return Result.failure(Exception("Not authenticated"))
+                ?: return ApiResult.Error("Ошибка аутентификации")
 
             val request = UpdateMemberSpecializationRequest(specializationId)
             val response = api.updateMemberSpecialization(token, teamId, request)
             val member = response.toTeamMember()
-            Result.success(member)
+            ApiResult.Success(member)
         } catch (e: Exception) {
-            println("Error updating specialization: ${e.message}")
-            e.printStackTrace()
-            Result.failure(e)
+            ApiResult.Error(e.message ?: "Ошибка подключения к серверу")
         }
     }
 
-    override suspend fun regenerateInviteToken(teamId: String): Result<String> {
+    override suspend fun regenerateInviteToken(teamId: String): ApiResult<String> {
         return try {
             val token = tokenStorage.getAccessToken()
-                ?: return Result.failure(Exception("Not authenticated"))
+                ?: return ApiResult.Error("Ошибка аутентификации")
 
             val response = api.regenerateInviteToken(token, teamId)
             val newToken = response["inviteToken"] ?: throw Exception("No token in response")
-            Result.success(newToken)
+            ApiResult.Success(newToken)
         } catch (e: Exception) {
-            println("Error regenerating token: ${e.message}")
-            e.printStackTrace()
-            Result.failure(e)
+            ApiResult.Error(e.message ?: "Ошибка подключения к серверу")
         }
     }
 

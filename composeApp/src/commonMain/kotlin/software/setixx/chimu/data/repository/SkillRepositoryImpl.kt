@@ -2,6 +2,7 @@ package software.setixx.chimu.data.repository
 
 import software.setixx.chimu.data.local.TokenStorage
 import software.setixx.chimu.data.remote.SkillApi
+import software.setixx.chimu.domain.model.ApiResult
 import software.setixx.chimu.domain.model.Skill
 import software.setixx.chimu.domain.repository.SkillRepository
 
@@ -10,10 +11,10 @@ class SkillRepositoryImpl(
     private val tokenStorage: TokenStorage
 ) : SkillRepository {
 
-    override suspend fun getAllSkills(): Result<List<Skill>> {
+    override suspend fun getAllSkills(): ApiResult<List<Skill>> {
         return try {
             val token = tokenStorage.getAccessToken()
-                ?: return Result.failure(Exception("Not authenticated"))
+                ?: return ApiResult.Error("Ошибка аутентификации")
 
             val response = api.getAllSkills(token)
             val skills = response.map { dto ->
@@ -22,11 +23,9 @@ class SkillRepositoryImpl(
                     name = dto.name
                 )
             }
-            Result.success(skills)
+            ApiResult.Success(skills)
         } catch (e: Exception) {
-            println("Error loading skills: ${e.message}")
-            e.printStackTrace()
-            Result.failure(e)
+            ApiResult.Error(e.message ?: "Ошибка подключения к серверу")
         }
     }
 }

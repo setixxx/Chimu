@@ -22,7 +22,3 @@ data class ProfileUpdate(
     val skillIds: List<Long>? = null
 )
 
-data class CreateTeamData(
-    val name: String,
-    val description: String? = null
-)

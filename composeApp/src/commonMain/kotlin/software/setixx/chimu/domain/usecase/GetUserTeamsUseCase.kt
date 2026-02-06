@@ -6,7 +6,5 @@ import software.setixx.chimu.domain.repository.TeamRepository
 class GetUserTeamsUseCase(
     private val repository: TeamRepository
 ) {
-    suspend operator fun invoke(): Result<List<Team>> {
-        return repository.getUserTeams()
-    }
+    suspend operator fun invoke() = repository.getUserTeams()
 }

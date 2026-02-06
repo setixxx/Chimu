@@ -21,29 +21,3 @@ enum class GameJamStatus {
     COMPLETED,
     CANCELLED
 }
-
-data class Team(
-    val id: String,
-    val name: String,
-    val description: String?,
-    val memberCount: Int,
-    val isLeader: Boolean,
-    val createdAt: String
-)
-
-data class Project(
-    val id: String,
-    val jamName: String,
-    val teamName: String?,
-    val title: String,
-    val status: ProjectStatus,
-    val submittedAt: String?
-)
-
-enum class ProjectStatus {
-    DRAFT,
-    SUBMITTED,
-    UNDER_REVIEW,
-    PUBLISHED,
-    DISQUALIFIED
-}

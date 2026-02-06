@@ -6,7 +6,5 @@ import software.setixx.chimu.domain.repository.ProjectRepository
 class GetUserProjectsUseCase(
     private val repository: ProjectRepository
 ) {
-    suspend operator fun invoke(): Result<List<Project>> {
-        return repository.getUserProjects()
-    }
+    suspend operator fun invoke() = repository.getUserProjects()
 }

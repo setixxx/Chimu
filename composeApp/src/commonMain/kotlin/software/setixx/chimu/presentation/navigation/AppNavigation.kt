@@ -11,7 +11,7 @@ import software.setixx.chimu.presentation.auth.register.RegisterScreen
 import software.setixx.chimu.presentation.main.MainScreen
 import software.setixx.chimu.presentation.profile.ProfileScreen
 import software.setixx.chimu.presentation.splash.SplashScreen
-import software.setixx.chimu.presentation.team.CreateTeamScreen
+import software.setixx.chimu.presentation.team.create.CreateTeamScreen
 import software.setixx.chimu.presentation.team.JoinTeamScreen
 import software.setixx.chimu.presentation.team.TeamDetailsScreen
 

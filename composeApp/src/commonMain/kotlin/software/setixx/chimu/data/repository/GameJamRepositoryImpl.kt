@@ -13,10 +13,11 @@ class GameJamRepositoryImpl(
     private val tokenStorage: TokenStorage
 ) : GameJamRepository {
 
-    override suspend fun getAllJams(): Result<List<GameJam>> {
+    override suspend fun getAllJams(): ApiResult<List<GameJam>> {
         return try {
             val token = tokenStorage.getAccessToken()
-                ?: return Result.failure(Exception("Not authenticated"))
+                ?: return ApiResult.Error("Ошибка аутентификации")
+
 
             val response = api.getAllJams(token)
             val jams = response.map { dto ->
@@ -33,18 +34,16 @@ class GameJamRepositoryImpl(
                     daysRemaining = calculateDaysRemaining(dto.jamEnd, dto.status)
                 )
             }
-            Result.success(jams)
+            ApiResult.Success(jams)
         } catch (e: Exception) {
-            println("Error loading all jams: ${e.message}")
-            e.printStackTrace()
-            Result.failure(e)
+            ApiResult.Error(e.message ?: "Ошибка подключения к серверу")
         }
     }
 
-    override suspend fun getActiveJams(): Result<List<GameJam>> {
+    override suspend fun getActiveJams(): ApiResult<List<GameJam>> {
         return try {
             val token = tokenStorage.getAccessToken()
-                ?: return Result.failure(Exception("Not authenticated"))
+                ?: return ApiResult.Error("Ошибка аутентификации")
 
             val statuses = listOf("IN_PROGRESS", "REGISTRATION_OPEN", "JUDGING")
             val allJams = mutableListOf<GameJam>()
@@ -72,11 +71,11 @@ class GameJamRepositoryImpl(
                 }
             }
 
-            Result.success(allJams)
+            ApiResult.Success(allJams)
         } catch (e: Exception) {
             println("Error loading active jams: ${e.message}")
             e.printStackTrace()
-            Result.failure(e)
+            ApiResult.Error(e.message ?: "Ошибка подключения к серверу")
         }
     }
 

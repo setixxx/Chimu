@@ -40,7 +40,7 @@ class KtorClient(
         defaultRequest {
             url {
                 protocol = URLProtocol.HTTP
-                host = address
+                host = "192.168.1.92"
                 port = 8080
             }
             contentType(ContentType.Application.Json)
