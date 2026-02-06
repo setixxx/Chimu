@@ -47,6 +47,7 @@ dependencies {
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.13")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
     implementation("io.github.cdimascio:dotenv-kotlin:6.5.1")
+	implementation("org.hibernate.orm:hibernate-core:6.6.29.Final")
 }
 
 kotlin {

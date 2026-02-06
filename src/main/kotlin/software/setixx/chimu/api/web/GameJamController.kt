@@ -11,7 +11,6 @@ import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
 import software.setixx.chimu.api.domain.GameJamStatus
-import software.setixx.chimu.api.dto.ChangeGameJamStatusRequest
 import software.setixx.chimu.api.dto.CreateGameJamRequest
 import software.setixx.chimu.api.dto.GameJamDetailsResponse
 import software.setixx.chimu.api.dto.GameJamResponse

@@ -14,7 +14,7 @@ import software.setixx.chimu.api.dto.AuthenticationResponse
 import software.setixx.chimu.api.dto.RefreshTokenRequest
 import software.setixx.chimu.api.dto.RegisterRequest
 import software.setixx.chimu.api.dto.RegisterResponse
-import software.setixx.chimu.api.dto.TokenResponse
+import software.setixx.chimu.api.dto.RefreshTokenResponse
 import software.setixx.chimu.api.security.AuthenticationService
 import software.setixx.chimu.api.service.RegistrationService
 
@@ -47,9 +47,9 @@ class AuthController(
     )
     fun refreshAccessToken(
         @Valid @RequestBody request: RefreshTokenRequest
-    ): ResponseEntity<TokenResponse> {
+    ): ResponseEntity<RefreshTokenResponse> {
         val token = authenticationService.refreshAccessToken(request.token)
-        return ResponseEntity.ok(TokenResponse(token = token))
+        return ResponseEntity.ok(RefreshTokenResponse(token = token))
     }
 
     @PostMapping("/register")
@@ -76,7 +76,7 @@ class AuthController(
     @Operation(summary = "Logout user", description = "Revokes the provided refresh token, logging out the user")
     @ApiResponses(
         ApiResponse(responseCode = "200", description = "Logged out successfully"),
-        ApiResponse(responseCode = "400", description = "Invalid refresh token")
+        ApiResponse(responseCode = "401", description = "Invalid refresh token")
     )
     fun logout(
         @Valid @RequestBody request: RefreshTokenRequest

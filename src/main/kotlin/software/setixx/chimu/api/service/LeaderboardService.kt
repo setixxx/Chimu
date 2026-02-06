@@ -51,7 +51,7 @@ class LeaderboardService(
         }.filter { it.score.allCriteriaRated }
 
         val sortedProjects = projectScores.sortedWith(
-            compareByDescending<ProjectRanking> { it.score.total.toBigDecimal() }
+            compareByDescending<ProjectRankingResponse> { it.score.total.toBigDecimal() }
                 .thenByDescending { it.score.judgesRated }
                 .thenBy { it.project.submittedAt }
         ).mapIndexed { index, projectRanking ->
@@ -143,7 +143,7 @@ class LeaderboardService(
         criteria: List<RatingCriteria>,
         allRatings: List<Rating>,
         totalJudges: Int
-    ): ProjectRanking? {
+    ): ProjectRankingResponse? {
         val projectRatings = allRatings.filter { it.projectId == project.id }
 
         val criteriaScores = criteria.map { criterion ->
@@ -185,7 +185,7 @@ class LeaderboardService(
 
         val team = project.teamId?.let { teamRepository.findById(it).orElse(null) }
 
-        return ProjectRanking(
+        return ProjectRankingResponse(
             rank = 0,
             project = ProjectInfo(
                 id = project.publicId.toString(),

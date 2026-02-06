@@ -7,10 +7,10 @@ data class LeaderboardResponse(
     val totalProjects: Int,
     val qualifiedProjects: Int,
     val totalJudges: Int,
-    val rankings: List<ProjectRanking>
+    val rankings: List<ProjectRankingResponse>
 )
 
-data class ProjectRanking(
+data class ProjectRankingResponse(
     val rank: Int,
     val project: ProjectInfo,
     val score: ScoreBreakdown

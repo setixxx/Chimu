@@ -2,6 +2,7 @@ package software.setixx.chimu.api.exception
 
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.authentication.AuthenticationServiceException
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
@@ -36,10 +37,18 @@ class GlobalExceptionHandler {
             ))
     }
 
+    @ExceptionHandler(AuthenticationServiceException::class)
+    fun handleAuthenticationService(ex: AuthenticationServiceException): ResponseEntity<Map<String, String>> {
+        return ResponseEntity
+            .status(HttpStatus.UNAUTHORIZED)
+            .body(mapOf("error" to (ex.message ?: "Authentication failed")))
+    }
+
     @ExceptionHandler(EmailAlreadyExistsException::class)
     fun handleEmailAlreadyExists(ex: EmailAlreadyExistsException): ResponseEntity<Map<String, String>> {
         return ResponseEntity
             .status(HttpStatus.CONFLICT)
             .body(mapOf(
                 "error" to (ex.message ?: "The email is already in use")))
-    }}
+    }
+}

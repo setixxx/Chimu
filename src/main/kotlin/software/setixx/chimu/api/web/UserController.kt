@@ -36,6 +36,7 @@ class UserController(
         ApiResponse(responseCode = "200", description = "User retrieved successfully"),
         ApiResponse(responseCode = "404", description = "User not found")
     )
+    // TODO Реализовать
     fun getUserById(@PathVariable publicId: String): User? {
         return userService.getUserByPublicId(java.util.UUID.fromString(publicId))
     }

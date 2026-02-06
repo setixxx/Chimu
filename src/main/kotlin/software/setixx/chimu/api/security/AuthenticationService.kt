@@ -32,12 +32,16 @@ class AuthenticationService(
         authenticationRequest: AuthenticationRequest,
         request: HttpServletRequest? = null
     ): AuthenticationResponse {
-        authManager.authenticate(
-            UsernamePasswordAuthenticationToken(
-                authenticationRequest.email,
-                authenticationRequest.password
+        try {
+            authManager.authenticate(
+                UsernamePasswordAuthenticationToken(
+                    authenticationRequest.email,
+                    authenticationRequest.password
+                )
             )
-        )
+        } catch (e: Exception) {
+            throw AuthenticationServiceException("Invalid credentials")
+        }
 
         val user = userDetailsService.loadUserByUsername(authenticationRequest.email) as CustomUserDetails
 

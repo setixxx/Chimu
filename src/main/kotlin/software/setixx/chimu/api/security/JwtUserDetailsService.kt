@@ -1,9 +1,9 @@
 package software.setixx.chimu.api.security
 
+import org.springframework.security.authentication.AuthenticationServiceException
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UserDetailsService
-import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.stereotype.Service
 import software.setixx.chimu.api.repository.UserRepository
 import java.util.UUID
@@ -15,7 +15,7 @@ class JwtUserDetailsService(
 
     override fun loadUserByUsername(email: String): UserDetails {
         val user = userRepository.findByEmail(email)
-            ?: throw UsernameNotFoundException("User $email not found!")
+            ?: throw AuthenticationServiceException("Invalid credentials")
 
         return CustomUserDetails(
             publicId = user.publicId,
@@ -27,7 +27,7 @@ class JwtUserDetailsService(
 
     fun loadUserByPublicId(publicId: UUID): UserDetails {
         val user = userRepository.findByPublicId(publicId)
-            ?: throw UsernameNotFoundException("User with publicId $publicId not found!")
+            ?: throw AuthenticationServiceException("Invalid credentials")
 
         return CustomUserDetails(
             publicId = user.publicId,

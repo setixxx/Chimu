@@ -1,8 +1,10 @@
 package software.setixx.chimu.api.dto
 
 import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Pattern
 import jakarta.validation.constraints.Size
+import software.setixx.chimu.api.domain.RegistrationStatus
 
 data class CreateTeamRequest(
     @field:NotBlank(message = "Team name is required")
@@ -56,16 +58,6 @@ data class TeamMemberResponse(
     val specialization: SpecializationResponse?,
     val joinedAt: String,
     val isLeader: Boolean
-)
-
-data class JoinTeamRequest(
-    @field:NotBlank(message = "Invite token is required")
-    val inviteToken: String
-)
-
-data class KickMemberRequest(
-    @field:NotBlank(message = "User ID is required")
-    val userId: String
 )
 
 data class UpdateMemberSpecializationRequest(
