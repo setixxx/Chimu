@@ -22,6 +22,15 @@ sealed interface Screen {
     data object CreateTeam : Screen
 
     @Serializable
+    data object CreateJam : Screen
+
+    @Serializable
+    data class JamDetails(val jamId: String) : Screen
+
+    @Serializable
+    data class EditJam(val jamId: String) : Screen
+
+    @Serializable
     data class TeamDetails(val teamId: String) : Screen
 
     @Serializable

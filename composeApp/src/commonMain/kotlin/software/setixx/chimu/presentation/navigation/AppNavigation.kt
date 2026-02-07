@@ -8,6 +8,9 @@ import androidx.navigation.toRoute
 import software.setixx.chimu.getPlatform
 import software.setixx.chimu.presentation.auth.login.LoginScreen
 import software.setixx.chimu.presentation.auth.register.RegisterScreen
+import software.setixx.chimu.presentation.jam.create.CreateJamScreen
+import software.setixx.chimu.presentation.jam.details.JamDetailsScreen
+import software.setixx.chimu.presentation.jam.edit.EditJamScreen
 import software.setixx.chimu.presentation.main.MainScreen
 import software.setixx.chimu.presentation.profile.ProfileScreen
 import software.setixx.chimu.presentation.splash.SplashScreen
@@ -84,6 +87,12 @@ fun AppNavigation() {
                 },
                 onNavigateToJoinTeam = {
                     navController.navigate(Screen.JoinTeam)
+                },
+                onNavigateToCreateJam = {
+                    navController.navigate(Screen.CreateJam)
+                },
+                onNavigateToJamDetails = { jamId ->
+                    navController.navigate(Screen.JamDetails(jamId))
                 }
             )
         }
@@ -126,6 +135,43 @@ fun AppNavigation() {
                     navController.navigate(Screen.TeamDetails(teamId)) {
                         popUpTo(Screen.JoinTeam) { inclusive = true }
                     }
+                }
+            )
+        }
+
+        composable<Screen.CreateJam> {
+            CreateJamScreen(
+                onBack = {
+                    navController.popBackStack()
+                },
+                onJamCreated = {
+                    navController.popBackStack()
+                }
+            )
+        }
+
+        composable<Screen.JamDetails> {
+            val args = it.toRoute<Screen.JamDetails>()
+            JamDetailsScreen(
+                jamId = args.jamId,
+                onBack = {
+                    navController.popBackStack()
+                },
+                onEditJam = { jamId ->
+                    navController.navigate(Screen.EditJam(jamId))
+                }
+            )
+        }
+
+        composable<Screen.EditJam> {
+            val args = it.toRoute<Screen.EditJam>()
+            EditJamScreen(
+                jamId = args.jamId,
+                onBack = {
+                    navController.popBackStack()
+                },
+                onSuccess = {
+                    navController.popBackStack()
                 }
             )
         }

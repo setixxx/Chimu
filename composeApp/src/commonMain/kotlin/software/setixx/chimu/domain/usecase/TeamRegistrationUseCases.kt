@@ -13,7 +13,7 @@ class GetJamRegistrationsUseCase(
 class RegisterTeamUseCase(
     private val repository: TeamRegistrationRepository
 ) {
-    suspend operator fun invoke(teamId: RegisterTeam) = repository.registerTeam(teamId)
+    suspend operator fun invoke(jamId: String, teamId: RegisterTeam) = repository.registerTeam(jamId,teamId)
 }
 
 class WithdrawTeamUseCase(

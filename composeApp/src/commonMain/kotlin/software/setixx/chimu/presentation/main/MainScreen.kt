@@ -38,6 +38,8 @@ fun MainScreen(
     onNavigateToCreateTeam: () -> Unit,
     onNavigateToTeam: (String) -> Unit,
     onNavigateToJoinTeam: () -> Unit,
+    onNavigateToCreateJam: () -> Unit,
+    onNavigateToJamDetails: (String) -> Unit,
     viewModel: MainViewModel = koinViewModel()
 ) {
     var selectedDestination by remember { mutableStateOf(NavigationDestination.HOME) }
@@ -256,8 +258,8 @@ fun MainScreen(
                 color = MaterialTheme.colorScheme.surfaceContainerLow
             ) {
                 when (selectedDestination) {
-                    NavigationDestination.HOME -> HomeContent(state, onNavigateToTeam)
-                    NavigationDestination.GAME_JAMS -> GameJamsContent(state)
+                    NavigationDestination.HOME -> HomeContent(state, onNavigateToTeam, onNavigateToJamDetails)
+                    NavigationDestination.GAME_JAMS -> GameJamsContent(state, onNavigateToCreateJam, onNavigateToJamDetails)
                     NavigationDestination.TEAMS -> TeamsContent(state, onNavigateToCreateTeam, onNavigateToJoinTeam, onNavigateToTeam)
                     NavigationDestination.PROJECTS -> ProjectsContent(state)
                     NavigationDestination.JUDGING -> JudgingContent(state)
@@ -277,4 +279,3 @@ enum class NavigationDestination(
     PROJECTS("Проекты", Icons.Default.Gamepad),
     JUDGING("Оценивание", Icons.Default.Star)
 }
-

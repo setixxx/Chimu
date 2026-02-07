@@ -20,7 +20,11 @@ import androidx.compose.ui.unit.dp
 import software.setixx.chimu.presentation.main.MainState
 
 @Composable
-fun HomeContent(state: MainState, onNavigateToTeam: (String) -> Unit) {
+fun HomeContent(
+    state: MainState,
+    onNavigateToTeam: (String) -> Unit,
+    onNavigateToJamDetails: (String) -> Unit
+) {
     if (state.isLoading) {
         Box(
             modifier = Modifier.fillMaxSize(),
@@ -54,7 +58,10 @@ fun HomeContent(state: MainState, onNavigateToTeam: (String) -> Unit) {
             }
         } else {
             items(state.activeJams.size) { index ->
-                GameJamCard(jam = state.activeJams[index])
+                GameJamCard(
+                    jam = state.activeJams[index],
+                    onDetailsClick = onNavigateToJamDetails
+                )
             }
         }
 

@@ -8,6 +8,9 @@ import software.setixx.chimu.domain.repository.*
 import software.setixx.chimu.domain.usecase.*
 import software.setixx.chimu.presentation.auth.login.LoginViewModel
 import software.setixx.chimu.presentation.auth.register.RegisterViewModel
+import software.setixx.chimu.presentation.jam.create.CreateJamViewModel
+import software.setixx.chimu.presentation.jam.details.JamDetailsViewModel
+import software.setixx.chimu.presentation.jam.edit.EditJamViewModel
 import software.setixx.chimu.presentation.main.MainViewModel
 import software.setixx.chimu.presentation.profile.ProfileViewModel
 import software.setixx.chimu.presentation.splash.SplashViewModel
@@ -33,9 +36,14 @@ val appModule = module {
 
     single<AuthRepository> { AuthRepositoryImpl(get(), get()) }
     single<GameJamRepository> { GameJamRepositoryImpl(get(), get()) }
+    single<JudgeRepository> { JudgeRepositoryImpl(get(), get()) }
+    single<LeaderboardRepository> { LeaderboardRepositoryImpl(get(), get()) }
     single<ProjectRepository> { ProjectRepositoryImpl(get(), get()) }
+    single<RatingCriteriaRepository> { RatingCriteriaRepositoryImpl(get(), get()) }
+    single<RatingRepository> { RatingRepositoryImpl(get(), get()) }
     single<SkillRepository> { SkillRepositoryImpl(get(), get()) }
     single<SpecializationRepository> { SpecializationRepositoryImpl(get(), get()) }
+    single<TeamRegistrationRepository> { TeamRegistrationRepositoryImpl(get(), get()) }
     single<TeamRepository> { TeamRepositoryImpl(get(), get()) }
     single<UserRepository> { UserRepositoryImpl(get(), get()) }
 
@@ -61,6 +69,10 @@ val appModule = module {
     factory { KickMemberUseCase(get()) }
     factory { UpdateMemberSpecializationUseCase(get()) }
     factory { RegenerateInviteTokenUseCase(get()) }
+    factory { CreateJamUseCase(get()) }
+    factory { GetJamDetailsUseCase(get()) }
+    factory { UpdateJamUseCase(get()) }
+    factory { DeleteJamUseCase(get()) }
 
     viewModel { SplashViewModel(get()) }
     viewModel { LoginViewModel(get(), get()) }
@@ -69,4 +81,7 @@ val appModule = module {
     viewModel { ProfileViewModel(get(), get(), get(), get()) }
     viewModel { CreateTeamViewModel(get(), get()) }
     viewModel { TeamDetailsViewModel(get(), get(), get(), get(), get(), get(), get(), get(), get(), get()) }
+    viewModel { CreateJamViewModel(get(), get()) }
+    viewModel { JamDetailsViewModel(get(), get(), get()) }
+    viewModel { EditJamViewModel(get(), get()) }
 }

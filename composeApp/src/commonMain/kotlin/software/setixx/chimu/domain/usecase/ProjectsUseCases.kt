@@ -1,7 +1,6 @@
 package software.setixx.chimu.domain.usecase
 
 import software.setixx.chimu.domain.model.CreateProject
-import software.setixx.chimu.domain.model.Project
 import software.setixx.chimu.domain.model.ProjectStatus
 import software.setixx.chimu.domain.model.UpdateProject
 import software.setixx.chimu.domain.repository.ProjectRepository
