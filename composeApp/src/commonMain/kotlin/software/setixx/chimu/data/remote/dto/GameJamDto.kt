@@ -6,8 +6,8 @@ import kotlinx.serialization.Serializable
 data class GameJamResponse(
     val id: String,
     val name: String,
-    val description: String?,
-    val theme: String?,
+    val description: String? = null,
+    val theme: String? = null,
     val registrationStart: String,
     val registrationEnd: String,
     val jamStart: String,
@@ -24,12 +24,28 @@ data class GameJamResponse(
 )
 
 @Serializable
+data class CreateGameJamRequest(
+    val name: String,
+    val description: String? = null,
+    val theme: String? = null,
+    val rules: String? = null,
+    val registrationStart: String,
+    val registrationEnd: String,
+    val jamStart: String,
+    val jamEnd: String,
+    val judgingStart: String,
+    val judgingEnd: String,
+    val minTeamSize: Int,
+    val maxTeamSize: Int
+)
+
+@Serializable
 data class GameJamDetailsResponse(
     val id: String,
     val name: String,
-    val description: String?,
-    val theme: String?,
-    val rules: String?,
+    val description: String? = null,
+    val theme: String? = null,
+    val rules: String? = null,
     val registrationStart: String,
     val registrationEnd: String,
     val jamStart: String,
@@ -43,58 +59,24 @@ data class GameJamDetailsResponse(
     val maxTeamSize: Int,
     val createdAt: String,
     val updatedAt: String,
-    val criteria: List<CriteriaResponse>,
+    val criteria: List<RatingCriteriaResponse>,
     val judges: List<JudgeResponse>,
     val registeredTeamsCount: Int,
     val submittedProjectsCount: Int
 )
 
 @Serializable
-data class CriteriaResponse(
-    val id: Long,
-    val name: String,
-    val description: String?,
-    val maxScore: Int,
-    val weight: String,
-    val orderIndex: Int
-)
-
-@Serializable
-data class JudgeResponse(
-    val userId: String,
-    val nickname: String,
-    val avatarUrl: String?,
-    val assignedAt: String
-)
-
-@Serializable
-data class CreateGameJamRequest(
-    val name: String,
-    val description: String?,
-    val theme: String?,
-    val rules: String?,
-    val registrationStart: String,
-    val registrationEnd: String,
-    val jamStart: String,
-    val jamEnd: String,
-    val judgingStart: String,
-    val judgingEnd: String,
-    val minTeamSize: Int,
-    val maxTeamSize: Int
-)
-
-@Serializable
 data class UpdateGameJamRequest(
-    val name: String?,
-    val description: String?,
-    val theme: String?,
-    val rules: String?,
-    val registrationStart: String?,
-    val registrationEnd: String?,
-    val jamStart: String?,
-    val jamEnd: String?,
-    val judgingStart: String?,
-    val judgingEnd: String?,
-    val minTeamSize: Int?,
-    val maxTeamSize: Int?
+    val name: String? = null,
+    val description: String? = null,
+    val theme: String? = null,
+    val rules: String? = null,
+    val registrationStart: String? = null,
+    val registrationEnd: String? = null,
+    val jamStart: String? = null,
+    val jamEnd: String? = null,
+    val judgingStart: String? = null,
+    val judgingEnd: String? = null,
+    val minTeamSize: Int? = null,
+    val maxTeamSize: Int? = null
 )

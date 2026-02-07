@@ -107,4 +107,15 @@ class UserRepositoryImpl(
             ApiResult.Error(e.message ?: "Неизвестная ошибка")
         }
     }
+
+    override suspend fun getUserById(userId: String): ApiResult<User> {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun changePassword(
+        oldPassword: String,
+        newPassword: String,
+    ): ApiResult<Unit> {
+        TODO("Not yet implemented")
+    }
 }

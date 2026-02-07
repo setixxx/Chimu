@@ -19,19 +19,25 @@ val appModule = module {
 
     single { AuthApi(get<KtorClient>().httpClient) }
     single { GameJamApi(get<KtorClient>().httpClient) }
-    single { TeamApi(get<KtorClient>().httpClient) }
-    single { ProjectApi(get<KtorClient>().httpClient) }
+    single { JudgeApi(get<KtorClient>().httpClient) }
+    single { LeaderboardApi(get<KtorClient>().httpClient) }
     single { ProfileApi(get<KtorClient>().httpClient) }
-    single { SpecializationApi(get<KtorClient>().httpClient) }
+    single { ProjectApi(get<KtorClient>().httpClient) }
+    single { RatingApi(get<KtorClient>().httpClient) }
+    single { RatingCriteriaApi(get<KtorClient>().httpClient) }
     single { SkillApi(get<KtorClient>().httpClient) }
+    single { SpecializationApi(get<KtorClient>().httpClient) }
+    single { TeamApi(get<KtorClient>().httpClient) }
+    single { TeamRegistrationsApi(get<KtorClient>().httpClient) }
+
 
     single<AuthRepository> { AuthRepositoryImpl(get(), get()) }
     single<GameJamRepository> { GameJamRepositoryImpl(get(), get()) }
-    single<TeamRepository> { TeamRepositoryImpl(get(), get()) }
     single<ProjectRepository> { ProjectRepositoryImpl(get(), get()) }
-    single<UserRepository> { UserRepositoryImpl(get(), get()) }
-    single<SpecializationRepository> { SpecializationRepositoryImpl(get(), get()) }
     single<SkillRepository> { SkillRepositoryImpl(get(), get()) }
+    single<SpecializationRepository> { SpecializationRepositoryImpl(get(), get()) }
+    single<TeamRepository> { TeamRepositoryImpl(get(), get()) }
+    single<UserRepository> { UserRepositoryImpl(get(), get()) }
 
     factory { LoginUseCase(get()) }
     factory { RegisterUseCase(get()) }

@@ -40,16 +40,16 @@ data class UserProfileResponse(
     val id: String,
     val email: String,
     val nickname: String,
-    val firstName: String?,
-    val lastName: String?,
-    val avatarUrl: String?,
+    val firstName: String? = null,
+    val lastName: String? = null,
+    val avatarUrl: String? = null,
     val createdAt: String,
     val skills: List<String>,
     val role: String,
-    val specialization: SpecializationResponse?,
-    val bio: String?,
-    val githubUrl: String?,
-    val telegramUrl: String?
+    val specialization: SpecializationResponse? = null,
+    val bio: String? = null,
+    val githubUrl: String? = null,
+    val telegramUrl: String? = null
 )
 
 @Serializable

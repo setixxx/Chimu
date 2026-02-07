@@ -56,3 +56,9 @@ class CreateTeamUseCase(
 ) {
     suspend operator fun invoke(data: CreateTeam) = repository.createTeam(data)
 }
+
+class GetUserTeamsUseCase(
+    private val repository: TeamRepository
+) {
+    suspend operator fun invoke() = repository.getUserTeams()
+}

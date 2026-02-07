@@ -10,8 +10,13 @@ import software.setixx.chimu.data.remote.dto.SpecializationResponse
 class SpecializationApi(private val client: HttpClient) {
 
     suspend fun getAllSpecializations(accessToken: String): List<SpecializationResponse> {
-        return client.get("/api/specializations"){
+        val response = client.get("/api/specializations"){
             header(HttpHeaders.Authorization, "Bearer $accessToken")
-        }.body()
+        }
+        when (response.status.value) {
+            in 200..299 -> return response.body()
+            401 -> throw IllegalArgumentException("Ошибка авторизации")
+            else -> throw IllegalArgumentException("Неизвестная ошибка")
+        }
     }
 }

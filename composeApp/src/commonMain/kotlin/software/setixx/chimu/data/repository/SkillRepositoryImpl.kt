@@ -26,6 +26,8 @@ class SkillRepositoryImpl(
             ApiResult.Success(skills)
         } catch (e: Exception) {
             ApiResult.Error(e.message ?: "Ошибка подключения к серверу")
+        } catch (e: IllegalArgumentException) {
+            ApiResult.Error(e.message ?: "Неизвестная ошибка")
         }
     }
 }

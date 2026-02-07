@@ -1,12 +1,9 @@
 package software.setixx.chimu.data.repository
 
-import kotlin.time.Clock
-import kotlin.time.Instant
 import software.setixx.chimu.data.local.TokenStorage
 import software.setixx.chimu.data.remote.GameJamApi
 import software.setixx.chimu.domain.model.*
 import software.setixx.chimu.domain.repository.GameJamRepository
-import kotlin.time.ExperimentalTime
 
 class GameJamRepositoryImpl(
     private val api: GameJamApi,
@@ -18,7 +15,6 @@ class GameJamRepositoryImpl(
             val token = tokenStorage.getAccessToken()
                 ?: return ApiResult.Error("Ошибка аутентификации")
 
-
             val response = api.getAllJams(token)
             val jams = response.map { dto ->
                 GameJam(
@@ -26,17 +22,26 @@ class GameJamRepositoryImpl(
                     name = dto.name,
                     description = dto.description,
                     theme = dto.theme,
+                    registrationStart = dto.registrationStart,
+                    registrationEnd = dto.registrationEnd,
+                    jamStart = dto.jamStart,
+                    jamEnd = dto.jamEnd,
+                    judgingStart = dto.judgingStart,
+                    judgingEnd = dto.judgingEnd,
                     status = GameJamStatus.valueOf(dto.status),
+                    organizerId = dto.organizerId,
                     organizerNickname = dto.organizerNickname,
                     registeredTeamsCount = dto.registeredTeamsCount,
-                    registrationEnd = dto.registrationEnd,
-                    jamEnd = dto.jamEnd,
-                    daysRemaining = calculateDaysRemaining(dto.jamEnd, dto.status)
+                    maxTeamSize = dto.maxTeamSize,
+                    minTeamSize = dto.minTeamSize,
+                    createdAt = dto.createdAt
                 )
             }
             ApiResult.Success(jams)
         } catch (e: Exception) {
             ApiResult.Error(e.message ?: "Ошибка подключения к серверу")
+        } catch (e: IllegalArgumentException) {
+            ApiResult.Error(e.message ?: "Неизвестная ошибка")
         }
     }
 
@@ -57,41 +62,53 @@ class GameJamRepositoryImpl(
                             name = dto.name,
                             description = dto.description,
                             theme = dto.theme,
+                            registrationStart = dto.registrationStart,
+                            registrationEnd = dto.registrationEnd,
+                            jamStart = dto.jamStart,
+                            jamEnd = dto.jamEnd,
+                            judgingStart = dto.judgingStart,
+                            judgingEnd = dto.judgingEnd,
                             status = GameJamStatus.valueOf(dto.status),
+                            organizerId = dto.organizerId,
                             organizerNickname = dto.organizerNickname,
                             registeredTeamsCount = dto.registeredTeamsCount,
-                            registrationEnd = dto.registrationEnd,
-                            jamEnd = dto.jamEnd,
-                            daysRemaining = calculateDaysRemaining(dto.jamEnd, dto.status)
+                            maxTeamSize = dto.maxTeamSize,
+                            minTeamSize = dto.minTeamSize,
+                            createdAt = dto.createdAt
                         )
                     }
                     allJams.addAll(jams)
                 } catch (e: Exception) {
-                    println("⚠️ Error loading jams with status $status: ${e.message}")
+                    ApiResult.Error(e.message ?: "Ошибка подключения к серверу")
+                } catch (e: IllegalArgumentException) {
+                    ApiResult.Error(e.message ?: "Неизвестная ошибка")
                 }
             }
 
             ApiResult.Success(allJams)
         } catch (e: Exception) {
-            println("Error loading active jams: ${e.message}")
-            e.printStackTrace()
             ApiResult.Error(e.message ?: "Ошибка подключения к серверу")
+        } catch (e: IllegalArgumentException) {
+            ApiResult.Error(e.message ?: "Неизвестная ошибка")
         }
     }
 
-    @OptIn(ExperimentalTime::class)
-    private fun calculateDaysRemaining(endDate: String, status: String): Int? {
-        return try {
-            if (status in listOf("COMPLETED", "CANCELLED")) return null
+    override suspend fun createJam(data: CreateGameJam): ApiResult<GameJamDetails> {
+        TODO("Not yet implemented")
+    }
 
-            val end = Instant.parse(endDate)
-            val now = Clock.System.now()
-            val days = (end - now).inWholeDays
+    override suspend fun getJamDetails(gameJamId: String): ApiResult<GameJamDetails> {
+        TODO("Not yet implemented")
+    }
 
-            if (days < 0) null else days.toInt()
-        } catch (e: Exception) {
-            println("Error calculating days remaining: ${e.message}")
-            null
-        }
+    override suspend fun deleteJam(gameJamId: String): ApiResult<Unit> {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun updateJam(
+        gameJamId: String,
+        data: UpdateGameJam,
+    ): ApiResult<GameJamDetails> {
+        TODO("Not yet implemented")
     }
 }

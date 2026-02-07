@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 data class TeamResponse(
     val id: String,
     val name: String,
-    val description: String?,
+    val description: String? = null,
     val leaderId: String,
     val createdAt: String,
     val memberCount: Int,
@@ -17,9 +17,9 @@ data class TeamResponse(
 data class TeamDetailsResponse(
     val id: String,
     val name: String,
-    val description: String?,
+    val description: String? = null,
     val leaderId: String,
-    val inviteToken: String?,
+    val inviteToken: String? = null,
     val createdAt: String,
     val members: List<TeamMemberResponse>
 )
@@ -28,8 +28,8 @@ data class TeamDetailsResponse(
 data class TeamMemberResponse(
     val userId: String,
     val nickname: String,
-    val avatarUrl: String?,
-    val specialization: SpecializationResponse?,
+    val avatarUrl: String? = null,
+    val specialization: SpecializationResponse? = null,
     val joinedAt: String,
     val isLeader: Boolean
 )
@@ -48,5 +48,5 @@ data class UpdateTeamRequest(
 
 @Serializable
 data class UpdateMemberSpecializationRequest(
-    val specializationId: Long?
+    val specializationId: Long? = null
 )

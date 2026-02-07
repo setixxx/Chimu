@@ -10,8 +10,13 @@ import software.setixx.chimu.data.remote.dto.ProjectResponse
 class ProjectApi(private val client: HttpClient) {
 
     suspend fun getUserProjects(accessToken: String): List<ProjectResponse> {
-        return client.get("/api/users/me/projects") {
+        val response = client.get("/api/users/me/projects") {
             header(HttpHeaders.Authorization, "Bearer $accessToken")
-        }.body()
+        }
+        when (response.status.value) {
+            in 200..299 -> return response.body()
+            401 -> throw IllegalArgumentException("Ошибка авторизации")
+            else -> throw IllegalArgumentException("Неизвестная ошибка")
+        }
     }
 }

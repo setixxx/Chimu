@@ -79,23 +79,6 @@ fun GameJamCard(jam: GameJam) {
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
-
-                jam.daysRemaining?.let { days ->
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            Icons.Default.Schedule,
-                            null,
-                            modifier = Modifier.size(16.dp),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text(
-                            text = "$days ${getDaysWord(days)} осталось",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                }
             }
 
             Spacer(modifier = Modifier.height(12.dp))

@@ -9,52 +9,109 @@ import software.setixx.chimu.data.remote.dto.*
 class TeamApi(private val client: HttpClient) {
 
     suspend fun getUserTeams(accessToken: String): List<TeamResponse> {
-        return client.get("/api/teams") {
+        val response = client.get("/api/teams") {
             header(HttpHeaders.Authorization, "Bearer $accessToken")
-        }.body()
+        }
+        when (response.status.value) {
+            in 200..299 -> return response.body()
+            401 -> throw IllegalArgumentException("Ошибка авторизации")
+            else -> throw IllegalArgumentException("Неизвестная ошибка")
+        }
     }
 
     suspend fun createTeam(accessToken: String, request: CreateTeamRequest): TeamDetailsResponse {
-        return client.post("/api/teams") {
+        val response = client.post("/api/teams") {
             header(HttpHeaders.Authorization, "Bearer $accessToken")
             setBody(request)
-        }.body()
+        }
+        when (response.status.value) {
+            in 200..299 -> return response.body()
+            400 -> throw IllegalArgumentException("Проверьте правильность введенных данных")
+            401 -> throw IllegalArgumentException("Ошибка авторизации")
+            else -> throw IllegalArgumentException("Неизвестная ошибка")
+        }
     }
 
     suspend fun getTeamDetails(accessToken: String, teamId: String): TeamDetailsResponse {
-        return client.get("/api/teams/$teamId") {
+        val response = client.get("/api/teams/$teamId") {
             header(HttpHeaders.Authorization, "Bearer $accessToken")
-        }.body()
+        }
+        when (response.status.value) {
+            in 200..299 -> return response.body()
+            401 -> throw IllegalArgumentException("Ошибка авторизации")
+            404 -> throw IllegalArgumentException("Команда не найдена")
+            else -> throw IllegalArgumentException("Неизвестная ошибка")
+        }
     }
 
     suspend fun updateTeam(accessToken: String, teamId: String, request: UpdateTeamRequest): TeamDetailsResponse {
-        return client.patch("/api/teams/$teamId") {
+        val response = client.patch("/api/teams/$teamId") {
             header(HttpHeaders.Authorization, "Bearer $accessToken")
             setBody(request)
-        }.body()
+        }
+        when (response.status.value) {
+            in 200..299 -> return response.body()
+            400 -> throw IllegalArgumentException("Проверьте правильность введенных данных")
+            401 -> throw IllegalArgumentException("Ошибка авторизации")
+            403 -> throw IllegalArgumentException("Недостаточно прав для обновления команды")
+            404 -> throw IllegalArgumentException("Команда не найдена")
+            else -> throw IllegalArgumentException("Неизвестная ошибка")
+        }
     }
 
     suspend fun joinTeam(accessToken: String, inviteToken: String): TeamDetailsResponse {
-        return client.post("/api/teams/$inviteToken") {
+        val response = client.post("/api/teams/$inviteToken") {
             header(HttpHeaders.Authorization, "Bearer $accessToken")
-        }.body()
+        }
+        when (response.status.value) {
+            in 200..299 -> return response.body()
+            400 -> throw IllegalArgumentException("Неправильный токен или вы уже состоите в команде")
+            401 -> throw IllegalArgumentException("Ошибка авторизации")
+            404 -> throw IllegalArgumentException("Команда не найдена")
+            else -> throw IllegalArgumentException("Неизвестная ошибка")
+        }
     }
 
     suspend fun leaveTeam(accessToken: String, teamId: String) {
-        client.delete("/api/teams/$teamId/leave") {
+        val response = client.delete("/api/teams/$teamId/leave") {
             header(HttpHeaders.Authorization, "Bearer $accessToken")
+        }
+        when (response.status.value) {
+            in 200..299 -> return response.body()
+            400 -> throw IllegalArgumentException("Нельзя покинуть команду пока есть активная регистрация на джем")
+            401 -> throw IllegalArgumentException("Ошибка авторизации")
+            403 -> throw IllegalArgumentException("Лидер не может покинуть команду")
+            404 -> throw IllegalArgumentException("Команда не найдена")
+            else -> throw IllegalArgumentException("Неизвестная ошибка")
         }
     }
 
     suspend fun deleteTeam(accessToken: String, teamId: String) {
-        client.delete("/api/teams/$teamId") {
+        val response = client.delete("/api/teams/$teamId") {
             header(HttpHeaders.Authorization, "Bearer $accessToken")
+        }
+        when (response.status.value) {
+            in 200..299 -> return response.body()
+            400 -> throw IllegalArgumentException("Нельзя удалить команду пока есть активная регистрация на джем")
+            401 -> throw IllegalArgumentException("Ошибка авторизации")
+            403 -> throw IllegalArgumentException("Недостаточно прав для удаления команды")
+            404 -> throw IllegalArgumentException("Команда не найдена")
+            else -> throw IllegalArgumentException("Неизвестная ошибка")
         }
     }
 
+    // TODO проверить может ли лидер кикнуть сам себя
     suspend fun kickMember(accessToken: String, teamId: String, userId: String) {
-        client.delete("/api/teams/$teamId/members/$userId") {
+        val response = client.delete("/api/teams/$teamId/members/$userId") {
             header(HttpHeaders.Authorization, "Bearer $accessToken")
+        }
+        when (response.status.value) {
+            in 200..299 -> return response.body()
+            400 -> throw IllegalArgumentException("Нельзя удалить участника пока есть активная регистрация на джем")
+            401 -> throw IllegalArgumentException("Ошибка авторизации")
+            403 -> throw IllegalArgumentException("Недостаточно прав для удаления участника")
+            404 -> throw IllegalArgumentException("Команда или участник не найдены")
+            else -> throw IllegalArgumentException("Неизвестная ошибка")
         }
     }
 
@@ -63,15 +120,30 @@ class TeamApi(private val client: HttpClient) {
         teamId: String,
         request: UpdateMemberSpecializationRequest
     ): TeamMemberResponse {
-        return client.patch("/api/teams/$teamId/specialization") {
+        val response = client.patch("/api/teams/$teamId/specialization") {
             header(HttpHeaders.Authorization, "Bearer $accessToken")
             setBody(request)
-        }.body()
+        }
+        when (response.status.value) {
+            in 200..299 -> return response.body()
+            400 -> throw IllegalArgumentException("Проверьте правильность введенных данных")
+            401 -> throw IllegalArgumentException("Ошибка авторизации")
+            403 -> throw IllegalArgumentException("Недостаточно прав для обновления специализации")
+            404 -> throw IllegalArgumentException("Команда или специализация не найдены")
+            else -> throw IllegalArgumentException("Неизвестная ошибка")
+        }
     }
 
     suspend fun regenerateInviteToken(accessToken: String, teamId: String): Map<String, String> {
-        return client.post("/api/teams/$teamId/regenerate-token") {
+        val response = client.post("/api/teams/$teamId/regenerate-token") {
             header(HttpHeaders.Authorization, "Bearer $accessToken")
-        }.body()
+        }
+        when (response.status.value) {
+            in 200..299 -> return response.body()
+            401 -> throw IllegalArgumentException("Ошибка авторизации")
+            403 -> throw IllegalArgumentException("Недостаточно прав для обновления токена")
+            404 -> throw IllegalArgumentException("Команда не найдена")
+            else -> throw IllegalArgumentException("Неизвестная ошибка")
+        }
     }
 }

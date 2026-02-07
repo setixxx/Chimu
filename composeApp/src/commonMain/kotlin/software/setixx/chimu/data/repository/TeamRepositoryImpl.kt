@@ -30,6 +30,8 @@ class TeamRepositoryImpl(
             ApiResult.Success(teams)
         } catch (e: Exception) {
             ApiResult.Error(e.message ?: "Ошибка подключения к серверу")
+        } catch (e: IllegalArgumentException) {
+            ApiResult.Error(e.message ?: "Неизвестная ошибка")
         }
     }
 
@@ -57,6 +59,8 @@ class TeamRepositoryImpl(
             ApiResult.Success(team)
         } catch (e: Exception) {
             ApiResult.Error(e.message ?: "Ошибка подключения к серверу")
+        } catch (e: IllegalArgumentException) {
+            ApiResult.Error(e.message ?: "Неизвестная ошибка")
         }
     }
 
@@ -70,6 +74,8 @@ class TeamRepositoryImpl(
             ApiResult.Success(details)
         } catch (e: Exception) {
             ApiResult.Error(e.message ?: "Ошибка подключения к серверу")
+        } catch (e: IllegalArgumentException) {
+            ApiResult.Error(e.message ?: "Неизвестная ошибка")
         }
     }
 
@@ -88,6 +94,8 @@ class TeamRepositoryImpl(
             ApiResult.Success(details)
         } catch (e: Exception) {
             ApiResult.Error(e.message ?: "Ошибка подключения к серверу")
+        } catch (e: IllegalArgumentException) {
+            ApiResult.Error(e.message ?: "Неизвестная ошибка")
         }
     }
 
@@ -101,6 +109,8 @@ class TeamRepositoryImpl(
             ApiResult.Success(details)
         } catch (e: Exception) {
             ApiResult.Error(e.message ?: "Ошибка подключения к серверу")
+        } catch (e: IllegalArgumentException) {
+            ApiResult.Error(e.message ?: "Неизвестная ошибка")
         }
     }
 
@@ -113,6 +123,8 @@ class TeamRepositoryImpl(
             ApiResult.Success(Unit)
         } catch (e: Exception) {
             ApiResult.Error(e.message ?: "Ошибка подключения к серверу")
+        } catch (e: IllegalArgumentException) {
+            ApiResult.Error(e.message ?: "Неизвестная ошибка")
         }
     }
 
@@ -125,6 +137,8 @@ class TeamRepositoryImpl(
             ApiResult.Success(Unit)
         } catch (e: Exception) {
             ApiResult.Error(e.message ?: "Ошибка подключения к серверу")
+        } catch (e: IllegalArgumentException) {
+            ApiResult.Error(e.message ?: "Неизвестная ошибка")
         }
     }
 
@@ -137,6 +151,8 @@ class TeamRepositoryImpl(
             ApiResult.Success(Unit)
         } catch (e: Exception) {
             ApiResult.Error(e.message ?: "Ошибка подключения к серверу")
+        } catch (e: IllegalArgumentException) {
+            ApiResult.Error(e.message ?: "Неизвестная ошибка")
         }
     }
 
@@ -154,6 +170,8 @@ class TeamRepositoryImpl(
             ApiResult.Success(member)
         } catch (e: Exception) {
             ApiResult.Error(e.message ?: "Ошибка подключения к серверу")
+        } catch (e: IllegalArgumentException) {
+            ApiResult.Error(e.message ?: "Неизвестная ошибка")
         }
     }
 
@@ -167,6 +185,8 @@ class TeamRepositoryImpl(
             ApiResult.Success(newToken)
         } catch (e: Exception) {
             ApiResult.Error(e.message ?: "Ошибка подключения к серверу")
+        } catch (e: IllegalArgumentException) {
+            ApiResult.Error(e.message ?: "Неизвестная ошибка")
         }
     }
 

@@ -6,5 +6,5 @@ import kotlinx.serialization.Serializable
 data class SpecializationResponse(
     val id: Long,
     val name: String,
-    val description: String?
+    val description: String? = null
 )

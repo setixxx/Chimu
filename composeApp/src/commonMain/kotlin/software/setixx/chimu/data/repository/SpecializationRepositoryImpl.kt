@@ -27,6 +27,8 @@ class SpecializationRepositoryImpl(
             ApiResult.Success(specializations)
         } catch (e: Exception) {
             ApiResult.Error(e.message ?: "Ошибка подключения к серверу")
+        } catch (e: IllegalArgumentException) {
+            ApiResult.Error(e.message ?: "Неизвестная ошибка")
         }
     }
 }
