@@ -50,6 +50,8 @@ class TeamRegistrationsApi(
         }
 
     }
+
+    // TODO 403 на сервере
     suspend fun withdrawTeam(
         jamId: String,
         teamId: String,

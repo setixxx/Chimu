@@ -7,14 +7,24 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import software.setixx.chimu.domain.model.ApiResult
-import software.setixx.chimu.domain.usecase.DeleteJamUseCase
-import software.setixx.chimu.domain.usecase.GetCurrentUserUseCase
-import software.setixx.chimu.domain.usecase.GetJamDetailsUseCase
+import software.setixx.chimu.domain.model.AssignJudge
+import software.setixx.chimu.domain.model.RegisterTeam
+import software.setixx.chimu.domain.model.UpdateRegistrationStatus
+import software.setixx.chimu.domain.usecase.*
 
 class JamDetailsViewModel(
     private val getJamDetailsUseCase: GetJamDetailsUseCase,
     private val deleteJamUseCase: DeleteJamUseCase,
-    private val getCurrentUserUseCase: GetCurrentUserUseCase
+    private val getCurrentUserUseCase: GetCurrentUserUseCase,
+    private val getJamRegistrationsUseCase: GetJamRegistrationsUseCase,
+    private val registerTeamUseCase: RegisterTeamUseCase,
+    private val withdrawTeamUseCase: WithdrawTeamUseCase,
+    private val updateRegistrationStatusUseCase: UpdateRegistrationStatusUseCase,
+    private val getUserTeamsUseCase: GetUserTeamsUseCase,
+    private val getTeamDetailsUseCase: GetTeamDetailsUseCase,
+    private val getJamJudgesUseCase: GetJamJudgesUseCase,
+    private val assignJudgeUseCase: AssignJudgeUseCase,
+    private val unassignJudgeUseCase: UnassignJudgeUseCase
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(JamDetailsState())
@@ -30,7 +40,14 @@ class JamDetailsViewModel(
                     userRole = userResult.data.role,
                     userId = userResult.data.id
                 )
+                
+                if (userResult.data.role == "PARTICIPANT") {
+                    loadUserTeams()
+                }
             }
+
+            loadRegistrations(jamId)
+            loadJudges(jamId)
 
             when (val result = getJamDetailsUseCase(jamId)) {
                 is ApiResult.Success -> {
@@ -49,21 +66,136 @@ class JamDetailsViewModel(
         }
     }
 
+    private suspend fun loadUserTeams() {
+        when (val result = getUserTeamsUseCase()) {
+            is ApiResult.Success -> {
+                _state.value = _state.value.copy(userTeams = result.data.filter { it.isLeader })
+            }
+            else -> {}
+        }
+    }
+
+    private suspend fun loadRegistrations(jamId: String) {
+        when (val result = getJamRegistrationsUseCase(jamId)) {
+            is ApiResult.Success -> {
+                _state.value = _state.value.copy(registrations = result.data)
+            }
+            else -> {}
+        }
+    }
+
+    private suspend fun loadJudges(jamId: String) {
+        when (val result = getJamJudgesUseCase(jamId)) {
+            is ApiResult.Success -> {
+                _state.value = _state.value.copy(judges = result.data)
+            }
+            else -> {}
+        }
+    }
+
+    fun assignJudge(jamId: String, judgeUserId: String) {
+        viewModelScope.launch {
+            _state.value = _state.value.copy(isActionLoading = true)
+            when (val result = assignJudgeUseCase(jamId, AssignJudge(judgeUserId))) {
+                is ApiResult.Success -> {
+                    loadJudges(jamId)
+                    _state.value = _state.value.copy(isActionLoading = false)
+                }
+                is ApiResult.Error -> {
+                    _state.value = _state.value.copy(isActionLoading = false, errorMessage = result.message)
+                }
+            }
+        }
+    }
+
+    fun unassignJudge(jamId: String, judgeUserId: String) {
+        viewModelScope.launch {
+            _state.value = _state.value.copy(isActionLoading = true)
+            when (val result = unassignJudgeUseCase(jamId, judgeUserId)) {
+                is ApiResult.Success -> {
+                    loadJudges(jamId)
+                    _state.value = _state.value.copy(isActionLoading = false)
+                }
+                is ApiResult.Error -> {
+                    _state.value = _state.value.copy(isActionLoading = false, errorMessage = result.message)
+                }
+            }
+        }
+    }
+
+    fun registerTeam(jamId: String, teamId: String) {
+        viewModelScope.launch {
+            _state.value = _state.value.copy(isActionLoading = true)
+            
+            when (val teamDetailsResult = getTeamDetailsUseCase(teamId)) {
+                is ApiResult.Success -> {
+                    val membersWithoutSpec = teamDetailsResult.data.members.filter { it.specialization == null }
+                    if (membersWithoutSpec.isNotEmpty()) {
+                        val names = membersWithoutSpec.joinToString { it.nickname }
+                        _state.value = _state.value.copy(
+                            isActionLoading = false,
+                            errorMessage = "У следующих участников не указана специализация: $names"
+                        )
+                        return@launch
+                    }
+                }
+                is ApiResult.Error -> {
+                    _state.value = _state.value.copy(isActionLoading = false, errorMessage = teamDetailsResult.message)
+                    return@launch
+                }
+            }
+
+            when (val result = registerTeamUseCase(jamId, RegisterTeam(teamId))) {
+                is ApiResult.Success -> {
+                    loadRegistrations(jamId)
+                    _state.value = _state.value.copy(isActionLoading = false)
+                }
+                is ApiResult.Error -> {
+                    _state.value = _state.value.copy(isActionLoading = false, errorMessage = result.message)
+                }
+            }
+        }
+    }
+
+    fun withdrawTeam(jamId: String, teamId: String) {
+        viewModelScope.launch {
+            _state.value = _state.value.copy(isActionLoading = true)
+            when (val result = withdrawTeamUseCase(jamId, teamId)) {
+                is ApiResult.Success -> {
+                    loadRegistrations(jamId)
+                    _state.value = _state.value.copy(isActionLoading = false)
+                }
+                is ApiResult.Error -> {
+                    _state.value = _state.value.copy(isActionLoading = false, errorMessage = result.message)
+                }
+            }
+        }
+    }
+
+    fun updateRegistrationStatus(jamId: String, teamId: String, status: String) {
+        viewModelScope.launch {
+            _state.value = _state.value.copy(isActionLoading = true)
+            when (val result = updateRegistrationStatusUseCase(jamId, teamId, UpdateRegistrationStatus(status))) {
+                is ApiResult.Success -> {
+                    loadRegistrations(jamId)
+                    _state.value = _state.value.copy(isActionLoading = false)
+                }
+                is ApiResult.Error -> {
+                    _state.value = _state.value.copy(isActionLoading = false, errorMessage = result.message)
+                }
+            }
+        }
+    }
+
     fun deleteJam(jamId: String) {
         viewModelScope.launch {
             _state.value = _state.value.copy(isDeleting = true)
             when (val result = deleteJamUseCase(jamId)) {
                 is ApiResult.Success -> {
-                    _state.value = _state.value.copy(
-                        isDeleting = false,
-                        isDeleted = true
-                    )
+                    _state.value = _state.value.copy(isDeleting = false, isDeleted = true)
                 }
                 is ApiResult.Error -> {
-                    _state.value = _state.value.copy(
-                        isDeleting = false,
-                        errorMessage = result.message
-                    )
+                    _state.value = _state.value.copy(isDeleting = false, errorMessage = result.message)
                 }
             }
         }

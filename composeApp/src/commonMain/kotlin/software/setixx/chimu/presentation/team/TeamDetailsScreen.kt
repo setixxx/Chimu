@@ -276,7 +276,7 @@ fun TeamDetailsScreen(
                             )
 
                             val currentMember = viewModel.getCurrentUserMember()
-                            if (currentMember != null && !currentMember.isLeader) {
+                            if (currentMember != null) {
                                 TextButton(
                                     onClick = {
                                         viewModel.showSpecializationDialog(currentMember.specialization)
