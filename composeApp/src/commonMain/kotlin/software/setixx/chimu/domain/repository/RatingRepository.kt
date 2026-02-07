@@ -11,8 +11,8 @@ import software.setixx.chimu.domain.model.UpdateRating
 interface RatingRepository {
     suspend fun getProjectRatings(projectId: String): ApiResult<ProjectRating>
     suspend fun rateProject(projectId: String, data: RateProject): ApiResult<Rating>
-    suspend fun deleteProjectRating(projectId: String): ApiResult<Unit>
-    suspend fun updateProjectRating(projectId: String, data: UpdateRating): ApiResult<Rating>
+    suspend fun deleteProjectRating(ratingId: String): ApiResult<Unit>
+    suspend fun updateProjectRating(ratingId: String, data: UpdateRating): ApiResult<Rating>
     suspend fun getMyRatings(projectId: String): ApiResult<List<MyRating>>
     suspend fun getJudgeProgress(jamId: String): ApiResult<JudgeProgress>
 }

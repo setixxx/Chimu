@@ -2,6 +2,10 @@ package software.setixx.chimu.data.repository
 
 import software.setixx.chimu.data.local.TokenStorage
 import software.setixx.chimu.data.remote.GameJamApi
+import software.setixx.chimu.data.remote.dto.CreateGameJamRequest
+import software.setixx.chimu.data.remote.dto.GameJamDetailsResponse
+import software.setixx.chimu.data.remote.dto.GameJamResponse
+import software.setixx.chimu.data.remote.dto.UpdateGameJamRequest
 import software.setixx.chimu.domain.model.*
 import software.setixx.chimu.domain.repository.GameJamRepository
 
@@ -16,32 +20,9 @@ class GameJamRepositoryImpl(
                 ?: return ApiResult.Error("Ошибка аутентификации")
 
             val response = api.getAllJams(token)
-            val jams = response.map { dto ->
-                GameJam(
-                    id = dto.id,
-                    name = dto.name,
-                    description = dto.description,
-                    theme = dto.theme,
-                    registrationStart = dto.registrationStart,
-                    registrationEnd = dto.registrationEnd,
-                    jamStart = dto.jamStart,
-                    jamEnd = dto.jamEnd,
-                    judgingStart = dto.judgingStart,
-                    judgingEnd = dto.judgingEnd,
-                    status = GameJamStatus.valueOf(dto.status),
-                    organizerId = dto.organizerId,
-                    organizerNickname = dto.organizerNickname,
-                    registeredTeamsCount = dto.registeredTeamsCount,
-                    maxTeamSize = dto.maxTeamSize,
-                    minTeamSize = dto.minTeamSize,
-                    createdAt = dto.createdAt
-                )
-            }
-            ApiResult.Success(jams)
+            ApiResult.Success(response.map { it.toDomain() })
         } catch (e: Exception) {
             ApiResult.Error(e.message ?: "Ошибка подключения к серверу")
-        } catch (e: IllegalArgumentException) {
-            ApiResult.Error(e.message ?: "Неизвестная ошибка")
         }
     }
 
@@ -54,61 +35,147 @@ class GameJamRepositoryImpl(
             val allJams = mutableListOf<GameJam>()
 
             for (status in statuses) {
-                try {
-                    val response = api.getJamsByStatus(status, token)
-                    val jams = response.map { dto ->
-                        GameJam(
-                            id = dto.id,
-                            name = dto.name,
-                            description = dto.description,
-                            theme = dto.theme,
-                            registrationStart = dto.registrationStart,
-                            registrationEnd = dto.registrationEnd,
-                            jamStart = dto.jamStart,
-                            jamEnd = dto.jamEnd,
-                            judgingStart = dto.judgingStart,
-                            judgingEnd = dto.judgingEnd,
-                            status = GameJamStatus.valueOf(dto.status),
-                            organizerId = dto.organizerId,
-                            organizerNickname = dto.organizerNickname,
-                            registeredTeamsCount = dto.registeredTeamsCount,
-                            maxTeamSize = dto.maxTeamSize,
-                            minTeamSize = dto.minTeamSize,
-                            createdAt = dto.createdAt
-                        )
-                    }
-                    allJams.addAll(jams)
-                } catch (e: Exception) {
-                    ApiResult.Error(e.message ?: "Ошибка подключения к серверу")
-                } catch (e: IllegalArgumentException) {
-                    ApiResult.Error(e.message ?: "Неизвестная ошибка")
-                }
+                val response = api.getJamsByStatus(status, token)
+                allJams.addAll(response.map { it.toDomain() })
             }
 
             ApiResult.Success(allJams)
         } catch (e: Exception) {
             ApiResult.Error(e.message ?: "Ошибка подключения к серверу")
-        } catch (e: IllegalArgumentException) {
-            ApiResult.Error(e.message ?: "Неизвестная ошибка")
         }
     }
 
     override suspend fun createJam(data: CreateGameJam): ApiResult<GameJamDetails> {
-        TODO("Not yet implemented")
+        return try {
+            val token = tokenStorage.getAccessToken()
+                ?: return ApiResult.Error("Ошибка аутентификации")
+
+            val request = CreateGameJamRequest(
+                name = data.name,
+                description = data.description,
+                theme = data.theme,
+                rules = data.rules,
+                registrationStart = data.registrationStart,
+                registrationEnd = data.registrationEnd,
+                jamStart = data.jamStart,
+                jamEnd = data.jamEnd,
+                judgingStart = data.judgingStart,
+                judgingEnd = data.judgingEnd,
+                minTeamSize = data.minTeamSize,
+                maxTeamSize = data.maxTeamSize
+            )
+
+            val response = api.createJam(request, token)
+            ApiResult.Success(response.toDomain())
+        } catch (e: Exception) {
+            ApiResult.Error(e.message ?: "Ошибка подключения к серверу")
+        }
     }
 
     override suspend fun getJamDetails(gameJamId: String): ApiResult<GameJamDetails> {
-        TODO("Not yet implemented")
+        return try {
+            val token = tokenStorage.getAccessToken()
+                ?: return ApiResult.Error("Ошибка аутентификации")
+
+            val response = api.getJamDetails(gameJamId, token)
+            ApiResult.Success(response.toDomain())
+        } catch (e: Exception) {
+            ApiResult.Error(e.message ?: "Ошибка подключения к серверу")
+        }
     }
 
     override suspend fun deleteJam(gameJamId: String): ApiResult<Unit> {
-        TODO("Not yet implemented")
+        return try {
+            val token = tokenStorage.getAccessToken()
+                ?: return ApiResult.Error("Ошибка аутентификации")
+
+            api.deleteJam(gameJamId, token)
+            ApiResult.Success(Unit)
+        } catch (e: Exception) {
+            ApiResult.Error(e.message ?: "Ошибка подключения к серверу")
+        }
     }
 
     override suspend fun updateJam(
         gameJamId: String,
         data: UpdateGameJam,
     ): ApiResult<GameJamDetails> {
-        TODO("Not yet implemented")
+        return try {
+            val token = tokenStorage.getAccessToken()
+                ?: return ApiResult.Error("Ошибка аутентификации")
+
+            val request = UpdateGameJamRequest(
+                name = data.name,
+                description = data.description,
+                theme = data.theme,
+                rules = data.rules,
+                registrationStart = data.registrationStart,
+                registrationEnd = data.registrationEnd,
+                jamStart = data.jamStart,
+                jamEnd = data.jamEnd,
+                judgingStart = data.judgingStart,
+                judgingEnd = data.judgingEnd,
+                minTeamSize = data.minTeamSize,
+                maxTeamSize = data.maxTeamSize
+            )
+
+            val response = api.updateJam(gameJamId, request, token)
+            ApiResult.Success(response.toDomain())
+        } catch (e: Exception) {
+            ApiResult.Error(e.message ?: "Ошибка подключения к серверу")
+        }
+    }
+
+    private fun GameJamResponse.toDomain(): GameJam {
+        return GameJam(
+            id = id,
+            name = name,
+            description = description,
+            theme = theme,
+            registrationStart = registrationStart,
+            registrationEnd = registrationEnd,
+            jamStart = jamStart,
+            jamEnd = jamEnd,
+            judgingStart = judgingStart,
+            judgingEnd = judgingEnd,
+            status = try {
+                GameJamStatus.valueOf(status)
+            } catch (e: Exception) {
+                GameJamStatus.CANCELLED
+            },
+            organizerId = organizerId,
+            organizerNickname = organizerNickname,
+            registeredTeamsCount = registeredTeamsCount,
+            maxTeamSize = maxTeamSize,
+            minTeamSize = minTeamSize,
+            createdAt = createdAt
+        )
+    }
+
+    private fun GameJamDetailsResponse.toDomain(): GameJamDetails {
+        return GameJamDetails(
+            id = id,
+            name = name,
+            description = description,
+            theme = theme,
+            rules = rules,
+            registrationStart = registrationStart,
+            registrationEnd = registrationEnd,
+            jamStart = jamStart,
+            jamEnd = jamEnd,
+            judgingStart = judgingStart,
+            judgingEnd = judgingEnd,
+            status = status,
+            organizerId = organizerId,
+            organizerNickname = organizerNickname,
+            minTeamSize = minTeamSize,
+            maxTeamSize = maxTeamSize,
+            createdAt = createdAt,
+            updatedAt = updatedAt,
+            criteria = criteria,
+            judges = judges,
+            registeredTeamsCount = registeredTeamsCount,
+            submittedProjectsCount = submittedProjectsCount
+        )
     }
 }
