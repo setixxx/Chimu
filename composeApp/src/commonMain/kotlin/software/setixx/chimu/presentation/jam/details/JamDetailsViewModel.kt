@@ -6,10 +6,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import software.setixx.chimu.domain.model.ApiResult
-import software.setixx.chimu.domain.model.AssignJudge
-import software.setixx.chimu.domain.model.RegisterTeam
-import software.setixx.chimu.domain.model.UpdateRegistrationStatus
+import software.setixx.chimu.domain.model.*
 import software.setixx.chimu.domain.usecase.*
 
 class JamDetailsViewModel(
@@ -24,7 +21,11 @@ class JamDetailsViewModel(
     private val getTeamDetailsUseCase: GetTeamDetailsUseCase,
     private val getJamJudgesUseCase: GetJamJudgesUseCase,
     private val assignJudgeUseCase: AssignJudgeUseCase,
-    private val unassignJudgeUseCase: UnassignJudgeUseCase
+    private val unassignJudgeUseCase: UnassignJudgeUseCase,
+    private val getJamCriteriaUseCase: GetJamCriteriaUseCase,
+    private val createJamCriteriaUseCase: CreateJamCriteriaUseCase,
+    private val updateJamCriteriaUseCase: UpdateJamCriteriaUseCase,
+    private val deleteJamCriteriaUseCase: DeleteJamCriteriaUseCase
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(JamDetailsState())
@@ -48,6 +49,7 @@ class JamDetailsViewModel(
 
             loadRegistrations(jamId)
             loadJudges(jamId)
+            loadCriteria(jamId)
 
             when (val result = getJamDetailsUseCase(jamId)) {
                 is ApiResult.Success -> {
@@ -93,6 +95,15 @@ class JamDetailsViewModel(
         }
     }
 
+    private suspend fun loadCriteria(jamId: String) {
+        when (val result = getJamCriteriaUseCase(jamId)) {
+            is ApiResult.Success -> {
+                _state.value = _state.value.copy(criteria = result.data)
+            }
+            else -> {}
+        }
+    }
+
     fun assignJudge(jamId: String, judgeUserId: String) {
         viewModelScope.launch {
             _state.value = _state.value.copy(isActionLoading = true)
@@ -114,6 +125,51 @@ class JamDetailsViewModel(
             when (val result = unassignJudgeUseCase(jamId, judgeUserId)) {
                 is ApiResult.Success -> {
                     loadJudges(jamId)
+                    _state.value = _state.value.copy(isActionLoading = false)
+                }
+                is ApiResult.Error -> {
+                    _state.value = _state.value.copy(isActionLoading = false, errorMessage = result.message)
+                }
+            }
+        }
+    }
+
+    fun createCriteria(jamId: String, data: CreateRatingCriteria) {
+        viewModelScope.launch {
+            _state.value = _state.value.copy(isActionLoading = true)
+            when (val result = createJamCriteriaUseCase(jamId, data)) {
+                is ApiResult.Success -> {
+                    loadCriteria(jamId)
+                    _state.value = _state.value.copy(isActionLoading = false)
+                }
+                is ApiResult.Error -> {
+                    _state.value = _state.value.copy(isActionLoading = false, errorMessage = result.message)
+                }
+            }
+        }
+    }
+
+    fun updateCriteria(jamId: String, criteriaId: Long, data: UpdateRatingCriteria) {
+        viewModelScope.launch {
+            _state.value = _state.value.copy(isActionLoading = true)
+            when (val result = updateJamCriteriaUseCase(jamId, criteriaId, data)) {
+                is ApiResult.Success -> {
+                    loadCriteria(jamId)
+                    _state.value = _state.value.copy(isActionLoading = false)
+                }
+                is ApiResult.Error -> {
+                    _state.value = _state.value.copy(isActionLoading = false, errorMessage = result.message)
+                }
+            }
+        }
+    }
+
+    fun deleteCriteria(jamId: String, criteriaId: Long) {
+        viewModelScope.launch {
+            _state.value = _state.value.copy(isActionLoading = true)
+            when (val result = deleteJamCriteriaUseCase(jamId, criteriaId)) {
+                is ApiResult.Success -> {
+                    loadCriteria(jamId)
                     _state.value = _state.value.copy(isActionLoading = false)
                 }
                 is ApiResult.Error -> {

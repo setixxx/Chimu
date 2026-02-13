@@ -80,6 +80,10 @@ val appModule = module {
     factory { GetJamJudgesUseCase(get()) }
     factory { AssignJudgeUseCase(get()) }
     factory { UnassignJudgeUseCase(get()) }
+    factory { GetJamCriteriaUseCase(get()) }
+    factory { CreateJamCriteriaUseCase(get()) }
+    factory { UpdateJamCriteriaUseCase(get()) }
+    factory { DeleteJamCriteriaUseCase(get()) }
 
 
     viewModel { SplashViewModel(get()) }
@@ -90,6 +94,6 @@ val appModule = module {
     viewModel { CreateTeamViewModel(get(), get()) }
     viewModel { TeamDetailsViewModel(get(), get(), get(), get(), get(), get(), get(), get(), get(), get()) }
     viewModel { CreateJamViewModel(get(), get()) }
-    viewModel { JamDetailsViewModel(get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get()) }
+    viewModel { JamDetailsViewModel(get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get()) }
     viewModel { EditJamViewModel(get(), get()) }
 }

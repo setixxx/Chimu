@@ -1,14 +1,12 @@
 package software.setixx.chimu.presentation.jam.details
 
-import software.setixx.chimu.domain.model.GameJamDetails
-import software.setixx.chimu.domain.model.Judge
-import software.setixx.chimu.domain.model.Registration
-import software.setixx.chimu.domain.model.Team
+import software.setixx.chimu.domain.model.*
 
 data class JamDetailsState(
     val jamDetails: GameJamDetails? = null,
     val registrations: List<Registration> = emptyList(),
     val judges: List<Judge> = emptyList(),
+    val criteria: List<RatingCriteria> = emptyList(),
     val userTeams: List<Team> = emptyList(),
     
     val isLoading: Boolean = false,

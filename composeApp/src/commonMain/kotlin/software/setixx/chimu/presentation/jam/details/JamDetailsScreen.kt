@@ -11,6 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import org.koin.compose.viewmodel.koinViewModel
+import software.setixx.chimu.domain.model.CreateRatingCriteria
 import software.setixx.chimu.presentation.components.InfoRow
 import software.setixx.chimu.presentation.components.StatusChip
 
@@ -24,10 +25,19 @@ fun JamDetailsScreen(
 ) {
     val state by viewModel.state.collectAsState()
     val scrollState = rememberScrollState()
+    
     var showDeleteDialog by remember { mutableStateOf(false) }
     var showRegisterDialog by remember { mutableStateOf(false) }
     var showAssignJudgeDialog by remember { mutableStateOf(false) }
+    var showAddCriteriaDialog by remember { mutableStateOf(false) }
+    
     var judgeUserIdInput by remember { mutableStateOf("") }
+    
+    var criteriaName by remember { mutableStateOf("") }
+    var criteriaDesc by remember { mutableStateOf("") }
+    var criteriaMaxScore by remember { mutableStateOf("10") }
+    var criteriaWeight by remember { mutableStateOf("1.0") }
+    
     val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(jamId) {
@@ -98,11 +108,58 @@ fun JamDetailsScreen(
 
                     Card(modifier = Modifier.fillMaxWidth()) {
                         Column(modifier = Modifier.padding(16.dp)) {
-                            Text("Судьи", style = MaterialTheme.typography.titleMedium)
-                            if (state.canEdit) {
-                                TextButton(onClick = { showAssignJudgeDialog = true }) {
-                                    Icon(Icons.Default.Add, null)
-                                    Text("Назначить судью")
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text("Критерии оценивания", style = MaterialTheme.typography.titleMedium)
+                                if (state.canEdit) {
+                                    IconButton(onClick = { showAddCriteriaDialog = true }) {
+                                        Icon(Icons.Default.Add, "Добавить критерий")
+                                    }
+                                }
+                            }
+                            if (state.criteria.isEmpty()) {
+                                Text("Критерии еще не созданы", style = MaterialTheme.typography.bodySmall)
+                            } else {
+                                state.criteria.forEach { item ->
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Column(modifier = Modifier.weight(1f)) {
+                                            Text(item.name, style = MaterialTheme.typography.bodyLarge)
+                                            if (!item.description.isNullOrBlank()) {
+                                                Text(item.description!!, style = MaterialTheme.typography.bodySmall)
+                                            }
+                                            Text("Макс. балл: ${item.maxScore}, Вес: ${item.weight}", style = MaterialTheme.typography.labelSmall)
+                                        }
+                                        if (state.canEdit) {
+                                            IconButton(onClick = { viewModel.deleteCriteria(jamId, item.id) }) {
+                                                Icon(Icons.Default.Delete, "Удалить", tint = MaterialTheme.colorScheme.error)
+                                            }
+                                        }
+                                    }
+                                    if (item != state.criteria.last()) HorizontalDivider()
+                                }
+                            }
+                        }
+                    }
+
+                    Card(modifier = Modifier.fillMaxWidth()) {
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text("Судьи", style = MaterialTheme.typography.titleMedium)
+                                if (state.canEdit) {
+                                    IconButton(onClick = { showAssignJudgeDialog = true }) {
+                                        Icon(Icons.Default.PersonAdd, "Назначить судью")
+                                    }
                                 }
                             }
                             if (state.judges.isEmpty()) {
@@ -187,6 +244,42 @@ fun JamDetailsScreen(
                 }
             }
         }
+    }
+
+    if (showAddCriteriaDialog) {
+        AlertDialog(
+            onDismissRequest = { showAddCriteriaDialog = false },
+            title = { Text("Добавить критерий") },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    OutlinedTextField(value = criteriaName, onValueChange = { criteriaName = it }, label = { Text("Название") })
+                    OutlinedTextField(value = criteriaDesc, onValueChange = { criteriaDesc = it }, label = { Text("Описание") })
+                    OutlinedTextField(value = criteriaMaxScore, onValueChange = { criteriaMaxScore = it }, label = { Text("Макс. балл") })
+                    OutlinedTextField(value = criteriaWeight, onValueChange = { criteriaWeight = it }, label = { Text("Вес (например 1.0)") })
+                }
+            },
+            confirmButton = {
+                Button(onClick = {
+                    viewModel.createCriteria(
+                        jamId,
+                        CreateRatingCriteria(
+                            name = criteriaName,
+                            description = criteriaDesc.takeIf { it.isNotBlank() },
+                            maxScore = criteriaMaxScore.toIntOrNull() ?: 10,
+                            weight = criteriaWeight.toDoubleOrNull() ?: 1.0,
+                            orderIndex = state.criteria.size
+                        )
+                    )
+                    showAddCriteriaDialog = false
+                    criteriaName = ""; criteriaDesc = ""
+                }) {
+                    Text("Создать")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showAddCriteriaDialog = false }) { Text("Отмена") }
+            }
+        )
     }
 
     if (showAssignJudgeDialog) {
