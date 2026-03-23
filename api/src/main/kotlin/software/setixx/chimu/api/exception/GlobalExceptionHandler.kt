@@ -51,4 +51,13 @@ class GlobalExceptionHandler {
             .body(mapOf(
                 "error" to (ex.message ?: "The email is already in use")))
     }
+
+    @ExceptionHandler(JamNameAlreadyInUseException::class)
+    fun handleJamUniqueConstraintViolation(ex: JamNameAlreadyInUseException): ResponseEntity<Map<String, String>> {
+        return ResponseEntity
+            .status(HttpStatus.CONFLICT)
+            .body(mapOf(
+                "error" to (ex.message ?: "Jam name is already in use")
+            ))
+    }
 }

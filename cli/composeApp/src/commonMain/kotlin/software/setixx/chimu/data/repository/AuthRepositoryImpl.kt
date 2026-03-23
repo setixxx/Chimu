@@ -51,9 +51,10 @@ class AuthRepositoryImpl(
 
     override suspend fun logout(): ApiResult<Unit> {
         return try {
+            val accessToken = tokenStorage.getAccessToken()
             val refreshToken = tokenStorage.getRefreshToken()
-            if (refreshToken != null) {
-                authApi.logout(refreshToken)
+            if (refreshToken != null && accessToken != null) {
+                authApi.logout(accessToken, refreshToken)
             }
             tokenStorage.clearTokens()
             ApiResult.Success(Unit)

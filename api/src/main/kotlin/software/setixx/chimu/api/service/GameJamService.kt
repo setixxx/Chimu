@@ -14,6 +14,7 @@ import software.setixx.chimu.api.dto.GameJamDetailsResponse
 import software.setixx.chimu.api.dto.GameJamResponse
 import software.setixx.chimu.api.dto.JudgeResponse
 import software.setixx.chimu.api.dto.UpdateGameJamRequest
+import software.setixx.chimu.api.exception.JamNameAlreadyInUseException
 import software.setixx.chimu.api.repository.GameJamRepository
 import software.setixx.chimu.api.repository.JamJudgeRepository
 import software.setixx.chimu.api.repository.JamTeamRegistrationRepository
@@ -44,7 +45,7 @@ class GameJamService(
         }
 
         if (gameJamRepository.existsByName(request.name)) {
-            throw IllegalArgumentException("Game jam with name '${request.name}' already exists")
+            throw JamNameAlreadyInUseException("Game jam with name '${request.name}' already exists")
         }
 
         validateDates(

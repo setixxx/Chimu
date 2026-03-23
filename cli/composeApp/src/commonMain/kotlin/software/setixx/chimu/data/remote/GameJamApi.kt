@@ -48,6 +48,7 @@ class GameJamApi(private val client: HttpClient) {
             403 -> throw IllegalArgumentException("Недостаточно прав для создания игры")
             400 -> throw IllegalArgumentException("Проверьте правильность введенных данных")
             401 -> throw IllegalArgumentException("Ошибка авторизации")
+            409 -> throw IllegalArgumentException("Джем с таким названием уже существует")
             else -> throw IllegalArgumentException("Неизвестная ошибка")
         }
     }

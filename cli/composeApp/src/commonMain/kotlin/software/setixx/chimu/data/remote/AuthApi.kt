@@ -51,8 +51,9 @@ class AuthApi(private val client: HttpClient) {
         }
     }
 
-    suspend fun logout(refreshToken: String) {
+    suspend fun logout(accessToken: String, refreshToken: String) {
         val response = client.post("/api/auth/logout") {
+            header(HttpHeaders.Authorization, "Bearer $accessToken")
             setBody(RefreshTokenRequest(refreshToken))
         }
         when (response.status.value) {
