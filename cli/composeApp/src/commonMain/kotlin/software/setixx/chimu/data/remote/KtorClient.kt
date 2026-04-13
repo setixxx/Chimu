@@ -39,9 +39,9 @@ class KtorClient(
 
         defaultRequest {
             url {
-                protocol = URLProtocol.HTTP
+/*                protocol = URLProtocol.HTTP
                 host = address
-                port = 8080
+                port = 8080*/
             }
             contentType(ContentType.Application.Json)
         }
