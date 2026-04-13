@@ -39,6 +39,6 @@ jobs:
       - name: Pull and restart API
         run: |
           cd /opt/chimu
-          docker-compose pull api
-          docker-compose up -d --no-deps api
+          docker compose pull api
+          docker compose up -d --no-deps api
           docker image prune -a -f
