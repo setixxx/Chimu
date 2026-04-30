@@ -1,26 +1,15 @@
 package software.setixx.chimu.api.domain
 
 import jakarta.persistence.*
+import org.hibernate.annotations.Generated
 import org.hibernate.annotations.JdbcTypeCode
+import org.hibernate.generator.EventType
 import org.hibernate.type.SqlTypes
 import java.time.Instant
 import java.util.UUID
 
 @Entity
-@Table(
-    name = "game_jams",
-    uniqueConstraints = [
-        UniqueConstraint(name = "uq_game_jams_public_id", columnNames = ["public_id"])
-    ],
-    indexes = [
-        Index(name = "idx_game_jams_organizer_id", columnList = "organizer_id"),
-        Index(name = "idx_game_jams_status", columnList = "status"),
-        Index(name = "idx_game_jams_registration_dates", columnList = "registration_start,registration_end"),
-        Index(name = "idx_game_jams_jam_dates", columnList = "jam_start,jam_end"),
-        Index(name = "idx_game_jams_judging_dates", columnList = "judging_start,judging_end"),
-        Index(name = "idx_game_jams_created_at", columnList = "created_at")
-    ]
-)
+@Table(name = "game_jams")
 class GameJam(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,14 +18,18 @@ class GameJam(
     @Column(name = "public_id", nullable = false, columnDefinition = "uuid")
     var publicId: UUID = UUID.randomUUID(),
 
-    @Column(name = "organizer_id", nullable = false)
-    var organizerId: Long,
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "organizer_id", nullable = false)
+    val organizer: User,
 
     @Column(nullable = false, length = 200)
     var name: String,
 
     @Column(columnDefinition = "TEXT")
     var description: String? = null,
+
+    @Column(name = "banner_url", nullable = false, columnDefinition = "TEXT")
+    var bannerUrl: String,
 
     @Column(length = 200)
     var theme: String? = null,
@@ -77,18 +70,14 @@ class GameJam(
     @Column(nullable = false)
     var version: Long? = null,
 
+    @Generated(event = [EventType.INSERT])
     @Column(name = "created_at", nullable = false, insertable = false, updatable = false)
     var createdAt: Instant? = null,
 
+    @Generated(event = [EventType.INSERT, EventType.UPDATE])
     @Column(name = "updated_at", nullable = false, insertable = false, updatable = false)
-    var updatedAt: Instant? = null
-)
+    var updatedAt: Instant? = null,
 
-enum class GameJamStatus {
-    REGISTRATION_OPEN,
-    REGISTRATION_CLOSED,
-    IN_PROGRESS,
-    JUDGING,
-    COMPLETED,
-    CANCELLED
-}
+    @Column(name = "deleted_at")
+    var deletedAt: Instant? = null,
+)

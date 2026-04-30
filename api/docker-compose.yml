@@ -1,16 +1,17 @@
 services:
-  db:
+  postgres:
+    container_name: chimu-db
     image: postgres:16
-    container_name: chimu_db
+    restart: unless-stopped
     environment:
       POSTGRES_DB: "chimu"
       POSTGRES_USER: "postgres"
       POSTGRES_PASSWORD: "277353"
       PGDATA: "/var/lib/postgresql/data/pgdata"
-    restart: unless-stopped
     volumes:
-      - chimu_db:/var/lib/postgresql/data/pgdata
+      - chimu:/var/lib/postgresql/data/pgdata
     ports:
       - "5432:5432"
+
 volumes:
-  chimu_db:
+  chimu:

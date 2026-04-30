@@ -46,10 +46,11 @@ class AuthController(
         ApiResponse(responseCode = "401", description = "Invalid or expired refresh token")
     )
     fun refreshAccessToken(
-        @Valid @RequestBody request: RefreshTokenRequest
+        @Valid @RequestBody refreshRequest: RefreshTokenRequest,
+        request: HttpServletRequest
     ): ResponseEntity<RefreshTokenResponse> {
-        val token = authenticationService.refreshAccessToken(request.token)
-        return ResponseEntity.ok(RefreshTokenResponse(token = token))
+        val token = authenticationService.refreshAccessAndRefreshToken(refreshRequest.token, request)
+        return ResponseEntity.ok(RefreshTokenResponse(token.accessToken, token.refreshToken))
     }
 
     @PostMapping("/register")

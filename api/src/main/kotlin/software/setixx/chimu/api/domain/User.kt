@@ -1,21 +1,13 @@
 package software.setixx.chimu.api.domain
 
 import jakarta.persistence.*
+import org.hibernate.annotations.Generated
+import org.hibernate.generator.EventType
 import java.time.Instant
 import java.util.UUID
 
 @Entity
-@Table(
-    name = "users",
-    uniqueConstraints = [
-        UniqueConstraint(name = "uq_users_public_id", columnNames = ["public_id"]),
-        UniqueConstraint(name = "uq_users_email", columnNames = ["email"]),
-        UniqueConstraint(name = "uq_users_nickname", columnNames = ["nickname"])
-    ],
-    indexes = [
-        Index(name = "idx_users_specialization_id", columnList = "specialization_id")
-    ]
-)
+@Table(name = "users")
 class User(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -46,8 +38,9 @@ class User(
     @Column(name = "bio", columnDefinition = "text")
     var bio: String? = null,
 
-    @Column(name = "specialization_id")
-    var specializationId: Long? = null,
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "specialization_id")
+    var specialization: Specialization? = null,
 
     @Column(name = "github_url")
     var githubUrl: String? = null,
@@ -58,24 +51,20 @@ class User(
     @Column(name = "avatar_url")
     var avatarUrl: String? = null,
 
+    @Generated(event = [EventType.INSERT])
     @Column(name = "created_at", nullable = false, insertable = false, updatable = false)
     var createdAt: Instant? = null,
 
+    @Generated(event = [EventType.INSERT, EventType.UPDATE])
     @Column(name = "updated_at", nullable = false, insertable = false, updatable = false)
     var updatedAt: Instant? = null,
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-        name = "user_skills",
-        joinColumns = [JoinColumn(name = "user_id")],
-        inverseJoinColumns = [JoinColumn(name = "skill_id")]
-    )
+    @Column(name = "deleted_at")
+    var deletedAt: Instant? = null,
+
+    @OneToMany(mappedBy = "user", cascade = [CascadeType.ALL], orphanRemoval = true)
+    var teamMemberships: MutableSet<TeamMember> = mutableSetOf(),
+
+    @OneToMany(mappedBy = "user", cascade = [CascadeType.ALL], orphanRemoval = true)
     var skills: MutableSet<Skill> = mutableSetOf()
 )
-
-enum class UserRole {
-    PARTICIPANT,
-    ORGANIZER,
-    JUDGE,
-    ADMIN
-}

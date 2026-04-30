@@ -1,6 +1,8 @@
 package software.setixx.chimu.api.domain
 
 import jakarta.persistence.*
+import org.hibernate.annotations.Generated
+import org.hibernate.generator.EventType
 import java.time.Instant
 
 @Entity
@@ -16,6 +18,7 @@ class Specialization(
     @Column(columnDefinition = "TEXT")
     var description: String? = null,
 
+    @Generated(event = [EventType.INSERT])
     @Column(name = "created_at", nullable = false, insertable = false, updatable = false)
     var createdAt: Instant? = null
 )

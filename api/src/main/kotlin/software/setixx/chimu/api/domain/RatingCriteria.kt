@@ -1,24 +1,21 @@
 package software.setixx.chimu.api.domain
 
 import jakarta.persistence.*
+import org.hibernate.annotations.Generated
+import org.hibernate.generator.EventType
 import java.math.BigDecimal
 import java.time.Instant
 
 @Entity
-@Table(
-    name = "rating_criteria",
-    indexes = [
-        Index(name = "idx_rating_criteria_jam_id", columnList = "jam_id"),
-        Index(name = "idx_rating_criteria_order", columnList = "jam_id,order_index")
-    ]
-)
+@Table(name = "rating_criteria")
 class RatingCriteria(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null,
 
-    @Column(name = "jam_id", nullable = false)
-    var jamId: Long,
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "jam_id", nullable = false)
+    val gameJam: GameJam,
 
     @Column(nullable = false, length = 100)
     var name: String,
@@ -35,6 +32,10 @@ class RatingCriteria(
     @Column(name = "order_index", nullable = false)
     var orderIndex: Int = 0,
 
+    @Generated(event = [EventType.INSERT])
     @Column(name = "created_at", nullable = false, insertable = false, updatable = false)
-    var createdAt: Instant? = null
+    var createdAt: Instant? = null,
+
+    @Column(name = "deleted_at")
+    var deletedAt: Instant? = null
 )

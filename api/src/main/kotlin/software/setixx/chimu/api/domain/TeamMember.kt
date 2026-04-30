@@ -1,41 +1,33 @@
 package software.setixx.chimu.api.domain
 
 import jakarta.persistence.*
+import org.hibernate.annotations.Generated
+import org.hibernate.generator.EventType
 import java.time.Instant
 
 @Entity
-@Table(
-    name = "team_members",
-    uniqueConstraints = [
-        UniqueConstraint(name = "uq_team_members_team_user", columnNames = ["team_id", "user_id"])
-    ],
-    indexes = [
-        Index(name = "idx_team_members_team_id", columnList = "team_id"),
-        Index(name = "idx_team_members_user_id", columnList = "user_id"),
-        Index(name = "idx_team_members_specialization_id", columnList = "specialization_id")
-    ]
-)
+@Table(name = "team_members")
 class TeamMember(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null,
 
-    @Column(name = "team_id", nullable = false)
-    var teamId: Long,
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "team_id", nullable = false)
+    val team: Team,
 
-    @Column(name = "user_id", nullable = false)
-    var userId: Long,
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    val user: User,
 
-    @Column(name = "specialization_id")
-    var specializationId: Long? = null,
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "specialization_id")
+    var specialization: Specialization? = null,
 
+    @Generated(event = [EventType.INSERT])
     @Column(name = "joined_at", nullable = false, insertable = false, updatable = false)
-    var joinedAt: Instant? = null
-) {
-    @PrePersist
-    fun prePersist() {
-        if (joinedAt == null) {
-            joinedAt = Instant.now()
-        }
-    }
-}
+    var joinedAt: Instant? = null,
+
+    @Column(name = "deleted_at")
+    var deletedAt: Instant? = null
+)

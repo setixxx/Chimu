@@ -40,5 +40,6 @@ data class RefreshTokenRequest(
 )
 
 data class RefreshTokenResponse(
-    val token: String
+    val accessToken: String,
+    val refreshToken: String
 )

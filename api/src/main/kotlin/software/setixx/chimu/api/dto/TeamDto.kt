@@ -10,7 +10,7 @@ data class CreateTeamRequest(
     @field:NotBlank(message = "Team name is required")
     @field:Size(min = 3, max = 100, message = "Team name must be between 3 and 100 characters")
     @field:Pattern(
-        regexp = "^[a-zA-Z0-9]+( [a-zA-Z0-9]+)*$",
+        regexp = "^[\\p{L}0-9]+( [\\p{L}0-9]+)*$",
         message = "Team name can only contain letters, numbers, and single spaces between words"
     )
     val name: String,
@@ -22,7 +22,7 @@ data class CreateTeamRequest(
 data class UpdateTeamRequest(
     @field:Size(min = 3, max = 100, message = "Team name must be between 3 and 100 characters")
     @field:Pattern(
-        regexp = "^[a-zA-Z0-9]+( [a-zA-Z0-9]+)*$",
+        regexp = "^[\\p{L}0-9]+( [\\p{L}0-9]+)*$",
         message = "Team name can only contain letters, numbers, and single spaces between words"
     )
     val name: String? = null,

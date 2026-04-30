@@ -1,17 +1,13 @@
 package software.setixx.chimu.api.domain
 
 import jakarta.persistence.*
+import org.hibernate.annotations.Generated
+import org.hibernate.generator.EventType
 import java.time.Instant
 import java.util.UUID
 
 @Entity
-@Table(
-    name = "teams",
-    uniqueConstraints = [
-        UniqueConstraint(name = "uq_teams_public_id", columnNames = ["public_id"]),
-        UniqueConstraint(name = "uq_teams_invite_token", columnNames = ["invite_token"])
-    ]
-)
+@Table(name = "teams")
 class Team(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,23 +22,24 @@ class Team(
     @Column(columnDefinition = "TEXT")
     var description: String? = null,
 
-    @Column(name = "leader_id", nullable = false)
-    var leaderId: Long,
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "leader_id", nullable = false)
+    var leader: User,
 
-    @Column(name = "invite_token", nullable = false, length = 64)
+    @Column(name = "invite_token", nullable = false, length = 64, unique = true)
     var inviteToken: String,
 
     @Version
     @Column(nullable = false)
     var version: Long? = null,
 
+    @Generated(event = [EventType.INSERT])
     @Column(name = "created_at", nullable = false, insertable = false, updatable = false)
-    var createdAt: Instant? = null
-) {
-    @PrePersist
-    fun prePersist() {
-        if (createdAt == null) {
-            createdAt = Instant.now()
-        }
-    }
-}
+    var createdAt: Instant? = null,
+
+    @Column(name = "deleted_at")
+    var deletedAt: Instant? = null,
+
+    @OneToMany(mappedBy = "team", cascade = [CascadeType.ALL], orphanRemoval = true)
+    var members: MutableSet<TeamMember> = mutableSetOf(),
+)

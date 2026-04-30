@@ -12,6 +12,7 @@ import software.setixx.chimu.api.dto.AuthenticationRequest
 import software.setixx.chimu.api.dto.AuthenticationResponse
 import software.setixx.chimu.api.dto.ChangePasswordRequest
 import software.setixx.chimu.api.dto.ChangePasswordResponse
+import software.setixx.chimu.api.dto.RefreshTokenResponse
 import software.setixx.chimu.api.repository.UserRepository
 import software.setixx.chimu.api.service.RefreshTokenService
 import java.time.Instant
@@ -57,13 +58,16 @@ class AuthenticationService(
         )
     }
 
-    fun refreshAccessToken(refreshToken: String): String {
-        val publicId = tokenService.extractPublicId(refreshToken)
+    fun refreshAccessAndRefreshToken(
+        refreshTokenRequest: String,
+        request: HttpServletRequest? = null
+    ): RefreshTokenResponse {
+        val publicId = tokenService.extractPublicId(refreshTokenRequest)
 
         val currentUserDetails = userDetailsService.loadUserByPublicId(publicId) as CustomUserDetails
-        val refreshTokenUserDetails = refreshTokenService.findUserDetailsByToken(refreshToken)
+        val refreshTokenUserDetails = refreshTokenService.findUserDetailsByToken(refreshTokenRequest)
 
-        if (!tokenService.isTokenValid(refreshToken, currentUserDetails)) {
+        if (!tokenService.isTokenValid(refreshTokenRequest, currentUserDetails)) {
             throw AuthenticationServiceException("Refresh token expired")
         }
 
@@ -71,9 +75,19 @@ class AuthenticationService(
             throw AuthenticationServiceException("Invalid refresh token")
         }
 
-        refreshTokenService.updateLastUsed(refreshToken)
+        refreshTokenService.updateLastUsed(refreshTokenRequest)
+        refreshTokenService.revokeToken(refreshTokenRequest)
 
-        return createAccessToken(currentUserDetails)
+        val accessToken = createAccessToken(currentUserDetails)
+        val refreshToken = createRefreshToken(currentUserDetails)
+
+        val refreshExpiresAt = Instant.now().plusMillis(refreshTokenExpiration)
+        refreshTokenService.saveRefreshToken(refreshToken, currentUserDetails, refreshExpiresAt, request)
+
+        return RefreshTokenResponse(
+            accessToken = accessToken,
+            refreshToken = refreshToken
+        )
     }
 
     fun logout(refreshToken: String) {

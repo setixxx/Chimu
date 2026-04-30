@@ -43,7 +43,6 @@ dependencies {
     runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.5")
     runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.5")
 
-    implementation("io.minio:minio:8.5.9")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.13")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
     implementation("io.github.cdimascio:dotenv-kotlin:6.5.1")

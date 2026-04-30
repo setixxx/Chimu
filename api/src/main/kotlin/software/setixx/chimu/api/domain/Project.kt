@@ -1,26 +1,15 @@
 package software.setixx.chimu.api.domain
 
 import jakarta.persistence.*
+import org.hibernate.annotations.Generated
 import org.hibernate.annotations.JdbcTypeCode
+import org.hibernate.generator.EventType
 import org.hibernate.type.SqlTypes
 import java.time.Instant
 import java.util.UUID
 
 @Entity
-@Table(
-    name = "projects",
-    uniqueConstraints = [
-        UniqueConstraint(name = "uq_projects_public_id", columnNames = ["public_id"]),
-        UniqueConstraint(name = "uq_projects_team_jam", columnNames = ["team_id", "jam_id"])
-    ],
-    indexes = [
-        Index(name = "idx_projects_team_id", columnList = "team_id"),
-        Index(name = "idx_projects_jam_id", columnList = "jam_id"),
-        Index(name = "idx_projects_status", columnList = "status"),
-        Index(name = "idx_projects_submitted_at", columnList = "submitted_at"),
-        Index(name = "idx_projects_created_at", columnList = "created_at")
-    ]
-)
+@Table(name = "projects")
 class Project(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,11 +18,13 @@ class Project(
     @Column(name = "public_id", nullable = false, columnDefinition = "uuid")
     var publicId: UUID = UUID.randomUUID(),
 
-    @Column(name = "team_id")
-    var teamId: Long?,
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "team_id", nullable = false)
+    val team: Team,
 
-    @Column(name = "jam_id", nullable = false)
-    var jamId: Long,
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "jam_id", nullable = false)
+    val gameJam: GameJam,
 
     @Column(nullable = false, length = 200)
     var title: String,
@@ -43,9 +34,6 @@ class Project(
 
     @Column(name = "game_url", columnDefinition = "TEXT")
     var gameUrl: String? = null,
-
-    @Column(name = "repository_url", columnDefinition = "TEXT")
-    var repositoryUrl: String? = null,
 
     @Enumerated(EnumType.STRING)
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
@@ -59,17 +47,14 @@ class Project(
     @Column(name = "submitted_at")
     var submittedAt: Instant? = null,
 
+    @Generated(event = [EventType.INSERT])
     @Column(name = "created_at", nullable = false, insertable = false, updatable = false)
     var createdAt: Instant? = null,
 
+    @Generated(event = [EventType.INSERT, EventType.UPDATE])
     @Column(name = "updated_at", nullable = false, insertable = false, updatable = false)
-    var updatedAt: Instant? = null
-)
+    var updatedAt: Instant? = null,
 
-enum class ProjectStatus {
-    DRAFT,
-    SUBMITTED,
-    UNDER_REVIEW,
-    PUBLISHED,
-    DISQUALIFIED
-}
+    @Column(name = "deleted_at")
+    var deletedAt: Instant? = null,
+)
