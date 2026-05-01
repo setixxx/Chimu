@@ -65,13 +65,13 @@ class JudgeManagementService(
             assignedBy = organizer
         )
 
-        jamJudgeRepository.save(jamJudge)
+        val savedJudge = jamJudgeRepository.save(jamJudge)
 
         return JudgeResponse(
             userId = judge.publicId.toString(),
             nickname = judge.nickname,
             avatarUrl = judge.avatarUrl,
-            assignedAt = jamJudge.assignedAt.toString()
+            assignedAt = savedJudge.assignedAt.toString()
         )
     }
 

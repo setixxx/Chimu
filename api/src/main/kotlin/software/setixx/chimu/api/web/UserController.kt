@@ -87,8 +87,8 @@ class UserController(
 
         val updatedUser = userService.updateProfile(user.id!!, request)
 
-        val specialization = updatedUser.specialization?.id.let { specId ->
-            val spec = specializationService.getSpecializationById(specId!!)
+        val specialization = updatedUser.specialization?.id?.let { specId ->
+            val spec = specializationService.getSpecializationById(specId)
             SpecializationResponse(spec.id!!, spec.name, spec.description)
         }
 
@@ -102,10 +102,10 @@ class UserController(
             avatarUrl = updatedUser.avatarUrl,
             createdAt = updatedUser.createdAt.toString(),
             skills = updatedUser.skills.map { it.skill.name },
-            role = user.role,
-            bio = user.bio,
-            githubUrl = user.githubUrl,
-            telegramUrl = user.telegramUsername
+            role = updatedUser.role,
+            bio = updatedUser.bio,
+            githubUrl = updatedUser.githubUrl,
+            telegramUrl = updatedUser.telegramUsername
         )
         return ResponseEntity.ok(body)
     }

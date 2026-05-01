@@ -279,11 +279,11 @@ class TeamService(
         val teamMember = teamMemberRepository.findByTeamIdAndUserIdAndDeletedAtIsNull(teamId, userId)
             ?: throw IllegalArgumentException("You are not a member of this team")
 
-        if (specializationId != null) {
-            specializationService.getSpecializationById(specializationId)
+        val newSpecialization = specializationId?.let {
+            specializationService.getSpecializationById(it)
         }
 
-        teamMember.specialization!!.id = specializationId
+        teamMember.specialization = newSpecialization
         teamMemberRepository.save(teamMember)
 
         val user = userRepository.findById(userId).get()
@@ -342,7 +342,7 @@ class TeamService(
         member: TeamMember,
         leaderId: Long
     ): TeamMemberResponse {
-        val specialization = member.specialization!!.id?.let {
+        val specialization = member.specialization?.id?.let {
             val spec = specializationService.getSpecializationById(it)
             SpecializationResponse(spec.id!!, spec.name, spec.description)
         }

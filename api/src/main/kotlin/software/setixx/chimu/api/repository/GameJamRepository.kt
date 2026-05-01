@@ -45,7 +45,7 @@ interface GameJamRepository : JpaRepository<GameJam, Long> {
 
     @Query("""
         SELECT gj FROM GameJam gj 
-        WHERE gj.status = 'REGISTRATION_OPEN' OR gj.status = 'ANNOUNCED'
+        WHERE (gj.status = 'REGISTRATION_OPEN' OR gj.status = 'ANNOUNCED')
         AND gj.deletedAt IS NULL
         AND gj.registrationEnd <= :now
     """)
