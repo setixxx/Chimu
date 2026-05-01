@@ -225,7 +225,7 @@ class TeamService(
             throw IllegalArgumentException("Cannot delete team while it has active jam registrations")
         }
 
-        teamRepository.delete(team)
+        teamRepository.softDeleteById(team.id!!)
     }
 
     @Transactional

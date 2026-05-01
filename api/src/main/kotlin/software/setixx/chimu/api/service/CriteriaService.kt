@@ -126,7 +126,7 @@ class CriteriaService(
             throw IllegalArgumentException("Criteria does not belong to this jam")
         }
 
-        ratingCriteriaRepository.delete(criteria)
+        ratingCriteriaRepository.softDeleteById(criteria.id!!)
     }
 
     private fun toCriteriaResponse(criteria: RatingCriteria): CriteriaResponse {

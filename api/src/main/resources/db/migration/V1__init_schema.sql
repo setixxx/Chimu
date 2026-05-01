@@ -282,7 +282,7 @@ CREATE TABLE IF NOT EXISTS jam_transfer_requests (
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     expires_at TIMESTAMPTZ NOT NULL DEFAULT (NOW() + INTERVAL '3 days'),
-    deleted_at TIMESTAMPTZ DEFAULT NULL
+    deleted_at TIMESTAMPTZ DEFAULT NULL,
 
     CONSTRAINT fk_transfer_jam FOREIGN KEY (jam_id) REFERENCES game_jams(id) ON DELETE RESTRICT,
     CONSTRAINT fk_transfer_sender FOREIGN KEY (sender_id) REFERENCES users(id) ON DELETE RESTRICT,

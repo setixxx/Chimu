@@ -43,7 +43,10 @@ class JamStatusScheduler(
 
                 jam.status = GameJamStatus.REGISTRATION_CLOSED
                 gameJamRepository.save(jam)
-                logger.info("Changed jam ${jam.name} (${jam.publicId}) status to REGISTRATION_CLOSED, rejected ${pendingRegistrations.size} pending registrations")
+                logger.info(
+                    "Changed jam ${jam.name} (${jam.publicId}) status to REGISTRATION_CLOSED, " +
+                            "rejected ${pendingRegistrations.size} pending registrations"
+                )
             }
             totalUpdated += jamsToCloseRegistration.size
 
@@ -54,20 +57,26 @@ class JamStatusScheduler(
                     RegistrationStatus.APPROVED
                 )
 
-                val invalidTeams = mutableListOf<Long>()
+                var rejectedCount = 0
                 approvedRegistrations.forEach { registration ->
-                    val teamSize = teamMemberRepository.countByTeamId(registration.team.id).toInt()
+                    val teamSize = teamMemberRepository.countByTeamId(registration.team.id!!).toInt()
                     if (teamSize < jam.minTeamSize || teamSize > jam.maxTeamSize) {
                         registration.status = RegistrationStatus.REJECTED
                         registrationRepository.save(registration)
-                        invalidTeams.add(registration.team.id)
-                        logger.warn("Team ${registration.team.id} rejected from jam ${jam.name} due to invalid size: $teamSize (required: ${jam.minTeamSize}-${jam.maxTeamSize})")
+                        rejectedCount++
+                        logger.warn(
+                            "Team ${registration.team.id} rejected from jam ${jam.name} " +
+                                    "due to invalid size: $teamSize (required: ${jam.minTeamSize}-${jam.maxTeamSize})"
+                        )
                     }
                 }
 
                 jam.status = GameJamStatus.IN_PROGRESS
                 gameJamRepository.save(jam)
-                logger.info("Changed jam ${jam.name} (${jam.publicId}) status to IN_PROGRESS, rejected ${invalidTeams.size} teams with invalid size")
+                logger.info(
+                    "Changed jam ${jam.name} (${jam.publicId}) status to IN_PROGRESS, " +
+                            "rejected $rejectedCount teams with invalid size"
+                )
             }
             totalUpdated += jamsToStart.size
 

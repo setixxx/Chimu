@@ -103,8 +103,8 @@ class ProjectService(
         val projects = projectRepository.findAllByUserId(userId)
 
         return projects.map { project ->
-            val jam = project.gameJam.id?.let { gameJamRepository.findById(it) }?.orElseThrow()
-            val team = project.teamId?.let { teamRepository.findById(it).orElse(null) }
+            val jam = gameJamRepository.findById(project.gameJam.id!!).orElseThrow()
+            val team = project.team.id?.let { teamRepository.findById(it).orElse(null) }
             toResponse(project, jam, team)
         }
     }
@@ -114,10 +114,10 @@ class ProjectService(
         val project = projectRepository.findByPublicIdAndDeletedAtIsNull(UUID.fromString(projectId))
             ?: throw IllegalArgumentException("Project not found")
 
-        val team = project.teamId?.let { teamRepository.findById(it).orElse(null) }
+        val team = project.team.id?.let { teamRepository.findById(it).orElse(null) }
             ?: throw IllegalArgumentException("Project has no associated team")
 
-        if (team.leaderId != userId) {
+        if (team.leader.id != userId) {
             throw IllegalArgumentException("Only team leader can update the project")
         }
 
@@ -128,11 +128,10 @@ class ProjectService(
         request.title?.let { project.title = it }
         request.description?.let { project.description = it }
         request.gameUrl?.let { project.gameUrl = it }
-        request.repositoryUrl?.let { project.repositoryUrl = it }
 
         projectRepository.save(project)
 
-        val jam = gameJamRepository.findById(project.gameJam.id).orElseThrow()
+        val jam = gameJamRepository.findById(project.gameJam.id!!).orElseThrow()
         return toDetailsResponse(project, jam, team, userId)
     }
 
@@ -254,28 +253,18 @@ class ProjectService(
             throw IllegalArgumentException("Only draft projects can be deleted")
         }
 
-        projectRepository.delete(project)
+        projectRepository.softDeleteById(project.id!!)
     }
 
     private fun canViewProject(project: Project, jam: GameJam, userId: Long?, userRole: UserRole?): Boolean {
         return when (project.status) {
-            ProjectStatus.DRAFT -> {
-                if (userId == null) return false
-                val team = project.team.id?.let { teamRepository.findById(it).orElse(null) }
-                team != null && (team.leader.id == userId || jam.organizer.id == userId || userRole == UserRole.ADMIN)
-            }
-            ProjectStatus.SUBMITTED -> {
+            ProjectStatus.DRAFT, ProjectStatus.SUBMITTED, ProjectStatus.UNDER_REVIEW -> {
                 if (userId == null) return false
                 val team = project.team.id?.let { teamRepository.findById(it).orElse(null) }
                 team != null && (team.leader.id == userId || jam.organizer.id == userId || userRole == UserRole.ADMIN)
             }
             ProjectStatus.PUBLISHED -> true
             ProjectStatus.DISQUALIFIED -> jam.organizer.id == userId || userRole == UserRole.ADMIN
-            ProjectStatus.UNDER_REVIEW -> {
-                if (userId == null) return false
-                val team = project.team.id?.let { teamRepository.findById(it).orElse(null) }
-                team != null && (team.leader.id == userId || jam.organizer.id == userId || userRole == UserRole.ADMIN)
-            }
         }
     }
 

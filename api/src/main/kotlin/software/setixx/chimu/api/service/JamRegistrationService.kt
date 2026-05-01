@@ -69,7 +69,7 @@ class JamRegistrationService(
             )
         }
 
-        val membersWithoutSpecialization = teamMembers.filter { it.specialization!!.id == null }
+        val membersWithoutSpecialization = teamMembers.filter { it.specialization?.id == null }
         if (membersWithoutSpecialization.isNotEmpty()) {
             throw IllegalArgumentException(
                 "All team members must have a specialization assigned before registration"

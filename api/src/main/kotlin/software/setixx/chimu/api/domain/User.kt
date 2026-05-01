@@ -66,5 +66,5 @@ class User(
     var teamMemberships: MutableSet<TeamMember> = mutableSetOf(),
 
     @OneToMany(mappedBy = "user", cascade = [CascadeType.ALL], orphanRemoval = true)
-    var skills: MutableSet<Skill> = mutableSetOf()
+    var skills: MutableSet<UserSkill> = mutableSetOf()
 )

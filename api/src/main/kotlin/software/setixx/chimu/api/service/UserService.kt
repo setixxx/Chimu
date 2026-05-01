@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletRequest
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import software.setixx.chimu.api.domain.User
+import software.setixx.chimu.api.domain.UserSkill
 import software.setixx.chimu.api.dto.ChangePasswordRequest
 import software.setixx.chimu.api.dto.ChangePasswordResponse
 import software.setixx.chimu.api.dto.UpdateProfileRequest
@@ -42,7 +43,7 @@ class UserService(
             }
         }
         request.bio?.let { user.bio = it }
-        request.specializationId?.let { user.specialization!!.id = it }
+        request.specializationId?.let { user.specialization?.id = it }
         request.githubUrl?.let { user.githubUrl = it }
         request.telegramUsername?.let { user.telegramUsername = it }
         request.avatarUrl?.let { user.avatarUrl = it }
@@ -53,7 +54,12 @@ class UserService(
             if (skills.size != skillIds.size) {
                 throw IllegalArgumentException("Some skills not found")
             }
-            user.skills.addAll(skills)
+
+            val userSkills = skills.map { skill ->
+                UserSkill(user = user, skill = skill)
+            }
+
+            user.skills.addAll(userSkills)
         }
 
         return userRepository.save(user)

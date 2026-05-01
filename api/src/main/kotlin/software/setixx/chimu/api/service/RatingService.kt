@@ -113,7 +113,7 @@ class RatingService(
             throw IllegalArgumentException("Ratings can only be deleted during judging phase")
         }
 
-        ratingRepository.delete(rating)
+        ratingRepository.softDeleteById(rating.id!!)
     }
 
     @Transactional(readOnly = true)
@@ -256,22 +256,23 @@ class RatingService(
     fun validateAndCleanupIncompleteRatings(jamId: Long) {
         val jam = gameJamRepository.findById(jamId).orElseThrow()
 
-        if (jam.status != GameJamStatus.COMPLETED) {
+        if (jam.status != GameJamStatus.JUDGING) {
             return
         }
 
-        val judges = jamJudgeRepository.findAllByGameJamIdAndDeletedAtIsNull(jamId).map { it.judge.id }
+        val judges = jamJudgeRepository.findAllByGameJamIdAndDeletedAtIsNull(jamId)
         val projects = projectRepository.findPublishedProjectsByJamId(jamId)
         val criteriaCount = ratingCriteriaRepository.countByJamId(jamId)
 
-        judges.forEach { judgeId ->
+        judges.forEach { jamJudge ->
+            val judgeId = jamJudge.judge.id!!
+
             val judgeHasCompleteRatings = projects.all { project ->
                 val ratedCriteria = ratingRepository.countRatedCriteriaByJudgeAndProject(judgeId, project.id!!)
                 ratedCriteria == criteriaCount
             }
 
             if (!judgeHasCompleteRatings) {
-                ratingRepository.softDeleteById(judgeId)
                 jamJudgeRepository.softDeleteByJamIdAndJudgeId(jamId, judgeId)
             }
         }

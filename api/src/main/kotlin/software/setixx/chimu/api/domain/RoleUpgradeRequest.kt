@@ -16,8 +16,8 @@ import org.hibernate.generator.EventType
 import java.time.Instant
 
 @Entity
-@Table(name = "role_requests")
-class RoleRequest(
+@Table(name = "role_upgrade_requests")
+class RoleUpgradeRequest(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0,

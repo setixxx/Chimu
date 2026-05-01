@@ -174,7 +174,7 @@ class GameJamService(
             throw IllegalArgumentException("Cannot delete game jam after it has started")
         }
 
-        gameJamRepository.delete(jam)
+        gameJamRepository.softDeleteById(jam.id!!)
     }
 
     private fun validateDates(
