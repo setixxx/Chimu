@@ -82,7 +82,7 @@ class UserController(
         @AuthenticationPrincipal userDetails: CustomUserDetails,
         @Valid @RequestBody request: UpdateProfileRequest
     ): ResponseEntity<UserProfileResponse> {
-        val user = userRepository.findByPublicId(userDetails.publicId)
+        val user = userRepository.findByPublicIdAndDeletedAtIsNull(userDetails.publicId)
             ?: throw IllegalStateException("User not found")
 
         val updatedUser = userService.updateProfile(user.id!!, request)

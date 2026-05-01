@@ -8,16 +8,18 @@ import software.setixx.chimu.api.domain.RatingCriteria
 interface RatingCriteriaRepository : JpaRepository<RatingCriteria, Long> {
     @Query("""
         SELECT rc FROM RatingCriteria rc 
-        WHERE rc.jamId = :jamId 
+        WHERE rc.gameJam.id = :jamId
+        AND rc.deletedAt IS NULL
         ORDER BY rc.orderIndex ASC
     """)
     fun findAllByJamIdOrderByOrderIndex(@Param("jamId") jamId: Long): List<RatingCriteria>
 
-    fun existsByJamIdAndName(jamId: Long, name: String): Boolean
+    fun existsByGameJamIdAndNameAndDeletedAtIsNull(jamId: Long, name: String): Boolean
 
     @Query("""
         SELECT COUNT(rc) FROM RatingCriteria rc 
-        WHERE rc.jamId = :jamId
+        WHERE rc.gameJam.id = :jamId
+        AND rc.deletedAt IS NULL
     """)
     fun countByJamId(@Param("jamId") jamId: Long): Long
 }

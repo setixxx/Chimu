@@ -38,7 +38,7 @@ class JamRegistrationController(
         @PathVariable jamId: String,
         @Valid @RequestBody request: RegisterTeamRequest
     ): ResponseEntity<RegistrationResponse> {
-        val user = userRepository.findByPublicId(userDetails.publicId)
+        val user = userRepository.findByPublicIdAndDeletedAtIsNull(userDetails.publicId)
             ?: throw IllegalStateException("User not found")
 
         val registration = registrationService.registerTeam(user.id!!, jamId, request.teamId)
@@ -72,7 +72,7 @@ class JamRegistrationController(
         @PathVariable teamId: String,
         @Valid @RequestBody request: UpdateRegistrationStatusRequest
     ): ResponseEntity<RegistrationResponse> {
-        val user = userRepository.findByPublicId(userDetails.publicId)
+        val user = userRepository.findByPublicIdAndDeletedAtIsNull(userDetails.publicId)
             ?: throw IllegalStateException("User not found")
 
         val registration = registrationService.updateRegistrationStatus(
@@ -95,7 +95,7 @@ class JamRegistrationController(
         @Parameter(description = "Team public ID")
         @PathVariable teamId: String
     ): ResponseEntity<Map<String, String>> {
-        val user = userRepository.findByPublicId(userDetails.publicId)
+        val user = userRepository.findByPublicIdAndDeletedAtIsNull(userDetails.publicId)
             ?: throw IllegalStateException("User not found")
 
         registrationService.withdrawRegistration(jamId, teamId, user.id!!)

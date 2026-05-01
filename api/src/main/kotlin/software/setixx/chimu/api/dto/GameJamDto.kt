@@ -18,6 +18,9 @@ data class CreateGameJamRequest(
     @field:Size(max = 5000, message = "Rules must not exceed 5000 characters")
     val rules: String? = null,
 
+    @field:NotNull(message = "Banner url is required")
+    val bannerUrl: String,
+
     @field:NotNull(message = "Registration start date is required")
     val registrationStart: Instant,
 

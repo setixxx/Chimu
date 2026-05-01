@@ -28,13 +28,13 @@ class JamRegistrationService(
 
     @Transactional
     fun registerTeam(userId: Long, jamId: String, teamId: String): RegistrationResponse {
-        val jam = gameJamRepository.findByPublicId(UUID.fromString(jamId))
+        val jam = gameJamRepository.findByPublicIdAndDeletedAtIsNull(UUID.fromString(jamId))
             ?: throw IllegalArgumentException("Game jam not found")
 
-        val team = teamRepository.findByPublicId(UUID.fromString(teamId))
+        val team = teamRepository.findByPublicIdAndDeletedAtIsNull(UUID.fromString(teamId))
             ?: throw IllegalArgumentException("Team not found")
 
-        if (team.leaderId != userId) {
+        if (team.leader.id != userId) {
             throw IllegalArgumentException("Only team leader can register the team")
         }
 
@@ -42,13 +42,13 @@ class JamRegistrationService(
             throw IllegalArgumentException("Game jam is not open for registration")
         }
 
-        if (registrationRepository.existsByJamIdAndTeamId(jam.id!!, team.id!!)) {
+        if (registrationRepository.existsByGameJamIdAndTeamIdAndDeletedAtIsNull(jam.id!!, team.id!!)) {
             throw IllegalArgumentException("Team is already registered for this game jam")
         }
 
         val activeRegistrations = registrationRepository.findActiveRegistrationsByTeamId(team.id!!)
         if (activeRegistrations.isNotEmpty()) {
-            val activeJams = gameJamRepository.findAllById(activeRegistrations.map { it.jamId })
+            val activeJams = gameJamRepository.findAllById(activeRegistrations.map { it.gameJam.id })
             val conflictingJam = activeJams.find { activeJam ->
                 isJamActive(activeJam) && (activeJam.id != jam.id)
             }
@@ -60,7 +60,7 @@ class JamRegistrationService(
             }
         }
 
-        val teamMembers = teamMemberRepository.findAllByTeamId(team.id!!)
+        val teamMembers = teamMemberRepository.findAllByTeamIdAndDeletedAtIsNull(team.id!!)
         val teamSize = teamMembers.size
 
         if (teamSize < jam.minTeamSize || teamSize > jam.maxTeamSize) {
@@ -69,7 +69,7 @@ class JamRegistrationService(
             )
         }
 
-        val membersWithoutSpecialization = teamMembers.filter { it.specializationId == null }
+        val membersWithoutSpecialization = teamMembers.filter { it.specialization!!.id == null }
         if (membersWithoutSpecialization.isNotEmpty()) {
             throw IllegalArgumentException(
                 "All team members must have a specialization assigned before registration"
@@ -77,8 +77,8 @@ class JamRegistrationService(
         }
 
         val registration = JamTeamRegistration(
-            jamId = jam.id!!,
-            teamId = team.id!!,
+            gameJam = jam,
+            team = team,
             status = RegistrationStatus.PENDING,
             registeredBy = userId
         )
@@ -89,26 +89,26 @@ class JamRegistrationService(
 
     @Transactional(readOnly = true)
     fun getJamRegistrations(jamId: String): List<RegistrationResponse> {
-        val jam = gameJamRepository.findByPublicId(UUID.fromString(jamId))
+        val jam = gameJamRepository.findByPublicIdAndDeletedAtIsNull(UUID.fromString(jamId))
             ?: throw IllegalArgumentException("Game jam not found")
 
-        val registrations = registrationRepository.findAllByJamId(jam.id!!)
+        val registrations = registrationRepository.findAllByGameJamIdAndDeletedAtIsNull(jam.id!!)
 
         return registrations.map { reg ->
-            val team = teamRepository.findById(reg.teamId).orElseThrow()
+            val team = teamRepository.findById(reg.team.id!!).orElseThrow()
             toRegistrationResponse(reg, jam, team, reg.registeredBy)
         }
     }
 
     @Transactional(readOnly = true)
     fun getTeamRegistrations(teamId: String): List<RegistrationResponse> {
-        val team = teamRepository.findByPublicId(UUID.fromString(teamId))
+        val team = teamRepository.findByPublicIdAndDeletedAtIsNull(UUID.fromString(teamId))
             ?: throw IllegalArgumentException("Team not found")
 
-        val registrations = registrationRepository.findAllByTeamId(team.id!!)
+        val registrations = registrationRepository.findAllByTeamIdAndDeletedAtIsNull(team.id!!)
 
         return registrations.map { reg ->
-            val jam = gameJamRepository.findById(reg.jamId).orElseThrow()
+            val jam = gameJamRepository.findById(reg.gameJam.id!!).orElseThrow()
             toRegistrationResponse(reg, jam, team, reg.registeredBy)
         }
     }
@@ -120,18 +120,18 @@ class JamRegistrationService(
         organizerId: Long,
         newStatus: RegistrationStatus
     ): RegistrationResponse {
-        val jam = gameJamRepository.findByPublicId(UUID.fromString(jamId))
+        val jam = gameJamRepository.findByPublicIdAndDeletedAtIsNull(UUID.fromString(jamId))
             ?: throw IllegalArgumentException("Game jam not found")
 
-        val team = teamRepository.findByPublicId(UUID.fromString(teamId))
+        val team = teamRepository.findByPublicIdAndDeletedAtIsNull(UUID.fromString(teamId))
             ?: throw IllegalArgumentException("Team not found")
 
         val organizer = userRepository.findById(organizerId).orElseThrow()
-        if (jam.organizerId != organizerId && organizer.role != UserRole.ADMIN) {
+        if (jam.organizer.id != organizerId && organizer.role != UserRole.ADMIN) {
             throw IllegalArgumentException("Only the organizer or admin can update registration status")
         }
 
-        val registration = registrationRepository.findByJamIdAndTeamId(jam.id!!, team.id!!)
+        val registration = registrationRepository.findByGameJamIdAndTeamIdAndDeletedAtIsNull(jam.id!!, team.id!!)
             ?: throw IllegalArgumentException("Registration not found")
 
         if (registration.status == RegistrationStatus.WITHDRAWN) {
@@ -146,17 +146,17 @@ class JamRegistrationService(
 
     @Transactional
     fun withdrawRegistration(jamId: String, teamId: String, userId: Long): RegistrationResponse {
-        val jam = gameJamRepository.findByPublicId(UUID.fromString(jamId))
+        val jam = gameJamRepository.findByPublicIdAndDeletedAtIsNull(UUID.fromString(jamId))
             ?: throw IllegalArgumentException("Game jam not found")
 
-        val team = teamRepository.findByPublicId(UUID.fromString(teamId))
+        val team = teamRepository.findByPublicIdAndDeletedAtIsNull(UUID.fromString(teamId))
             ?: throw IllegalArgumentException("Team not found")
 
-        if (team.leaderId != userId) {
+        if (team.leader.id != userId) {
             throw IllegalArgumentException("Only team leader can withdraw registration")
         }
 
-        val registration = registrationRepository.findByJamIdAndTeamId(jam.id!!, team.id!!)
+        val registration = registrationRepository.findByGameJamIdAndTeamIdAndDeletedAtIsNull(jam.id!!, team.id!!)
             ?: throw IllegalArgumentException("Registration not found")
 
         if (registration.status == RegistrationStatus.WITHDRAWN) {
@@ -176,6 +176,7 @@ class JamRegistrationService(
     private fun isJamActive(jam: GameJam): Boolean {
         val now = Instant.now()
         return when (jam.status) {
+            GameJamStatus.ANNOUNCED,
             GameJamStatus.REGISTRATION_OPEN,
             GameJamStatus.REGISTRATION_CLOSED,
             GameJamStatus.IN_PROGRESS,

@@ -105,7 +105,7 @@ class AuthenticationService(
         request: ChangePasswordRequest,
         httpRequest: HttpServletRequest? = null
     ): ChangePasswordResponse {
-        val user = userRepository.findByEmail(userEmail)
+        val user = userRepository.findByEmailAndDeletedAtIsNull(userEmail)
             ?: throw IllegalStateException("User not found")
 
         if (!passwordEncoder.matches(request.oldPassword, user.passwordHash)) {

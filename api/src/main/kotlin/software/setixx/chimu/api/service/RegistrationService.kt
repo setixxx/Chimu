@@ -20,7 +20,7 @@ class RegistrationService(
         if (!isSignUpOpen) {
             throw IllegalArgumentException("Registration is temporarily unavailable.")
         }
-        if (userRepository.findByEmail(email) != null) {
+        if (userRepository.findByEmailAndDeletedAtIsNull(email) != null) {
             throw EmailAlreadyExistsException("User with email $email already exists")
         }
 

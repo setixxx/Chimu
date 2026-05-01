@@ -23,12 +23,12 @@ class CriteriaService(
 
     @Transactional
     fun createCriteria(jamId: String, userId: Long, request: CreateCriteriaRequest): CriteriaResponse {
-        val jam = gameJamRepository.findByPublicId(UUID.fromString(jamId))
+        val jam = gameJamRepository.findByPublicIdAndDeletedAtIsNull(UUID.fromString(jamId))
             ?: throw IllegalArgumentException("Game jam not found")
 
         val user = userRepository.findById(userId).orElseThrow()
 
-        if (jam.organizerId != userId && user.role != UserRole.ADMIN) {
+        if (jam.organizer.id != userId && user.role != UserRole.ADMIN) {
             throw IllegalArgumentException("Only the organizer or admin can add criteria")
         }
 
@@ -36,12 +36,12 @@ class CriteriaService(
             throw IllegalArgumentException("Cannot add criteria after jam has started")
         }
 
-        if (ratingCriteriaRepository.existsByJamIdAndName(jam.id!!, request.name)) {
+        if (ratingCriteriaRepository.existsByGameJamIdAndNameAndDeletedAtIsNull(jam.id!!, request.name)) {
             throw IllegalArgumentException("Criteria with this name already exists for this jam")
         }
 
         val criteria = RatingCriteria(
-            jamId = jam.id!!,
+            gameJam = jam,
             name = request.name,
             description = request.description,
             maxScore = request.maxScore,
@@ -55,7 +55,7 @@ class CriteriaService(
 
     @Transactional(readOnly = true)
     fun getJamCriteria(jamId: String): List<CriteriaResponse> {
-        val jam = gameJamRepository.findByPublicId(UUID.fromString(jamId))
+        val jam = gameJamRepository.findByPublicIdAndDeletedAtIsNull(UUID.fromString(jamId))
             ?: throw IllegalArgumentException("Game jam not found")
 
         val criteria = ratingCriteriaRepository.findAllByJamIdOrderByOrderIndex(jam.id!!)
@@ -69,12 +69,12 @@ class CriteriaService(
         userId: Long,
         request: UpdateCriteriaRequest
     ): CriteriaResponse {
-        val jam = gameJamRepository.findByPublicId(UUID.fromString(jamId))
+        val jam = gameJamRepository.findByPublicIdAndDeletedAtIsNull(UUID.fromString(jamId))
             ?: throw IllegalArgumentException("Game jam not found")
 
         val user = userRepository.findById(userId).orElseThrow()
 
-        if (jam.organizerId != userId && user.role != UserRole.ADMIN) {
+        if (jam.organizer.id != userId && user.role != UserRole.ADMIN) {
             throw IllegalArgumentException("Only the organizer or admin can update criteria")
         }
 
@@ -85,12 +85,12 @@ class CriteriaService(
         val criteria = ratingCriteriaRepository.findById(criteriaId)
             .orElseThrow { IllegalArgumentException("Criteria not found") }
 
-        if (criteria.jamId != jam.id) {
+        if (criteria.gameJam.id != jam.id) {
             throw IllegalArgumentException("Criteria does not belong to this jam")
         }
 
         request.name?.let {
-            if (it != criteria.name && ratingCriteriaRepository.existsByJamIdAndName(jam.id!!, it)) {
+            if (it != criteria.name && ratingCriteriaRepository.existsByGameJamIdAndNameAndDeletedAtIsNull(jam.id!!, it)) {
                 throw IllegalArgumentException("Criteria with this name already exists for this jam")
             }
             criteria.name = it
@@ -106,12 +106,12 @@ class CriteriaService(
 
     @Transactional
     fun deleteCriteria(jamId: String, criteriaId: Long, userId: Long) {
-        val jam = gameJamRepository.findByPublicId(UUID.fromString(jamId))
+        val jam = gameJamRepository.findByPublicIdAndDeletedAtIsNull(UUID.fromString(jamId))
             ?: throw IllegalArgumentException("Game jam not found")
 
         val user = userRepository.findById(userId).orElseThrow()
 
-        if (jam.organizerId != userId && user.role != UserRole.ADMIN) {
+        if (jam.organizer.id != userId && user.role != UserRole.ADMIN) {
             throw IllegalArgumentException("Only the organizer or admin can delete criteria")
         }
 
@@ -122,7 +122,7 @@ class CriteriaService(
         val criteria = ratingCriteriaRepository.findById(criteriaId)
             .orElseThrow { IllegalArgumentException("Criteria not found") }
 
-        if (criteria.jamId != jam.id) {
+        if (criteria.gameJam.id != jam.id) {
             throw IllegalArgumentException("Criteria does not belong to this jam")
         }
 

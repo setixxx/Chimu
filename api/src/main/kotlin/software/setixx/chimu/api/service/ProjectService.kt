@@ -19,34 +19,33 @@ class ProjectService(
 
     @Transactional
     fun createProject(jamId: String, userId: Long, request: CreateProjectRequest): ProjectDetailsResponse {
-        val jam = gameJamRepository.findByPublicId(UUID.fromString(jamId))
+        val jam = gameJamRepository.findByPublicIdAndDeletedAtIsNull(UUID.fromString(jamId))
             ?: throw IllegalArgumentException("Game jam not found")
 
-        val userTeams = teamRepository.findAllByMemberId(userId)
-        val registeredTeams = registrationRepository.findAllByJamId(jam.id!!)
+        val userTeams = teamRepository.findAllActiveByMemberId(userId)
+        val registeredTeams = registrationRepository.findAllByGameJamIdAndDeletedAtIsNull(jam.id!!)
             .filter { it.status == RegistrationStatus.APPROVED }
-            .map { it.teamId }
+            .map { it.team.id }
 
         val userApprovedTeam = userTeams.find {
-            it.id in registeredTeams && it.leaderId == userId
+            it.id in registeredTeams && it.leader.id == userId
         } ?: throw IllegalArgumentException("You must be a team leader of an approved team for this jam")
 
         if (jam.status !in listOf(GameJamStatus.REGISTRATION_CLOSED, GameJamStatus.IN_PROGRESS)) {
             throw IllegalArgumentException("Projects can only be created during or after registration closed")
         }
 
-        val existingProject = projectRepository.findByTeamIdAndJamId(userApprovedTeam.id!!, jam.id!!)
+        val existingProject = projectRepository.findByTeamIdAndGameJamIdAndDeletedAtIsNull(userApprovedTeam.id!!, jam.id!!)
         if (existingProject != null) {
             throw IllegalArgumentException("Your team already has a project for this jam")
         }
 
         val project = Project(
-            jamId = jam.id!!,
-            teamId = userApprovedTeam.id,
+            gameJam = jam,
+            team = userApprovedTeam,
             title = request.title,
             description = request.description,
             gameUrl = request.gameUrl,
-            repositoryUrl = request.repositoryUrl,
             status = ProjectStatus.DRAFT
         )
 
@@ -56,45 +55,45 @@ class ProjectService(
 
     @Transactional(readOnly = true)
     fun getProjectById(projectId: String, userId: Long?): ProjectDetailsResponse {
-        val project = projectRepository.findByPublicId(UUID.fromString(projectId))
+        val project = projectRepository.findByPublicIdAndDeletedAtIsNull(UUID.fromString(projectId))
             ?: throw IllegalArgumentException("Project not found")
 
-        val jam = gameJamRepository.findById(project.jamId).orElseThrow()
-        val team = project.teamId?.let { teamRepository.findById(it).orElse(null) }
+        val jam = gameJamRepository.findById(project.gameJam.id!!).orElseThrow()
+        val team = project.team.id?.let { teamRepository.findById(it).orElse(null) }
 
         return toDetailsResponse(project, jam, team, userId)
     }
 
     @Transactional(readOnly = true)
     fun getJamProjects(jamId: String, userId: Long?, status: ProjectStatus?): List<ProjectResponse> {
-        val jam = gameJamRepository.findByPublicId(UUID.fromString(jamId))
+        val jam = gameJamRepository.findByPublicIdAndDeletedAtIsNull(UUID.fromString(jamId))
             ?: throw IllegalArgumentException("Game jam not found")
 
         val user = userId?.let { userRepository.findById(it).orElse(null) }
 
         val projects = if (status != null) {
-            projectRepository.findAllByJamIdAndStatus(jam.id!!, status)
+            projectRepository.findAllByGameJamIdAndStatusAndDeletedAtIsNull(jam.id!!, status)
         } else {
-            projectRepository.findAllByJamId(jam.id!!)
+            projectRepository.findAllByGameJamIdAndDeletedAtIsNull(jam.id!!)
         }
 
         return projects
             .filter { canViewProject(it, jam, userId, user?.role) }
             .map { project ->
-                val team = project.teamId?.let { teamRepository.findById(it).orElse(null) }
+                val team = project.team.id?.let { teamRepository.findById(it).orElse(null) }
                 toResponse(project, jam, team)
             }
     }
 
     @Transactional(readOnly = true)
     fun getTeamProjects(teamId: String): List<ProjectResponse> {
-        val team = teamRepository.findByPublicId(UUID.fromString(teamId))
+        val team = teamRepository.findByPublicIdAndDeletedAtIsNull(UUID.fromString(teamId))
             ?: throw IllegalArgumentException("Team not found")
 
-        val projects = projectRepository.findAllByTeamId(team.id!!)
+        val projects = projectRepository.findAllByTeamIdAndDeletedAtIsNull(team.id!!)
 
         return projects.map { project ->
-            val jam = gameJamRepository.findById(project.jamId).orElseThrow()
+            val jam = gameJamRepository.findById(project.gameJam.id!!).orElseThrow()
             toResponse(project, jam, team)
         }
     }
@@ -104,7 +103,7 @@ class ProjectService(
         val projects = projectRepository.findAllByUserId(userId)
 
         return projects.map { project ->
-            val jam = gameJamRepository.findById(project.jamId).orElseThrow()
+            val jam = project.gameJam.id?.let { gameJamRepository.findById(it) }?.orElseThrow()
             val team = project.teamId?.let { teamRepository.findById(it).orElse(null) }
             toResponse(project, jam, team)
         }
@@ -112,7 +111,7 @@ class ProjectService(
 
     @Transactional
     fun updateProject(projectId: String, userId: Long, request: UpdateProjectRequest): ProjectDetailsResponse {
-        val project = projectRepository.findByPublicId(UUID.fromString(projectId))
+        val project = projectRepository.findByPublicIdAndDeletedAtIsNull(UUID.fromString(projectId))
             ?: throw IllegalArgumentException("Project not found")
 
         val team = project.teamId?.let { teamRepository.findById(it).orElse(null) }
@@ -133,20 +132,20 @@ class ProjectService(
 
         projectRepository.save(project)
 
-        val jam = gameJamRepository.findById(project.jamId).orElseThrow()
+        val jam = gameJamRepository.findById(project.gameJam.id).orElseThrow()
         return toDetailsResponse(project, jam, team, userId)
     }
 
     @Transactional
     fun submitProject(projectId: String, userId: Long): ProjectDetailsResponse {
-        val project = projectRepository.findByPublicId(UUID.fromString(projectId))
+        val project = projectRepository.findByPublicIdAndDeletedAtIsNull(UUID.fromString(projectId))
             ?: throw IllegalArgumentException("Project not found")
 
-        val jam = gameJamRepository.findById(project.jamId).orElseThrow()
-        val team = project.teamId?.let { teamRepository.findById(it).orElse(null) }
+        val jam = gameJamRepository.findById(project.gameJam.id!!).orElseThrow()
+        val team = project.team.id?.let { teamRepository.findById(it).orElse(null) }
             ?: throw IllegalArgumentException("Project has no associated team")
 
-        if (team.leaderId != userId) {
+        if (team.leader.id != userId) {
             throw IllegalArgumentException("Only team leader can submit the project")
         }
 
@@ -167,13 +166,13 @@ class ProjectService(
 
     @Transactional
     fun returnToDraft(projectId: String, userId: Long): ProjectDetailsResponse {
-        val project = projectRepository.findByPublicId(UUID.fromString(projectId))
+        val project = projectRepository.findByPublicIdAndDeletedAtIsNull(UUID.fromString(projectId))
             ?: throw IllegalArgumentException("Project not found")
 
-        val jam = gameJamRepository.findById(project.jamId).orElseThrow()
+        val jam = gameJamRepository.findById(project.gameJam.id!!).orElseThrow()
         val user = userRepository.findById(userId).orElseThrow()
 
-        if (jam.organizerId != userId && user.role != UserRole.ADMIN) {
+        if (jam.organizer.id != userId && user.role != UserRole.ADMIN) {
             throw IllegalArgumentException("Only organizer or admin can return project to draft")
         }
 
@@ -189,19 +188,19 @@ class ProjectService(
         project.submittedAt = null
         projectRepository.save(project)
 
-        val team = project.teamId?.let { teamRepository.findById(it).orElse(null) }
+        val team = project.team.id?.let { teamRepository.findById(it).orElse(null) }
         return toDetailsResponse(project, jam, team, userId)
     }
 
     @Transactional
     fun publishProject(projectId: String, userId: Long): ProjectDetailsResponse {
-        val project = projectRepository.findByPublicId(UUID.fromString(projectId))
+        val project = projectRepository.findByPublicIdAndDeletedAtIsNull(UUID.fromString(projectId))
             ?: throw IllegalArgumentException("Project not found")
 
-        val jam = gameJamRepository.findById(project.jamId).orElseThrow()
+        val jam = gameJamRepository.findById(project.gameJam.id!!).orElseThrow()
         val user = userRepository.findById(userId).orElseThrow()
 
-        if (jam.organizerId != userId && user.role != UserRole.ADMIN) {
+        if (jam.organizer.id != userId && user.role != UserRole.ADMIN) {
             throw IllegalArgumentException("Only organizer or admin can publish projects")
         }
 
@@ -216,38 +215,38 @@ class ProjectService(
         project.status = ProjectStatus.PUBLISHED
         projectRepository.save(project)
 
-        val team = project.teamId?.let { teamRepository.findById(it).orElse(null) }
+        val team = project.team.id?.let { teamRepository.findById(it).orElse(null) }
         return toDetailsResponse(project, jam, team, userId)
     }
 
     @Transactional
     fun disqualifyProject(projectId: String, userId: Long): ProjectDetailsResponse {
-        val project = projectRepository.findByPublicId(UUID.fromString(projectId))
+        val project = projectRepository.findByPublicIdAndDeletedAtIsNull(UUID.fromString(projectId))
             ?: throw IllegalArgumentException("Project not found")
 
-        val jam = gameJamRepository.findById(project.jamId).orElseThrow()
+        val jam = gameJamRepository.findById(project.gameJam.id!!).orElseThrow()
         val user = userRepository.findById(userId).orElseThrow()
 
-        if (jam.organizerId != userId && user.role != UserRole.ADMIN) {
+        if (jam.organizer.id != userId && user.role != UserRole.ADMIN) {
             throw IllegalArgumentException("Only organizer or admin can disqualify projects")
         }
 
         project.status = ProjectStatus.DISQUALIFIED
         projectRepository.save(project)
 
-        val team = project.teamId?.let { teamRepository.findById(it).orElse(null) }
+        val team = project.team.id?.let { teamRepository.findById(it).orElse(null) }
         return toDetailsResponse(project, jam, team, userId)
     }
 
     @Transactional
     fun deleteProject(projectId: String, userId: Long) {
-        val project = projectRepository.findByPublicId(UUID.fromString(projectId))
+        val project = projectRepository.findByPublicIdAndDeletedAtIsNull(UUID.fromString(projectId))
             ?: throw IllegalArgumentException("Project not found")
 
-        val team = project.teamId?.let { teamRepository.findById(it).orElse(null) }
+        val team = project.team.id?.let { teamRepository.findById(it).orElse(null) }
             ?: throw IllegalArgumentException("Project has no associated team")
 
-        if (team.leaderId != userId) {
+        if (team.leader.id != userId) {
             throw IllegalArgumentException("Only team leader can delete the project")
         }
 
@@ -262,20 +261,20 @@ class ProjectService(
         return when (project.status) {
             ProjectStatus.DRAFT -> {
                 if (userId == null) return false
-                val team = project.teamId?.let { teamRepository.findById(it).orElse(null) }
-                team != null && (team.leaderId == userId || jam.organizerId == userId || userRole == UserRole.ADMIN)
+                val team = project.team.id?.let { teamRepository.findById(it).orElse(null) }
+                team != null && (team.leader.id == userId || jam.organizer.id == userId || userRole == UserRole.ADMIN)
             }
             ProjectStatus.SUBMITTED -> {
                 if (userId == null) return false
-                val team = project.teamId?.let { teamRepository.findById(it).orElse(null) }
-                team != null && (team.leaderId == userId || jam.organizerId == userId || userRole == UserRole.ADMIN)
+                val team = project.team.id?.let { teamRepository.findById(it).orElse(null) }
+                team != null && (team.leader.id == userId || jam.organizer.id == userId || userRole == UserRole.ADMIN)
             }
             ProjectStatus.PUBLISHED -> true
-            ProjectStatus.DISQUALIFIED -> jam.organizerId == userId || userRole == UserRole.ADMIN
+            ProjectStatus.DISQUALIFIED -> jam.organizer.id == userId || userRole == UserRole.ADMIN
             ProjectStatus.UNDER_REVIEW -> {
                 if (userId == null) return false
-                val team = project.teamId?.let { teamRepository.findById(it).orElse(null) }
-                team != null && (team.leaderId == userId || jam.organizerId == userId || userRole == UserRole.ADMIN)
+                val team = project.team.id?.let { teamRepository.findById(it).orElse(null) }
+                team != null && (team.leader.id == userId || jam.organizer.id == userId || userRole == UserRole.ADMIN)
             }
         }
     }
@@ -290,7 +289,6 @@ class ProjectService(
             title = project.title,
             description = project.description,
             gameUrl = project.gameUrl,
-            repositoryUrl = project.repositoryUrl,
             status = project.status,
             submittedAt = project.submittedAt?.toString(),
             createdAt = project.createdAt.toString(),
@@ -304,11 +302,11 @@ class ProjectService(
         team: Team?,
         userId: Long?
     ): ProjectDetailsResponse {
-        val canEdit = userId != null && team?.leaderId == userId && project.status == ProjectStatus.DRAFT
-        val canSubmit = userId != null && team?.leaderId == userId &&
+        val canEdit = userId != null && team?.leader?.id == userId && project.status == ProjectStatus.DRAFT
+        val canSubmit = userId != null && team?.leader?.id == userId &&
                 project.status == ProjectStatus.DRAFT &&
                 jam.status == GameJamStatus.IN_PROGRESS
-        val canDelete = userId != null && team?.leaderId == userId && project.status == ProjectStatus.DRAFT
+        val canDelete = userId != null && team?.leader?.id == userId && project.status == ProjectStatus.DRAFT
 
         return ProjectDetailsResponse(
             id = project.publicId.toString(),
@@ -319,7 +317,6 @@ class ProjectService(
             title = project.title,
             description = project.description,
             gameUrl = project.gameUrl,
-            repositoryUrl = project.repositoryUrl,
             status = project.status,
             submittedAt = project.submittedAt?.toString(),
             createdAt = project.createdAt.toString(),

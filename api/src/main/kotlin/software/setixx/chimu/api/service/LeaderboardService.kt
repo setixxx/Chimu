@@ -22,7 +22,7 @@ class LeaderboardService(
 
     @Transactional(readOnly = true)
     fun getLeaderboard(jamId: String, userId: Long?): LeaderboardResponse {
-        val jam = gameJamRepository.findByPublicId(UUID.fromString(jamId))
+        val jam = gameJamRepository.findByPublicIdAndDeletedAtIsNull(UUID.fromString(jamId))
             ?: throw IllegalArgumentException("Game jam not found")
 
         val canView = when (jam.status) {
@@ -31,7 +31,7 @@ class LeaderboardService(
                 if (userId == null) false
                 else {
                     val user = userRepository.findById(userId).orElse(null)
-                    jam.organizerId == userId || user?.role == UserRole.ADMIN
+                    jam.organizer.id == userId || user?.role == UserRole.ADMIN
                 }
             }
             else -> false
@@ -71,16 +71,16 @@ class LeaderboardService(
 
     @Transactional(readOnly = true)
     fun getJamStatistics(jamId: String, userId: Long): JamStatisticsResponse {
-        val jam = gameJamRepository.findByPublicId(UUID.fromString(jamId))
+        val jam = gameJamRepository.findByPublicIdAndDeletedAtIsNull(UUID.fromString(jamId))
             ?: throw IllegalArgumentException("Game jam not found")
 
         val user = userRepository.findById(userId).orElseThrow()
 
-        if (jam.organizerId != userId && user.role != UserRole.ADMIN) {
+        if (jam.organizer.id != userId && user.role != UserRole.ADMIN) {
             throw IllegalArgumentException("Only organizer or admin can view statistics")
         }
 
-        val allProjects = projectRepository.findAllByJamId(jam.id!!)
+        val allProjects = projectRepository.findAllByGameJamIdAndDeletedAtIsNull(jam.id!!)
         val publishedProjects = allProjects.filter { it.status == ProjectStatus.PUBLISHED }
         val disqualifiedProjects = allProjects.filter { it.status == ProjectStatus.DISQUALIFIED }
 
@@ -88,7 +88,7 @@ class LeaderboardService(
         val allRatings = ratingRepository.findAllByProjectIdIn(publishedProjects.map { it.id!! })
 
         val averageScoresPerCriteria = criteria.map { criterion ->
-            val criterionRatings = allRatings.filter { it.criteriaId == criterion.id }
+            val criterionRatings = allRatings.filter { it.criteria.id == criterion.id }
             val avgScore = if (criterionRatings.isNotEmpty()) {
                 criterionRatings.map { it.score }
                     .reduce { acc, score -> acc.add(score) }
@@ -104,12 +104,12 @@ class LeaderboardService(
             )
         }
 
-        val judges = jamJudgeRepository.findAllByJamId(jam.id!!)
-        val judgeUsers = userRepository.findAllById(judges.map { it.judgeId }).associateBy { it.id }
+        val judges = jamJudgeRepository.findAllByGameJamIdAndDeletedAtIsNull(jam.id!!)
+        val judgeUsers = userRepository.findAllById(judges.map { it.judge.id }).associateBy { it.id }
 
         val judgeCompletion = judges.map { jamJudge ->
-            val judgeId = jamJudge.judgeId
-            val ratedProjects = ratingRepository.countRatedProjectsByJudgeAndJam(judgeId, jam.id!!).toInt()
+            val judgeId = jamJudge.judge.id
+            val ratedProjects = ratingRepository.countRatedProjectsByJudgeAndJam(judgeId!!, jam.id!!).toInt()
             val totalProjects = publishedProjects.size
             val percentage = if (totalProjects > 0) {
                 (ratedProjects * 100) / totalProjects
@@ -144,10 +144,10 @@ class LeaderboardService(
         allRatings: List<Rating>,
         totalJudges: Int
     ): ProjectRankingResponse? {
-        val projectRatings = allRatings.filter { it.projectId == project.id }
+        val projectRatings = allRatings.filter { it.project.id == project.id }
 
         val criteriaScores = criteria.map { criterion ->
-            val criterionRatings = projectRatings.filter { it.criteriaId == criterion.id }
+            val criterionRatings = projectRatings.filter { it.criteria.id == criterion.id }
 
             if (criterionRatings.isEmpty()) {
                 return null
@@ -181,9 +181,9 @@ class LeaderboardService(
             .reduce { acc, score -> acc.add(score) }
             .setScale(2, RoundingMode.HALF_UP)
 
-        val judgesRated = projectRatings.map { it.judgeId }.distinct().size
+        val judgesRated = projectRatings.map { it.judge.id }.distinct().size
 
-        val team = project.teamId?.let { teamRepository.findById(it).orElse(null) }
+        val team = project.team.id?.let { teamRepository.findById(it).orElse(null) }
 
         return ProjectRankingResponse(
             rank = 0,
@@ -194,7 +194,6 @@ class LeaderboardService(
                 teamId = team?.publicId?.toString(),
                 teamName = team?.name,
                 gameUrl = project.gameUrl,
-                repositoryUrl = project.repositoryUrl,
                 submittedAt = project.submittedAt?.toString()
             ),
             score = ScoreBreakdown(

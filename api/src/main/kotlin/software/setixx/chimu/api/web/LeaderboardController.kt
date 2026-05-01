@@ -32,15 +32,14 @@ class LeaderboardController(
         ApiResponse(responseCode = "403", description = "Leaderboard not yet visible")
     )
     fun getLeaderboard(
-        @AuthenticationPrincipal userDetails: CustomUserDetails?,
+        @AuthenticationPrincipal userDetails: CustomUserDetails,
         @Parameter(description = "Game jam public ID")
         @PathVariable jamId: String
     ): ResponseEntity<LeaderboardResponse> {
-        val userId = userDetails?.let {
-            userRepository.findByPublicId(it.publicId)?.id
-        }
+        val user = userRepository.findByPublicIdAndDeletedAtIsNull(userDetails.publicId)
+            ?: throw IllegalStateException("User not found")
 
-        val leaderboard = leaderboardService.getLeaderboard(jamId, userId)
+        val leaderboard = leaderboardService.getLeaderboard(jamId, user.id)
         return ResponseEntity.ok(leaderboard)
     }
 
@@ -58,7 +57,7 @@ class LeaderboardController(
         @Parameter(description = "Game jam public ID")
         @PathVariable jamId: String
     ): ResponseEntity<JamStatisticsResponse> {
-        val user = userRepository.findByPublicId(userDetails.publicId)
+        val user = userRepository.findByPublicIdAndDeletedAtIsNull(userDetails.publicId)
             ?: throw IllegalStateException("User not found")
 
         val statistics = leaderboardService.getJamStatistics(jamId, user.id!!)

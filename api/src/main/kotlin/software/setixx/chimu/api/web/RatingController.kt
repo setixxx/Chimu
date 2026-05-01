@@ -36,7 +36,7 @@ class RatingController(
         @PathVariable projectId: String,
         @Valid @RequestBody request: RateProjectRequest
     ): ResponseEntity<RatingResponse> {
-        val user = userRepository.findByPublicId(userDetails.publicId)
+        val user = userRepository.findByPublicIdAndDeletedAtIsNull(userDetails.publicId)
             ?: throw IllegalStateException("User not found")
 
         val rating = ratingService.rateProject(projectId, user.id!!, request)
@@ -55,7 +55,7 @@ class RatingController(
         @PathVariable ratingId: Long,
         @Valid @RequestBody request: UpdateRatingRequest
     ): ResponseEntity<RatingResponse> {
-        val user = userRepository.findByPublicId(userDetails.publicId)
+        val user = userRepository.findByPublicIdAndDeletedAtIsNull(userDetails.publicId)
             ?: throw IllegalStateException("User not found")
 
         val rating = ratingService.updateRating(ratingId, user.id!!, request)
@@ -73,7 +73,7 @@ class RatingController(
         @Parameter(description = "Rating ID")
         @PathVariable ratingId: Long
     ): ResponseEntity<Map<String, String>> {
-        val user = userRepository.findByPublicId(userDetails.publicId)
+        val user = userRepository.findByPublicIdAndDeletedAtIsNull(userDetails.publicId)
             ?: throw IllegalStateException("User not found")
 
         ratingService.deleteRating(ratingId, user.id!!)
@@ -91,7 +91,7 @@ class RatingController(
         @Parameter(description = "Project public ID")
         @PathVariable projectId: String
     ): ResponseEntity<ProjectRatingSummaryResponse> {
-        val user = userRepository.findByPublicId(userDetails.publicId)
+        val user = userRepository.findByPublicIdAndDeletedAtIsNull(userDetails.publicId)
             ?: throw IllegalStateException("User not found")
 
         val ratings = ratingService.getProjectRatings(projectId, user.id!!)
@@ -106,7 +106,7 @@ class RatingController(
         @Parameter(description = "Project public ID")
         @PathVariable projectId: String
     ): ResponseEntity<List<MyRatingResponse>> {
-        val user = userRepository.findByPublicId(userDetails.publicId)
+        val user = userRepository.findByPublicIdAndDeletedAtIsNull(userDetails.publicId)
             ?: throw IllegalStateException("User not found")
 
         val ratings = ratingService.getMyRatings(projectId, user.id!!)
@@ -121,7 +121,7 @@ class RatingController(
         @Parameter(description = "Game jam public ID")
         @PathVariable jamId: String
     ): ResponseEntity<JudgeProgressResponse> {
-        val user = userRepository.findByPublicId(userDetails.publicId)
+        val user = userRepository.findByPublicIdAndDeletedAtIsNull(userDetails.publicId)
             ?: throw IllegalStateException("User not found")
 
         val progress = ratingService.getJudgeProgress(jamId, user.id!!)

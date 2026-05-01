@@ -23,36 +23,36 @@ class JudgeManagementService(
 
     @Transactional
     fun assignJudge(jamId: String, organizerId: Long, judgeUserId: String): JudgeResponse {
-        val jam = gameJamRepository.findByPublicId(UUID.fromString(jamId))
+        val jam = gameJamRepository.findByPublicIdAndDeletedAtIsNull(UUID.fromString(jamId))
             ?: throw IllegalArgumentException("Game jam not found")
 
         val organizer = userRepository.findById(organizerId).orElseThrow()
 
-        if (jam.organizerId != organizerId && organizer.role != UserRole.ADMIN) {
+        if (jam.organizer.id != organizerId && organizer.role != UserRole.ADMIN) {
             throw IllegalArgumentException("Only the organizer or admin can assign judges")
         }
 
-        val judge = userRepository.findByPublicId(UUID.fromString(judgeUserId))
+        val judge = userRepository.findByPublicIdAndDeletedAtIsNull(UUID.fromString(judgeUserId))
             ?: throw IllegalArgumentException("Judge user not found")
 
         if (judge.role != UserRole.JUDGE && judge.role != UserRole.ADMIN) {
             throw IllegalArgumentException("User must have JUDGE or ADMIN role")
         }
 
-        if (judge.id == jam.organizerId) {
+        if (judge.id == jam.organizer.id) {
             throw IllegalArgumentException("Organizer cannot be a judge for their own jam")
         }
 
-        if (jamJudgeRepository.existsByJamIdAndJudgeId(jam.id!!, judge.id!!)) {
+        if (jamJudgeRepository.existsByGameJamIdAndJudgeIdAndDeletedAtIsNull(jam.id!!, judge.id!!)) {
             throw IllegalArgumentException("This judge is already assigned to this jam")
         }
 
-        val judgeTeams = teamMemberRepository.findAllByUserId(judge.id!!)
-            .map { it.teamId }
+        val judgeTeams = teamMemberRepository.findAllByUserIdAndDeletedAtIsNull(judge.id!!)
+            .map { it.team.id }
 
         if (judgeTeams.isNotEmpty()) {
-            val activeRegistrations = registrationRepository.findAllByJamId(jam.id!!)
-                .filter { it.teamId in judgeTeams }
+            val activeRegistrations = registrationRepository.findAllByGameJamIdAndDeletedAtIsNull(jam.id!!)
+                .filter { it.team.id in judgeTeams }
 
             if (activeRegistrations.isNotEmpty()) {
                 throw IllegalArgumentException("Judge cannot be a participant in this jam")
@@ -60,9 +60,9 @@ class JudgeManagementService(
         }
 
         val jamJudge = JamJudge(
-            jamId = jam.id!!,
-            judgeId = judge.id!!,
-            assignedBy = organizerId
+            gameJam = jam,
+            judge = judge,
+            assignedBy = organizer
         )
 
         jamJudgeRepository.save(jamJudge)
@@ -77,15 +77,15 @@ class JudgeManagementService(
 
     @Transactional(readOnly = true)
     fun getJamJudges(jamId: String): List<JudgeResponse> {
-        val jam = gameJamRepository.findByPublicId(UUID.fromString(jamId))
+        val jam = gameJamRepository.findByPublicIdAndDeletedAtIsNull(UUID.fromString(jamId))
             ?: throw IllegalArgumentException("Game jam not found")
 
-        val judges = jamJudgeRepository.findAllByJamId(jam.id!!)
-        val judgeUsers = userRepository.findAllById(judges.map { it.judgeId })
+        val judges = jamJudgeRepository.findAllByGameJamIdAndDeletedAtIsNull(jam.id!!)
+        val judgeUsers = userRepository.findAllById(judges.map { it.judge.id })
             .associateBy { it.id }
 
         return judges.map { jamJudge ->
-            val user = judgeUsers[jamJudge.judgeId]!!
+            val user = judgeUsers[jamJudge.judge.id]!!
             JudgeResponse(
                 userId = user.publicId.toString(),
                 nickname = user.nickname,
@@ -97,18 +97,18 @@ class JudgeManagementService(
 
     @Transactional
     fun removeJudge(jamId: String, organizerId: Long, judgeUserId: String) {
-        val jam = gameJamRepository.findByPublicId(UUID.fromString(jamId))
+        val jam = gameJamRepository.findByPublicIdAndDeletedAtIsNull(UUID.fromString(jamId))
             ?: throw IllegalArgumentException("Game jam not found")
 
         val organizer = userRepository.findById(organizerId).orElseThrow()
 
-        if (jam.organizerId != organizerId && organizer.role != UserRole.ADMIN) {
+        if (jam.organizer.id != organizerId && organizer.role != UserRole.ADMIN) {
             throw IllegalArgumentException("Only the organizer or admin can remove judges")
         }
 
-        val judge = userRepository.findByPublicId(UUID.fromString(judgeUserId))
+        val judge = userRepository.findByPublicIdAndDeletedAtIsNull(UUID.fromString(judgeUserId))
             ?: throw IllegalArgumentException("Judge user not found")
 
-        jamJudgeRepository.deleteByJamIdAndJudgeId(jam.id!!, judge.id!!)
+        jamJudgeRepository.softDeleteByJamIdAndJudgeId(jam.id!!, judge.id!!)
     }
 }

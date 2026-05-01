@@ -27,13 +27,13 @@ class RefreshTokenService(
         request: HttpServletRequest? = null
     ) {
         val customUserDetails = userDetails as CustomUserDetails
-        val user = userRepository.findByPublicId(customUserDetails.publicId)
+        val user = userRepository.findByPublicIdAndDeletedAtIsNull(customUserDetails.publicId)
             ?: throw IllegalStateException("User not found")
 
         val tokenHash = hashToken(token)
 
         val authToken = AuthToken(
-            userId = user.id!!,
+            user = user,
             tokenHash = tokenHash,
             expiresAt = expiresAt,
             userAgent = request?.getHeader("User-Agent"),
@@ -46,9 +46,9 @@ class RefreshTokenService(
     @Transactional(readOnly = true)
     fun findUserDetailsByToken(token: String): UserDetails? {
         val tokenHash = hashToken(token)
-        val authToken = authTokenRepository.findValidTokenByHash(tokenHash) ?: return null
+        val authToken = authTokenRepository.findValidTokenByHash(tokenHash) ?: throw IllegalStateException("Token not found")
 
-        val user = userRepository.findById(authToken.userId).orElse(null) ?: return null
+        val user = userRepository.findById(authToken.user.id!!).orElse(null) ?: throw IllegalStateException("User not found")
 
         return CustomUserDetails(
             publicId = user.publicId,

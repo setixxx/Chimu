@@ -37,7 +37,7 @@ class JudgeController(
         @PathVariable jamId: String,
         @Valid @RequestBody request: AssignJudgeRequest
     ): ResponseEntity<JudgeResponse> {
-        val user = userRepository.findByPublicId(userDetails.publicId)
+        val user = userRepository.findByPublicIdAndDeletedAtIsNull(userDetails.publicId)
             ?: throw IllegalStateException("User not found")
 
         val judge = judgeManagementService.assignJudge(jamId, user.id!!, request.judgeUserId)
@@ -69,7 +69,7 @@ class JudgeController(
         @Parameter(description = "Judge user public ID")
         @PathVariable judgeUserId: String
     ): ResponseEntity<Map<String, String>> {
-        val user = userRepository.findByPublicId(userDetails.publicId)
+        val user = userRepository.findByPublicIdAndDeletedAtIsNull(userDetails.publicId)
             ?: throw IllegalStateException("User not found")
 
         judgeManagementService.removeJudge(jamId, user.id!!, judgeUserId)

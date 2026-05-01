@@ -13,9 +13,7 @@ data class CreateProjectRequest(
     @field:Size(max = 5000, message = "Description must not exceed 5000 characters")
     val description: String? = null,
 
-    val gameUrl: String? = null,
-
-    val repositoryUrl: String? = null
+    val gameUrl: String? = null
 )
 
 data class UpdateProjectRequest(
@@ -25,9 +23,7 @@ data class UpdateProjectRequest(
     @field:Size(max = 5000, message = "Description must not exceed 5000 characters")
     val description: String? = null,
 
-    val gameUrl: String? = null,
-
-    val repositoryUrl: String? = null
+    val gameUrl: String? = null
 )
 
 data class ProjectResponse(
@@ -39,7 +35,6 @@ data class ProjectResponse(
     val title: String,
     val description: String?,
     val gameUrl: String?,
-    val repositoryUrl: String?,
     val status: ProjectStatus,
     val submittedAt: String?,
     val createdAt: String,
@@ -55,7 +50,6 @@ data class ProjectDetailsResponse(
     val title: String,
     val description: String?,
     val gameUrl: String?,
-    val repositoryUrl: String?,
     val status: ProjectStatus,
     val submittedAt: String?,
     val createdAt: String,

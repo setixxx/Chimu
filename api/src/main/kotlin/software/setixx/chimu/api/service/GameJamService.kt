@@ -44,7 +44,7 @@ class GameJamService(
             throw IllegalArgumentException("Only organizers can create game jams")
         }
 
-        if (gameJamRepository.existsByName(request.name)) {
+        if (gameJamRepository.existsByNameAndDeletedAtIsNull(request.name)) {
             throw JamNameAlreadyInUseException("Game jam with name '${request.name}' already exists")
         }
 
@@ -59,7 +59,7 @@ class GameJamService(
         validateTeamSizes(request.minTeamSize, request.maxTeamSize)
 
         val gameJam = GameJam(
-            organizerId = organizerId,
+            organizer = organizer,
             name = request.name,
             description = request.description,
             theme = request.theme,
@@ -72,7 +72,8 @@ class GameJamService(
             judgingEnd = request.judgingEnd,
             minTeamSize = request.minTeamSize,
             maxTeamSize = request.maxTeamSize,
-            status = GameJamStatus.REGISTRATION_OPEN
+            status = GameJamStatus.REGISTRATION_OPEN,
+            bannerUrl = request.bannerUrl
         )
 
         val saved = gameJamRepository.save(gameJam)
@@ -82,13 +83,13 @@ class GameJamService(
     @Transactional(readOnly = true)
     fun getAllGameJams(statusFilter: GameJamStatus?): List<GameJamResponse> {
         val jams = if (statusFilter != null) {
-            gameJamRepository.findAllByStatus(statusFilter)
+            gameJamRepository.findAllByStatusAndDeletedAtIsNull(statusFilter)
         } else {
             gameJamRepository.findAll()
         }
 
         return jams.map { jam ->
-            val organizer = userRepository.findById(jam.organizerId).orElseThrow()
+            val organizer = userRepository.findById(jam.organizer.id!!).orElseThrow()
             val registeredCount = registrationRepository.countRegisteredTeams(jam.id!!).toInt()
             toResponse(jam, organizer, registeredCount)
         }
@@ -96,21 +97,21 @@ class GameJamService(
 
     @Transactional(readOnly = true)
     fun getGameJamById(jamId: String): GameJamDetailsResponse {
-        val jam = gameJamRepository.findByPublicId(UUID.fromString(jamId))
+        val jam = gameJamRepository.findByPublicIdAndDeletedAtIsNull(UUID.fromString(jamId))
             ?: throw IllegalArgumentException("Game jam not found")
 
-        val organizer = userRepository.findById(jam.organizerId).orElseThrow()
+        val organizer = userRepository.findById(jam.organizer.id!!).orElseThrow()
         return toDetailsResponse(jam, organizer)
     }
 
     @Transactional
     fun updateGameJam(jamId: String, userId: Long, request: UpdateGameJamRequest): GameJamDetailsResponse {
-        val jam = gameJamRepository.findByPublicId(UUID.fromString(jamId))
+        val jam = gameJamRepository.findByPublicIdAndDeletedAtIsNull(UUID.fromString(jamId))
             ?: throw IllegalArgumentException("Game jam not found")
 
         val user = userRepository.findById(userId).orElseThrow()
 
-        if (jam.organizerId != userId && user.role != UserRole.ADMIN) {
+        if (jam.organizer.id != userId && user.role != UserRole.ADMIN) {
             throw IllegalArgumentException("Only the organizer or admin can update this game jam")
         }
 
@@ -120,7 +121,7 @@ class GameJamService(
 
         request.name?.let { newName ->
             if (newName != jam.name) {
-                if (gameJamRepository.existsByName(newName)) {
+                if (gameJamRepository.existsByNameAndDeletedAtIsNull(newName)) {
                     throw IllegalArgumentException("Game jam with name '$newName' already exists")
                 }
                 jam.name = newName
@@ -154,18 +155,18 @@ class GameJamService(
             throw IllegalStateException("Game jam was modified by another user. Please refresh and try again.")
         }
 
-        val organizer = userRepository.findById(jam.organizerId).orElseThrow()
+        val organizer = userRepository.findById(jam.organizer.id!!).orElseThrow()
         return toDetailsResponse(jam, organizer)
     }
 
     @Transactional
     fun deleteGameJam(jamId: String, userId: Long) {
-        val jam = gameJamRepository.findByPublicId(UUID.fromString(jamId))
+        val jam = gameJamRepository.findByPublicIdAndDeletedAtIsNull(UUID.fromString(jamId))
             ?: throw IllegalArgumentException("Game jam not found")
 
         val user = userRepository.findById(userId).orElseThrow()
 
-        if (jam.organizerId != userId && user.role != UserRole.ADMIN) {
+        if (jam.organizer.id != userId && user.role != UserRole.ADMIN) {
             throw IllegalArgumentException("Only the organizer or admin can delete this game jam")
         }
 
@@ -266,15 +267,15 @@ class GameJamService(
 
     private fun toDetailsResponse(jam: GameJam, organizer: User): GameJamDetailsResponse {
         val criteria = ratingCriteriaRepository.findAllByJamIdOrderByOrderIndex(jam.id!!)
-        val judges = jamJudgeRepository.findAllByJamId(jam.id!!)
+        val judges = jamJudgeRepository.findAllByGameJamIdAndDeletedAtIsNull(jam.id!!)
         val registeredCount = registrationRepository.countRegisteredTeams(jam.id!!).toInt()
         val submittedCount = projectRepository.countSubmittedProjects(jam.id!!).toInt()
 
-        val judgeUsers = userRepository.findAllById(judges.map { it.judgeId })
+        val judgeUsers = userRepository.findAllById(judges.map { it.judge.id })
             .associateBy { it.id }
 
         val judgeResponses = judges.map { judge ->
-            val user = judgeUsers[judge.judgeId]!!
+            val user = judgeUsers[judge.judge.id]!!
             JudgeResponse(
                 userId = user.publicId.toString(),
                 nickname = user.nickname,

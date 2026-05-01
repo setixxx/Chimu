@@ -37,7 +37,7 @@ class TeamController(
         @AuthenticationPrincipal userDetails: CustomUserDetails,
         @Valid @RequestBody request: CreateTeamRequest
     ): ResponseEntity<TeamDetailsResponse> {
-        val user = userRepository.findByPublicId(userDetails.publicId)
+        val user = userRepository.findByPublicIdAndDeletedAtIsNull(userDetails.publicId)
             ?: throw IllegalStateException("User not found")
 
         val team = teamService.createTeam(user.id!!, request)
@@ -50,7 +50,7 @@ class TeamController(
     fun getUserTeams(
         @AuthenticationPrincipal userDetails: CustomUserDetails
     ): ResponseEntity<List<TeamResponse>> {
-        val user = userRepository.findByPublicId(userDetails.publicId)
+        val user = userRepository.findByPublicIdAndDeletedAtIsNull(userDetails.publicId)
             ?: throw IllegalStateException("User not found")
 
         val teams = teamService.getUserTeams(user.id!!)
@@ -68,7 +68,7 @@ class TeamController(
         @Parameter(description = "Team public ID")
         @PathVariable teamId: String
     ): ResponseEntity<TeamDetailsResponse> {
-        val user = userRepository.findByPublicId(userDetails.publicId)
+        val user = userRepository.findByPublicIdAndDeletedAtIsNull(userDetails.publicId)
             ?: throw IllegalStateException("User not found")
 
         val team = teamService.getTeamDetailsByPublicId(teamId, user.id!!)
@@ -88,7 +88,7 @@ class TeamController(
         @PathVariable teamId: String,
         @Valid @RequestBody request: UpdateTeamRequest
     ): ResponseEntity<TeamDetailsResponse> {
-        val user = userRepository.findByPublicId(userDetails.publicId)
+        val user = userRepository.findByPublicIdAndDeletedAtIsNull(userDetails.publicId)
             ?: throw IllegalStateException("User not found")
 
         val team = teamService.updateTeamByPublicId(teamId, user.id!!, request)
@@ -106,7 +106,7 @@ class TeamController(
         @Parameter(description = "Team invite token")
         @PathVariable inviteToken: String
     ): ResponseEntity<TeamDetailsResponse> {
-        val user = userRepository.findByPublicId(userDetails.publicId)
+        val user = userRepository.findByPublicIdAndDeletedAtIsNull(userDetails.publicId)
             ?: throw IllegalStateException("User not found")
 
         val team = teamService.joinTeamByToken(user.id!!, inviteToken)
@@ -125,7 +125,7 @@ class TeamController(
         @Parameter(description = "Team public ID")
         @PathVariable teamId: String
     ): ResponseEntity<Map<String, String>> {
-        val user = userRepository.findByPublicId(userDetails.publicId)
+        val user = userRepository.findByPublicIdAndDeletedAtIsNull(userDetails.publicId)
             ?: throw IllegalStateException("User not found")
 
         teamService.leaveTeamByPublicId(teamId, user.id!!)
@@ -144,7 +144,7 @@ class TeamController(
         @Parameter(description = "Team public ID")
         @PathVariable teamId: String
     ): ResponseEntity<Map<String, String>> {
-        val user = userRepository.findByPublicId(userDetails.publicId)
+        val user = userRepository.findByPublicIdAndDeletedAtIsNull(userDetails.publicId)
             ?: throw IllegalStateException("User not found")
 
         teamService.deleteTeamByPublicId(teamId, user.id!!)
@@ -165,7 +165,7 @@ class TeamController(
         @Parameter(description = "User public ID to kick")
         @PathVariable userId: String
     ): ResponseEntity<Map<String, String>> {
-        val leader = userRepository.findByPublicId(userDetails.publicId)
+        val leader = userRepository.findByPublicIdAndDeletedAtIsNull(userDetails.publicId)
             ?: throw IllegalStateException("User not found")
 
         teamService.kickMemberByPublicId(teamId, leader.id!!, userId)
@@ -185,7 +185,7 @@ class TeamController(
         @PathVariable teamId: String,
         @Valid @RequestBody request: UpdateMemberSpecializationRequest
     ): ResponseEntity<TeamMemberResponse> {
-        val user = userRepository.findByPublicId(userDetails.publicId)
+        val user = userRepository.findByPublicIdAndDeletedAtIsNull(userDetails.publicId)
             ?: throw IllegalStateException("User not found")
 
         val member = teamService.updateMemberSpecializationByPublicId(
@@ -207,7 +207,7 @@ class TeamController(
         @Parameter(description = "Team public ID")
         @PathVariable teamId: String
     ): ResponseEntity<Map<String, String>> {
-        val user = userRepository.findByPublicId(userDetails.publicId)
+        val user = userRepository.findByPublicIdAndDeletedAtIsNull(userDetails.publicId)
             ?: throw IllegalStateException("User not found")
 
         val newToken = teamService.regenerateInviteTokenByPublicId(teamId, user.id!!)

@@ -3,7 +3,6 @@ package software.setixx.chimu.api.service
 import jakarta.persistence.OptimisticLockException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import software.setixx.chimu.api.domain.RegistrationStatus
 import software.setixx.chimu.api.domain.Team
 import software.setixx.chimu.api.domain.TeamMember
 import software.setixx.chimu.api.domain.User
@@ -36,7 +35,7 @@ class TeamService(
         val user = userRepository.findById(userId)
             .orElseThrow { IllegalArgumentException("User not found") }
 
-        if (teamRepository.findByName(request.name) != null) {
+        if (teamRepository.findByNameAndDeletedAtIsNull(request.name) != null) {
             throw IllegalArgumentException("Team with name '${request.name}' already exists")
         }
 
@@ -44,7 +43,7 @@ class TeamService(
             throw IllegalArgumentException("Only participant or admin can create a team")
         }
 
-        val userTeamsCount = teamRepository.findAllByLeaderId(userId).size
+        val userTeamsCount = teamRepository.findAllByLeaderIdAndDeletedAtIsNull(userId).size
         if (userTeamsCount >= 10) {
             throw IllegalArgumentException("You cannot create more than 10 teams")
         }
@@ -54,16 +53,16 @@ class TeamService(
         val team = Team(
             name = request.name,
             description = request.description,
-            leaderId = userId,
+            leader = user,
             inviteToken = inviteToken
         )
 
         val savedTeam = teamRepository.save(team)
 
         val teamMember = TeamMember(
-            teamId = savedTeam.id!!,
-            userId = userId,
-            specializationId = user.specializationId
+            team = savedTeam,
+            user = user,
+            specialization = user.specialization
         )
         teamMemberRepository.save(teamMember)
 
@@ -75,23 +74,23 @@ class TeamService(
         val team = teamRepository.findById(teamId)
             .orElseThrow { IllegalArgumentException("Team not found") }
 
-        val isMember = teamMemberRepository.existsByTeamIdAndUserId(teamId, requestingUserId)
+        val isMember = teamMemberRepository.existsByTeamIdAndUserIdAndDeletedAtIsNull(teamId, requestingUserId)
 
-        val members = teamMemberRepository.findAllByTeamId(teamId)
-        val userIds = members.map { it.userId }
+        val members = teamMemberRepository.findAllByTeamIdAndDeletedAtIsNull(teamId)
+        val userIds = members.map { it.user.id }
         val users = userRepository.findAllById(userIds).associateBy { it.id }
 
         val memberResponses = members.map { member ->
-            val user = users[member.userId]!!
-            toTeamMemberResponse(user, member, team.leaderId)
+            val user = users[member.user.id]!!
+            toTeamMemberResponse(user, member, team.leader.id!!)
         }
 
         return TeamDetailsResponse(
             id = team.publicId.toString(),
             name = team.name,
             description = team.description,
-            leaderId = userRepository.findById(team.leaderId).get().publicId.toString(),
-            inviteToken = if (team.leaderId == requestingUserId) team.inviteToken else null,
+            leaderId = userRepository.findById(team.leader.id!!).get().publicId.toString(),
+            inviteToken = if (team.leader.id == requestingUserId) team.inviteToken else null,
             createdAt = team.createdAt.toString(),
             members = memberResponses
         )
@@ -99,14 +98,14 @@ class TeamService(
 
     @Transactional(readOnly = true)
     fun getTeamDetailsByPublicId(teamPublicId: String, requestingUserId: Long): TeamDetailsResponse {
-        val team = teamRepository.findByPublicId(UUID.fromString(teamPublicId))
+        val team = teamRepository.findByPublicIdAndDeletedAtIsNull(UUID.fromString(teamPublicId))
             ?: throw IllegalArgumentException("Team not found")
         return getTeamDetails(team.id!!, requestingUserId)
     }
 
     @Transactional(readOnly = true)
     fun getUserTeams(userId: Long): List<TeamResponse> {
-        val teams = teamRepository.findAllByMemberId(userId)
+        val teams = teamRepository.findAllActiveByMemberId(userId)
 
         return teams.map { team ->
             val memberCount = teamMemberRepository.countByTeamId(team.id!!).toInt()
@@ -114,10 +113,10 @@ class TeamService(
                 id = team.publicId.toString(),
                 name = team.name,
                 description = team.description,
-                leaderId = userRepository.findById(team.leaderId).get().publicId.toString(),
+                leaderId = userRepository.findById(team.leader.id!!).get().publicId.toString(),
                 createdAt = team.createdAt.toString(),
                 memberCount = memberCount,
-                isLeader = team.leaderId == userId
+                isLeader = team.leader.id == userId
             )
         }
     }
@@ -127,13 +126,13 @@ class TeamService(
         val team = teamRepository.findById(teamId)
             .orElseThrow { IllegalArgumentException("Team not found") }
 
-        if (team.leaderId != userId) {
+        if (team.leader.id != userId) {
             throw IllegalArgumentException("Only team leader can update team information")
         }
 
         request.name?.let { newName ->
             if (newName != team.name) {
-                val existingTeam = teamRepository.findByName(newName)
+                val existingTeam = teamRepository.findByNameAndDeletedAtIsNull(newName)
                 if (existingTeam != null && existingTeam.id != teamId) {
                     throw IllegalArgumentException("Team with name '$newName' already exists")
                 }
@@ -153,17 +152,17 @@ class TeamService(
 
     @Transactional
     fun updateTeamByPublicId(teamPublicId: String, userId: Long, request: UpdateTeamRequest): TeamDetailsResponse {
-        val team = teamRepository.findByPublicId(UUID.fromString(teamPublicId))
+        val team = teamRepository.findByPublicIdAndDeletedAtIsNull(UUID.fromString(teamPublicId))
             ?: throw IllegalArgumentException("Team not found")
         return updateTeam(team.id!!, userId, request)
     }
 
     @Transactional
     fun joinTeamByToken(userId: Long, inviteToken: String): TeamDetailsResponse {
-        val team = teamRepository.findByInviteToken(inviteToken)
+        val team = teamRepository.findByInviteTokenAndDeletedAtIsNull(inviteToken)
             ?: throw IllegalArgumentException("Invalid invite token")
 
-        if (teamMemberRepository.existsByTeamIdAndUserId(team.id!!, userId)) {
+        if (teamMemberRepository.existsByTeamIdAndUserIdAndDeletedAtIsNull(team.id!!, userId)) {
             throw IllegalArgumentException("You are already a member of this team")
         }
 
@@ -175,9 +174,9 @@ class TeamService(
         }
 
         val teamMember = TeamMember(
-            teamId = team.id!!,
-            userId = userId,
-            specializationId = user.specializationId
+            team = team,
+            user = user,
+            specialization = user.specialization
         )
         teamMemberRepository.save(teamMember)
 
@@ -189,11 +188,11 @@ class TeamService(
         val team = teamRepository.findById(teamId)
             .orElseThrow { IllegalArgumentException("Team not found") }
 
-        if (team.leaderId == userId) {
+        if (team.leader.id == userId) {
             throw IllegalArgumentException("Team leader cannot leave the team. Transfer leadership or delete the team.")
         }
 
-        if (!teamMemberRepository.existsByTeamIdAndUserId(teamId, userId)) {
+        if (!teamMemberRepository.existsByTeamIdAndUserIdAndDeletedAtIsNull(teamId, userId)) {
             throw IllegalArgumentException("You are not a member of this team")
         }
 
@@ -202,12 +201,12 @@ class TeamService(
             throw IllegalArgumentException("Cannot leave team while it has active jam registrations. Withdraw from jams first.")
         }
 
-        teamMemberRepository.deleteByTeamIdAndUserId(teamId, userId)
+        teamMemberRepository.softDeleteByTeamIdAndUserId(teamId, userId)
     }
 
     @Transactional
     fun leaveTeamByPublicId(teamPublicId: String, userId: Long) {
-        val team = teamRepository.findByPublicId(UUID.fromString(teamPublicId))
+        val team = teamRepository.findByPublicIdAndDeletedAtIsNull(UUID.fromString(teamPublicId))
             ?: throw IllegalArgumentException("Team not found")
         leaveTeam(team.id!!, userId)
     }
@@ -217,7 +216,7 @@ class TeamService(
         val team = teamRepository.findById(teamId)
             .orElseThrow { IllegalArgumentException("Team not found") }
 
-        if (team.leaderId != userId) {
+        if (team.leader.id != userId) {
             throw IllegalArgumentException("Only team leader can delete the team")
         }
 
@@ -231,7 +230,7 @@ class TeamService(
 
     @Transactional
     fun deleteTeamByPublicId(teamPublicId: String, userId: Long) {
-        val team = teamRepository.findByPublicId(UUID.fromString(teamPublicId))
+        val team = teamRepository.findByPublicIdAndDeletedAtIsNull(UUID.fromString(teamPublicId))
             ?: throw IllegalArgumentException("Team not found")
         deleteTeam(team.id!!, userId)
     }
@@ -241,18 +240,18 @@ class TeamService(
         val team = teamRepository.findById(teamId)
             .orElseThrow { IllegalArgumentException("Team not found") }
 
-        if (team.leaderId != leaderId) {
+        if (team.leader.id != leaderId) {
             throw IllegalArgumentException("Only team leader can kick members")
         }
 
-        val memberUser = userRepository.findByPublicId(UUID.fromString(memberPublicId))
+        val memberUser = userRepository.findByPublicIdAndDeletedAtIsNull(UUID.fromString(memberPublicId))
             ?: throw IllegalArgumentException("User not found")
 
         if (memberUser.id == leaderId) {
             throw IllegalArgumentException("Team leader cannot kick themselves")
         }
 
-        if (!teamMemberRepository.existsByTeamIdAndUserId(teamId, memberUser.id!!)) {
+        if (!teamMemberRepository.existsByTeamIdAndUserIdAndDeletedAtIsNull(teamId, memberUser.id!!)) {
             throw IllegalArgumentException("User is not a member of this team")
         }
 
@@ -261,12 +260,12 @@ class TeamService(
             throw IllegalArgumentException("Cannot kick members while team has active jam registrations")
         }
 
-        teamMemberRepository.deleteByTeamIdAndUserId(teamId, memberUser.id!!)
+        teamMemberRepository.softDeleteByTeamIdAndUserId(teamId, memberUser.id!!)
     }
 
     @Transactional
     fun kickMemberByPublicId(teamPublicId: String, leaderId: Long, memberPublicId: String) {
-        val team = teamRepository.findByPublicId(UUID.fromString(teamPublicId))
+        val team = teamRepository.findByPublicIdAndDeletedAtIsNull(UUID.fromString(teamPublicId))
             ?: throw IllegalArgumentException("Team not found")
         kickMember(team.id!!, leaderId, memberPublicId)
     }
@@ -277,20 +276,20 @@ class TeamService(
         userId: Long,
         specializationId: Long?
     ): TeamMemberResponse {
-        val teamMember = teamMemberRepository.findByTeamIdAndUserId(teamId, userId)
+        val teamMember = teamMemberRepository.findByTeamIdAndUserIdAndDeletedAtIsNull(teamId, userId)
             ?: throw IllegalArgumentException("You are not a member of this team")
 
         if (specializationId != null) {
             specializationService.getSpecializationById(specializationId)
         }
 
-        teamMember.specializationId = specializationId
+        teamMember.specialization!!.id = specializationId
         teamMemberRepository.save(teamMember)
 
         val user = userRepository.findById(userId).get()
         val team = teamRepository.findById(teamId).get()
 
-        return toTeamMemberResponse(user, teamMember, team.leaderId)
+        return toTeamMemberResponse(user, teamMember, team.leader.id!!)
     }
 
     @Transactional
@@ -299,7 +298,7 @@ class TeamService(
         userId: Long,
         specializationId: Long?
     ): TeamMemberResponse {
-        val team = teamRepository.findByPublicId(UUID.fromString(teamPublicId))
+        val team = teamRepository.findByPublicIdAndDeletedAtIsNull(UUID.fromString(teamPublicId))
             ?: throw IllegalArgumentException("Team not found")
         return updateMemberSpecialization(team.id!!, userId, specializationId)
     }
@@ -309,7 +308,7 @@ class TeamService(
         val team = teamRepository.findById(teamId)
             .orElseThrow { IllegalArgumentException("Team not found") }
 
-        if (team.leaderId != userId) {
+        if (team.leader.id != userId) {
             throw IllegalArgumentException("Only team leader can regenerate invite token")
         }
 
@@ -327,7 +326,7 @@ class TeamService(
 
     @Transactional
     fun regenerateInviteTokenByPublicId(teamPublicId: String, userId: Long): String {
-        val team = teamRepository.findByPublicId(UUID.fromString(teamPublicId))
+        val team = teamRepository.findByPublicIdAndDeletedAtIsNull(UUID.fromString(teamPublicId))
             ?: throw IllegalArgumentException("Team not found")
         return regenerateInviteToken(team.id!!, userId)
     }
@@ -343,7 +342,7 @@ class TeamService(
         member: TeamMember,
         leaderId: Long
     ): TeamMemberResponse {
-        val specialization = member.specializationId?.let {
+        val specialization = member.specialization!!.id?.let {
             val spec = specializationService.getSpecializationById(it)
             SpecializationResponse(spec.id!!, spec.name, spec.description)
         }

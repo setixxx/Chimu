@@ -38,7 +38,7 @@ class GameJamController(
         @AuthenticationPrincipal userDetails: CustomUserDetails,
         @Valid @RequestBody request: CreateGameJamRequest
     ): ResponseEntity<GameJamDetailsResponse> {
-        val user = userRepository.findByPublicId(userDetails.publicId)
+        val user = userRepository.findByPublicIdAndDeletedAtIsNull(userDetails.publicId)
             ?: throw IllegalStateException("User not found")
 
         val jam = gameJamService.createGameJam(user.id!!, request)
@@ -84,7 +84,7 @@ class GameJamController(
         @PathVariable jamId: String,
         @Valid @RequestBody request: UpdateGameJamRequest
     ): ResponseEntity<GameJamDetailsResponse> {
-        val user = userRepository.findByPublicId(userDetails.publicId)
+        val user = userRepository.findByPublicIdAndDeletedAtIsNull(userDetails.publicId)
             ?: throw IllegalStateException("User not found")
 
         val jam = gameJamService.updateGameJam(jamId, user.id!!, request)
@@ -103,7 +103,7 @@ class GameJamController(
         @Parameter(description = "Game jam public ID")
         @PathVariable jamId: String
     ): ResponseEntity<Map<String, String>> {
-        val user = userRepository.findByPublicId(userDetails.publicId)
+        val user = userRepository.findByPublicIdAndDeletedAtIsNull(userDetails.publicId)
             ?: throw IllegalStateException("User not found")
 
         gameJamService.deleteGameJam(jamId, user.id!!)

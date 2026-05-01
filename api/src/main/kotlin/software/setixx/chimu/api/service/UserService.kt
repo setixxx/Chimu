@@ -18,10 +18,10 @@ class UserService(
     private val skillRepository: SkillRepository,
     private val authenticationService: AuthenticationService
 ) {
-    fun getUserByPublicId(publicId: UUID) = userRepository.findByPublicId(publicId)
+    fun getUserByPublicId(publicId: UUID) = userRepository.findByPublicIdAndDeletedAtIsNull(publicId)
 
     fun getCurrentUser(email: String): User {
-        return userRepository.findByEmail(email)
+        return userRepository.findByEmailAndDeletedAtIsNull(email)
             ?: throw IllegalStateException("User not found")
     }
 
@@ -34,7 +34,7 @@ class UserService(
         request.lastName?.let { user.lastName = it }
         request.nickname?.let { newNickname ->
             if (newNickname != user.nickname) {
-                val existingUser = userRepository.findByNickname(newNickname)
+                val existingUser = userRepository.findByNicknameAndDeletedAtIsNull(newNickname)
                 if (existingUser != null && existingUser.id != userId) {
                     throw IllegalArgumentException("Nickname already taken")
                 }
@@ -42,7 +42,7 @@ class UserService(
             }
         }
         request.bio?.let { user.bio = it }
-        request.specializationId?.let { user.specializationId = it }
+        request.specializationId?.let { user.specialization!!.id = it }
         request.githubUrl?.let { user.githubUrl = it }
         request.telegramUsername?.let { user.telegramUsername = it }
         request.avatarUrl?.let { user.avatarUrl = it }

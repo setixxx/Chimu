@@ -22,10 +22,10 @@ class RatingService(
 
     @Transactional
     fun rateProject(projectId: String, userId: Long, request: RateProjectRequest): RatingResponse {
-        val project = projectRepository.findByPublicId(UUID.fromString(projectId))
+        val project = projectRepository.findByPublicIdAndDeletedAtIsNull(UUID.fromString(projectId))
             ?: throw IllegalArgumentException("Project not found")
 
-        val jam = gameJamRepository.findById(project.jamId).orElseThrow()
+        val jam = gameJamRepository.findById(project.gameJam.id!!).orElseThrow()
         val user = userRepository.findById(userId).orElseThrow()
 
         if (jam.status != GameJamStatus.JUDGING) {
@@ -36,7 +36,7 @@ class RatingService(
             throw IllegalArgumentException("Only published projects can be rated")
         }
 
-        val isJudge = jamJudgeRepository.existsByJamIdAndJudgeId(jam.id!!, userId)
+        val isJudge = jamJudgeRepository.existsByGameJamIdAndJudgeIdAndDeletedAtIsNull(jam.id!!, userId)
         if (!isJudge) {
             throw IllegalArgumentException("You are not assigned as a judge for this jam")
         }
@@ -44,13 +44,13 @@ class RatingService(
         val criteria = ratingCriteriaRepository.findById(request.criteriaId)
             .orElseThrow { IllegalArgumentException("Criteria not found") }
 
-        if (criteria.jamId != jam.id) {
+        if (criteria.gameJam.id != jam.id) {
             throw IllegalArgumentException("Criteria does not belong to this jam")
         }
 
         validateScore(request.score, criteria.maxScore)
 
-        val existingRating = ratingRepository.findByProjectIdAndJudgeIdAndCriteriaId(
+        val existingRating = ratingRepository.findByProjectIdAndJudgeIdAndCriteriaIdAndDeletedAtIsNull(
             project.id!!, userId, criteria.id!!
         )
 
@@ -58,9 +58,9 @@ class RatingService(
             score = request.score
             comment = request.comment
         } ?: Rating(
-            projectId = project.id!!,
-            judgeId = userId,
-            criteriaId = criteria.id!!,
+            project = project,
+            judge = user,
+            criteria = criteria,
             score = request.score,
             comment = request.comment
         )
@@ -75,18 +75,18 @@ class RatingService(
         val rating = ratingRepository.findById(ratingId)
             .orElseThrow { IllegalArgumentException("Rating not found") }
 
-        if (rating.judgeId != userId) {
+        if (rating.judge.id != userId) {
             throw IllegalArgumentException("You can only update your own ratings")
         }
 
-        val project = projectRepository.findById(rating.projectId).orElseThrow()
-        val jam = gameJamRepository.findById(project.jamId).orElseThrow()
+        val project = projectRepository.findById(rating.project.id!!).orElseThrow()
+        val jam = gameJamRepository.findById(project.gameJam.id!!).orElseThrow()
 
         if (jam.status != GameJamStatus.JUDGING) {
             throw IllegalArgumentException("Ratings can only be updated during judging phase")
         }
 
-        val criteria = ratingCriteriaRepository.findById(rating.criteriaId).orElseThrow()
+        val criteria = ratingCriteriaRepository.findById(rating.criteria.id!!).orElseThrow()
         validateScore(request.score, criteria.maxScore)
 
         rating.score = request.score
@@ -102,12 +102,12 @@ class RatingService(
         val rating = ratingRepository.findById(ratingId)
             .orElseThrow { IllegalArgumentException("Rating not found") }
 
-        if (rating.judgeId != userId) {
+        if (rating.judge.id != userId) {
             throw IllegalArgumentException("You can only delete your own ratings")
         }
 
-        val project = projectRepository.findById(rating.projectId).orElseThrow()
-        val jam = gameJamRepository.findById(project.jamId).orElseThrow()
+        val project = projectRepository.findById(rating.project.id!!).orElseThrow()
+        val jam = gameJamRepository.findById(project.gameJam.id!!).orElseThrow()
 
         if (jam.status != GameJamStatus.JUDGING) {
             throw IllegalArgumentException("Ratings can only be deleted during judging phase")
@@ -118,28 +118,28 @@ class RatingService(
 
     @Transactional(readOnly = true)
     fun getProjectRatings(projectId: String, userId: Long): ProjectRatingSummaryResponse {
-        val project = projectRepository.findByPublicId(UUID.fromString(projectId))
+        val project = projectRepository.findByPublicIdAndDeletedAtIsNull(UUID.fromString(projectId))
             ?: throw IllegalArgumentException("Project not found")
 
-        val jam = gameJamRepository.findById(project.jamId).orElseThrow()
+        val jam = gameJamRepository.findById(project.gameJam.id!!).orElseThrow()
         val user = userRepository.findById(userId).orElseThrow()
 
         val canViewAllRatings = jam.status == GameJamStatus.COMPLETED ||
-                jam.organizerId == userId ||
+                jam.organizer.id == userId ||
                 user.role == UserRole.ADMIN
 
         if (!canViewAllRatings) {
             throw IllegalArgumentException("Full ratings are only visible after jam completion")
         }
 
-        val ratings = ratingRepository.findAllByProjectId(project.id!!)
+        val ratings = ratingRepository.findAllByProjectIdAndDeletedAtIsNull(project.id!!)
         val criteria = ratingCriteriaRepository.findAllByJamIdOrderByOrderIndex(jam.id!!)
-        val judges = userRepository.findAllById(ratings.map { it.judgeId }).associateBy { it.id }
+        val judges = userRepository.findAllById(ratings.map { it.judge.id }).associateBy { it.id }
 
         val criteriaRatings = criteria.map { criterion ->
-            val criterionRatings = ratings.filter { it.criteriaId == criterion.id }
+            val criterionRatings = ratings.filter { it.criteria.id == criterion.id }
             val judgeRatings = criterionRatings.map { rating ->
-                val judge = judges[rating.judgeId]!!
+                val judge = judges[rating.judge.id]!!
                 JudgeRating(
                     judgeNickname = judge.nickname,
                     score = rating.score.setScale(2, RoundingMode.HALF_UP).toString(),
@@ -173,22 +173,22 @@ class RatingService(
 
     @Transactional(readOnly = true)
     fun getMyRatings(projectId: String, userId: Long): List<MyRatingResponse> {
-        val project = projectRepository.findByPublicId(UUID.fromString(projectId))
+        val project = projectRepository.findByPublicIdAndDeletedAtIsNull(UUID.fromString(projectId))
             ?: throw IllegalArgumentException("Project not found")
 
-        val jam = gameJamRepository.findById(project.jamId).orElseThrow()
-        val isJudge = jamJudgeRepository.existsByJamIdAndJudgeId(jam.id!!, userId)
+        val jam = gameJamRepository.findById(project.gameJam.id!!).orElseThrow()
+        val isJudge = jamJudgeRepository.existsByGameJamIdAndJudgeIdAndDeletedAtIsNull(jam.id!!, userId)
 
         if (!isJudge) {
             throw IllegalArgumentException("You are not a judge for this jam")
         }
 
-        val ratings = ratingRepository.findAllByProjectIdAndJudgeId(project.id!!, userId)
-        val criteriaMap = ratingCriteriaRepository.findAllById(ratings.map { it.criteriaId })
+        val ratings = ratingRepository.findAllByProjectIdAndJudgeIdAndDeletedAtIsNull(project.id!!, userId)
+        val criteriaMap = ratingCriteriaRepository.findAllById(ratings.map { it.criteria.id })
             .associateBy { it.id }
 
         return ratings.map { rating ->
-            val criteria = criteriaMap[rating.criteriaId]!!
+            val criteria = criteriaMap[rating.criteria.id]!!
             MyRatingResponse(
                 id = rating.id!!,
                 criteriaId = criteria.id!!,
@@ -203,10 +203,10 @@ class RatingService(
 
     @Transactional(readOnly = true)
     fun getJudgeProgress(jamId: String, userId: Long): JudgeProgressResponse {
-        val jam = gameJamRepository.findByPublicId(UUID.fromString(jamId))
+        val jam = gameJamRepository.findByPublicIdAndDeletedAtIsNull(UUID.fromString(jamId))
             ?: throw IllegalArgumentException("Game jam not found")
 
-        val isJudge = jamJudgeRepository.existsByJamIdAndJudgeId(jam.id!!, userId)
+        val isJudge = jamJudgeRepository.existsByGameJamIdAndJudgeIdAndDeletedAtIsNull(jam.id!!, userId)
         if (!isJudge) {
             throw IllegalArgumentException("You are not a judge for this jam")
         }
@@ -214,20 +214,20 @@ class RatingService(
         val projects = projectRepository.findPublishedProjectsByJamId(jam.id!!)
         val criteria = ratingCriteriaRepository.findAllByJamIdOrderByOrderIndex(jam.id!!)
         val allRatings = ratingRepository.findAllByProjectIdIn(projects.map { it.id!! })
-            .filter { it.judgeId == userId }
+            .filter { it.judge.id == userId }
 
         val ratedProjects = mutableSetOf<Long>()
         val missingProjects = mutableListOf<MissingProjectInfo>()
 
         projects.forEach { project ->
-            val projectRatings = allRatings.filter { it.projectId == project.id }
-            val ratedCriteriaIds = projectRatings.map { it.criteriaId }.toSet()
+            val projectRatings = allRatings.filter { it.project.id == project.id }
+            val ratedCriteriaIds = projectRatings.map { it.criteria.id }.toSet()
             val missingCriteriaIds = criteria.map { it.id!! }.filter { it !in ratedCriteriaIds }
 
             if (missingCriteriaIds.isEmpty()) {
                 ratedProjects.add(project.id!!)
             } else {
-                val team = project.teamId?.let { teamRepository.findById(it).orElse(null) }
+                val team = project.team.id?.let { teamRepository.findById(it).orElse(null) }
                 val missingCriteriaNames = criteria
                     .filter { it.id in missingCriteriaIds }
                     .map { it.name }
@@ -260,7 +260,7 @@ class RatingService(
             return
         }
 
-        val judges = jamJudgeRepository.findAllByJamId(jamId).map { it.judgeId }
+        val judges = jamJudgeRepository.findAllByGameJamIdAndDeletedAtIsNull(jamId).map { it.judge.id }
         val projects = projectRepository.findPublishedProjectsByJamId(jamId)
         val criteriaCount = ratingCriteriaRepository.countByJamId(jamId)
 
@@ -271,8 +271,8 @@ class RatingService(
             }
 
             if (!judgeHasCompleteRatings) {
-                ratingRepository.deleteAllByJudgeId(judgeId)
-                jamJudgeRepository.deleteByJamIdAndJudgeId(jamId, judgeId)
+                ratingRepository.softDeleteById(judgeId)
+                jamJudgeRepository.softDeleteByJamIdAndJudgeId(jamId, judgeId)
             }
         }
     }

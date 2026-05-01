@@ -14,7 +14,7 @@ class JwtUserDetailsService(
 ) : UserDetailsService {
 
     override fun loadUserByUsername(email: String): UserDetails {
-        val user = userRepository.findByEmail(email)
+        val user = userRepository.findByEmailAndDeletedAtIsNull(email)
             ?: throw AuthenticationServiceException("Invalid credentials")
 
         return CustomUserDetails(
@@ -26,7 +26,7 @@ class JwtUserDetailsService(
     }
 
     fun loadUserByPublicId(publicId: UUID): UserDetails {
-        val user = userRepository.findByPublicId(publicId)
+        val user = userRepository.findByPublicIdAndDeletedAtIsNull(publicId)
             ?: throw AuthenticationServiceException("Invalid credentials")
 
         return CustomUserDetails(

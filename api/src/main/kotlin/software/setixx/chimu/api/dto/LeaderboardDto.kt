@@ -23,7 +23,6 @@ data class ProjectInfo(
     val teamId: String?,
     val teamName: String?,
     val gameUrl: String?,
-    val repositoryUrl: String?,
     val submittedAt: String?
 )
 

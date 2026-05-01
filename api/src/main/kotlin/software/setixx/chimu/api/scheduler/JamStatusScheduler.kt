@@ -30,7 +30,7 @@ class JamStatusScheduler(
 
             val jamsToCloseRegistration = gameJamRepository.findJamsToCloseRegistration()
             jamsToCloseRegistration.forEach { jam ->
-                val pendingRegistrations = registrationRepository.findAllByJamIdAndStatus(
+                val pendingRegistrations = registrationRepository.findAllByGameJamIdAndStatusAndDeletedAtIsNull(
                     jam.id!!,
                     RegistrationStatus.PENDING
                 )
@@ -38,7 +38,7 @@ class JamStatusScheduler(
                 pendingRegistrations.forEach { registration ->
                     registration.status = RegistrationStatus.REJECTED
                     registrationRepository.save(registration)
-                    logger.info("Auto-rejected pending registration for team ${registration.teamId} in jam ${jam.name}")
+                    logger.info("Auto-rejected pending registration for team ${registration.team.id} in jam ${jam.name}")
                 }
 
                 jam.status = GameJamStatus.REGISTRATION_CLOSED
@@ -49,19 +49,19 @@ class JamStatusScheduler(
 
             val jamsToStart = gameJamRepository.findJamsToStart()
             jamsToStart.forEach { jam ->
-                val approvedRegistrations = registrationRepository.findAllByJamIdAndStatus(
+                val approvedRegistrations = registrationRepository.findAllByGameJamIdAndStatusAndDeletedAtIsNull(
                     jam.id!!,
                     RegistrationStatus.APPROVED
                 )
 
                 val invalidTeams = mutableListOf<Long>()
                 approvedRegistrations.forEach { registration ->
-                    val teamSize = teamMemberRepository.countByTeamId(registration.teamId).toInt()
+                    val teamSize = teamMemberRepository.countByTeamId(registration.team.id).toInt()
                     if (teamSize < jam.minTeamSize || teamSize > jam.maxTeamSize) {
                         registration.status = RegistrationStatus.REJECTED
                         registrationRepository.save(registration)
-                        invalidTeams.add(registration.teamId)
-                        logger.warn("Team ${registration.teamId} rejected from jam ${jam.name} due to invalid size: $teamSize (required: ${jam.minTeamSize}-${jam.maxTeamSize})")
+                        invalidTeams.add(registration.team.id)
+                        logger.warn("Team ${registration.team.id} rejected from jam ${jam.name} due to invalid size: $teamSize (required: ${jam.minTeamSize}-${jam.maxTeamSize})")
                     }
                 }
 

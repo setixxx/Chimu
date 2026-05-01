@@ -27,7 +27,7 @@ interface AuthTokenRepository : JpaRepository<AuthToken, Long> {
     @Query("""
         UPDATE AuthToken t 
         SET t.revokedAt = :now 
-        WHERE t.userId = :userId 
+        WHERE t.user.id = :userId 
         AND t.revokedAt IS NULL
     """)
     fun revokeAllUserTokens(

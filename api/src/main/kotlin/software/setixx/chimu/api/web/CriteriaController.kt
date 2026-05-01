@@ -38,7 +38,7 @@ class CriteriaController(
         @PathVariable jamId: String,
         @Valid @RequestBody request: CreateCriteriaRequest
     ): ResponseEntity<CriteriaResponse> {
-        val user = userRepository.findByPublicId(userDetails.publicId)
+        val user = userRepository.findByPublicIdAndDeletedAtIsNull(userDetails.publicId)
             ?: throw IllegalStateException("User not found")
 
         val criteria = criteriaService.createCriteria(jamId, user.id!!, request)
@@ -71,7 +71,7 @@ class CriteriaController(
         @PathVariable criteriaId: Long,
         @Valid @RequestBody request: UpdateCriteriaRequest
     ): ResponseEntity<CriteriaResponse> {
-        val user = userRepository.findByPublicId(userDetails.publicId)
+        val user = userRepository.findByPublicIdAndDeletedAtIsNull(userDetails.publicId)
             ?: throw IllegalStateException("User not found")
 
         val criteria = criteriaService.updateCriteria(jamId, criteriaId, user.id!!, request)
@@ -92,7 +92,7 @@ class CriteriaController(
         @Parameter(description = "Criteria ID")
         @PathVariable criteriaId: Long
     ): ResponseEntity<Map<String, String>> {
-        val user = userRepository.findByPublicId(userDetails.publicId)
+        val user = userRepository.findByPublicIdAndDeletedAtIsNull(userDetails.publicId)
             ?: throw IllegalStateException("User not found")
 
         criteriaService.deleteCriteria(jamId, criteriaId, user.id!!)

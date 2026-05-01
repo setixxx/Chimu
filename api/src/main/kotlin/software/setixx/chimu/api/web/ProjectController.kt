@@ -37,7 +37,7 @@ class ProjectController(
         @PathVariable jamId: String,
         @Valid @RequestBody request: CreateProjectRequest
     ): ResponseEntity<ProjectDetailsResponse> {
-        val user = userRepository.findByPublicId(userDetails.publicId)
+        val user = userRepository.findByPublicIdAndDeletedAtIsNull(userDetails.publicId)
             ?: throw IllegalStateException("User not found")
 
         val project = projectService.createProject(jamId, user.id!!, request)
@@ -51,15 +51,14 @@ class ProjectController(
         ApiResponse(responseCode = "404", description = "Project not found")
     )
     fun getProject(
-        @AuthenticationPrincipal userDetails: CustomUserDetails?,
+        @AuthenticationPrincipal userDetails: CustomUserDetails,
         @Parameter(description = "Project public ID")
         @PathVariable projectId: String
     ): ResponseEntity<ProjectDetailsResponse> {
-        val userId = userDetails?.let {
-            userRepository.findByPublicId(it.publicId)?.id
-        }
+        val user = userRepository.findByPublicIdAndDeletedAtIsNull(userDetails.publicId)
+            ?: throw IllegalStateException("User not found")
 
-        val project = projectService.getProjectById(projectId, userId)
+        val project = projectService.getProjectById(projectId, user.id)
         return ResponseEntity.ok(project)
     }
 
@@ -67,17 +66,16 @@ class ProjectController(
     @Operation(summary = "Get jam projects", description = "Retrieves all projects for a game jam")
     @ApiResponse(responseCode = "200", description = "Projects retrieved successfully")
     fun getJamProjects(
-        @AuthenticationPrincipal userDetails: CustomUserDetails?,
+        @AuthenticationPrincipal userDetails: CustomUserDetails,
         @Parameter(description = "Game jam public ID")
         @PathVariable jamId: String,
         @Parameter(description = "Filter by status")
         @RequestParam(required = false) status: ProjectStatus?
     ): ResponseEntity<List<ProjectResponse>> {
-        val userId = userDetails?.let {
-            userRepository.findByPublicId(it.publicId)?.id
-        }
+        val user = userRepository.findByPublicIdAndDeletedAtIsNull(userDetails.publicId)
+            ?: throw IllegalStateException("User not found")
 
-        val projects = projectService.getJamProjects(jamId, userId, status)
+        val projects = projectService.getJamProjects(jamId, user.id, status)
         return ResponseEntity.ok(projects)
     }
 
@@ -98,7 +96,7 @@ class ProjectController(
     fun getMyProjects(
         @AuthenticationPrincipal userDetails: CustomUserDetails
     ): ResponseEntity<List<ProjectResponse>> {
-        val user = userRepository.findByPublicId(userDetails.publicId)
+        val user = userRepository.findByPublicIdAndDeletedAtIsNull(userDetails.publicId)
             ?: throw IllegalStateException("User not found")
 
         val projects = projectService.getMyProjects(user.id!!)
@@ -118,7 +116,7 @@ class ProjectController(
         @PathVariable projectId: String,
         @Valid @RequestBody request: UpdateProjectRequest
     ): ResponseEntity<ProjectDetailsResponse> {
-        val user = userRepository.findByPublicId(userDetails.publicId)
+        val user = userRepository.findByPublicIdAndDeletedAtIsNull(userDetails.publicId)
             ?: throw IllegalStateException("User not found")
 
         val project = projectService.updateProject(projectId, user.id!!, request)
@@ -137,7 +135,7 @@ class ProjectController(
         @Parameter(description = "Project public ID")
         @PathVariable projectId: String
     ): ResponseEntity<ProjectDetailsResponse> {
-        val user = userRepository.findByPublicId(userDetails.publicId)
+        val user = userRepository.findByPublicIdAndDeletedAtIsNull(userDetails.publicId)
             ?: throw IllegalStateException("User not found")
 
         val project = projectService.submitProject(projectId, user.id!!)
@@ -155,7 +153,7 @@ class ProjectController(
         @Parameter(description = "Project public ID")
         @PathVariable projectId: String
     ): ResponseEntity<ProjectDetailsResponse> {
-        val user = userRepository.findByPublicId(userDetails.publicId)
+        val user = userRepository.findByPublicIdAndDeletedAtIsNull(userDetails.publicId)
             ?: throw IllegalStateException("User not found")
 
         val project = projectService.returnToDraft(projectId, user.id!!)
@@ -173,7 +171,7 @@ class ProjectController(
         @Parameter(description = "Project public ID")
         @PathVariable projectId: String
     ): ResponseEntity<ProjectDetailsResponse> {
-        val user = userRepository.findByPublicId(userDetails.publicId)
+        val user = userRepository.findByPublicIdAndDeletedAtIsNull(userDetails.publicId)
             ?: throw IllegalStateException("User not found")
 
         val project = projectService.publishProject(projectId, user.id!!)
@@ -191,7 +189,7 @@ class ProjectController(
         @Parameter(description = "Project public ID")
         @PathVariable projectId: String
     ): ResponseEntity<ProjectDetailsResponse> {
-        val user = userRepository.findByPublicId(userDetails.publicId)
+        val user = userRepository.findByPublicIdAndDeletedAtIsNull(userDetails.publicId)
             ?: throw IllegalStateException("User not found")
 
         val project = projectService.disqualifyProject(projectId, user.id!!)
@@ -210,7 +208,7 @@ class ProjectController(
         @Parameter(description = "Project public ID")
         @PathVariable projectId: String
     ): ResponseEntity<Map<String, String>> {
-        val user = userRepository.findByPublicId(userDetails.publicId)
+        val user = userRepository.findByPublicIdAndDeletedAtIsNull(userDetails.publicId)
             ?: throw IllegalStateException("User not found")
 
         projectService.deleteProject(projectId, user.id!!)
