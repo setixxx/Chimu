@@ -584,6 +584,17 @@ CREATE TABLE IF NOT EXISTS user_skills (
     UNIQUE(user_id, skill_id)
 );
 
+INSERT INTO skills (id, name) VALUES (1, 'Программирование (Java/Kotlin)');
+INSERT INTO skills (id, name) VALUES (2, 'Геймдизайн');
+INSERT INTO skills (id, name) VALUES (3, '2D-графика (Pixel Art)');
+INSERT INTO skills (id, name) VALUES (4, '3D-моделирование');
+INSERT INTO skills (id, name) VALUES (5, 'Анимация');
+INSERT INTO skills (id, name) VALUES (6, 'Звуковой дизайн');
+INSERT INTO skills (id, name) VALUES (7, 'Музыка / Композиция');
+INSERT INTO skills (id, name) VALUES (8, 'UI/UX дизайн');
+INSERT INTO skills (id, name) VALUES (9, 'Тестирование (QA)');
+INSERT INTO skills (id, name) VALUES (10, 'Нарратив / Сценарий');
+
 CREATE INDEX IF NOT EXISTS idx_user_skills_user ON user_skills(user_id);
 CREATE INDEX IF NOT EXISTS idx_user_skills_skill ON user_skills(skill_id);
 

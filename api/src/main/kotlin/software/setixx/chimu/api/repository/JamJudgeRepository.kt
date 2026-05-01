@@ -25,4 +25,15 @@ interface JamJudgeRepository : JpaRepository<JamJudge, Long> {
         AND jj.deletedAt IS NULL
     """)
     fun countByJamId(@Param("jamId") jamId: Long): Long
+
+    @Query("""
+    SELECT CASE WHEN COUNT(jj) > 0 THEN true ELSE false END 
+    FROM JamJudge jj
+    JOIN jj.gameJam gj
+    WHERE jj.judge.id = :judgeId
+      AND gj.status NOT IN ('COMPLETED', 'CANCELLED')
+      AND gj.deletedAt IS NULL
+      AND jj.deletedAt IS NULL
+""")
+    fun isJudgeInOngoingJam(@Param("judgeId") judgeId: Long): Boolean
 }

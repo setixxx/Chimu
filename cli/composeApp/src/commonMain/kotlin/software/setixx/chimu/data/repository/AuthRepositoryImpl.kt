@@ -62,6 +62,7 @@ class AuthRepositoryImpl(
             tokenStorage.clearTokens()
             ApiResult.Error(e.message ?: "Ошибка подключения к серверу")
         } catch (e: IllegalArgumentException) {
+            tokenStorage.clearTokens()
             ApiResult.Error(e.message ?: "Неизвестная ошибка")
         }
     }
@@ -72,9 +73,10 @@ class AuthRepositoryImpl(
                 ?: return ApiResult.Error("Refresh token не найден")
 
             val response = authApi.refreshToken(refreshToken)
-            tokenStorage.saveAccessToken(response.token)
+            tokenStorage.saveAccessToken(response.accessToken)
+            tokenStorage.saveRefreshToken(response.refreshToken)
 
-            ApiResult.Success(response.token)
+            ApiResult.Success(response.accessToken)
         } catch (e: Exception) {
             ApiResult.Error(e.message ?: "Не удалось обновить токен")
         } catch (e: IllegalArgumentException) {

@@ -31,8 +31,8 @@ class ProjectService(
             it.id in registeredTeams && it.leader.id == userId
         } ?: throw IllegalArgumentException("You must be a team leader of an approved team for this jam")
 
-        if (jam.status !in listOf(GameJamStatus.REGISTRATION_CLOSED, GameJamStatus.IN_PROGRESS)) {
-            throw IllegalArgumentException("Projects can only be created during or after registration closed")
+        if (jam.status != GameJamStatus.IN_PROGRESS) {
+            throw IllegalStateException("Projects can only be uploaded at the in progress stage.")
         }
 
         val existingProject = projectRepository.findByTeamIdAndGameJamIdAndDeletedAtIsNull(userApprovedTeam.id!!, jam.id!!)
@@ -251,6 +251,10 @@ class ProjectService(
 
         if (project.status != ProjectStatus.DRAFT) {
             throw IllegalArgumentException("Only draft projects can be deleted")
+        }
+
+        if (project.gameJam.status == GameJamStatus.JUDGING) {
+            throw IllegalStateException("Deleting a project is prohibited at the judging stage.")
         }
 
         projectRepository.softDeleteById(project.id!!)

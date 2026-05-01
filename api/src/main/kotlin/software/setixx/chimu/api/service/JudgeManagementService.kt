@@ -2,6 +2,7 @@ package software.setixx.chimu.api.service
 
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import software.setixx.chimu.api.domain.GameJamStatus
 import software.setixx.chimu.api.domain.JamJudge
 import software.setixx.chimu.api.domain.UserRole
 import software.setixx.chimu.api.dto.JudgeResponse
@@ -104,6 +105,10 @@ class JudgeManagementService(
 
         if (jam.organizer.id != organizerId && organizer.role != UserRole.ADMIN) {
             throw IllegalArgumentException("Only the organizer or admin can remove judges")
+        }
+
+        if (jam.status == GameJamStatus.COMPLETED) {
+            throw IllegalStateException("It is not possible to remove a judge from a completed jam.")
         }
 
         val judge = userRepository.findByPublicIdAndDeletedAtIsNull(UUID.fromString(judgeUserId))

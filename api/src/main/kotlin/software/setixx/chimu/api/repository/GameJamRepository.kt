@@ -75,6 +75,8 @@ interface GameJamRepository : JpaRepository<GameJam, Long> {
     """)
     fun findJamsToComplete(@Param("now") now: Instant = Instant.now()): List<GameJam>
 
+    fun existsByOrganizerIdAndDeletedAtIsNullAndStatusNotIn(organizerId: Long, statuses: List<GameJamStatus>): Boolean
+
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("UPDATE GameJam gj SET gj.deletedAt = CURRENT_TIMESTAMP WHERE gj.id = :id")
     fun softDeleteById(@Param("id") id: Long)

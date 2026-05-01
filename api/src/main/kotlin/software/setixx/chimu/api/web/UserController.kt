@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*
 import software.setixx.chimu.api.domain.User
 import software.setixx.chimu.api.dto.ChangePasswordRequest
 import software.setixx.chimu.api.dto.ChangePasswordResponse
+import software.setixx.chimu.api.dto.PublicUserProfileResponse
 import software.setixx.chimu.api.dto.SpecializationResponse
 import software.setixx.chimu.api.dto.UpdateProfileRequest
 import software.setixx.chimu.api.dto.UserProfileResponse
@@ -21,6 +22,7 @@ import software.setixx.chimu.api.repository.UserRepository
 import software.setixx.chimu.api.security.CustomUserDetails
 import software.setixx.chimu.api.service.SpecializationService
 import software.setixx.chimu.api.service.UserService
+import java.util.UUID
 
 @RestController
 @RequestMapping("/api/users")
@@ -36,9 +38,14 @@ class UserController(
         ApiResponse(responseCode = "200", description = "User retrieved successfully"),
         ApiResponse(responseCode = "404", description = "User not found")
     )
-    // TODO Реализовать
-    fun getUserById(@PathVariable publicId: String): User? {
-        return userService.getUserByPublicId(java.util.UUID.fromString(publicId))
+    fun getUserById(
+        @PathVariable publicId: String
+    ): ResponseEntity<PublicUserProfileResponse?> {
+        val user = userRepository.findByPublicIdAndDeletedAtIsNull(UUID.fromString(publicId))
+            ?: throw IllegalStateException("User not found")
+
+        val body = userService.toUserResponse(user)
+        return ResponseEntity.ok(body)
     }
 
     @GetMapping("/me")
@@ -123,5 +130,17 @@ class UserController(
     ): ResponseEntity<ChangePasswordResponse> {
         val response = userService.changePassword(userDetails.username, request, httpRequest)
         return ResponseEntity.ok(response)
+    }
+
+    @DeleteMapping("/me")
+    fun deleteMyAccount(
+        @AuthenticationPrincipal userDetails: CustomUserDetails
+    ): ResponseEntity<Void> {
+        val user = userRepository.findByPublicIdAndDeletedAtIsNull(userDetails.publicId)
+            ?: throw IllegalArgumentException("User not found")
+
+        userService.softDeleteAccount(user.id!!)
+
+        return ResponseEntity.noContent().build()
     }
 }

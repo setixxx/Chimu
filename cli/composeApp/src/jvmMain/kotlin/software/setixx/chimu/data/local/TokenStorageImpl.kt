@@ -36,7 +36,6 @@ class JvmTokenStorage : TokenStorage {
     override suspend fun clearTokens() = withContext(Dispatchers.IO) {
         prefs.remove(KEY_ACCESS_TOKEN)
         prefs.remove(KEY_REFRESH_TOKEN)
-        prefs.remove(KEY_EMAIL)
     }
 
     companion object {

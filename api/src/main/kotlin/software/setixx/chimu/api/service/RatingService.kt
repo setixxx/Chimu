@@ -102,7 +102,9 @@ class RatingService(
         val rating = ratingRepository.findById(ratingId)
             .orElseThrow { IllegalArgumentException("Rating not found") }
 
-        if (rating.judge.id != userId) {
+        val user = userRepository.findById(userId).orElseThrow()
+
+        if (rating.judge.id != userId && user.role != UserRole.ADMIN) {
             throw IllegalArgumentException("You can only delete your own ratings")
         }
 

@@ -58,6 +58,21 @@ data class UserProfileResponse(
     val telegramUrl: String?,
 )
 
+data class PublicUserProfileResponse(
+    val id: String,
+    val nickname: String,
+    val isDeleted: Boolean,
+    val firstName: String? = null,
+    val lastName: String? = null,
+    val specialization: SpecializationResponse? = null,
+    val avatarUrl: String? = null,
+    val createdAt: String? = null,
+    val skills: List<String>? = null,
+    val bio: String? = null,
+    val githubUrl: String? = null,
+    val telegramUrl: String? = null,
+)
+
 data class ChangePasswordRequest(
     @field:NotBlank(message = "Old password is required")
     val oldPassword: String,

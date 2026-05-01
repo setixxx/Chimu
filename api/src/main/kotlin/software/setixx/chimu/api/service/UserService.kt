@@ -3,23 +3,38 @@ package software.setixx.chimu.api.service
 import jakarta.servlet.http.HttpServletRequest
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import software.setixx.chimu.api.domain.GameJamStatus
 import software.setixx.chimu.api.domain.User
 import software.setixx.chimu.api.domain.UserSkill
 import software.setixx.chimu.api.dto.ChangePasswordRequest
 import software.setixx.chimu.api.dto.ChangePasswordResponse
+import software.setixx.chimu.api.dto.PublicUserProfileResponse
+import software.setixx.chimu.api.dto.SpecializationResponse
 import software.setixx.chimu.api.dto.UpdateProfileRequest
+import software.setixx.chimu.api.dto.UserProfileResponse
+import software.setixx.chimu.api.repository.GameJamRepository
+import software.setixx.chimu.api.repository.JamJudgeRepository
 import software.setixx.chimu.api.repository.SkillRepository
+import software.setixx.chimu.api.repository.TeamRepository
 import software.setixx.chimu.api.repository.UserRepository
 import software.setixx.chimu.api.security.AuthenticationService
+import java.time.LocalDateTime
 import java.util.UUID
 
 @Service
 class UserService(
     private val userRepository: UserRepository,
+    private val teamRepository: TeamRepository,
+    private val gameJamRepository: GameJamRepository,
+    private val jamJudgeRepository: JamJudgeRepository,
     private val skillRepository: SkillRepository,
-    private val authenticationService: AuthenticationService
+    private val authenticationService: AuthenticationService,
+    private val specializationService: SpecializationService
+
 ) {
-    fun getUserByPublicId(publicId: UUID) = userRepository.findByPublicIdAndDeletedAtIsNull(publicId)
+    fun getUserByPublicId(publicId: UUID){
+        userRepository.findByPublicId(publicId)
+    }
 
     fun getCurrentUser(email: String): User {
         return userRepository.findByEmailAndDeletedAtIsNull(email)
@@ -43,8 +58,13 @@ class UserService(
             }
         }
         request.bio?.let { user.bio = it }
-        request.specializationId?.let { user.specialization?.id = it }
-        request.githubUrl?.let { user.githubUrl = it }
+
+        if (request.specializationId != null) {
+            user.specialization = specializationService.getSpecializationById(request.specializationId)
+        } else {
+            user.specialization = null
+        }
+
         request.telegramUsername?.let { user.telegramUsername = it }
         request.avatarUrl?.let { user.avatarUrl = it }
 
@@ -71,5 +91,54 @@ class UserService(
         httpRequest: HttpServletRequest? = null
     ): ChangePasswordResponse {
         return authenticationService.changePassword(email, request, httpRequest)
+    }
+
+    @Transactional
+    fun softDeleteAccount(userId: Long) {
+        if (teamRepository.existsByLeaderIdAndDeletedAtIsNull(userId)) {
+            throw IllegalStateException("Cannot delete account: transfer leadership first.")
+        }
+
+        val excludedJamStatuses = listOf(GameJamStatus.COMPLETED, GameJamStatus.CANCELLED)
+        if (gameJamRepository.existsByOrganizerIdAndDeletedAtIsNullAndStatusNotIn(userId, excludedJamStatuses)) {
+            throw IllegalStateException("Cannot delete account: transfer game jam ownership first.")
+        }
+
+        if (jamJudgeRepository.isJudgeInOngoingJam(userId)) {
+            throw IllegalStateException("Cannot delete account: active judge in an ongoing jam.")
+        }
+
+        userRepository.softDeleteById(userId)
+    }
+
+    fun toUserResponse(user: User): PublicUserProfileResponse {
+        if (user.deletedAt != null) {
+            return PublicUserProfileResponse(
+                id = user.publicId.toString(),
+                nickname = user.nickname,
+                isDeleted = true
+            )
+        }
+
+        val specialization = user.specialization?.id?.let { specId ->
+            val spec = specializationService.getSpecializationById(specId)
+            SpecializationResponse(spec.id!!, spec.name, spec.description)
+        }
+
+        return PublicUserProfileResponse(
+            id = user.publicId.toString(),
+            nickname = user.nickname,
+            isDeleted = false,
+            firstName = user.firstName,
+            lastName = user.lastName,
+            specialization = specialization,
+            avatarUrl = user.avatarUrl,
+            createdAt = user.createdAt.toString(),
+            skills = user.skills.map { it.skill.name },
+            bio = user.bio,
+            githubUrl = user.githubUrl,
+            telegramUrl = user.telegramUsername,
+
+        )
     }
 }

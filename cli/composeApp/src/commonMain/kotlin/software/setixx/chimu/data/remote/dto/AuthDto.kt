@@ -32,7 +32,8 @@ data class RefreshTokenRequest(
 
 @Serializable
 data class TokenResponse(
-    val token: String
+    val accessToken: String,
+    val refreshToken: String
 )
 
 @Serializable

@@ -21,6 +21,8 @@ interface TeamRepository : JpaRepository<Team, Long> {
     @Query("SELECT t FROM Team t JOIN TeamMember tm ON t.id = tm.team.id WHERE tm.user.id = :userId AND t.deletedAt IS NULL AND tm.deletedAt IS NULL")
     fun findAllActiveByMemberId(@Param("userId") userId: Long): List<Team>
 
+    fun existsByLeaderIdAndDeletedAtIsNull(leaderId: Long): Boolean
+
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("UPDATE Team t SET t.deletedAt = CURRENT_TIMESTAMP WHERE t.id = :id")
     fun softDeleteById(@Param("id") id: Long)

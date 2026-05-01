@@ -23,7 +23,8 @@ enum class ProjectFileType {
 enum class RoleRequestStatus {
     PENDING,
     APPROVED,
-    REJECTED
+    REJECTED,
+    CANCELLED
 }
 
 enum class TransferStatus {

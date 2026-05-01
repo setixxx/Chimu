@@ -98,7 +98,7 @@ class JamRegistrationController(
         val user = userRepository.findByPublicIdAndDeletedAtIsNull(userDetails.publicId)
             ?: throw IllegalStateException("User not found")
 
-        registrationService.withdrawRegistration(jamId, teamId, user.id!!)
+        registrationService.cancelRegistration(jamId, teamId, user.id!!)
         return ResponseEntity.ok(mapOf("message" to "Registration withdrawn successfully"))
     }
 }

@@ -16,8 +16,6 @@ import software.setixx.chimu.getPlatform
 class KtorClient(
     private val tokenStorage: TokenStorage,
 ) {
-    private var address: String = if (getPlatform().name == "Android") "10.0.2.2" else "localhost"
-
     val httpClient = HttpClient {
         install(ContentNegotiation) {
             json(Json {
@@ -54,5 +52,32 @@ class KtorClient(
                 context.headers.append(HttpHeaders.Authorization, "Bearer $accessToken")
             }
         }
+/*        install(Auth){
+            bearer {
+                loadTokens {
+                    val access = tokenStorage.getAccessToken() ?: return@loadTokens null
+                    val refresh = tokenStorage.getRefreshToken() ?: return@loadTokens null
+                    BearerTokens(accessToken = access, refreshToken = refresh)
+                }
+
+                refreshTokens {
+                    val response = client.post("/api/auth/refresh") {
+                        markAsRefreshTokenRequest()
+                        header(HttpHeaders.Authorization, "Bearer ${oldTokens?.accessToken}")
+                        setBody(RefreshTokenRequest(oldTokens?.refreshToken ?: ""))
+                    }
+
+                    if (response.status == HttpStatusCode.OK) {
+                        val newTokens = response.body<TokenResponse>()
+                        tokenStorage.saveAccessToken(newTokens.accessToken)
+                        tokenStorage.saveRefreshToken(newTokens.refreshToken)
+                        BearerTokens(newTokens.accessToken, newTokens.refreshToken)
+                    } else {
+                        null
+                    }
+                }
+            }
+        }*/
+
     }
 }

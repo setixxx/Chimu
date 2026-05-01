@@ -1,6 +1,7 @@
 package software.setixx.chimu.api.service
 
 import jakarta.persistence.OptimisticLockException
+import org.springframework.security.access.AccessDeniedException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import software.setixx.chimu.api.domain.GameJam
@@ -72,7 +73,7 @@ class GameJamService(
             judgingEnd = request.judgingEnd,
             minTeamSize = request.minTeamSize,
             maxTeamSize = request.maxTeamSize,
-            status = GameJamStatus.REGISTRATION_OPEN,
+            status = GameJamStatus.ANNOUNCED,
             bannerUrl = request.bannerUrl
         )
 
@@ -110,6 +111,8 @@ class GameJamService(
             ?: throw IllegalArgumentException("Game jam not found")
 
         val user = userRepository.findById(userId).orElseThrow()
+
+        validateOrganizerAccess(jam, userId, user.role)
 
         if (jam.organizer.id != userId && user.role != UserRole.ADMIN) {
             throw IllegalArgumentException("Only the organizer or admin can update this game jam")
@@ -166,11 +169,13 @@ class GameJamService(
 
         val user = userRepository.findById(userId).orElseThrow()
 
+        validateOrganizerAccess(jam, userId, user.role)
+
         if (jam.organizer.id != userId && user.role != UserRole.ADMIN) {
             throw IllegalArgumentException("Only the organizer or admin can delete this game jam")
         }
 
-        if (jam.status !in listOf(GameJamStatus.REGISTRATION_OPEN, GameJamStatus.REGISTRATION_CLOSED)) {
+        if (jam.status !in listOf(GameJamStatus.REGISTRATION_OPEN, GameJamStatus.REGISTRATION_CLOSED, GameJamStatus.ANNOUNCED)) {
             throw IllegalArgumentException("Cannot delete game jam after it has started")
         }
 
@@ -319,5 +324,11 @@ class GameJamService(
             weight = criteria.weight.toString(),
             orderIndex = criteria.orderIndex
         )
+    }
+
+    private fun validateOrganizerAccess(gameJam: GameJam, currentUserId: Long, currentUserRole: UserRole) {
+        if (gameJam.organizer.id != currentUserId && currentUserRole != UserRole.ADMIN) {
+            throw AccessDeniedException("Only the jam organizer or the administrator can perform this action.")
+        }
     }
 }

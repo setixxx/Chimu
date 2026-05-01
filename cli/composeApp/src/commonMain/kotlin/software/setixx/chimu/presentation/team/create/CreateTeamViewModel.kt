@@ -79,7 +79,7 @@ class CreateTeamViewModel(
             return false
         }
 
-        if (!name.matches(Regex("^[a-zA-Z0-9]+( [a-zA-Z0-9]+)*$"))) {
+        if (!name.matches(Regex("^[\\p{L}0-9]+( [\\p{L}0-9]+)*$"))) {
             _state.value = _state.value.copy(
                 nameError = "Название может содержать только буквы, цифры и пробелы"
             )

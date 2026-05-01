@@ -145,7 +145,7 @@ class JamRegistrationService(
     }
 
     @Transactional
-    fun withdrawRegistration(jamId: String, teamId: String, userId: Long): RegistrationResponse {
+    fun cancelRegistration(jamId: String, teamId: String, userId: Long): RegistrationResponse {
         val jam = gameJamRepository.findByPublicIdAndDeletedAtIsNull(UUID.fromString(jamId))
             ?: throw IllegalArgumentException("Game jam not found")
 
@@ -153,7 +153,7 @@ class JamRegistrationService(
             ?: throw IllegalArgumentException("Team not found")
 
         if (team.leader.id != userId) {
-            throw IllegalArgumentException("Only team leader can withdraw registration")
+            throw IllegalArgumentException("Only team leader can cancel registration")
         }
 
         val registration = registrationRepository.findByGameJamIdAndTeamIdAndDeletedAtIsNull(jam.id!!, team.id!!)
@@ -163,12 +163,11 @@ class JamRegistrationService(
             throw IllegalArgumentException("Registration is already withdrawn")
         }
 
-        if (jam.status != GameJamStatus.REGISTRATION_OPEN) {
+        if (jam.status !in listOf(GameJamStatus.REGISTRATION_OPEN, GameJamStatus.ANNOUNCED) ) {
             throw IllegalArgumentException("Cannot withdraw registration after registration period has ended")
         }
 
-        registration.status = RegistrationStatus.WITHDRAWN
-        registrationRepository.save(registration)
+        registrationRepository.softDeleteById(registration.id!!)
 
         return toRegistrationResponse(registration, jam, team, registration.registeredBy)
     }
