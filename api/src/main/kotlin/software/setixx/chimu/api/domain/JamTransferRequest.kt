@@ -2,8 +2,11 @@ package software.setixx.chimu.api.domain
 
 import jakarta.persistence.*
 import org.hibernate.annotations.Generated
+import org.hibernate.annotations.JdbcTypeCode
 import org.hibernate.generator.EventType
+import org.hibernate.type.SqlTypes
 import java.time.Instant
+import java.util.UUID
 
 @Entity
 @Table(name = "jam_transfer_requests")
@@ -11,6 +14,9 @@ class JamTransferRequest(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null,
+
+    @Column(name = "public_id", nullable = false, columnDefinition = "uuid")
+    var publicId: UUID = UUID.randomUUID(),
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "jam_id", nullable = false)
@@ -27,8 +33,9 @@ class JamTransferRequest(
     @Column(name = "expires_at", nullable = false, insertable = false, updatable = false)
     var expiresAt: Instant? = null,
 
+    @Column(nullable = false, columnDefinition = "transfer_status")
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     var status: TransferStatus = TransferStatus.PENDING,
 
     @Generated(event = [EventType.INSERT])

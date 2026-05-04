@@ -2,7 +2,9 @@ package software.setixx.chimu.api.domain
 
 import jakarta.persistence.*
 import org.hibernate.annotations.Generated
+import org.hibernate.annotations.JdbcTypeCode
 import org.hibernate.generator.EventType
+import org.hibernate.type.SqlTypes
 import java.time.Instant
 import java.util.UUID
 
@@ -22,8 +24,9 @@ class User(
     @Column(name = "password_hash", nullable = false)
     var passwordHash: String,
 
+    @Column(nullable = false, columnDefinition = "user_roles")
     @Enumerated(EnumType.STRING)
-    @Column(name = "role", nullable = false)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     var role: UserRole = UserRole.PARTICIPANT,
 
     @Column(name = "first_name", length = 100)

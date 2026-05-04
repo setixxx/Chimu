@@ -26,7 +26,9 @@ INSERT INTO specializations (name, description) VALUES
 ('QA Tester', 'Тестировщик'),
 ('Other', 'Другая специализация');
 
-
+CREATE TYPE user_roles AS ENUM (
+    'PARTICIPANT','ORGANIZER','JUDGE','ADMIN','GUEST'
+);
 
 -- Users
 CREATE TABLE IF NOT EXISTS users (
@@ -34,7 +36,7 @@ CREATE TABLE IF NOT EXISTS users (
      public_id UUID NOT NULL DEFAULT uuid_generate_v4(),
      email CITEXT NOT NULL,
      password_hash TEXT NOT NULL,
-     role VARCHAR NOT NULL DEFAULT 'PARTICIPANT' CHECK (role IN ('PARTICIPANT','ORGANIZER','JUDGE','ADMIN','GUEST')),
+     role user_roles NOT NULL DEFAULT 'PARTICIPANT',
      first_name VARCHAR(100),
      last_name VARCHAR(100),
      nickname VARCHAR(50) NOT NULL,
@@ -81,8 +83,9 @@ CREATE TYPE role_request_status AS ENUM (
 
 CREATE TABLE IF NOT EXISTS role_upgrade_requests (
     id BIGSERIAL PRIMARY KEY,
+    public_id UUID NOT NULL DEFAULT uuid_generate_v4(),
     user_id BIGINT NOT NULL,
-    requested_role VARCHAR NOT NULL CHECK (requested_role IN ('ORGANIZER', 'JUDGE')),
+    requested_role user_roles NOT NULL CHECK (requested_role IN ('ORGANIZER', 'JUDGE')),
     status role_request_status NOT NULL DEFAULT 'PENDING',
     user_message TEXT,
     admin_message TEXT,
@@ -275,6 +278,7 @@ CREATE TYPE transfer_status AS ENUM (
 
 CREATE TABLE IF NOT EXISTS jam_transfer_requests (
     id BIGSERIAL PRIMARY KEY,
+    public_id UUID NOT NULL DEFAULT uuid_generate_v4(),
     jam_id BIGINT NOT NULL,
     sender_id BIGINT NOT NULL,
     recipient_id BIGINT NOT NULL,

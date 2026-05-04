@@ -20,7 +20,7 @@ class GameJam(
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "organizer_id", nullable = false)
-    val organizer: User,
+    var organizer: User,
 
     @Column(nullable = false, length = 200)
     var name: String,

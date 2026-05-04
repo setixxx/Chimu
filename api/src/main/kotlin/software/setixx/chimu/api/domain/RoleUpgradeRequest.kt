@@ -12,8 +12,11 @@ import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
 import org.hibernate.annotations.Generated
+import org.hibernate.annotations.JdbcTypeCode
 import org.hibernate.generator.EventType
+import org.hibernate.type.SqlTypes
 import java.time.Instant
+import java.util.UUID
 
 @Entity
 @Table(name = "role_upgrade_requests")
@@ -22,23 +25,28 @@ class RoleUpgradeRequest(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0,
 
+    @Column(name = "public_id", nullable = false, columnDefinition = "uuid")
+    var publicId: UUID = UUID.randomUUID(),
+
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
     val user: User,
 
+    @Column(nullable = false, columnDefinition = "user_roles")
     @Enumerated(EnumType.STRING)
-    @Column(name = "requested_role", nullable = false)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     val requestedRole: UserRole,
 
+    @Column(nullable = false, columnDefinition = "role_request_status")
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     var status: RoleRequestStatus = RoleRequestStatus.PENDING,
 
     @Column(name = "user_message", columnDefinition = "TEXT")
     val userMessage: String? = null,
 
     @Column(name = "admin_message", columnDefinition = "TEXT")
-    val adminMessage: String? = null,
+    var adminMessage: String? = null,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "reviewed_by")
