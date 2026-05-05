@@ -2,10 +2,10 @@ package software.setixx.chimu.presentation.profile
 
 import software.setixx.chimu.domain.model.Skill
 import software.setixx.chimu.domain.model.Specialization
-import software.setixx.chimu.domain.model.User
+import software.setixx.chimu.domain.model.UserProfile
 
 data class ProfileState(
-    val user: User? = null,
+    val user: UserProfile? = null,
     val nickname: String = "",
     val firstName: String = "",
     val lastName: String = "",

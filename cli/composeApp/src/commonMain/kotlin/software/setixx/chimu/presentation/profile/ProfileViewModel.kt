@@ -62,7 +62,7 @@ class ProfileViewModel(
                         availableSpecs.find { it.id == userSpec.id }
                     }
 
-                    val currentSkills = user.skills.mapNotNull { userSkill ->
+                    val currentSkills = user.skills!!.mapNotNull { userSkill ->
                         availableSkills.find { it.name == userSkill.name }
                     }
 
@@ -73,7 +73,7 @@ class ProfileViewModel(
                         lastName = user.lastName ?: "",
                         bio = user.bio ?: "",
                         githubUrl = user.githubUrl ?: "",
-                        telegramUsername = user.telegramUsername ?: "",
+                        telegramUsername = user.telegramUrl ?: "",
                         selectedSpecialization = currentSpec,
                         selectedSkills = currentSkills,
                         availableSpecializations = availableSpecs,

@@ -1,12 +1,15 @@
 package software.setixx.chimu.domain.repository
 
 import software.setixx.chimu.domain.model.ApiResult
+import software.setixx.chimu.domain.model.ChangePassword
+import software.setixx.chimu.domain.model.ChangedPassword
 import software.setixx.chimu.domain.model.ProfileUpdate
-import software.setixx.chimu.domain.model.User
+import software.setixx.chimu.domain.model.UserProfile
 
 interface UserRepository {
-    suspend fun updateProfile(request: ProfileUpdate): ApiResult<User>
-    suspend fun getCurrentUser(): ApiResult<User>
-    suspend fun getUserById(userId: String): ApiResult<User>
-    suspend fun changePassword(oldPassword: String, newPassword: String): ApiResult<Unit>
+    suspend fun changePassword(body: ChangePassword): ApiResult<ChangedPassword>
+    suspend fun getCurrentUser(): ApiResult<UserProfile>
+    suspend fun deleteProfile(): ApiResult<Unit>
+    suspend fun updateProfile(request: ProfileUpdate): ApiResult<UserProfile>
+    suspend fun getUserById(userId: String): ApiResult<UserProfile>
 }

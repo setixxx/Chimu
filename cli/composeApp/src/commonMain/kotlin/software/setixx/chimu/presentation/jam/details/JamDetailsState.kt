@@ -1,5 +1,6 @@
 package software.setixx.chimu.presentation.jam.details
 
+import software.setixx.chimu.api.domain.UserRole
 import software.setixx.chimu.domain.model.*
 
 data class JamDetailsState(
@@ -16,11 +17,11 @@ data class JamDetailsState(
     val isDeleting: Boolean = false,
     val isDeleted: Boolean = false,
     
-    val userRole: String? = null,
+    val userRole: UserRole? = null,
     val userId: String? = null
 ) {
-    val canEdit: Boolean = (userRole == "ADMIN") || (userRole == "ORGANIZER" && jamDetails?.organizerId == userId)
-    val isParticipant: Boolean = userRole == "PARTICIPANT"
+    val canEdit: Boolean = (userRole == UserRole.ADMIN) || (userRole == UserRole.ORGANIZER && jamDetails?.organizerId == userId)
+    val isParticipant: Boolean = userRole == UserRole.PARTICIPANT
     
     fun isTeamRegistered(teamId: String): Boolean {
         return registrations.any { it.teamId == teamId && it.status != "WITHDRAWN" }

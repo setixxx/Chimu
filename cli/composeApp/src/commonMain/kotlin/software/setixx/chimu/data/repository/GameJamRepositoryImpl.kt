@@ -1,5 +1,6 @@
 package software.setixx.chimu.data.repository
 
+import software.setixx.chimu.api.domain.GameJamStatus
 import software.setixx.chimu.data.local.TokenStorage
 import software.setixx.chimu.data.remote.GameJamApi
 import software.setixx.chimu.data.remote.dto.CreateGameJamRequest

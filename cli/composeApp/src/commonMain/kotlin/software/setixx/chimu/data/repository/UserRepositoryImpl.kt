@@ -1,17 +1,66 @@
 package software.setixx.chimu.data.repository
 
+import software.setixx.chimu.api.domain.UserRole
 import software.setixx.chimu.data.local.TokenStorage
-import software.setixx.chimu.data.remote.ProfileApi
+import software.setixx.chimu.data.remote.UserApi
+import software.setixx.chimu.data.remote.dto.ChangePasswordRequest
+import software.setixx.chimu.data.remote.dto.ChangePasswordResponse
 import software.setixx.chimu.data.remote.dto.UpdateProfileRequest
-import software.setixx.chimu.domain.model.*
+import software.setixx.chimu.data.remote.dto.UserProfileResponse
+import software.setixx.chimu.domain.model.ApiResult
+import software.setixx.chimu.domain.model.ChangePassword
+import software.setixx.chimu.domain.model.ChangedPassword
+import software.setixx.chimu.domain.model.ProfileUpdate
+import software.setixx.chimu.domain.model.Skill
+import software.setixx.chimu.domain.model.Specialization
+import software.setixx.chimu.domain.model.UserProfile
 import software.setixx.chimu.domain.repository.UserRepository
 
 class UserRepositoryImpl(
-    private val api: ProfileApi,
+    private val api: UserApi,
     private val tokenStorage: TokenStorage
 ) : UserRepository {
 
-    override suspend fun updateProfile(request: ProfileUpdate): ApiResult<User> {
+    override suspend fun changePassword(
+        body: ChangePassword
+    ): ApiResult<ChangedPassword> {
+        return try {
+            val token = tokenStorage.getAccessToken()
+                ?: return ApiResult.Error("Ошибка аутентификации")
+            val request = ChangePasswordRequest(body.oldPassword, body.newPassword)
+            val response = api.changePassword(token, request)
+            ApiResult.Success(response.toDomain())
+        } catch (e: Exception) {
+            ApiResult.Error(e.message ?: "Ошибка подключения")
+        }
+    }
+
+    override suspend fun getCurrentUser(): ApiResult<UserProfile> {
+        return try {
+            val accessToken = tokenStorage.getAccessToken()
+                ?: return ApiResult.Error("Не авторизован")
+
+            val response = api.getCurrentUser(accessToken)
+            ApiResult.Success(response.toDomain())
+        } catch (e: Exception) {
+            ApiResult.Error(e.message ?: "Ошибка подключения")
+        } catch (e: IllegalArgumentException) {
+            ApiResult.Error(e.message ?: "Неизвестная ошибка")
+        }
+    }
+
+    override suspend fun deleteProfile(): ApiResult<Unit> {
+        return try {
+            val token = tokenStorage.getAccessToken()
+                ?: return ApiResult.Error("Ошибка аутентификации")
+            api.deleteProfile(token)
+            ApiResult.Success(Unit)
+        } catch (e: Exception) {
+            ApiResult.Error(e.message ?: "Ошибка подключения")
+        }
+    }
+
+    override suspend fun updateProfile(request: ProfileUpdate): ApiResult<UserProfile> {
         return try {
             val token = tokenStorage.getAccessToken()
                 ?: return ApiResult.Error("Ошибка аутентификации")
@@ -28,36 +77,7 @@ class UserRepositoryImpl(
             )
 
             val response = api.updateProfile(token, apiRequest)
-
-            val specialization = response.specialization?.let {
-                Specialization(
-                    id = it.id,
-                    name = it.name,
-                    description = it.description
-                )
-            }
-
-            val skills = response.skills.mapIndexed { index, name ->
-                Skill(id = index.toLong(), name = name)
-            }
-
-            val user = User(
-                id = response.id,
-                email = response.email,
-                nickname = response.nickname,
-                firstName = response.firstName,
-                lastName = response.lastName,
-                avatarUrl = response.avatarUrl,
-                createdAt = response.createdAt,
-                role = response.role,
-                specialization = specialization,
-                skills = skills,
-                bio = response.bio,
-                githubUrl = response.githubUrl,
-                telegramUsername = response.telegramUrl
-            )
-
-            ApiResult.Success(user)
+            ApiResult.Success(response.toDomain())
         } catch (e: Exception) {
             ApiResult.Error(e.message ?: "Ошибка подключения")
         } catch (e: IllegalArgumentException) {
@@ -65,57 +85,47 @@ class UserRepositoryImpl(
         }
     }
 
-    override suspend fun getCurrentUser(): ApiResult<User> {
+    override suspend fun getUserById(userId: String): ApiResult<UserProfile> {
         return try {
-            val accessToken = tokenStorage.getAccessToken()
-                ?: return ApiResult.Error("Не авторизован")
-
-            val response = api.getCurrentUser(accessToken)
-
-            val specialization = response.specialization?.let {
-                Specialization(
-                    id = it.id,
-                    name = it.name,
-                    description = it.description
-                )
-            }
-
-            val skills = response.skills.mapIndexed { index, name ->
-                Skill(id = index.toLong(), name = name)
-            }
-
-            ApiResult.Success(
-                User(
-                    id = response.id,
-                    email = response.email,
-                    nickname = response.nickname,
-                    firstName = response.firstName,
-                    lastName = response.lastName,
-                    avatarUrl = response.avatarUrl,
-                    createdAt = response.createdAt,
-                    role = response.role,
-                    specialization = specialization,
-                    skills = skills,
-                    bio = response.bio,
-                    githubUrl = response.githubUrl,
-                    telegramUsername = response.telegramUrl
-                )
-            )
+            val token = tokenStorage.getAccessToken()
+                ?: return ApiResult.Error("Ошибка аутентификации")
+            val response = api.getUserById(token, userId)
+            ApiResult.Success(response.toDomain())
         } catch (e: Exception) {
             ApiResult.Error(e.message ?: "Ошибка подключения")
-        } catch (e: IllegalArgumentException) {
-            ApiResult.Error(e.message ?: "Неизвестная ошибка")
         }
     }
 
-    override suspend fun getUserById(userId: String): ApiResult<User> {
-        TODO("Not yet implemented")
+    private fun UserProfileResponse.toDomain(): UserProfile{
+        val specialization = specialization?.let {
+            Specialization(
+                id = it.id,
+                name = it.name,
+                description = it.description
+            )
+        }
+        return UserProfile(
+            id = id,
+            email = email,
+            nickname = nickname,
+            firstName = firstName,
+            lastName = lastName,
+            avatarUrl = avatarUrl,
+            createdAt = createdAt,
+            role = UserRole.valueOf(role),
+            specialization = specialization,
+            skills = skills.map { skill -> Skill(id = skill.id, name = skill.name) },
+            bio = bio,
+            githubUrl = githubUrl,
+            telegramUrl = telegramUrl
+        )
     }
 
-    override suspend fun changePassword(
-        oldPassword: String,
-        newPassword: String,
-    ): ApiResult<Unit> {
-        TODO("Not yet implemented")
+    private fun ChangePasswordResponse.toDomain(): ChangedPassword{
+        return ChangedPassword(
+            message = message,
+            accessToken = accessToken,
+            refreshToken = refreshToken
+        )
     }
 }

@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import software.setixx.chimu.api.domain.UserRole
 import software.setixx.chimu.domain.model.*
 import software.setixx.chimu.domain.usecase.*
 
@@ -42,7 +43,7 @@ class JamDetailsViewModel(
                     userId = userResult.data.id
                 )
                 
-                if (userResult.data.role == "PARTICIPANT") {
+                if (userResult.data.role == UserRole.PARTICIPANT) {
                     loadUserTeams()
                 }
             }

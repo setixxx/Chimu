@@ -1,5 +1,6 @@
 package software.setixx.chimu.domain.model
 
+import software.setixx.chimu.api.domain.GameJamStatus
 import software.setixx.chimu.data.remote.dto.JudgeResponse
 import software.setixx.chimu.data.remote.dto.RatingCriteriaResponse
 
@@ -77,12 +78,3 @@ data class UpdateGameJam(
     val minTeamSize: Int? = null,
     val maxTeamSize: Int? = null
 )
-
-enum class GameJamStatus {
-    REGISTRATION_OPEN,
-    REGISTRATION_CLOSED,
-    IN_PROGRESS,
-    JUDGING,
-    COMPLETED,
-    CANCELLED
-}

@@ -3,6 +3,7 @@ package software.setixx.chimu.api.dto
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Pattern
 import jakarta.validation.constraints.Size
+import software.setixx.chimu.api.domain.Skill
 import software.setixx.chimu.api.domain.UserRole
 
 data class UpdateProfileRequest(
@@ -51,7 +52,7 @@ data class UserProfileResponse(
     val specialization: SpecializationResponse?,
     val avatarUrl: String?,
     val createdAt: String,
-    val skills: List<String>?,
+    val skills: List<SkillResponse>?,
     val role: UserRole,
     val bio: String?,
     val githubUrl: String?,
@@ -67,7 +68,7 @@ data class PublicUserProfileResponse(
     val specialization: SpecializationResponse? = null,
     val avatarUrl: String? = null,
     val createdAt: String? = null,
-    val skills: List<String>? = null,
+    val skills: List<SkillResponse>? = null,
     val bio: String? = null,
     val githubUrl: String? = null,
     val telegramUrl: String? = null,

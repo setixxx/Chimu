@@ -5,10 +5,10 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import software.setixx.chimu.domain.model.GameJam
 import software.setixx.chimu.domain.model.Project
 import software.setixx.chimu.domain.model.Team
-import software.setixx.chimu.domain.model.User
+import software.setixx.chimu.domain.model.UserProfile
 
 data class MainState(
-    val user: User? = null,
+    val user: UserProfile? = null,
     val activeJams: List<GameJam> = emptyList(),
     val userTeams: List<Team> = emptyList(),
     val userProjects: List<Project> = emptyList(),

@@ -9,6 +9,7 @@ import software.setixx.chimu.api.domain.UserSkill
 import software.setixx.chimu.api.dto.ChangePasswordRequest
 import software.setixx.chimu.api.dto.ChangePasswordResponse
 import software.setixx.chimu.api.dto.PublicUserProfileResponse
+import software.setixx.chimu.api.dto.SkillResponse
 import software.setixx.chimu.api.dto.SpecializationResponse
 import software.setixx.chimu.api.dto.UpdateProfileRequest
 import software.setixx.chimu.api.dto.UserProfileResponse
@@ -18,7 +19,6 @@ import software.setixx.chimu.api.repository.SkillRepository
 import software.setixx.chimu.api.repository.TeamRepository
 import software.setixx.chimu.api.repository.UserRepository
 import software.setixx.chimu.api.security.AuthenticationService
-import java.time.LocalDateTime
 import java.util.UUID
 
 @Service
@@ -32,8 +32,9 @@ class UserService(
     private val specializationService: SpecializationService
 
 ) {
-    fun getUserByPublicId(publicId: UUID){
-        userRepository.findByPublicId(publicId)
+    fun getUserByPublicId(publicId: UUID): User {
+        return userRepository.findByPublicIdAndDeletedAtIsNull(publicId)
+            ?: throw IllegalStateException("User not found")
     }
 
     fun getCurrentUser(email: String): User {
@@ -111,7 +112,7 @@ class UserService(
         userRepository.softDeleteById(userId)
     }
 
-    fun toUserResponse(user: User): PublicUserProfileResponse {
+    fun toPublicUserResponse(user: User): PublicUserProfileResponse {
         if (user.deletedAt != null) {
             return PublicUserProfileResponse(
                 id = user.publicId.toString(),
@@ -120,8 +121,7 @@ class UserService(
             )
         }
 
-        val specialization = user.specialization?.id?.let { specId ->
-            val spec = specializationService.getSpecializationById(specId)
+        val specialization = user.specialization?.let { spec ->
             SpecializationResponse(spec.id!!, spec.name, spec.description)
         }
 
@@ -134,11 +134,36 @@ class UserService(
             specialization = specialization,
             avatarUrl = user.avatarUrl,
             createdAt = user.createdAt.toString(),
-            skills = user.skills.map { it.skill.name },
+            skills = user.skills.map { SkillResponse(id = it.skill.id!!, name = it.skill.name) },
             bio = user.bio,
             githubUrl = user.githubUrl,
             telegramUrl = user.telegramUsername,
+        )
+    }
 
+    fun toUserResponse(user: User): UserProfileResponse {
+        val specialization = user.specialization?.let { spec ->
+            SpecializationResponse(spec.id!!, spec.name, spec.description)
+        }
+
+        val skills = user.skills.map { userSkill ->
+            SkillResponse(id = userSkill.skill.id!!, name = userSkill.skill.name)
+        }
+
+        return UserProfileResponse(
+            id = user.publicId.toString(),
+            email = user.email,
+            nickname = user.nickname,
+            firstName = user.firstName,
+            lastName = user.lastName,
+            specialization = specialization,
+            avatarUrl = user.avatarUrl,
+            createdAt = user.createdAt.toString(),
+            skills = skills,
+            role = user.role,
+            bio = user.bio,
+            githubUrl = user.githubUrl,
+            telegramUrl = user.telegramUsername
         )
     }
 }

@@ -100,7 +100,6 @@ class TeamApi(private val client: HttpClient) {
         }
     }
 
-    // TODO проверить может ли лидер кикнуть сам себя
     suspend fun kickMember(accessToken: String, teamId: String, userId: String) {
         val response = client.delete("/api/teams/$teamId/members/$userId") {
             header(HttpHeaders.Authorization, "Bearer $accessToken")

@@ -70,6 +70,11 @@ class SecurityConfig(
                     .requestMatchers(HttpMethod.POST, "/api/projects/*/publish").hasAnyRole("ORGANIZER", "ADMIN")
                     .requestMatchers(HttpMethod.POST, "/api/projects/*/disqualify").hasAnyRole("ORGANIZER", "ADMIN")
 
+                    .requestMatchers(HttpMethod.POST, "/api/projects/*/files").authenticated()
+                    .requestMatchers(HttpMethod.GET, "/api/projects/*/files").authenticated()
+                    .requestMatchers(HttpMethod.GET, "/api/projects/*/files/**").authenticated()
+                    .requestMatchers(HttpMethod.DELETE, "/api/projects/*/files/**").authenticated()
+
                     .requestMatchers(HttpMethod.POST, "/api/projects/*/ratings").hasAnyRole("JUDGE", "ADMIN")
                     .requestMatchers(HttpMethod.PATCH, "/api/ratings/**").hasAnyRole("JUDGE", "ADMIN")
                     .requestMatchers(HttpMethod.DELETE, "/api/ratings/**").hasAnyRole("JUDGE", "ADMIN")

@@ -15,19 +15,16 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import org.koin.compose.viewmodel.koinViewModel
+import software.setixx.chimu.api.domain.UserRole
 import software.setixx.chimu.domain.model.GameJam
-import software.setixx.chimu.domain.model.GameJamStatus
 import software.setixx.chimu.domain.model.Project
-import software.setixx.chimu.domain.model.ProjectStatus
 import software.setixx.chimu.domain.model.Team
 import software.setixx.chimu.presentation.components.EmptyStateCard
 import software.setixx.chimu.presentation.components.GameJamCard
 import software.setixx.chimu.presentation.components.GameJamsContent
 import software.setixx.chimu.presentation.components.HomeContent
 import software.setixx.chimu.presentation.components.JudgingContent
-import software.setixx.chimu.presentation.components.ProjectCard
 import software.setixx.chimu.presentation.components.ProjectsContent
-import software.setixx.chimu.presentation.components.TeamCard
 import software.setixx.chimu.presentation.components.TeamsContent
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -52,13 +49,13 @@ fun MainScreen(
 
     val availableDestinations = remember(state.user?.role) {
         when (state.user?.role) {
-            "ADMIN" -> NavigationDestination.entries.toList()
-            "ORGANIZER" -> listOf(
+            UserRole.ADMIN -> NavigationDestination.entries.toList()
+            UserRole.ORGANIZER -> listOf(
                 NavigationDestination.HOME,
                 NavigationDestination.GAME_JAMS,
                 NavigationDestination.JUDGING
             )
-            "JUDGE" -> listOf(
+            UserRole.JUDGE -> listOf(
                 NavigationDestination.HOME,
                 NavigationDestination.GAME_JAMS,
                 NavigationDestination.JUDGING

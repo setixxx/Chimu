@@ -1,6 +1,7 @@
 package software.setixx.chimu.api.exception
 
 import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.security.authentication.AuthenticationServiceException
 import org.springframework.web.bind.MethodArgumentNotValidException
@@ -9,11 +10,11 @@ import org.springframework.web.bind.annotation.ExceptionHandler
 
 @ControllerAdvice
 class GlobalExceptionHandler {
-
     @ExceptionHandler(RuntimeException::class)
     fun handleRuntime(ex: RuntimeException): ResponseEntity<Map<String, String>> {
         return ResponseEntity
             .status(HttpStatus.BAD_REQUEST)
+            .contentType(MediaType.APPLICATION_JSON)
             .body(mapOf("error" to (ex.message ?: "Unexpected error")))
     }
 
@@ -21,6 +22,7 @@ class GlobalExceptionHandler {
     fun handleSecurity(ex: SecurityException): ResponseEntity<Map<String, String>> {
         return ResponseEntity
             .status(HttpStatus.UNAUTHORIZED)
+            .contentType(MediaType.APPLICATION_JSON)
             .body(mapOf("error" to (ex.message ?: "Unauthorized")))
     }
 
@@ -31,6 +33,7 @@ class GlobalExceptionHandler {
         }
         return ResponseEntity
             .status(HttpStatus.BAD_REQUEST)
+            .contentType(MediaType.APPLICATION_JSON)
             .body(mapOf(
                 "error" to "Validation failed",
                 "details" to errors
@@ -41,6 +44,7 @@ class GlobalExceptionHandler {
     fun handleAuthenticationService(ex: AuthenticationServiceException): ResponseEntity<Map<String, String>> {
         return ResponseEntity
             .status(HttpStatus.UNAUTHORIZED)
+            .contentType(MediaType.APPLICATION_JSON)
             .body(mapOf("error" to (ex.message ?: "Authentication failed")))
     }
 
@@ -48,16 +52,15 @@ class GlobalExceptionHandler {
     fun handleEmailAlreadyExists(ex: EmailAlreadyExistsException): ResponseEntity<Map<String, String>> {
         return ResponseEntity
             .status(HttpStatus.CONFLICT)
-            .body(mapOf(
-                "error" to (ex.message ?: "The email is already in use")))
+            .contentType(MediaType.APPLICATION_JSON)
+            .body(mapOf("error" to (ex.message ?: "The email is already in use")))
     }
 
     @ExceptionHandler(JamNameAlreadyInUseException::class)
     fun handleJamUniqueConstraintViolation(ex: JamNameAlreadyInUseException): ResponseEntity<Map<String, String>> {
         return ResponseEntity
             .status(HttpStatus.CONFLICT)
-            .body(mapOf(
-                "error" to (ex.message ?: "Jam name is already in use")
-            ))
+            .contentType(MediaType.APPLICATION_JSON)
+            .body(mapOf("error" to (ex.message ?: "Jam name is already in use")))
     }
 }

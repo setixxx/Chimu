@@ -6,12 +6,10 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.validation.Valid
-import org.springframework.boot.info.GitProperties
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.web.bind.annotation.*
-import software.setixx.chimu.api.domain.User
 import software.setixx.chimu.api.dto.ChangePasswordRequest
 import software.setixx.chimu.api.dto.ChangePasswordResponse
 import software.setixx.chimu.api.dto.PublicUserProfileResponse
@@ -41,10 +39,8 @@ class UserController(
     fun getUserById(
         @PathVariable publicId: String
     ): ResponseEntity<PublicUserProfileResponse?> {
-        val user = userRepository.findByPublicIdAndDeletedAtIsNull(UUID.fromString(publicId))
-            ?: throw IllegalStateException("User not found")
-
-        val body = userService.toUserResponse(user)
+        val user = userService.getUserByPublicId(UUID.fromString(publicId))
+        val body = userService.toPublicUserResponse(user)
         return ResponseEntity.ok(body)
     }
 
@@ -55,28 +51,7 @@ class UserController(
         @AuthenticationPrincipal userDetails: UserDetails
     ): ResponseEntity<UserProfileResponse> {
         val user = userService.getCurrentUser(userDetails.username)
-
-        val specialization = user.specialization?.id?.let { specId ->
-            val spec = specializationService.getSpecializationById(specId)
-            SpecializationResponse(spec.id!!, spec.name, spec.description)
-        }
-
-        val body = UserProfileResponse(
-            id = user.publicId.toString(),
-            email = user.email,
-            nickname = user.nickname,
-            firstName = user.firstName,
-            lastName = user.lastName,
-            specialization = specialization,
-            avatarUrl = user.avatarUrl,
-            createdAt = user.createdAt.toString(),
-            skills = user.skills.map { it.skill.name },
-            role = user.role,
-            bio = user.bio,
-            githubUrl = user.githubUrl,
-            telegramUrl = user.telegramUsername
-        )
-        return ResponseEntity.ok(body)
+        return ResponseEntity.ok(userService.toUserResponse(user))
     }
 
     @PatchMapping("/me")
@@ -93,28 +68,7 @@ class UserController(
             ?: throw IllegalStateException("User not found")
 
         val updatedUser = userService.updateProfile(user.id!!, request)
-
-        val specialization = updatedUser.specialization?.id?.let { specId ->
-            val spec = specializationService.getSpecializationById(specId)
-            SpecializationResponse(spec.id!!, spec.name, spec.description)
-        }
-
-        val body = UserProfileResponse(
-            id = updatedUser.publicId.toString(),
-            email = updatedUser.email,
-            nickname = updatedUser.nickname,
-            firstName = updatedUser.firstName,
-            lastName = updatedUser.lastName,
-            specialization = specialization,
-            avatarUrl = updatedUser.avatarUrl,
-            createdAt = updatedUser.createdAt.toString(),
-            skills = updatedUser.skills.map { it.skill.name },
-            role = updatedUser.role,
-            bio = updatedUser.bio,
-            githubUrl = updatedUser.githubUrl,
-            telegramUrl = updatedUser.telegramUsername
-        )
-        return ResponseEntity.ok(body)
+        return ResponseEntity.ok(userService.toUserResponse(updatedUser))
     }
 
     @PostMapping("/change-password")

@@ -1,5 +1,10 @@
 package software.setixx.chimu.api.web
 
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.Parameter
+import io.swagger.v3.oas.annotations.responses.ApiResponse
+import io.swagger.v3.oas.annotations.responses.ApiResponses
+import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -16,6 +21,7 @@ import software.setixx.chimu.api.service.RoleUpgradeService
 import java.util.UUID
 
 @RestController
+@Tag(name = "Role Upgrades", description = "User role upgrade request management")
 class RoleUpgradeController(
     private val roleUpgradeService: RoleUpgradeService,
     private val userRepository: UserRepository,
@@ -23,6 +29,11 @@ class RoleUpgradeController(
 ) {
 
     @PostMapping("/api/users/me/role-requests")
+    @Operation(summary = "Create role upgrade request", description = "Creates a request to upgrade the current user's role")
+    @ApiResponses(
+        ApiResponse(responseCode = "201", description = "Role upgrade request created successfully"),
+        ApiResponse(responseCode = "400", description = "Invalid request or request already pending")
+    )
     fun createRequest(
         @AuthenticationPrincipal userDetails: CustomUserDetails,
         @Valid @RequestBody request: CreateRoleUpgradeRequest
@@ -34,6 +45,8 @@ class RoleUpgradeController(
     }
 
     @GetMapping("/api/users/me/role-requests")
+    @Operation(summary = "Get user role upgrade requests", description = "Retrieves all role upgrade requests made by the current user")
+    @ApiResponse(responseCode = "200", description = "Role upgrade requests retrieved successfully")
     fun getUserRequests(
         @AuthenticationPrincipal userDetails: CustomUserDetails
     ): ResponseEntity<List<RoleUpgradeRequestResponse>> {
@@ -43,8 +56,15 @@ class RoleUpgradeController(
     }
 
     @DeleteMapping("/api/users/me/role-requests/{requestId}")
+    @Operation(summary = "Cancel role upgrade request", description = "Cancels an active role upgrade request")
+    @ApiResponses(
+        ApiResponse(responseCode = "200", description = "Role upgrade request cancelled successfully"),
+        ApiResponse(responseCode = "403", description = "Not authorized to cancel this request"),
+        ApiResponse(responseCode = "404", description = "Role upgrade request not found")
+    )
     fun cancelRequest(
         @AuthenticationPrincipal userDetails: CustomUserDetails,
+        @Parameter(description = "Role upgrade request public ID")
         @PathVariable requestId: String
     ): ResponseEntity<RoleUpgradeRequestResponse> {
         val user = userRepository.findByPublicIdAndDeletedAtIsNull(userDetails.publicId)
@@ -55,15 +75,29 @@ class RoleUpgradeController(
     }
 
     @GetMapping("/api/admin/role-requests")
+    @Operation(summary = "Get all role upgrade requests", description = "Retrieves all user role upgrade requests (Admin only)")
+    @ApiResponses(
+        ApiResponse(responseCode = "200", description = "Role upgrade requests retrieved successfully"),
+        ApiResponse(responseCode = "403", description = "Not authorized to view role upgrade requests")
+    )
     fun getAllRequests(
+        @Parameter(description = "Filter requests by status")
         @RequestParam(required = false) status: RoleRequestStatus?
     ): ResponseEntity<List<RoleUpgradeRequestResponse>> {
         return ResponseEntity.ok(roleUpgradeService.getAllRequests(status))
     }
 
     @PatchMapping("/api/admin/role-requests/{requestId}")
+    @Operation(summary = "Review role upgrade request", description = "Approves or rejects a user's role upgrade request (Admin only)")
+    @ApiResponses(
+        ApiResponse(responseCode = "200", description = "Role upgrade request reviewed successfully"),
+        ApiResponse(responseCode = "400", description = "Invalid review request"),
+        ApiResponse(responseCode = "403", description = "Not authorized to review role upgrade requests"),
+        ApiResponse(responseCode = "404", description = "Role upgrade request not found")
+    )
     fun reviewRequest(
         @AuthenticationPrincipal userDetails: CustomUserDetails,
+        @Parameter(description = "Role upgrade request public ID")
         @PathVariable requestId: String,
         @Valid @RequestBody request: ReviewRoleUpgradeRequest
     ): ResponseEntity<RoleUpgradeRequestResponse> {

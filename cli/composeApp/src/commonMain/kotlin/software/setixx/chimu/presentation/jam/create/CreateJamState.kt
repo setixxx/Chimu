@@ -1,5 +1,7 @@
 package software.setixx.chimu.presentation.jam.create
 
+import software.setixx.chimu.api.domain.UserRole
+
 data class CreateJamState(
     val name: String = "",
     val description: String = "",
@@ -21,5 +23,5 @@ data class CreateJamState(
     val isLoading: Boolean = false,
     val isSuccess: Boolean = false,
     val errorMessage: String? = null,
-    val userRole: String? = null
+    val userRole: UserRole? = null
 )

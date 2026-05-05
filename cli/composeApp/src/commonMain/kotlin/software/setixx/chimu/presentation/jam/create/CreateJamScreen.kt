@@ -10,6 +10,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import org.koin.compose.viewmodel.koinViewModel
+import software.setixx.chimu.api.domain.UserRole
 import software.setixx.chimu.presentation.jam.create.components.JamSection
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -49,7 +50,7 @@ fun CreateJamScreen(
         },
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { paddingValues ->
-        if (state.userRole != "ADMIN" && state.userRole != "ORGANIZER" && state.userRole != null) {
+        if (state.userRole != UserRole.ADMIN && state.userRole != UserRole.ORGANIZER && state.userRole != null) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()

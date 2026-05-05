@@ -10,6 +10,12 @@ spring:
       ddl-auto: validate
   flyway:
     enabled: true
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 1GB
+      max-request-size: 1GB
+      file-size-threshold: 2MB
 
 server:
   port: 8080
@@ -17,3 +23,7 @@ server:
 logging:
   level:
     org.springframework.web.filter.CommonsRequestLoggingFilter: DEBUG
+
+seaweedfs:
+  master-url: ${SEAWEEDFS_MASTER_URL:http://seaweedfs-master:9333}
+  filer-url: ${SEAWEEDFS_FILER_URL:http://seaweedfs-filer:8888}

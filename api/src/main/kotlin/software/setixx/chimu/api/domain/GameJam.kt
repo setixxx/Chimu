@@ -28,8 +28,8 @@ class GameJam(
     @Column(columnDefinition = "TEXT")
     var description: String? = null,
 
-    @Column(name = "banner_url", nullable = false, columnDefinition = "TEXT")
-    var bannerUrl: String,
+    @Column(name = "banner_url", columnDefinition = "TEXT")
+    var bannerUrl: String? = null,
 
     @Column(length = 200)
     var theme: String? = null,

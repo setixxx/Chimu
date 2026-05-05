@@ -1,5 +1,7 @@
 package software.setixx.chimu.domain.model
 
+import software.setixx.chimu.api.domain.ProjectStatus
+
 data class Project(
     val id: String,
     val jamId: String,
@@ -9,7 +11,6 @@ data class Project(
     val title: String,
     val description: String? = null,
     val gameUrl: String? = null,
-    val repositoryUrl: String? = null,
     val status: ProjectStatus,
     val submittedAt: String? = null,
     val createdAt: String,
@@ -25,7 +26,6 @@ data class ProjectDetails(
     val title: String,
     val description: String?,
     val gameUrl: String?,
-    val repositoryUrl: String?,
     val status: String,
     val submittedAt: String?,
     val createdAt: String,
@@ -38,21 +38,11 @@ data class ProjectDetails(
 data class CreateProject(
     val title: String,
     val description: String? = null,
-    val gameUrl: String? = null,
-    val repositoryUrl: String? = null
+    val gameUrl: String? = null
 )
 
 data class UpdateProject(
     val title: String? = null,
     val description: String? = null,
-    val gameUrl: String? = null,
-    val repositoryUrl: String? = null
+    val gameUrl: String? = null
 )
-
-enum class ProjectStatus {
-    DRAFT,
-    SUBMITTED,
-    UNDER_REVIEW,
-    PUBLISHED,
-    DISQUALIFIED
-}

@@ -13,7 +13,6 @@ import software.setixx.chimu.data.remote.dto.RefreshTokenRequest
 import software.setixx.chimu.data.remote.dto.RegisterRequest
 import software.setixx.chimu.data.remote.dto.RegisterResponse
 import software.setixx.chimu.data.remote.dto.TokenResponse
-import software.setixx.chimu.data.remote.dto.UserProfileResponse
 
 class AuthApi(private val client: HttpClient) {
 

@@ -10,6 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import software.setixx.chimu.api.domain.UserRole
 import software.setixx.chimu.presentation.main.MainState
 
 @Composable
@@ -25,7 +26,7 @@ fun GameJamsContent(
         return
     }
 
-    val canCreateJam = state.user?.role == "ADMIN" || state.user?.role == "ORGANIZER"
+    val canCreateJam = state.user?.role == UserRole.ADMIN || state.user?.role == UserRole.ORGANIZER
 
     Box(modifier = Modifier.fillMaxSize()) {
         LazyColumn(

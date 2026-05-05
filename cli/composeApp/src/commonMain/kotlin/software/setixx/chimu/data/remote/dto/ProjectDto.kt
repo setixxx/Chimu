@@ -12,7 +12,6 @@ data class ProjectResponse(
     val title: String,
     val description: String? = null,
     val gameUrl: String? = null,
-    val repositoryUrl: String? = null,
     val status: String,
     val submittedAt: String? = null,
     val createdAt: String,
@@ -29,7 +28,6 @@ data class ProjectDetailsResponse(
     val title: String,
     val description: String?,
     val gameUrl: String?,
-    val repositoryUrl: String?,
     val status: String,
     val submittedAt: String?,
     val createdAt: String,
@@ -43,14 +41,12 @@ data class ProjectDetailsResponse(
 data class CreateProjectRequest(
     val title: String,
     val description: String? = null,
-    val gameUrl: String? = null,
-    val repositoryUrl: String? = null
+    val gameUrl: String? = null
 )
 
 @Serializable
 data class UpdateProjectRequest(
     val title: String? = null,
     val description: String? = null,
-    val gameUrl: String? = null,
-    val repositoryUrl: String? = null
+    val gameUrl: String? = null
 )

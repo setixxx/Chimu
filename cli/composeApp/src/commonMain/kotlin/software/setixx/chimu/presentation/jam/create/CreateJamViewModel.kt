@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import software.setixx.chimu.api.domain.UserRole
 import software.setixx.chimu.domain.model.ApiResult
 import software.setixx.chimu.domain.model.CreateGameJam
 import software.setixx.chimu.domain.usecase.CreateJamUseCase
@@ -29,7 +30,7 @@ class CreateJamViewModel(
                 is ApiResult.Success -> {
                     val role = result.data.role
                     _state.value = _state.value.copy(userRole = role)
-                    if (role != "ADMIN" && role != "ORGANIZER") {
+                    if (role != UserRole.ADMIN && role != UserRole.ORGANIZER) {
                         _state.value = _state.value.copy(
                             errorMessage = "У вас нет прав для создания Game Jam"
                         )

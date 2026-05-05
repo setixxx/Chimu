@@ -226,7 +226,7 @@ CREATE TABLE IF NOT EXISTS game_jams (
     organizer_id BIGINT NOT NULL,
     name VARCHAR(200) NOT NULL,
     description TEXT,
-    banner_url TEXT NOT NULL,
+    banner_url TEXT,
     theme VARCHAR(200),
     rules TEXT,
     registration_start TIMESTAMPTZ NOT NULL,
@@ -416,6 +416,7 @@ CREATE TYPE project_file_type AS ENUM (
 -- Project files
 CREATE TABLE IF NOT EXISTS project_files (
     id BIGSERIAL PRIMARY KEY,
+    public_id UUID NOT NULL DEFAULT uuid_generate_v4(),
     project_id BIGINT NOT NULL,
     file_type project_file_type NOT NULL,
     file_url TEXT NOT NULL,

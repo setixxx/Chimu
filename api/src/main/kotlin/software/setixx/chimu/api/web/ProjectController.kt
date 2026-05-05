@@ -214,21 +214,4 @@ class ProjectController(
         projectService.deleteProject(projectId, user.id!!)
         return ResponseEntity.ok(mapOf("message" to "Project deleted successfully"))
     }
-
-    @PostMapping("/projects/{projectId}/files")
-    @Operation(summary = "Upload file (stub)", description = "File upload not yet implemented")
-    fun uploadFile(
-        @PathVariable projectId: String
-    ): ResponseEntity<Map<String, String>> {
-        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED)
-            .body(mapOf("message" to "File upload not yet implemented"))
-    }
-
-    @GetMapping("/projects/{projectId}/files")
-    @Operation(summary = "Get files (stub)", description = "File listing not yet implemented")
-    fun getFiles(
-        @PathVariable projectId: String
-    ): ResponseEntity<List<Any>> {
-        return ResponseEntity.ok(emptyList())
-    }
 }

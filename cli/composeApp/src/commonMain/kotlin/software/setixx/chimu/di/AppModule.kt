@@ -24,7 +24,7 @@ val appModule = module {
     single { GameJamApi(get<KtorClient>().httpClient) }
     single { JudgeApi(get<KtorClient>().httpClient) }
     single { LeaderboardApi(get<KtorClient>().httpClient) }
-    single { ProfileApi(get<KtorClient>().httpClient) }
+    single { UserApi(get<KtorClient>().httpClient) }
     single { ProjectApi(get<KtorClient>().httpClient) }
     single { RatingApi(get<KtorClient>().httpClient) }
     single { RatingCriteriaApi(get<KtorClient>().httpClient) }
@@ -32,6 +32,8 @@ val appModule = module {
     single { SpecializationApi(get<KtorClient>().httpClient) }
     single { TeamApi(get<KtorClient>().httpClient) }
     single { TeamRegistrationsApi(get<KtorClient>().httpClient) }
+    single { RoleUpgradeApi(get<KtorClient>().httpClient) }
+    single { JamTransferApi(get<KtorClient>().httpClient) }
 
 
     single<AuthRepository> { AuthRepositoryImpl(get(), get()) }
@@ -46,6 +48,8 @@ val appModule = module {
     single<TeamRegistrationRepository> { TeamRegistrationRepositoryImpl(get(), get()) }
     single<TeamRepository> { TeamRepositoryImpl(get(), get()) }
     single<UserRepository> { UserRepositoryImpl(get(), get()) }
+    single<RoleUpgradeRepository> { RoleUpgradeRepositoryImpl(get(), get()) }
+    single<JamTransferRepository> { JamTransferRepositoryImpl(get(), get()) }
 
     factory { LoginUseCase(get()) }
     factory { RegisterUseCase(get()) }
@@ -84,6 +88,15 @@ val appModule = module {
     factory { CreateJamCriteriaUseCase(get()) }
     factory { UpdateJamCriteriaUseCase(get()) }
     factory { DeleteJamCriteriaUseCase(get()) }
+    factory { CreateTransferUseCase(get()) }
+    factory { CancelTransferUseCase(get()) }
+    factory { ReviewTransferUseCase(get()) }
+    factory { GetTransferRequestsUseCase(get()) }
+    factory { GetUserRoleUpgradesUseCase(get()) }
+    factory { CreateRoleUpgradeUseCase(get()) }
+    factory { ReviewRoleUpgradeUseCase(get()) }
+    factory { GetAllRoleUpgradesUseCase(get()) }
+    factory { CancelRoleUpgradeUseCase(get()) }
 
 
     viewModel { SplashViewModel(get()) }

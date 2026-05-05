@@ -12,8 +12,11 @@ import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
 import org.hibernate.annotations.Generated
+import org.hibernate.annotations.JdbcTypeCode
 import org.hibernate.generator.EventType
+import org.hibernate.type.SqlTypes
 import java.time.Instant
+import java.util.UUID
 
 @Entity
 @Table(name = "project_files")
@@ -21,12 +24,16 @@ class ProjectFile(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null,
 
+    @Column(name = "public_id", nullable = false, columnDefinition = "uuid")
+    var publicId: UUID = UUID.randomUUID(),
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_id", nullable = false)
     val project: Project,
 
+    @Column(nullable = false, columnDefinition = "project_file_type")
     @Enumerated(EnumType.STRING)
-    @Column(name = "file_type", nullable = false)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     var fileType: ProjectFileType,
 
     @Column(name = "file_url", nullable = false, columnDefinition = "TEXT")

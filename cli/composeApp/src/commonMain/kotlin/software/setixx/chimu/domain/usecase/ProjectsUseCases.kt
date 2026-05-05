@@ -1,7 +1,7 @@
 package software.setixx.chimu.domain.usecase
 
+import software.setixx.chimu.api.domain.ProjectStatus
 import software.setixx.chimu.domain.model.CreateProject
-import software.setixx.chimu.domain.model.ProjectStatus
 import software.setixx.chimu.domain.model.UpdateProject
 import software.setixx.chimu.domain.repository.ProjectRepository
 
@@ -21,18 +21,6 @@ class PublishProjectUseCase(
     private val repository: ProjectRepository
 ) {
     suspend operator fun invoke(projectId: String) = repository.publishProject(projectId)
-}
-
-class GetProjectFilesUseCase(
-    private val repository: ProjectRepository
-) {
-    suspend operator fun invoke(projectId: String) = repository.getProjectFiles(projectId)
-}
-
-class UploadProjectFilesUseCase(
-    private val repository: ProjectRepository
-) {
-    suspend operator fun invoke(projectId: String) = repository.uploadProjectFiles(projectId)
 }
 
 class DisqualifyProjectUseCase(

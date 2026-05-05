@@ -102,7 +102,6 @@ class RatingApi(
         }
     }
 
-    // TODO поменять везде и на клиенте и на сервере с my на judge
     suspend fun getJudgeProgress(
         jamId: String,
         accessToken: String
