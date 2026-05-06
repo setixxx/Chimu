@@ -170,16 +170,18 @@ class ProjectService(
 
         val jam = gameJamRepository.findById(project.gameJam.id!!).orElseThrow()
         val user = userRepository.findById(userId).orElseThrow()
+        val team = project.team.id?.let { teamRepository.findById(it).orElse(null) }
+        val teamLeader = teamRepository.findByLeaderIdAndDeletedAtIsNull(user.id!!)
 
-        if (jam.organizer.id != userId && user.role != UserRole.ADMIN) {
-            throw IllegalArgumentException("Only organizer or admin can return project to draft")
+        if (user.id != teamLeader?.id) {
+            throw IllegalArgumentException("Only team leader can return project to draft")
         }
 
         if (project.status != ProjectStatus.SUBMITTED) {
             throw IllegalArgumentException("Only submitted projects can be returned to draft")
         }
 
-        if (jam.status !in listOf(GameJamStatus.IN_PROGRESS, GameJamStatus.JUDGING)) {
+        if (jam.status != GameJamStatus.IN_PROGRESS) {
             throw IllegalArgumentException("Cannot return to draft after jam is completed")
         }
 
@@ -187,34 +189,6 @@ class ProjectService(
         project.submittedAt = null
         projectRepository.save(project)
 
-        val team = project.team.id?.let { teamRepository.findById(it).orElse(null) }
-        return toDetailsResponse(project, jam, team, userId)
-    }
-
-    @Transactional
-    fun publishProject(projectId: String, userId: Long): ProjectDetailsResponse {
-        val project = projectRepository.findByPublicIdAndDeletedAtIsNull(UUID.fromString(projectId))
-            ?: throw IllegalArgumentException("Project not found")
-
-        val jam = gameJamRepository.findById(project.gameJam.id!!).orElseThrow()
-        val user = userRepository.findById(userId).orElseThrow()
-
-        if (jam.organizer.id != userId && user.role != UserRole.ADMIN) {
-            throw IllegalArgumentException("Only organizer or admin can publish projects")
-        }
-
-        if (project.status != ProjectStatus.SUBMITTED) {
-            throw IllegalArgumentException("Only submitted projects can be published")
-        }
-
-        if (jam.status != GameJamStatus.JUDGING) {
-            throw IllegalArgumentException("Projects can only be published during judging phase")
-        }
-
-        project.status = ProjectStatus.PUBLISHED
-        projectRepository.save(project)
-
-        val team = project.team.id?.let { teamRepository.findById(it).orElse(null) }
         return toDetailsResponse(project, jam, team, userId)
     }
 
@@ -267,7 +241,6 @@ class ProjectService(
                 val team = project.team.id?.let { teamRepository.findById(it).orElse(null) }
                 team != null && (team.leader.id == userId || jam.organizer.id == userId || userRole == UserRole.ADMIN)
             }
-            ProjectStatus.PUBLISHED -> true
             ProjectStatus.DISQUALIFIED -> jam.organizer.id == userId || userRole == UserRole.ADMIN
         }
     }

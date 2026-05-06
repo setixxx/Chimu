@@ -8,6 +8,7 @@ import org.springframework.web.multipart.MultipartFile
 import software.setixx.chimu.api.domain.GameJamStatus
 import software.setixx.chimu.api.domain.ProjectFile
 import software.setixx.chimu.api.domain.ProjectFileType
+import software.setixx.chimu.api.domain.ProjectStatus
 import software.setixx.chimu.api.domain.UserRole
 import software.setixx.chimu.api.dto.ProjectFileDownloadMeta
 import software.setixx.chimu.api.dto.ProjectFileResponse
@@ -65,6 +66,10 @@ class ProjectFileService(
             throw IllegalStateException(
                 "Files can only be uploaded while the jam is in progress (current status: ${jam.status})"
             )
+        }
+
+        if (project.status != ProjectStatus.DRAFT){
+            throw IllegalStateException("Files of the submitted project cannot be uploaded")
         }
 
         validateFile(file)
@@ -162,6 +167,10 @@ class ProjectFileService(
 
         if (project.team.leader.id != userId) {
             throw AccessDeniedException("Only the team leader can delete project files")
+        }
+
+        if (project.status != ProjectStatus.DRAFT) {
+            throw IllegalArgumentException("Files of the submitted project cannot be deleted")
         }
 
         val file = projectFileRepository.findByIdAndProjectIdAndDeletedAtIsNull(fileId, project.id!!)

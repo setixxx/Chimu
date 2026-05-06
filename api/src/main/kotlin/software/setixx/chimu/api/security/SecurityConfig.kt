@@ -66,8 +66,7 @@ class SecurityConfig(
                     .requestMatchers(HttpMethod.PATCH, "/api/projects/**").authenticated()
                     .requestMatchers(HttpMethod.DELETE, "/api/projects/**").authenticated()
                     .requestMatchers(HttpMethod.POST, "/api/projects/*/submit").authenticated()
-                    .requestMatchers(HttpMethod.POST, "/api/projects/*/return-draft").hasAnyRole("ORGANIZER", "ADMIN")
-                    .requestMatchers(HttpMethod.POST, "/api/projects/*/publish").hasAnyRole("ORGANIZER", "ADMIN")
+                    .requestMatchers(HttpMethod.POST, "/api/projects/*/return-draft").authenticated()
                     .requestMatchers(HttpMethod.POST, "/api/projects/*/disqualify").hasAnyRole("ORGANIZER", "ADMIN")
 
                     .requestMatchers(HttpMethod.POST, "/api/projects/*/files").authenticated()

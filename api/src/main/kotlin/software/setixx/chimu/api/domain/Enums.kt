@@ -13,7 +13,7 @@ enum class RegistrationStatus {
 }
 
 enum class ProjectStatus {
-    DRAFT, SUBMITTED, UNDER_REVIEW, PUBLISHED, DISQUALIFIED
+    DRAFT, SUBMITTED, UNDER_REVIEW, DISQUALIFIED
 }
 
 enum class ProjectFileType {

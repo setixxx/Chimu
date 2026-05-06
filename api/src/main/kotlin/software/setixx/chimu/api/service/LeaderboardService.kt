@@ -41,7 +41,7 @@ class LeaderboardService(
             throw IllegalArgumentException("Leaderboard is only visible during judging (for organizers) or after completion")
         }
 
-        val projects = projectRepository.findPublishedProjectsByJamId(jam.id!!)
+        val projects = projectRepository.findSubmittedProjectsByJamId(jam.id!!)
         val criteria = ratingCriteriaRepository.findAllByJamIdOrderByOrderIndex(jam.id!!)
         val allRatings = ratingRepository.findAllByProjectIdIn(projects.map { it.id!! })
         val totalJudges = jamJudgeRepository.countByJamId(jam.id!!).toInt()
@@ -81,11 +81,11 @@ class LeaderboardService(
         }
 
         val allProjects = projectRepository.findAllByGameJamIdAndDeletedAtIsNull(jam.id!!)
-        val publishedProjects = allProjects.filter { it.status == ProjectStatus.PUBLISHED }
+        val submittedProjects = allProjects.filter { it.status == ProjectStatus.SUBMITTED }
         val disqualifiedProjects = allProjects.filter { it.status == ProjectStatus.DISQUALIFIED }
 
         val criteria = ratingCriteriaRepository.findAllByJamIdOrderByOrderIndex(jam.id!!)
-        val allRatings = ratingRepository.findAllByProjectIdIn(publishedProjects.map { it.id!! })
+        val allRatings = ratingRepository.findAllByProjectIdIn(submittedProjects.map { it.id!! })
 
         val averageScoresPerCriteria = criteria.map { criterion ->
             val criterionRatings = allRatings.filter { it.criteria.id == criterion.id }
@@ -110,7 +110,7 @@ class LeaderboardService(
         val judgeCompletion = judges.map { jamJudge ->
             val judgeId = jamJudge.judge.id
             val ratedProjects = ratingRepository.countRatedProjectsByJudgeAndJam(judgeId!!, jam.id!!).toInt()
-            val totalProjects = publishedProjects.size
+            val totalProjects = submittedProjects.size
             val percentage = if (totalProjects > 0) {
                 (ratedProjects * 100) / totalProjects
             } else {
@@ -130,7 +130,7 @@ class LeaderboardService(
             jamId = jam.publicId.toString(),
             jamName = jam.name,
             totalProjects = allProjects.size,
-            publishedProjects = publishedProjects.size,
+            submittedProjects = submittedProjects.size,
             disqualifiedProjects = disqualifiedProjects.size,
             totalJudges = judges.size,
             averageScoresPerCriteria = averageScoresPerCriteria,

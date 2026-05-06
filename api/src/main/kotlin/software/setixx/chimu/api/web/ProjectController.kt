@@ -143,7 +143,7 @@ class ProjectController(
     }
 
     @PostMapping("/projects/{projectId}/return-draft")
-    @Operation(summary = "Return to draft", description = "Returns a submitted project to draft status. Organizers/admins only.")
+    @Operation(summary = "Return to draft", description = "Returns a submitted project to draft status. Team leader only.")
     @ApiResponses(
         ApiResponse(responseCode = "200", description = "Project returned to draft"),
         ApiResponse(responseCode = "403", description = "Not authorized")
@@ -157,24 +157,6 @@ class ProjectController(
             ?: throw IllegalStateException("User not found")
 
         val project = projectService.returnToDraft(projectId, user.id!!)
-        return ResponseEntity.ok(project)
-    }
-
-    @PostMapping("/projects/{projectId}/publish")
-    @Operation(summary = "Publish project", description = "Publishes a submitted project. Organizers/admins only, during JUDGING phase.")
-    @ApiResponses(
-        ApiResponse(responseCode = "200", description = "Project published successfully"),
-        ApiResponse(responseCode = "403", description = "Not authorized")
-    )
-    fun publishProject(
-        @AuthenticationPrincipal userDetails: CustomUserDetails,
-        @Parameter(description = "Project public ID")
-        @PathVariable projectId: String
-    ): ResponseEntity<ProjectDetailsResponse> {
-        val user = userRepository.findByPublicIdAndDeletedAtIsNull(userDetails.publicId)
-            ?: throw IllegalStateException("User not found")
-
-        val project = projectService.publishProject(projectId, user.id!!)
         return ResponseEntity.ok(project)
     }
 

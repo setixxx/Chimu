@@ -11,6 +11,7 @@ interface TeamRepository : JpaRepository<Team, Long> {
     fun findByPublicIdAndDeletedAtIsNull(publicId: UUID): Team?
     fun findByInviteTokenAndDeletedAtIsNull(inviteToken: String): Team?
     fun findByNameAndDeletedAtIsNull(name: String): Team?
+    fun findByLeaderIdAndDeletedAtIsNull(leaderId: Long): Team?
 
     fun findByPublicId(publicId: UUID): Team?
     fun findByName(name: String): Team?

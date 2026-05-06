@@ -367,7 +367,6 @@ CREATE TYPE project_status AS ENUM (
     'DRAFT',
     'SUBMITTED',
     'UNDER_REVIEW',
-    'PUBLISHED',
     'DISQUALIFIED'
 );
 

@@ -49,7 +49,7 @@ data class JamStatisticsResponse(
     val jamId: String,
     val jamName: String,
     val totalProjects: Int,
-    val publishedProjects: Int,
+    val submittedProjects: Int,
     val disqualifiedProjects: Int,
     val totalJudges: Int,
     val averageScoresPerCriteria: List<CriteriaAverageScore>,

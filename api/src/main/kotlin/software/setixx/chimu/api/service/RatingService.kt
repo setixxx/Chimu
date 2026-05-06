@@ -32,8 +32,8 @@ class RatingService(
             throw IllegalArgumentException("Ratings can only be submitted during judging phase")
         }
 
-        if (project.status != ProjectStatus.PUBLISHED) {
-            throw IllegalArgumentException("Only published projects can be rated")
+        if (project.status != ProjectStatus.SUBMITTED) {
+            throw IllegalArgumentException("Only submitted projects can be rated")
         }
 
         val isJudge = jamJudgeRepository.existsByGameJamIdAndJudgeIdAndDeletedAtIsNull(jam.id!!, userId)
@@ -213,7 +213,7 @@ class RatingService(
             throw IllegalArgumentException("You are not a judge for this jam")
         }
 
-        val projects = projectRepository.findPublishedProjectsByJamId(jam.id!!)
+        val projects = projectRepository.findSubmittedProjectsByJamId(jam.id!!)
         val criteria = ratingCriteriaRepository.findAllByJamIdOrderByOrderIndex(jam.id!!)
         val allRatings = ratingRepository.findAllByProjectIdIn(projects.map { it.id!! })
             .filter { it.judge.id == userId }
@@ -263,7 +263,7 @@ class RatingService(
         }
 
         val judges = jamJudgeRepository.findAllByGameJamIdAndDeletedAtIsNull(jamId)
-        val projects = projectRepository.findPublishedProjectsByJamId(jamId)
+        val projects = projectRepository.findSubmittedProjectsByJamId(jamId)
         val criteriaCount = ratingCriteriaRepository.countByJamId(jamId)
 
         judges.forEach { jamJudge ->

@@ -17,7 +17,7 @@ interface ProjectRepository : JpaRepository<Project, Long> {
     @Query("""
         SELECT COUNT(p) FROM Project p 
         WHERE p.gameJam.id = :jamId 
-        AND p.status IN ('SUBMITTED', 'UNDER_REVIEW', 'PUBLISHED')
+        AND p.status IN ('SUBMITTED', 'UNDER_REVIEW')
         AND p.deletedAt IS NULL
     """)
     fun countSubmittedProjects(@Param("jamId") jamId: Long): Long
@@ -27,10 +27,10 @@ interface ProjectRepository : JpaRepository<Project, Long> {
     @Query("""
         SELECT p FROM Project p 
         WHERE p.gameJam.id = :jamId 
-        AND p.status IN ('PUBLISHED')
+        AND p.status IN ('SUBMITTED')
         AND p.deletedAt IS NULL
     """)
-    fun findPublishedProjectsByJamId(@Param("jamId") jamId: Long): List<Project>
+    fun findSubmittedProjectsByJamId(@Param("jamId") jamId: Long): List<Project>
 
     @Query("SELECT p FROM Project p JOIN TeamMember tm ON p.team.id = tm.team.id WHERE tm.user.id = :userId AND p.deletedAt IS NULL AND tm.deletedAt IS NULL")
     fun findAllByUserId(@Param("userId") userId: Long): List<Project>
