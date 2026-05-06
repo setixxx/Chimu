@@ -121,6 +121,8 @@ class ProjectService(
             throw IllegalArgumentException("Only team leader can update the project")
         }
 
+        validateApprovedRegistration(project, team)
+
         if (project.status != ProjectStatus.DRAFT) {
             throw IllegalArgumentException("Only draft projects can be edited")
         }
@@ -147,6 +149,8 @@ class ProjectService(
         if (team.leader.id != userId) {
             throw IllegalArgumentException("Only team leader can submit the project")
         }
+
+        validateApprovedRegistration(project, team)
 
         if (project.status != ProjectStatus.DRAFT) {
             throw IllegalArgumentException("Project is already submitted")
@@ -175,6 +179,10 @@ class ProjectService(
 
         if (user.id != teamLeader?.id) {
             throw IllegalArgumentException("Only team leader can return project to draft")
+        }
+
+        if (team != null) {
+            validateApprovedRegistration(project, team)
         }
 
         if (project.status != ProjectStatus.SUBMITTED) {
@@ -223,6 +231,8 @@ class ProjectService(
             throw IllegalArgumentException("Only team leader can delete the project")
         }
 
+        validateApprovedRegistration(project, team)
+
         if (project.status != ProjectStatus.DRAFT) {
             throw IllegalArgumentException("Only draft projects can be deleted")
         }
@@ -232,6 +242,17 @@ class ProjectService(
         }
 
         projectRepository.softDeleteById(project.id!!)
+    }
+
+    private fun validateApprovedRegistration(project: Project, team: Team) {
+        val registration = registrationRepository.findByGameJamIdAndTeamIdAndDeletedAtIsNull(
+            project.gameJam.id!!,
+            team.id!!
+        ) ?: throw IllegalArgumentException("Team is not registered for this jam")
+
+        if (registration.status != RegistrationStatus.APPROVED) {
+            throw IllegalArgumentException("Team is no longer approved for this jam")
+        }
     }
 
     private fun canViewProject(project: Project, jam: GameJam, userId: Long?, userRole: UserRole?): Boolean {

@@ -33,8 +33,16 @@ class GameJamService(
     private val ratingCriteriaRepository: RatingCriteriaRepository,
     private val jamJudgeRepository: JamJudgeRepository,
     private val registrationRepository: JamTeamRegistrationRepository,
-    private val projectRepository: ProjectRepository
+    private val projectRepository: ProjectRepository,
+    private val jamBannerService: JamBannerService,
 ) {
+    companion object {
+        private val CANCELLABLE_STATUSES = setOf(
+            GameJamStatus.ANNOUNCED,
+            GameJamStatus.REGISTRATION_OPEN,
+            GameJamStatus.REGISTRATION_CLOSED
+        )
+    }
 
     @Transactional
     fun createGameJam(organizerId: Long, request: CreateGameJamRequest): GameJamDetailsResponse {
@@ -50,31 +58,28 @@ class GameJamService(
         }
 
         validateDates(
-            request.registrationStart,
-            request.registrationEnd,
-            request.jamStart,
-            request.jamEnd,
-            request.judgingStart,
-            request.judgingEnd
+            request.registrationStart, request.registrationEnd,
+            request.jamStart, request.jamEnd,
+            request.judgingStart, request.judgingEnd
         )
         validateTeamSizes(request.minTeamSize, request.maxTeamSize)
 
         val gameJam = GameJam(
-            organizer = organizer,
-            name = request.name,
-            description = request.description,
-            theme = request.theme,
-            rules = request.rules,
+            organizer         = organizer,
+            name              = request.name,
+            description       = request.description,
+            theme             = request.theme,
+            rules             = request.rules,
             registrationStart = request.registrationStart,
-            registrationEnd = request.registrationEnd,
-            jamStart = request.jamStart,
-            jamEnd = request.jamEnd,
-            judgingStart = request.judgingStart,
-            judgingEnd = request.judgingEnd,
-            minTeamSize = request.minTeamSize,
-            maxTeamSize = request.maxTeamSize,
-            status = GameJamStatus.ANNOUNCED,
-            bannerUrl = request.bannerUrl
+            registrationEnd   = request.registrationEnd,
+            jamStart          = request.jamStart,
+            jamEnd            = request.jamEnd,
+            judgingStart      = request.judgingStart,
+            judgingEnd        = request.judgingEnd,
+            minTeamSize       = request.minTeamSize,
+            maxTeamSize       = request.maxTeamSize,
+            status            = GameJamStatus.DRAFT,
+            bannerUrl         = null
         )
 
         val saved = gameJamRepository.save(gameJam)
@@ -82,24 +87,44 @@ class GameJamService(
     }
 
     @Transactional(readOnly = true)
-    fun getAllGameJams(statusFilter: GameJamStatus?): List<GameJamResponse> {
+    fun getAllGameJams(statusFilter: GameJamStatus?, userId: Long?): List<GameJamResponse> {
         val jams = if (statusFilter != null) {
             gameJamRepository.findAllByStatusAndDeletedAtIsNull(statusFilter)
         } else {
             gameJamRepository.findAll()
         }
 
-        return jams.map { jam ->
-            val organizer = userRepository.findById(jam.organizer.id!!).orElseThrow()
-            val registeredCount = registrationRepository.countRegisteredTeams(jam.id!!).toInt()
-            toResponse(jam, organizer, registeredCount)
-        }
+        val userRole = userId?.let { userRepository.findById(it).orElse(null)?.role }
+
+        return jams
+            .filter { jam ->
+                jam.status != GameJamStatus.DRAFT ||
+                        jam.organizer.id == userId ||
+                        userRole == UserRole.ADMIN
+            }
+            .map { jam ->
+                val organizer = userRepository.findById(jam.organizer.id!!).orElseThrow()
+                val registeredCount = registrationRepository.countRegisteredTeams(jam.id!!).toInt()
+                toResponse(jam, organizer, registeredCount)
+            }
     }
 
     @Transactional(readOnly = true)
-    fun getGameJamById(jamId: String): GameJamDetailsResponse {
+    fun getGameJamById(jamId: String, userId: Long?): GameJamDetailsResponse {
         val jam = gameJamRepository.findByPublicIdAndDeletedAtIsNull(UUID.fromString(jamId))
             ?: throw IllegalArgumentException("Game jam not found")
+
+        if (jam.status == GameJamStatus.DRAFT) {
+            val userRole = userId?.let { userRepository.findById(it).orElse(null)?.role }
+            val isOrganizer = jam.organizer.id == userId
+            val isAdmin = userRole == UserRole.ADMIN
+            val isAssignedJudge = userId != null &&
+                    jamJudgeRepository.existsByGameJamIdAndJudgeIdAndDeletedAtIsNull(jam.id!!, userId)
+
+            if (!isOrganizer && !isAdmin && !isAssignedJudge) {
+                throw IllegalArgumentException("Game jam not found")
+            }
+        }
 
         val organizer = userRepository.findById(jam.organizer.id!!).orElseThrow()
         return toDetailsResponse(jam, organizer)
@@ -118,8 +143,13 @@ class GameJamService(
             throw IllegalArgumentException("Only the organizer or admin can update this game jam")
         }
 
-        if (jam.status !in listOf(GameJamStatus.REGISTRATION_OPEN, GameJamStatus.REGISTRATION_CLOSED)) {
-            throw IllegalArgumentException("Cannot update game jam after it has started")
+        if (jam.status !in listOf(
+                GameJamStatus.DRAFT,
+                GameJamStatus.REGISTRATION_OPEN,
+                GameJamStatus.REGISTRATION_CLOSED
+            )
+        ) {
+            throw IllegalArgumentException("Cannot update game jam in current status")
         }
 
         request.name?.let { newName ->
@@ -168,18 +198,71 @@ class GameJamService(
             ?: throw IllegalArgumentException("Game jam not found")
 
         val user = userRepository.findById(userId).orElseThrow()
-
         validateOrganizerAccess(jam, userId, user.role)
 
-        if (jam.organizer.id != userId && user.role != UserRole.ADMIN) {
-            throw IllegalArgumentException("Only the organizer or admin can delete this game jam")
-        }
-
-        if (jam.status !in listOf(GameJamStatus.REGISTRATION_OPEN, GameJamStatus.REGISTRATION_CLOSED, GameJamStatus.ANNOUNCED)) {
-            throw IllegalArgumentException("Cannot delete game jam after it has started")
+        if (jam.status != GameJamStatus.DRAFT) {
+            throw IllegalArgumentException("Only draft game jams can be deleted")
         }
 
         gameJamRepository.softDeleteById(jam.id!!)
+    }
+
+    @Transactional
+    fun cancelGameJam(jamId: String, userId: Long): GameJamDetailsResponse {
+        val jam = gameJamRepository.findByPublicIdAndDeletedAtIsNull(UUID.fromString(jamId))
+            ?: throw IllegalArgumentException("Game jam not found")
+
+        val user = userRepository.findById(userId).orElseThrow()
+        validateOrganizerAccess(jam, userId, user.role)
+
+        if (jam.status !in CANCELLABLE_STATUSES) {
+            throw IllegalArgumentException("Game jam can only be cancelled while announced or during registration")
+        }
+
+        jam.status = GameJamStatus.CANCELLED
+        gameJamRepository.save(jam)
+
+        val organizer = userRepository.findById(jam.organizer.id!!).orElseThrow()
+        return toDetailsResponse(jam, organizer)
+    }
+
+    @Transactional
+    fun publishGameJam(jamId: String, userId: Long): GameJamDetailsResponse {
+        val jam = gameJamRepository.findByPublicIdAndDeletedAtIsNull(UUID.fromString(jamId))
+            ?: throw IllegalArgumentException("Game jam not found")
+
+        val user = userRepository.findById(userId).orElseThrow()
+        validateOrganizerAccess(jam, userId, user.role)
+
+        if (jam.status != GameJamStatus.DRAFT) {
+            throw IllegalArgumentException("Only draft game jams can be published")
+        }
+
+        val criteriaCount = ratingCriteriaRepository.countByJamId(jam.id!!)
+        if (criteriaCount == 0L) {
+            throw IllegalArgumentException("Game jam must have at least one rating criterion before publishing")
+        }
+
+        val judgeCount = jamJudgeRepository.countByJamId(jam.id!!)
+        if (judgeCount == 0L) {
+            throw IllegalArgumentException("Game jam must have at least one judge")
+        }
+
+        if (jam.bannerUrl == null){
+            throw IllegalArgumentException("Game jam must have a banner url")
+        }
+
+        validateDates(
+            jam.registrationStart, jam.registrationEnd,
+            jam.jamStart, jam.jamEnd,
+            jam.judgingStart, jam.judgingEnd
+        )
+
+        jam.status = GameJamStatus.ANNOUNCED
+        gameJamRepository.save(jam)
+
+        val organizer = userRepository.findById(jam.organizer.id!!).orElseThrow()
+        return toDetailsResponse(jam, organizer)
     }
 
     private fun validateDates(
@@ -223,6 +306,14 @@ class GameJamService(
 
     private fun validateStatusTransition(current: GameJamStatus, new: GameJamStatus) {
         val validTransitions = mapOf(
+            GameJamStatus.DRAFT to listOf(
+                GameJamStatus.ANNOUNCED
+            ),
+            GameJamStatus.ANNOUNCED to listOf(
+                GameJamStatus.REGISTRATION_OPEN,
+                GameJamStatus.REGISTRATION_CLOSED,
+                GameJamStatus.CANCELLED
+            ),
             GameJamStatus.REGISTRATION_OPEN to listOf(
                 GameJamStatus.REGISTRATION_CLOSED,
                 GameJamStatus.CANCELLED
@@ -232,12 +323,10 @@ class GameJamService(
                 GameJamStatus.CANCELLED
             ),
             GameJamStatus.IN_PROGRESS to listOf(
-                GameJamStatus.JUDGING,
-                GameJamStatus.CANCELLED
+                GameJamStatus.JUDGING
             ),
             GameJamStatus.JUDGING to listOf(
-                GameJamStatus.COMPLETED,
-                GameJamStatus.CANCELLED
+                GameJamStatus.COMPLETED
             ),
             GameJamStatus.COMPLETED to emptyList(),
             GameJamStatus.CANCELLED to emptyList()
@@ -254,6 +343,7 @@ class GameJamService(
             name = jam.name,
             description = jam.description,
             theme = jam.theme,
+            bannerUrl = jam.bannerUrl,
             registrationStart = jam.registrationStart.toString(),
             registrationEnd = jam.registrationEnd.toString(),
             jamStart = jam.jamStart.toString(),
@@ -295,6 +385,7 @@ class GameJamService(
             description = jam.description,
             theme = jam.theme,
             rules = jam.rules,
+            bannerUrl = jam.bannerUrl,
             registrationStart = jam.registrationStart.toString(),
             registrationEnd = jam.registrationEnd.toString(),
             jamStart = jam.jamStart.toString(),

@@ -50,9 +50,13 @@ class GameJamController(
     @ApiResponse(responseCode = "200", description = "Game jams retrieved successfully")
     fun getAllGameJams(
         @Parameter(description = "Filter by game jam status")
-        @RequestParam(required = false) status: GameJamStatus?
-    ): ResponseEntity<List<GameJamResponse>> {
-        val jams = gameJamService.getAllGameJams(status)
+        @RequestParam(required = false) status: GameJamStatus?,
+        @AuthenticationPrincipal userDetails: CustomUserDetails?,
+        ): ResponseEntity<List<GameJamResponse>> {
+        val userId = userDetails?.let {
+            userRepository.findByPublicIdAndDeletedAtIsNull(it.publicId)?.id
+        }
+        val jams = gameJamService.getAllGameJams(status, userId)
         return ResponseEntity.ok(jams)
     }
 
@@ -64,9 +68,13 @@ class GameJamController(
     )
     fun getGameJamById(
         @Parameter(description = "Game jam public ID")
-        @PathVariable jamId: String
+        @PathVariable jamId: String,
+        @AuthenticationPrincipal userDetails: CustomUserDetails?
     ): ResponseEntity<GameJamDetailsResponse> {
-        val jam = gameJamService.getGameJamById(jamId)
+        val userId = userDetails?.let {
+            userRepository.findByPublicIdAndDeletedAtIsNull(it.publicId)?.id
+        }
+        val jam = gameJamService.getGameJamById(jamId, userId)
         return ResponseEntity.ok(jam)
     }
 
@@ -92,9 +100,10 @@ class GameJamController(
     }
 
     @DeleteMapping("/{jamId}")
-    @Operation(summary = "Delete game jam", description = "Deletes a game jam. Only the organizer or admin can delete.")
+    @Operation(summary = "Delete game jam", description = "Soft deletes a draft game jam. Only the organizer or admin can delete.")
     @ApiResponses(
         ApiResponse(responseCode = "200", description = "Game jam deleted successfully"),
+        ApiResponse(responseCode = "400", description = "Only draft game jams can be deleted"),
         ApiResponse(responseCode = "403", description = "Not authorized to delete this game jam"),
         ApiResponse(responseCode = "404", description = "Game jam not found")
     )
@@ -108,5 +117,43 @@ class GameJamController(
 
         gameJamService.deleteGameJam(jamId, user.id!!)
         return ResponseEntity.ok(mapOf("message" to "Game jam deleted successfully"))
+    }
+
+    @PostMapping("/{jamId}/cancel")
+    @Operation(summary = "Cancel game jam", description = "Transitions a jam to CANCELLED without deleting it.")
+    @ApiResponses(
+        ApiResponse(responseCode = "200", description = "Game jam cancelled successfully"),
+        ApiResponse(responseCode = "400", description = "Jam cannot be cancelled in its current status"),
+        ApiResponse(responseCode = "403", description = "Not authorized to cancel this game jam"),
+        ApiResponse(responseCode = "404", description = "Game jam not found")
+    )
+    fun cancelGameJam(
+        @AuthenticationPrincipal userDetails: CustomUserDetails,
+        @Parameter(description = "Game jam public ID")
+        @PathVariable jamId: String
+    ): ResponseEntity<GameJamDetailsResponse> {
+        val user = userRepository.findByPublicIdAndDeletedAtIsNull(userDetails.publicId)
+            ?: throw IllegalStateException("User not found")
+
+        val jam = gameJamService.cancelGameJam(jamId, user.id!!)
+        return ResponseEntity.ok(jam)
+    }
+
+    @PostMapping("/{jamId}/publish")
+    @Operation(summary = "Publish game jam", description = "Transitions jam from DRAFT to ANNOUNCED. Requires at least one rating criterion.")
+    @ApiResponses(
+        ApiResponse(responseCode = "200", description = "Game jam published successfully"),
+        ApiResponse(responseCode = "400", description = "Validation failed"),
+        ApiResponse(responseCode = "403", description = "Not authorized")
+    )
+    fun publishGameJam(
+        @AuthenticationPrincipal userDetails: CustomUserDetails,
+        @PathVariable jamId: String
+    ): ResponseEntity<GameJamDetailsResponse> {
+        val user = userRepository.findByPublicIdAndDeletedAtIsNull(userDetails.publicId)
+            ?: throw IllegalStateException("User not found")
+
+        val jam = gameJamService.publishGameJam(jamId, user.id!!)
+        return ResponseEntity.ok(jam)
     }
 }

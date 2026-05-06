@@ -100,7 +100,7 @@ class UserService(
             throw IllegalStateException("Cannot delete account: transfer leadership first.")
         }
 
-        val excludedJamStatuses = listOf(GameJamStatus.COMPLETED, GameJamStatus.CANCELLED)
+        val excludedJamStatuses = listOf(GameJamStatus.DRAFT, GameJamStatus.CANCELLED, GameJamStatus.COMPLETED)
         if (gameJamRepository.existsByOrganizerIdAndDeletedAtIsNullAndStatusNotIn(userId, excludedJamStatuses)) {
             throw IllegalStateException("Cannot delete account: transfer game jam ownership first.")
         }

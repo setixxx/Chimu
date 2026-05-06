@@ -57,7 +57,10 @@ class JamRegistrationController(
     }
 
     @PatchMapping("/{teamId}")
-    @Operation(summary = "Update registration status", description = "Updates the status of a team registration. Only organizers can update status.")
+    @Operation(
+        summary = "Update registration status",
+        description = "Approves/rejects a registration before the jam starts, or disqualifies an approved team after the jam starts. Only organizers and admins can update status."
+    )
     @ApiResponses(
         ApiResponse(responseCode = "200", description = "Registration status updated successfully"),
         ApiResponse(responseCode = "400", description = "Invalid status or request"),
@@ -82,10 +85,10 @@ class JamRegistrationController(
     }
 
     @DeleteMapping("/{teamId}")
-    @Operation(summary = "Withdraw registration", description = "Withdraws a team's registration from a game jam. Only team leaders can withdraw.")
+    @Operation(summary = "Cancel or withdraw registration", description = "Cancels a registration before the jam starts or withdraws an approved team after the jam starts. Only team leaders can perform this action.")
     @ApiResponses(
-        ApiResponse(responseCode = "200", description = "Registration withdrawn successfully"),
-        ApiResponse(responseCode = "403", description = "Not authorized to withdraw registration"),
+        ApiResponse(responseCode = "200", description = "Registration cancelled or withdrawn successfully"),
+        ApiResponse(responseCode = "403", description = "Not authorized to cancel or withdraw registration"),
         ApiResponse(responseCode = "404", description = "Registration not found")
     )
     fun withdrawRegistration(
@@ -98,7 +101,7 @@ class JamRegistrationController(
         val user = userRepository.findByPublicIdAndDeletedAtIsNull(userDetails.publicId)
             ?: throw IllegalStateException("User not found")
 
-        registrationService.cancelRegistration(jamId, teamId, user.id!!)
-        return ResponseEntity.ok(mapOf("message" to "Registration withdrawn successfully"))
+        val registration = registrationService.cancelRegistration(jamId, teamId, user.id!!)
+        return ResponseEntity.ok(mapOf("message" to "Registration status changed to ${registration.status}"))
     }
 }

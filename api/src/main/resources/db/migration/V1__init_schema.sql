@@ -210,6 +210,7 @@ CREATE UNIQUE INDEX uq_team_members_team_user_active ON team_members (team_id, u
 
 -- Game Jam Status
 CREATE TYPE game_jam_status AS ENUM (
+    'DRAFT',
     'ANNOUNCED',
     'REGISTRATION_OPEN',
     'REGISTRATION_CLOSED',
@@ -331,8 +332,9 @@ CREATE TYPE registration_status AS ENUM (
     'PENDING',
     'APPROVED',
     'REJECTED',
+    'CANCELLED',
     'WITHDRAWN',
-    'CANCELLED'
+    'DISQUALIFIED'
 );
 
 -- Jam team registrations
@@ -611,7 +613,8 @@ BEGIN
         RAISE EXCEPTION 'Cannot delete account: transfer leadership first.';
     END IF;
 
-    IF EXISTS (SELECT 1 FROM game_jams WHERE organizer_id = NEW.id AND deleted_at IS NULL AND status NOT IN ('COMPLETED','CANCELLED')) THEN
+    IF EXISTS (SELECT 1 FROM game_jams WHERE organizer_id = NEW.id AND deleted_at IS NULL AND status NOT IN
+       ('DRAFT', 'COMPLETED', 'CANCELLED')) THEN
         RAISE EXCEPTION 'Cannot delete account: transfer game jam ownership first.';
     END IF;
 
@@ -642,6 +645,8 @@ BEGIN
     WHERE judge_id = NEW.id
       AND jam_id IN (SELECT id FROM game_jams WHERE status IN ('ANNOUNCED','REGISTRATION_OPEN', 'REGISTRATION_CLOSED'))
       AND deleted_at IS NULL;
+
+    UPDATE game_jams SET deleted_at = NOW() WHERE organizer_id = NEW.id AND status = 'DRAFT' AND deleted_at IS NULL;
 
     DELETE FROM user_skills WHERE user_id = NEW.id;
 
@@ -733,15 +738,12 @@ EXECUTE FUNCTION check_rating_soft_delete();
 CREATE OR REPLACE FUNCTION handle_game_jam_soft_delete()
     RETURNS TRIGGER AS $$
 BEGIN
-    IF OLD.status NOT IN ('ANNOUNCED', 'REGISTRATION_OPEN', 'REGISTRATION_CLOSED') THEN
-        RAISE EXCEPTION 'Cannot delete game jam in progress or judging phases.';
+    IF OLD.status != 'DRAFT' THEN
+        RAISE EXCEPTION 'Only draft game jams can be deleted.';
     END IF;
 
     UPDATE rating_criteria SET deleted_at = NOW() WHERE jam_id = NEW.id AND deleted_at IS NULL;
     UPDATE jam_judges SET deleted_at = NOW() WHERE jam_id = NEW.id AND deleted_at IS NULL;
-    UPDATE jam_team_registrations SET status = 'CANCELLED' WHERE jam_id = NEW.id AND status != 'CANCELLED';
-
-    NEW.status = 'CANCELLED';
 
     RETURN NEW;
 END;
@@ -752,6 +754,24 @@ CREATE TRIGGER trigger_handle_game_jam_soft_delete
     FOR EACH ROW
     WHEN (NEW.deleted_at IS NOT NULL AND OLD.deleted_at IS NULL)
 EXECUTE FUNCTION handle_game_jam_soft_delete();
+
+-- Jam cancel
+CREATE OR REPLACE FUNCTION check_game_jam_cancellation()
+    RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW.status = 'CANCELLED' AND OLD.status NOT IN ('ANNOUNCED', 'REGISTRATION_OPEN', 'REGISTRATION_CLOSED') THEN
+        RAISE EXCEPTION 'Game jam can only be cancelled while announced or during registration.';
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_check_game_jam_cancellation
+    BEFORE UPDATE OF status ON game_jams
+    FOR EACH ROW
+    WHEN (NEW.status = 'CANCELLED' AND OLD.status IS DISTINCT FROM NEW.status)
+EXECUTE FUNCTION check_game_jam_cancellation();
 
 -- Judge delete
 CREATE OR REPLACE FUNCTION check_jam_judge_delete()

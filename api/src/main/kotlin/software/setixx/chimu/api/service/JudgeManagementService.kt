@@ -27,6 +27,16 @@ class JudgeManagementService(
         val jam = gameJamRepository.findByPublicIdAndDeletedAtIsNull(UUID.fromString(jamId))
             ?: throw IllegalArgumentException("Game jam not found")
 
+        if (jam.status !in listOf(
+                GameJamStatus.DRAFT,
+                GameJamStatus.ANNOUNCED,
+                GameJamStatus.REGISTRATION_OPEN,
+                GameJamStatus.REGISTRATION_CLOSED
+            )
+        ) {
+            throw IllegalArgumentException("Cannot assign judge after jam started")
+        }
+
         val organizer = userRepository.findById(organizerId).orElseThrow()
 
         if (jam.organizer.id != organizerId && organizer.role != UserRole.ADMIN) {

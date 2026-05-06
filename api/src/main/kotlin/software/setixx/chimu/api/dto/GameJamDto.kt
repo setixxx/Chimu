@@ -18,11 +18,6 @@ data class CreateGameJamRequest(
     @field:Size(max = 5000, message = "Rules must not exceed 5000 characters")
     val rules: String? = null,
 
-/*
-    @field:NotNull(message = "Banner url is required")
-*/
-    val bannerUrl: String? = null,
-
     @field:NotNull(message = "Registration start date is required")
     val registrationStart: Instant,
 
@@ -63,6 +58,8 @@ data class UpdateGameJamRequest(
     @field:Size(max = 5000, message = "Rules must not exceed 5000 characters")
     val rules: String? = null,
 
+    val bannerUrl: String? = null,
+
     val registrationStart: Instant? = null,
 
     val registrationEnd: Instant? = null,
@@ -89,6 +86,7 @@ data class GameJamResponse(
     val name: String,
     val description: String?,
     val theme: String?,
+    val bannerUrl: String?,
     val registrationStart: String,
     val registrationEnd: String,
     val jamStart: String,
@@ -110,6 +108,7 @@ data class GameJamDetailsResponse(
     val description: String?,
     val theme: String?,
     val rules: String?,
+    val bannerUrl: String?,
     val registrationStart: String,
     val registrationEnd: String,
     val jamStart: String,

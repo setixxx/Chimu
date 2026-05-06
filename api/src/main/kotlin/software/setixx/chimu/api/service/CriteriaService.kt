@@ -32,8 +32,14 @@ class CriteriaService(
             throw IllegalArgumentException("Only the organizer or admin can add criteria")
         }
 
-        if (jam.status !in listOf(GameJamStatus.REGISTRATION_OPEN, GameJamStatus.REGISTRATION_CLOSED)) {
-            throw IllegalArgumentException("Cannot add criteria after jam has started")
+        if (jam.status !in listOf(
+                GameJamStatus.DRAFT,
+                GameJamStatus.ANNOUNCED,
+                GameJamStatus.REGISTRATION_OPEN,
+                GameJamStatus.REGISTRATION_CLOSED
+            )
+        ) {
+            throw IllegalArgumentException("Cannot manage criteria in current jam status")
         }
 
         if (ratingCriteriaRepository.existsByGameJamIdAndNameAndDeletedAtIsNull(jam.id!!, request.name)) {
@@ -78,7 +84,13 @@ class CriteriaService(
             throw IllegalArgumentException("Only the organizer or admin can update criteria")
         }
 
-        if (jam.status !in listOf(GameJamStatus.REGISTRATION_OPEN, GameJamStatus.REGISTRATION_CLOSED)) {
+        if (jam.status !in listOf(
+                GameJamStatus.DRAFT,
+                GameJamStatus.ANNOUNCED,
+                GameJamStatus.REGISTRATION_OPEN,
+                GameJamStatus.REGISTRATION_CLOSED
+            )
+        ) {
             throw IllegalArgumentException("Cannot add criteria after jam has started")
         }
 

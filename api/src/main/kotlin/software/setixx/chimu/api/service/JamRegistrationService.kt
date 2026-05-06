@@ -25,6 +25,29 @@ class JamRegistrationService(
     private val teamMemberRepository: TeamMemberRepository,
     private val userRepository: UserRepository
 ) {
+    companion object {
+        private val BEFORE_JAM_START_STATUSES = setOf(
+            GameJamStatus.ANNOUNCED,
+            GameJamStatus.REGISTRATION_OPEN,
+            GameJamStatus.REGISTRATION_CLOSED
+        )
+
+        private val STARTED_JAM_STATUSES = setOf(
+            GameJamStatus.IN_PROGRESS
+        )
+
+        private val TEAM_ACTIVE_STATUSES = setOf(
+            RegistrationStatus.PENDING,
+            RegistrationStatus.APPROVED
+        )
+
+        private val TERMINAL_STATUSES = setOf(
+            RegistrationStatus.REJECTED,
+            RegistrationStatus.CANCELLED,
+            RegistrationStatus.WITHDRAWN,
+            RegistrationStatus.DISQUALIFIED
+        )
+    }
 
     @Transactional
     fun registerTeam(userId: Long, jamId: String, teamId: String): RegistrationResponse {
@@ -42,8 +65,12 @@ class JamRegistrationService(
             throw IllegalArgumentException("Game jam is not open for registration")
         }
 
-        if (registrationRepository.existsByGameJamIdAndTeamIdAndDeletedAtIsNull(jam.id!!, team.id!!)) {
+        val existingRegistration = registrationRepository.findByGameJamIdAndTeamIdAndDeletedAtIsNull(jam.id!!, team.id!!)
+        if (existingRegistration != null && existingRegistration.status in TEAM_ACTIVE_STATUSES) {
             throw IllegalArgumentException("Team is already registered for this game jam")
+        }
+        if (existingRegistration != null) {
+            throw IllegalArgumentException("Team already has a final registration status for this game jam")
         }
 
         val activeRegistrations = registrationRepository.findActiveRegistrationsByTeamId(team.id!!)
@@ -134,9 +161,7 @@ class JamRegistrationService(
         val registration = registrationRepository.findByGameJamIdAndTeamIdAndDeletedAtIsNull(jam.id!!, team.id!!)
             ?: throw IllegalArgumentException("Registration not found")
 
-        if (registration.status == RegistrationStatus.WITHDRAWN) {
-            throw IllegalArgumentException("Cannot update withdrawn registration")
-        }
+        validateOrganizerStatusChange(jam, registration, newStatus)
 
         registration.status = newStatus
         registrationRepository.save(registration)
@@ -159,28 +184,71 @@ class JamRegistrationService(
         val registration = registrationRepository.findByGameJamIdAndTeamIdAndDeletedAtIsNull(jam.id!!, team.id!!)
             ?: throw IllegalArgumentException("Registration not found")
 
-        if (registration.status == RegistrationStatus.WITHDRAWN) {
-            throw IllegalArgumentException("Registration is already withdrawn")
+        if (registration.status !in TEAM_ACTIVE_STATUSES) {
+            throw IllegalArgumentException("Only pending or approved registrations can be changed by the team")
         }
 
-        if (jam.status !in listOf(GameJamStatus.REGISTRATION_OPEN, GameJamStatus.ANNOUNCED) ) {
-            throw IllegalArgumentException("Cannot withdraw registration after registration period has ended")
+        registration.status = when (jam.status) {
+            in BEFORE_JAM_START_STATUSES -> RegistrationStatus.CANCELLED
+            in STARTED_JAM_STATUSES -> {
+                if (registration.status != RegistrationStatus.APPROVED) {
+                    throw IllegalArgumentException("Only approved teams can withdraw after the jam has started")
+                }
+                RegistrationStatus.WITHDRAWN
+            }
+            else -> throw IllegalArgumentException("Registration cannot be cancelled or withdrawn in current jam status")
         }
 
-        registrationRepository.softDeleteById(registration.id!!)
+        registrationRepository.save(registration)
 
         return toRegistrationResponse(registration, jam, team, registration.registeredBy)
+    }
+
+    private fun validateOrganizerStatusChange(
+        jam: GameJam,
+        registration: JamTeamRegistration,
+        newStatus: RegistrationStatus
+    ) {
+        if (registration.status in TERMINAL_STATUSES) {
+            throw IllegalArgumentException("Cannot update registration with final status ${registration.status}")
+        }
+
+        when (newStatus) {
+            RegistrationStatus.APPROVED,
+            RegistrationStatus.REJECTED -> {
+                if (jam.status !in BEFORE_JAM_START_STATUSES) {
+                    throw IllegalArgumentException("Registrations can only be approved or rejected before the jam starts")
+                }
+                if (registration.status != RegistrationStatus.PENDING) {
+                    throw IllegalArgumentException("Only pending registrations can be approved or rejected")
+                }
+            }
+            RegistrationStatus.DISQUALIFIED -> {
+                if (jam.status !in STARTED_JAM_STATUSES) {
+                    throw IllegalArgumentException("Teams can only be disqualified after the jam has started")
+                }
+                if (registration.status != RegistrationStatus.APPROVED) {
+                    throw IllegalArgumentException("Only approved teams can be disqualified")
+                }
+            }
+            RegistrationStatus.PENDING,
+            RegistrationStatus.CANCELLED,
+            RegistrationStatus.WITHDRAWN -> {
+                throw IllegalArgumentException("Organizer can only set APPROVED, REJECTED or DISQUALIFIED")
+            }
+        }
     }
 
     private fun isJamActive(jam: GameJam): Boolean {
         val now = Instant.now()
         return when (jam.status) {
-            GameJamStatus.ANNOUNCED,
+            GameJamStatus.DRAFT -> false
+            GameJamStatus.ANNOUNCED -> false
             GameJamStatus.REGISTRATION_OPEN,
             GameJamStatus.REGISTRATION_CLOSED,
             GameJamStatus.IN_PROGRESS,
             GameJamStatus.JUDGING -> now.isBefore(jam.judgingEnd)
-            GameJamStatus.COMPLETED,
+            GameJamStatus.COMPLETED -> false
             GameJamStatus.CANCELLED -> false
         }
     }
