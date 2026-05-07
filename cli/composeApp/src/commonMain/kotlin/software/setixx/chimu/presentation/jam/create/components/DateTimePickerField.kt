@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlinx.datetime.*
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.number
 import kotlin.time.Clock
 import kotlin.time.Instant
 
@@ -55,7 +56,7 @@ fun DateTimePickerField(
         ) {
             Box(modifier = Modifier.weight(1f)) {
                 OutlinedTextField(
-                    value = "${dateTime.year}-${dateTime.monthNumber.toString().padStart(2, '0')}-${dateTime.dayOfMonth.toString().padStart(2, '0')}",
+                    value = "${dateTime.day.toString().padStart(2, '0')}.${dateTime.month.number.toString().padStart(2, '0')}.${dateTime.year}",
                     onValueChange = {},
                     readOnly = true,
                     modifier = Modifier.fillMaxWidth(),
@@ -97,11 +98,11 @@ fun DateTimePickerField(
             confirmButton = {
                 TextButton(onClick = {
                     dateState.selectedDateMillis?.let { millis ->
-                        val selectedDate = kotlinx.datetime.Instant.fromEpochMilliseconds(millis).toLocalDateTime(TimeZone.UTC)
+                        val selectedDate = Instant.fromEpochMilliseconds(millis).toLocalDateTime(TimeZone.UTC)
                         val newDateTime = LocalDateTime(
                             selectedDate.year,
                             selectedDate.month,
-                            selectedDate.dayOfMonth,
+                            selectedDate.day,
                             dateTime.hour,
                             dateTime.minute
                         )
@@ -130,7 +131,7 @@ fun DateTimePickerField(
                     val newDateTime = LocalDateTime(
                         dateTime.year,
                         dateTime.month,
-                        dateTime.dayOfMonth,
+                        dateTime.day,
                         timeState.hour,
                         timeState.minute
                     )

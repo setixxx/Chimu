@@ -25,10 +25,3 @@ data class RegistrationResponse(
 data class UpdateRegistrationStatusRequest(
     val status: String
 )
-
-enum class RegistrationStatus {
-    PENDING,
-    APPROVED,
-    REJECTED,
-    WITHDRAWN
-}

@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import software.setixx.chimu.api.domain.RegistrationStatus
 import software.setixx.chimu.domain.model.ApiResult
 import software.setixx.chimu.domain.model.AssignJudge
 import software.setixx.chimu.domain.model.CreateRatingCriteria
@@ -79,7 +80,7 @@ class ManagementViewModel(
         }
     }
 
-    fun updateRegistrationStatus(jamId: String, teamId: String, status: String) {
+    fun updateRegistrationStatus(jamId: String, teamId: String, status: RegistrationStatus) {
         viewModelScope.launch {
             _state.value = _state.value.copy(isActionLoading = true)
             when (val result = updateRegistrationStatusUseCase(

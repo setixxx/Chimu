@@ -21,8 +21,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import software.setixx.chimu.api.domain.RegistrationStatus
+import software.setixx.chimu.api.domain.RegistrationStatus.*
 import software.setixx.chimu.domain.model.GameJamDetails
 import software.setixx.chimu.domain.model.Registration
+import software.setixx.chimu.presentation.utils.DateTimeUtils
 
 @Composable
 fun JamOverviewSection(
@@ -53,17 +56,17 @@ fun JamOverviewSection(
             InfoRow(
                 icon = Icons.Default.AppRegistration,
                 label = "Регистрация",
-                value = "${jam.registrationStart} - ${jam.registrationEnd}"
+                value = "${DateTimeUtils.formatDateTime(jam.registrationStart)} - ${DateTimeUtils.formatDateTime(jam.registrationEnd)}"
             )
             InfoRow(
                 icon = Icons.Default.PlayArrow,
                 label = "Джем",
-                value = "${jam.jamStart} - ${jam.jamEnd}"
+                value = "${DateTimeUtils.formatDateTime(jam.jamStart)} - ${DateTimeUtils.formatDateTime(jam.jamEnd)}"
             )
             InfoRow(
                 icon = Icons.Default.Star,
                 label = "Оценивание",
-                value = "${jam.judgingStart} - ${jam.judgingEnd}"
+                value = "${DateTimeUtils.formatDateTime(jam.judgingStart)} - ${DateTimeUtils.formatDateTime(jam.judgingEnd)}"
             )
         }
     }
@@ -101,7 +104,7 @@ fun JamOverviewSection(
                     jam.judges.forEachIndexed { index, judge ->
                         ListItem(
                             headlineContent = { Text(judge.nickname) },
-                            supportingContent = { Text("Назначен: ${judge.assignedAt}") }
+                            supportingContent = { Text("Назначен: ${DateTimeUtils.formatDateTime(judge.assignedAt)}") }
                         )
                         if (index < jam.judges.lastIndex) HorizontalDivider()
                     }
@@ -117,7 +120,7 @@ fun RegisteredTeamsSection(
     title: String = "Команды-участники",
     actions: @Composable (Registration) -> Unit = {}
 ) {
-    val visibleRegistrations = registrations.filter { it.status != "WITHDRAWN" && it.status != "CANCELLED" }
+    val visibleRegistrations = registrations.filter { it.status != RegistrationStatus.WITHDRAWN && it.status != RegistrationStatus.CANCELLED }
 
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(16.dp)) {
@@ -136,7 +139,7 @@ fun RegisteredTeamsSection(
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
-                                Badge { Text(reg.status) }
+                                Badge { Text(localizeStatus(reg.status)) }
                                 actions(reg)
                             }
                         }
@@ -156,5 +159,16 @@ fun StagePlaceholder(message: String) {
             modifier = Modifier.padding(16.dp),
             style = MaterialTheme.typography.bodyLarge
         )
+    }
+}
+
+fun localizeStatus(status: RegistrationStatus): String{
+    return when (status){
+        CANCELLED -> "Отклонена"
+        WITHDRAWN -> "Покинула"
+        APPROVED -> "Одобрена"
+        REJECTED -> "Отклонена"
+        PENDING -> "Рассматривается"
+        DISQUALIFIED -> "Дисковалицирована"
     }
 }

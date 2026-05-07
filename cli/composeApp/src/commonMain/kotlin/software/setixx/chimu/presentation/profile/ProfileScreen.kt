@@ -15,6 +15,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import org.koin.compose.viewmodel.koinViewModel
 import software.setixx.chimu.domain.model.Skill
+import software.setixx.chimu.presentation.utils.DateTimeUtils
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -285,7 +286,7 @@ fun ProfileScreen(
                 }
 
                 Text(
-                    text = "Зарегистрирован: ${state.user?.createdAt ?: ""}",
+                    text = "Зарегистрирован: ${DateTimeUtils.formatDateTime(state.user?.createdAt)}",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center

@@ -1,5 +1,7 @@
 package software.setixx.chimu.domain.model
 
+import software.setixx.chimu.api.domain.RegistrationStatus
+
 data class RegisterTeam(
     val teamId: String
 )
@@ -10,7 +12,7 @@ data class Registration(
     val jamName: String,
     val teamId: String,
     val teamName: String,
-    val status: String,
+    val status: RegistrationStatus,
     val registeredAt: String,
     val registeredBy: String,
     val registeredByNickname: String,
@@ -18,5 +20,5 @@ data class Registration(
 )
 
 data class UpdateRegistrationStatus(
-    val status: String
+    val status: RegistrationStatus
 )

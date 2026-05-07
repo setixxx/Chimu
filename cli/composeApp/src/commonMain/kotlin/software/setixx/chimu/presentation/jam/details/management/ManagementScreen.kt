@@ -12,10 +12,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import org.koin.compose.viewmodel.koinViewModel
 import software.setixx.chimu.api.domain.GameJamStatus
+import software.setixx.chimu.api.domain.RegistrationStatus
 import software.setixx.chimu.data.picker.rememberFilePicker
 import software.setixx.chimu.domain.model.CreateRatingCriteria
 import software.setixx.chimu.domain.model.GameJamDetails
 import software.setixx.chimu.presentation.components.RegisteredTeamsSection
+import software.setixx.chimu.presentation.utils.DateTimeUtils
 
 @Composable
 fun ManagementScreen(
@@ -130,7 +132,7 @@ fun ManagementScreen(
                         state.judges.forEachIndexed { index, judge ->
                             ListItem(
                                 headlineContent = { Text(judge.nickname) },
-                                supportingContent = { Text("Назначен: ${judge.assignedAt}") },
+                                supportingContent = { Text("Назначен: ${DateTimeUtils.formatDateTime(judge.assignedAt)}") },
                                 trailingContent = {
                                     IconButton(
                                         onClick = { viewModel.unassignJudge(jamId, judge.userId) }
@@ -154,10 +156,11 @@ fun ManagementScreen(
                 title = "Заявки и команды",
                 actions = { reg ->
                     Row {
-                        if (reg.status == "PENDING") {
+                        if (reg.status == RegistrationStatus.PENDING) {
                             IconButton(
                                 onClick = {
-                                    viewModel.updateRegistrationStatus(jamId, reg.teamId, "APPROVED")
+                                    viewModel.updateRegistrationStatus(jamId, reg.teamId,
+                                        RegistrationStatus.APPROVED)
                                 },
                                 enabled = !state.isActionLoading
                             ) {
@@ -169,7 +172,7 @@ fun ManagementScreen(
                             }
                             IconButton(
                                 onClick = {
-                                    viewModel.updateRegistrationStatus(jamId, reg.teamId, "REJECTED")
+                                    viewModel.updateRegistrationStatus(jamId, reg.teamId, RegistrationStatus.REJECTED)
                                 },
                                 enabled = !state.isActionLoading
                             ) {
@@ -180,10 +183,10 @@ fun ManagementScreen(
                                 )
                             }
                         }
-                        if (reg.status != "DISQUALIFIED") {
+                        if (reg.status != RegistrationStatus.DISQUALIFIED) {
                             IconButton(
                                 onClick = {
-                                    viewModel.updateRegistrationStatus(jamId, reg.teamId, "DISQUALIFIED")
+                                    viewModel.updateRegistrationStatus(jamId, reg.teamId, RegistrationStatus.DISQUALIFIED)
                                 },
                                 enabled = !state.isActionLoading
                             ) {

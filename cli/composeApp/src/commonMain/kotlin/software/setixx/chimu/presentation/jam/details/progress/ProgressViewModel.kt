@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import software.setixx.chimu.api.domain.ProjectStatus
+import software.setixx.chimu.api.domain.RegistrationStatus
 import software.setixx.chimu.domain.model.ApiResult
 import software.setixx.chimu.domain.model.CreateProject
 import software.setixx.chimu.domain.model.FileUpload
@@ -225,11 +226,11 @@ class ProgressViewModel(
             when (val result = updateRegistrationStatusUseCase(
                 jamId,
                 teamId,
-                UpdateRegistrationStatus("DISQUALIFIED")
+                UpdateRegistrationStatus(RegistrationStatus.DISQUALIFIED)
             )) {
                 is ApiResult.Success -> {
                     val updatedRegistrations = _state.value.registrations.map {
-                        if (it.teamId == teamId) it.copy(status = "DISQUALIFIED") else it
+                        if (it.teamId == teamId) it.copy(status = RegistrationStatus.DISQUALIFIED) else it
                     }
                     _state.value = _state.value.copy(
                         registrations = updatedRegistrations,

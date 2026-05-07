@@ -13,6 +13,7 @@ import androidx.compose.ui.unit.dp
 import org.koin.compose.viewmodel.koinViewModel
 import software.setixx.chimu.api.domain.ProjectFileType
 import software.setixx.chimu.api.domain.ProjectStatus
+import software.setixx.chimu.api.domain.RegistrationStatus
 import software.setixx.chimu.api.domain.UserRole
 import software.setixx.chimu.data.picker.rememberFilePicker
 import software.setixx.chimu.domain.model.GameJamDetails
@@ -126,10 +127,10 @@ fun ProgressScreen(
                     registrations = if (isAdminOrOrganizer) {
                         state.registrations
                     } else {
-                        state.registrations.filter { it.status == "APPROVED" }
+                        state.registrations.filter { it.status == RegistrationStatus.APPROVED }
                     },
                     actions = { reg ->
-                        if (isAdminOrOrganizer && reg.status != "DISQUALIFIED") {
+                        if (isAdminOrOrganizer && reg.status != RegistrationStatus.DISQUALIFIED) {
                             IconButton(
                                 onClick = { viewModel.disqualifyTeam(jamId, reg.teamId) },
                                 enabled = !state.isActionLoading

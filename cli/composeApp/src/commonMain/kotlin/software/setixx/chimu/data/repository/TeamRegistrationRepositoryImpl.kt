@@ -1,5 +1,6 @@
 package software.setixx.chimu.data.repository
 
+import software.setixx.chimu.api.domain.RegistrationStatus
 import software.setixx.chimu.data.local.TokenStorage
 import software.setixx.chimu.data.remote.TeamRegistrationsApi
 import software.setixx.chimu.data.remote.dto.RegisterTeamRequest
@@ -62,7 +63,7 @@ class TeamRegistrationRepositoryImpl(
             val token = tokenStorage.getAccessToken()
                 ?: return ApiResult.Error("Ошибка аутентификации")
 
-            val request = UpdateRegistrationStatusRequest(status = data.status)
+            val request = UpdateRegistrationStatusRequest(status = data.status.name)
             api.updateRegistrationStatus(jamId, teamId, request, token)
             ApiResult.Success(Unit)
         } catch (e: Exception) {
@@ -77,7 +78,7 @@ class TeamRegistrationRepositoryImpl(
             jamName = jamName,
             teamId = teamId,
             teamName = teamName,
-            status = status,
+            status = RegistrationStatus.valueOf(status),
             registeredAt = registeredAt,
             registeredBy = registeredBy,
             registeredByNickname = registeredByNickname,

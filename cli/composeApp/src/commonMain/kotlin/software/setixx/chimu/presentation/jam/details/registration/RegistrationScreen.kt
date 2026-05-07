@@ -11,6 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import org.koin.compose.viewmodel.koinViewModel
+import software.setixx.chimu.api.domain.RegistrationStatus
 import software.setixx.chimu.api.domain.UserRole
 import software.setixx.chimu.domain.model.GameJamDetails
 import software.setixx.chimu.presentation.components.JamOverviewSection
@@ -51,6 +52,62 @@ fun RegistrationScreen(
         return
     }
 
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(scrollState)
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            JamOverviewSection(jam = jam)
+
+            if (state.isLoading) {
+                CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
+            } else {
+                RegisteredTeamsSection(
+                    registrations = state.registrations.filter { it.status == RegistrationStatus.APPROVED }
+                )
+            }
+
+            if (state.userTeams.isNotEmpty()) {
+                val registeredTeams = state.userTeams.filter { state.isTeamRegistered(it.id) }
+                registeredTeams.forEach { team ->
+                    OutlinedButton(
+                        onClick = { viewModel.withdrawTeam(jamId, team.id) },
+                        modifier = Modifier.fillMaxWidth(),
+                        enabled = !state.isActionLoading
+                    ) {
+                        Icon(Icons.Default.Undo, null)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Отменить заявку: ${team.name}")
+                    }
+                }
+                if (state.canTeamRegister(jam)){
+                    Button(
+                        onClick = { showRegisterDialog = true },
+                        modifier = Modifier.fillMaxWidth(),
+                        enabled = !state.isActionLoading
+                    ) {
+                        if (state.isActionLoading) {
+                            LoadingIndicator(
+                                modifier = Modifier.size(20.dp),
+                                color = MaterialTheme.colorScheme.onPrimary
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                        }
+                        Text("Подать заявку на участие")
+                    }
+                }
+            }
+        }
+
+        SnackbarHost(
+            hostState = snackbarHostState,
+            modifier = Modifier.align(Alignment.BottomCenter)
+        )
+    }
+
     if (showRegisterDialog) {
         AlertDialog(
             onDismissRequest = { showRegisterDialog = false },
@@ -88,62 +145,6 @@ fun RegistrationScreen(
             dismissButton = {
                 TextButton(onClick = { showRegisterDialog = false }) { Text("Отмена") }
             }
-        )
-    }
-
-    Box(modifier = Modifier.fillMaxSize()) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(scrollState)
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            JamOverviewSection(jam = jam)
-
-            if (state.isLoading) {
-                CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
-            } else {
-                RegisteredTeamsSection(
-                    registrations = state.registrations.filter { it.status == "APPROVED" }
-                )
-            }
-
-            if (state.userTeams.isNotEmpty()) {
-                val registeredTeams = state.userTeams.filter { state.isTeamRegistered(it.id) }
-                registeredTeams.forEach { team ->
-                    OutlinedButton(
-                        onClick = { viewModel.withdrawTeam(jamId, team.id) },
-                        modifier = Modifier.fillMaxWidth(),
-                        enabled = !state.isActionLoading
-                    ) {
-                        Icon(Icons.Default.Undo, null)
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text("Отменить заявку: ${team.name}")
-                    }
-                }
-                if (state.canTeamRegister(jam)){
-                    Button(
-                        onClick = { showRegisterDialog = true },
-                        modifier = Modifier.fillMaxWidth(),
-                        enabled = !state.isActionLoading
-                    ) {
-                        if (state.isActionLoading) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(20.dp),
-                                color = MaterialTheme.colorScheme.onPrimary
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                        }
-                        Text("Подать заявку на участие")
-                    }
-                }
-            }
-        }
-
-        SnackbarHost(
-            hostState = snackbarHostState,
-            modifier = Modifier.align(Alignment.BottomCenter)
         )
     }
 }

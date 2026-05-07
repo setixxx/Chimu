@@ -1,5 +1,6 @@
 package software.setixx.chimu.presentation.jam.details.progress
 
+import software.setixx.chimu.api.domain.RegistrationStatus
 import software.setixx.chimu.api.domain.UserRole
 import software.setixx.chimu.domain.model.Project
 import software.setixx.chimu.domain.model.ProjectDetails
@@ -21,7 +22,7 @@ data class ProgressState(
 ) {
     fun getUserRegistration(): Registration? =
         registrations.find { reg ->
-            userTeams.any { it.id == reg.teamId } && reg.status == "APPROVED"
+            userTeams.any { it.id == reg.teamId } && reg.status == RegistrationStatus.APPROVED
         }
 
     fun isUserLeaderOfRegisteredTeam(): Boolean {

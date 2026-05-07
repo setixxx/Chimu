@@ -19,6 +19,7 @@ import software.setixx.chimu.presentation.team.details.components.KickMemberDial
 import software.setixx.chimu.presentation.team.details.components.LeaveTeamDialog
 import software.setixx.chimu.presentation.team.details.components.MemberCard
 import software.setixx.chimu.presentation.team.details.components.SpecializationDialog
+import software.setixx.chimu.presentation.utils.DateTimeUtils
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -245,7 +246,7 @@ fun TeamDetailsScreen(
                                     InfoRow(
                                         icon = Icons.Default.Event,
                                         label = "Создана",
-                                        value = team.createdAt
+                                        value = DateTimeUtils.formatDateTime(team.createdAt)
                                     )
 
                                     InfoRow(

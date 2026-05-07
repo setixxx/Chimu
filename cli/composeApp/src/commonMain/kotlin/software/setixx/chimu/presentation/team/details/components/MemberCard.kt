@@ -25,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import software.setixx.chimu.domain.model.TeamMember
+import software.setixx.chimu.presentation.utils.DateTimeUtils
 
 @Composable
 fun MemberCard(
@@ -83,7 +84,7 @@ fun MemberCard(
                 }
 
                 Text(
-                    "Присоединился: ${member.joinedAt}",
+                    "Присоединился: ${DateTimeUtils.formatDateTime(member.joinedAt)}",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )

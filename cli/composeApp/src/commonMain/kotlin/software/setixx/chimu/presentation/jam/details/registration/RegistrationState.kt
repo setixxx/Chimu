@@ -1,6 +1,7 @@
 package software.setixx.chimu.presentation.jam.details.registration
 
 import software.setixx.chimu.api.domain.GameJamStatus
+import software.setixx.chimu.api.domain.RegistrationStatus
 import software.setixx.chimu.domain.model.GameJamDetails
 import software.setixx.chimu.domain.model.Registration
 import software.setixx.chimu.domain.model.Team
@@ -13,7 +14,7 @@ data class RegistrationState(
     val errorMessage: String? = null
 ) {
     fun isTeamRegistered(teamId: String): Boolean =
-        registrations.any { it.teamId == teamId && it.status != "WITHDRAWN" }
+        registrations.any { it.teamId == teamId && it.status != RegistrationStatus.WITHDRAWN }
 
     fun canTeamRegister(jam: GameJamDetails): Boolean = jam.status == GameJamStatus.REGISTRATION_OPEN
 }
