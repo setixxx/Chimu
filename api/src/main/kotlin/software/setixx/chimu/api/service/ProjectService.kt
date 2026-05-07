@@ -175,9 +175,8 @@ class ProjectService(
         val jam = gameJamRepository.findById(project.gameJam.id!!).orElseThrow()
         val user = userRepository.findById(userId).orElseThrow()
         val team = project.team.id?.let { teamRepository.findById(it).orElse(null) }
-        val teamLeader = teamRepository.findByLeaderIdAndDeletedAtIsNull(user.id!!)
 
-        if (user.id != teamLeader?.id) {
+        if (user.id != team?.leader?.id) {
             throw IllegalArgumentException("Only team leader can return project to draft")
         }
 

@@ -10,6 +10,10 @@ import software.setixx.chimu.presentation.auth.login.LoginViewModel
 import software.setixx.chimu.presentation.auth.register.RegisterViewModel
 import software.setixx.chimu.presentation.jam.create.CreateJamViewModel
 import software.setixx.chimu.presentation.jam.details.JamDetailsViewModel
+import software.setixx.chimu.presentation.jam.details.judging.JudgingViewModel
+import software.setixx.chimu.presentation.jam.details.management.ManagementViewModel
+import software.setixx.chimu.presentation.jam.details.progress.ProgressViewModel
+import software.setixx.chimu.presentation.jam.details.registration.RegistrationViewModel
 import software.setixx.chimu.presentation.jam.edit.EditJamViewModel
 import software.setixx.chimu.presentation.main.MainViewModel
 import software.setixx.chimu.presentation.profile.ProfileViewModel
@@ -35,7 +39,6 @@ val appModule = module {
     single { TeamRegistrationsApi(get<KtorClient>().httpClient) }
     single { RoleUpgradeApi(get<KtorClient>().httpClient) }
     single { JamTransferApi(get<KtorClient>().httpClient) }
-
 
     single<AuthRepository> { AuthRepositoryImpl(get(), get()) }
     single<GameJamRepository> { GameJamRepositoryImpl(get(), get()) }
@@ -99,8 +102,6 @@ val appModule = module {
     factory { ReviewRoleUpgradeUseCase(get()) }
     factory { GetAllRoleUpgradesUseCase(get()) }
     factory { CancelRoleUpgradeUseCase(get()) }
-
-    // Project UseCases
     factory { GetTeamProjectsUseCase(get()) }
     factory { CreateProjectUseCase(get()) }
     factory { SubmitProjectUseCase(get()) }
@@ -112,7 +113,9 @@ val appModule = module {
     factory { UploadProjectFileUseCase(get()) }
     factory { DownloadProjectFileUseCase(get()) }
     factory { DeleteProjectFileUseCase(get()) }
-
+    factory { DeleteProjectUseCase(get()) }
+    factory { GetJudgeProgressUseCase(get()) }
+    factory { GetJamStatisticsUseCase(get()) }
 
     viewModel { SplashViewModel(get()) }
     viewModel { LoginViewModel(get(), get()) }
@@ -122,6 +125,24 @@ val appModule = module {
     viewModel { CreateTeamViewModel(get(), get()) }
     viewModel { TeamDetailsViewModel(get(), get(), get(), get(), get(), get(), get(), get(), get(), get()) }
     viewModel { CreateJamViewModel(get(), get()) }
-    viewModel { JamDetailsViewModel(get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get()) }
     viewModel { EditJamViewModel(get(), get()) }
+
+    viewModel { JamDetailsViewModel(get(), get(), get()) }
+    viewModel {
+        RegistrationViewModel(
+            get(), get(), get(), get(), get(), get(), get(), get(), get()
+        )
+    }
+    viewModel {
+        ProgressViewModel(
+            get(), get(), get(), get(), get(), get(),
+            get(), get(), get(), get(), get(), get(), get(), get(), get()
+        )
+    }
+    viewModel { JudgingViewModel(get(), get()) }
+    viewModel {
+        ManagementViewModel(
+            get(), get(), get(), get(), get(), get(), get()
+        )
+    }
 }

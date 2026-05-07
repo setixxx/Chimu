@@ -32,7 +32,7 @@ class GameJamRepositoryImpl(
             val token = tokenStorage.getAccessToken()
                 ?: return ApiResult.Error("Ошибка аутентификации")
 
-            val statuses = listOf("IN_PROGRESS", "REGISTRATION_OPEN", "JUDGING")
+            val statuses = listOf("DRAFT", "IN_PROGRESS", "REGISTRATION_OPEN", "JUDGING")
             val allJams = mutableListOf<GameJam>()
 
             for (status in statuses) {

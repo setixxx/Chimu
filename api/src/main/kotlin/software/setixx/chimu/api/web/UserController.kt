@@ -50,7 +50,6 @@ class UserController(
     fun getCurrentUser(
         @AuthenticationPrincipal userDetails: UserDetails
     ): ResponseEntity<UserProfileResponse> {
-        println("hello")
         val user = userService.getCurrentUser(userDetails.username)
         return ResponseEntity.ok(userService.toUserResponse(user))
     }

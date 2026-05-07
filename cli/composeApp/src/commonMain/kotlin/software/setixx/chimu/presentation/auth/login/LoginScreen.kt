@@ -28,7 +28,6 @@ import chimu.composeapp.generated.resources.sign_in_button
 import chimu.composeapp.generated.resources.sign_in_title
 import chimu.composeapp.generated.resources.sign_up_button
 import org.jetbrains.compose.resources.stringResource
-import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
