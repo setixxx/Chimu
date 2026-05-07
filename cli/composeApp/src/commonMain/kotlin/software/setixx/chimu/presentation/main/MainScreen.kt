@@ -1,9 +1,6 @@
 package software.setixx.chimu.presentation.main
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -12,20 +9,14 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import org.koin.compose.viewmodel.koinViewModel
 import software.setixx.chimu.api.domain.UserRole
-import software.setixx.chimu.domain.model.GameJam
-import software.setixx.chimu.domain.model.Project
-import software.setixx.chimu.domain.model.Team
-import software.setixx.chimu.presentation.components.EmptyStateCard
-import software.setixx.chimu.presentation.components.GameJamCard
-import software.setixx.chimu.presentation.components.GameJamsContent
-import software.setixx.chimu.presentation.components.HomeContent
-import software.setixx.chimu.presentation.components.JudgingContent
-import software.setixx.chimu.presentation.components.ProjectsContent
-import software.setixx.chimu.presentation.components.TeamsContent
+import software.setixx.chimu.presentation.main.components.GameJamsContent
+import software.setixx.chimu.presentation.main.components.HomeContent
+import software.setixx.chimu.presentation.main.components.JudgingContent
+import software.setixx.chimu.presentation.main.components.ProjectsContent
+import software.setixx.chimu.presentation.main.components.TeamsContent
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

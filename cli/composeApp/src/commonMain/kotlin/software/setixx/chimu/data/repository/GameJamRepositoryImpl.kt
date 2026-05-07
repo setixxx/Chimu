@@ -27,25 +27,6 @@ class GameJamRepositoryImpl(
         }
     }
 
-    override suspend fun getActiveJams(): ApiResult<List<GameJam>> {
-        return try {
-            val token = tokenStorage.getAccessToken()
-                ?: return ApiResult.Error("Ошибка аутентификации")
-
-            val statuses = listOf("DRAFT", "IN_PROGRESS", "REGISTRATION_OPEN", "JUDGING")
-            val allJams = mutableListOf<GameJam>()
-
-            for (status in statuses) {
-                val response = api.getJamsByStatus(status, token)
-                allJams.addAll(response.map { it.toDomain() })
-            }
-
-            ApiResult.Success(allJams)
-        } catch (e: Exception) {
-            ApiResult.Error(e.message ?: "Ошибка подключения к серверу")
-        }
-    }
-
     override suspend fun createJam(data: CreateGameJam): ApiResult<GameJamDetails> {
         return try {
             val token = tokenStorage.getAccessToken()
@@ -69,6 +50,17 @@ class GameJamRepositoryImpl(
             val response = api.createJam(request, token)
             ApiResult.Success(response.toDomain())
         } catch (e: Exception) {
+            ApiResult.Error(e.message ?: "Ошибка подключения к серверу")
+        }
+    }
+
+    override suspend fun cancelJam(gameJamId: String): ApiResult<GameJamDetails> {
+        return try {
+            val token = tokenStorage.getAccessToken()
+                ?: return ApiResult.Error("Ошибка аутентификации")
+            val response = api.cancelJam(gameJamId, token)
+            ApiResult.Success(response.toDomain())
+        } catch (e: Exception){
             ApiResult.Error(e.message ?: "Ошибка подключения к серверу")
         }
     }
@@ -166,7 +158,7 @@ class GameJamRepositoryImpl(
             jamEnd = jamEnd,
             judgingStart = judgingStart,
             judgingEnd = judgingEnd,
-            status = status,
+            status = GameJamStatus.valueOf(status),
             organizerId = organizerId,
             organizerNickname = organizerNickname,
             minTeamSize = minTeamSize,

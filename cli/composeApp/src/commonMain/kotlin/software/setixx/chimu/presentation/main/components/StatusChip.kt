@@ -1,4 +1,4 @@
-package software.setixx.chimu.presentation.components
+package software.setixx.chimu.presentation.main.components
 
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
@@ -15,6 +15,8 @@ import software.setixx.chimu.api.domain.GameJamStatus
 @Composable
 fun StatusChip(status: GameJamStatus) {
     val (text, color) = when (status) {
+        GameJamStatus.DRAFT -> "Черновик" to MaterialTheme.colorScheme.tertiary
+        GameJamStatus.ANNOUNCED -> "Аннонсирован" to MaterialTheme.colorScheme.primary
         GameJamStatus.REGISTRATION_OPEN -> "Регистрация" to MaterialTheme.colorScheme.tertiary
         GameJamStatus.IN_PROGRESS -> "В процессе" to MaterialTheme.colorScheme.primary
         GameJamStatus.JUDGING -> "Оценивание" to MaterialTheme.colorScheme.secondary

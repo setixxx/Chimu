@@ -118,7 +118,11 @@ class CreateJamViewModel(
 
             when (val result = createJamUseCase(createGameJam)) {
                 is ApiResult.Success -> {
-                    _state.value = _state.value.copy(isLoading = false, isSuccess = true)
+                    _state.value = _state.value.copy(
+                        isLoading = false,
+                        isSuccess = true,
+                        createdJamId = result.data.id
+                    )
                 }
                 is ApiResult.Error -> {
                     _state.value = _state.value.copy(isLoading = false, errorMessage = result.message)

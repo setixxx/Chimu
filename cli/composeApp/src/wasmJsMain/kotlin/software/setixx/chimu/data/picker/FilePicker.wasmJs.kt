@@ -5,6 +5,7 @@ import software.setixx.chimu.api.domain.ProjectFileType
 import software.setixx.chimu.domain.model.FileUpload
 import software.setixx.chimu.domain.model.ProjectFile
 
+@OptIn(ExperimentalWasmJsInterop::class)
 @JsFun("""
     (callback) => {
         const input = document.createElement('input');
@@ -32,6 +33,7 @@ private external fun jsOpenFilePicker(
     callback: (bytes: JsAny?, name: JsAny?, mime: JsAny?) -> Unit
 )
 
+@OptIn(ExperimentalWasmJsInterop::class)
 @Composable
 actual fun rememberFilePicker(onResult: (FileUpload?) -> Unit): () -> Unit {
     return {

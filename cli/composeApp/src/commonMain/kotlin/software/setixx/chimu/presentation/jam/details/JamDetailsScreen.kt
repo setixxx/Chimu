@@ -2,6 +2,7 @@ package software.setixx.chimu.presentation.jam.details
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -20,13 +21,13 @@ fun JamDetailsScreen(
     jamId: String,
     onBack: () -> Unit,
     onEditJam: (String) -> Unit,
-    onOpenManagement: (String) -> Unit = {},
     section: JamDetailsSection? = null,
     viewModel: JamDetailsViewModel = koinViewModel()
 ) {
     val state by viewModel.state.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
     var showDeleteDialog by remember { mutableStateOf(false) }
+    var showCancelDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(jamId) {
         viewModel.loadJamDetails(jamId)
@@ -49,18 +50,29 @@ fun JamDetailsScreen(
                 title = { Text(state.jamDetails?.name ?: "Загрузка...") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, "Назад")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Назад")
                     }
                 },
                 actions = {
-                    if (state.canEdit) {
+                    if (state.canEdit){
                         IconButton(onClick = { onEditJam(jamId) }) {
                             Icon(Icons.Default.Edit, "Редактировать")
                         }
+                    }
+                    if (state.canDelete) {
                         IconButton(onClick = { showDeleteDialog = true }) {
                             Icon(
                                 Icons.Default.Delete,
                                 "Удалить",
+                                tint = MaterialTheme.colorScheme.error
+                            )
+                        }
+                    }
+                    if (state.canCancel){
+                        IconButton(onClick = { showCancelDialog = true }) {
+                            Icon(
+                                Icons.Default.Cancel,
+                                "Отменить",
                                 tint = MaterialTheme.colorScheme.error
                             )
                         }
@@ -86,13 +98,8 @@ fun JamDetailsScreen(
                         .fillMaxSize()
                         .padding(paddingValues)
                 ) {
-                    val jamStatus = try {
-                        GameJamStatus.valueOf(jam.status)
-                    } catch (e: Exception) {
-                        GameJamStatus.DRAFT
-                    }
-
-                    when (section ?: state.defaultSection(jamStatus)) {
+                    val jamStatus = jam.status
+                    when (state.resolveSection(section, jamStatus)) {
                         JamDetailsSection.Judging -> {
                             JudgingScreen(jamId = jamId, jam = jam)
                         }
@@ -100,8 +107,7 @@ fun JamDetailsScreen(
                             RegistrationScreen(
                                 jamId = jamId,
                                 jam = jam,
-                                userRole = state.userRole,
-                                userId = state.userId
+                                userRole = state.userRole
                             )
                         }
                         JamDetailsSection.Progress -> {
@@ -113,19 +119,13 @@ fun JamDetailsScreen(
                             )
                         }
                         JamDetailsSection.Management -> {
-                            if (jamStatus == GameJamStatus.IN_PROGRESS) {
-                                ProgressScreen(
-                                    jamId = jamId,
-                                    jam = jam,
-                                    userRole = state.userRole,
-                                    userId = state.userId
-                                )
-                            } else {
-                                ManagementScreen(
-                                    jamId = jamId,
-                                    jam = jam
-                                )
-                            }
+                            ManagementScreen(
+                                jamId = jamId,
+                                jam = jam
+                            )
+                        }
+                        JamDetailsSection.AccessDenied -> {
+                            AccessDeniedContent()
                         }
                     }
                 }
@@ -154,19 +154,80 @@ fun JamDetailsScreen(
             }
         )
     }
+
+    if (showCancelDialog) {
+        AlertDialog(
+            onDismissRequest = { showDeleteDialog = false },
+            title = { Text("Отменить джем?") },
+            text = { Text("Джем будет безвозратно отменен.") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        viewModel.cancelJam(jamId)
+                        showCancelDialog = false
+                    },
+                    colors = ButtonDefaults.textButtonColors(
+                        contentColor = MaterialTheme.colorScheme.error
+                    )
+                ) { Text("Отменить") }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteDialog = false }) { Text("Отмена") }
+            }
+        )
+    }
 }
 
 enum class JamDetailsSection {
     Registration,
     Progress,
     Judging,
-    Management
+    Management,
+    AccessDenied
+}
+
+private fun JamDetailsState.resolveSection(
+    requestedSection: JamDetailsSection?,
+    jamStatus: GameJamStatus
+): JamDetailsSection {
+    if (isAdminOrOrganizer) return JamDetailsSection.Management
+
+    return when (requestedSection) {
+        JamDetailsSection.Management -> JamDetailsSection.AccessDenied
+        JamDetailsSection.Registration -> {
+            if (isParticipant) JamDetailsSection.Registration else JamDetailsSection.AccessDenied
+        }
+        JamDetailsSection.Progress -> {
+            if (isParticipant || isJudge) JamDetailsSection.Progress else JamDetailsSection.AccessDenied
+        }
+        JamDetailsSection.Judging -> {
+            if (isParticipant || isJudge) JamDetailsSection.Judging else JamDetailsSection.AccessDenied
+        }
+        JamDetailsSection.AccessDenied -> JamDetailsSection.AccessDenied
+        null -> defaultSection(jamStatus)
+    }
 }
 
 private fun JamDetailsState.defaultSection(jamStatus: GameJamStatus): JamDetailsSection {
     return when {
-        jamStatus == GameJamStatus.JUDGING || jamStatus == GameJamStatus.COMPLETED -> JamDetailsSection.Judging
-        jamStatus == GameJamStatus.IN_PROGRESS -> JamDetailsSection.Progress
-        else -> JamDetailsSection.Registration
+        isParticipant && jamStatus == GameJamStatus.IN_PROGRESS -> JamDetailsSection.Progress
+        isParticipant && (jamStatus == GameJamStatus.JUDGING || jamStatus == GameJamStatus.COMPLETED) -> JamDetailsSection.Judging
+        isParticipant -> JamDetailsSection.Registration
+        isJudge && (jamStatus == GameJamStatus.JUDGING || jamStatus == GameJamStatus.COMPLETED) -> JamDetailsSection.Judging
+        isJudge -> JamDetailsSection.Progress
+        else -> JamDetailsSection.AccessDenied
+    }
+}
+
+@Composable
+private fun AccessDeniedContent() {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = "У вас нет доступа к этому разделу джема",
+            style = MaterialTheme.typography.titleMedium
+        )
     }
 }

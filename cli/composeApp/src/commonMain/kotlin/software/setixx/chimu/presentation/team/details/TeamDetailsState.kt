@@ -1,4 +1,4 @@
-package software.setixx.chimu.presentation.team
+package software.setixx.chimu.presentation.team.details
 
 import software.setixx.chimu.domain.model.Specialization
 import software.setixx.chimu.domain.model.TeamDetails

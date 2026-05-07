@@ -16,7 +16,7 @@ import software.setixx.chimu.api.domain.ProjectStatus
 import software.setixx.chimu.api.domain.UserRole
 import software.setixx.chimu.data.picker.rememberFilePicker
 import software.setixx.chimu.domain.model.GameJamDetails
-import software.setixx.chimu.presentation.components.FileUploadButton
+import software.setixx.chimu.presentation.jam.details.progress.components.FileUploadButton
 import software.setixx.chimu.presentation.components.JamOverviewSection
 import software.setixx.chimu.presentation.components.RegisteredTeamsSection
 import software.setixx.chimu.presentation.components.StagePlaceholder

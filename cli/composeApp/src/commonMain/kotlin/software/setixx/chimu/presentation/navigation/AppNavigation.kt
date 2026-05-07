@@ -2,7 +2,6 @@ package software.setixx.chimu.presentation.navigation
 
 import androidx.compose.runtime.*
 import androidx.navigation.NavController
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -18,8 +17,8 @@ import software.setixx.chimu.presentation.main.MainScreen
 import software.setixx.chimu.presentation.profile.ProfileScreen
 import software.setixx.chimu.presentation.splash.SplashScreen
 import software.setixx.chimu.presentation.team.create.CreateTeamScreen
-import software.setixx.chimu.presentation.team.JoinTeamScreen
-import software.setixx.chimu.presentation.team.TeamDetailsScreen
+import software.setixx.chimu.presentation.team.join.JoinTeamScreen
+import software.setixx.chimu.presentation.team.details.TeamDetailsScreen
 
 @Composable
 fun AppNavigation(
@@ -153,8 +152,10 @@ fun AppNavigation(
                 onBack = {
                     navController.popBackStack()
                 },
-                onJamCreated = {
-                    navController.popBackStack()
+                onJamCreated = { jamId ->
+                    navController.navigate(Screen.JamManagement(jamId)) {
+                        popUpTo(Screen.CreateJam) { inclusive = true }
+                    }
                 }
             )
         }
@@ -168,9 +169,6 @@ fun AppNavigation(
                 },
                 onEditJam = { jamId ->
                     navController.navigate(Screen.EditJam(jamId))
-                },
-                onOpenManagement = { jamId ->
-                    navController.navigate(Screen.JamManagement(jamId))
                 }
             )
         }
@@ -184,9 +182,6 @@ fun AppNavigation(
                 },
                 onEditJam = { jamId ->
                     navController.navigate(Screen.EditJam(jamId))
-                },
-                onOpenManagement = { jamId ->
-                    navController.navigate(Screen.JamManagement(jamId))
                 },
                 section = JamDetailsSection.Registration
             )
@@ -202,9 +197,6 @@ fun AppNavigation(
                 onEditJam = { jamId ->
                     navController.navigate(Screen.EditJam(jamId))
                 },
-                onOpenManagement = { jamId ->
-                    navController.navigate(Screen.JamManagement(jamId))
-                },
                 section = JamDetailsSection.Progress
             )
         }
@@ -218,9 +210,6 @@ fun AppNavigation(
                 },
                 onEditJam = { jamId ->
                     navController.navigate(Screen.EditJam(jamId))
-                },
-                onOpenManagement = { jamId ->
-                    navController.navigate(Screen.JamManagement(jamId))
                 },
                 section = JamDetailsSection.Judging
             )

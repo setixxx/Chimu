@@ -1,4 +1,4 @@
-package software.setixx.chimu.presentation.team
+package software.setixx.chimu.presentation.team.details
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

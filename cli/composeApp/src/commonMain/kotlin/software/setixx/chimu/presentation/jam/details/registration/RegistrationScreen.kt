@@ -21,14 +21,11 @@ fun RegistrationScreen(
     jamId: String,
     jam: GameJamDetails,
     userRole: UserRole?,
-    userId: String?,
     viewModel: RegistrationViewModel = koinViewModel()
 ) {
     val state by viewModel.state.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
     var showRegisterDialog by remember { mutableStateOf(false) }
-    var showAssignJudgeDialog by remember { mutableStateOf(false) }
-    var judgeUserIdInput by remember { mutableStateOf("") }
     val scrollState = rememberScrollState()
 
     LaunchedEffect(jamId) {
@@ -42,16 +39,17 @@ fun RegistrationScreen(
         }
     }
 
-    LaunchedEffect(state.successMessage) {
-        state.successMessage?.let {
-            snackbarHostState.showSnackbar(it)
-            viewModel.clearSuccess()
-        }
-    }
-
-    val isAdminOrOrganizer = userRole == UserRole.ADMIN ||
-            (userRole == UserRole.ORGANIZER && jam.organizerId == userId)
     val isParticipant = userRole == UserRole.PARTICIPANT
+
+    if (!isParticipant) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Text(
+                text = "Регистрация доступна только участникам",
+                style = MaterialTheme.typography.titleMedium
+            )
+        }
+        return
+    }
 
     if (showRegisterDialog) {
         AlertDialog(
@@ -93,34 +91,6 @@ fun RegistrationScreen(
         )
     }
 
-    if (showAssignJudgeDialog) {
-        AlertDialog(
-            onDismissRequest = { showAssignJudgeDialog = false },
-            title = { Text("Назначить судью") },
-            text = {
-                OutlinedTextField(
-                    value = judgeUserIdInput,
-                    onValueChange = { judgeUserIdInput = it },
-                    label = { Text("ID пользователя") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-            },
-            confirmButton = {
-                Button(
-                    onClick = {
-                        viewModel.assignJudge(jamId, judgeUserIdInput)
-                        judgeUserIdInput = ""
-                        showAssignJudgeDialog = false
-                    },
-                    enabled = judgeUserIdInput.isNotBlank() && !state.isActionLoading
-                ) { Text("Назначить") }
-            },
-            dismissButton = {
-                TextButton(onClick = { showAssignJudgeDialog = false }) { Text("Отмена") }
-            }
-        )
-    }
-
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
@@ -135,55 +105,11 @@ fun RegistrationScreen(
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
             } else {
                 RegisteredTeamsSection(
-                    registrations = if (isAdminOrOrganizer) {
-                        state.registrations
-                    } else {
-                        state.registrations.filter { it.status == "APPROVED" }
-                    },
-                    actions = { reg ->
-                        if (isAdminOrOrganizer) {
-                            Row {
-                                if (reg.status == "PENDING") {
-                                    IconButton(
-                                        onClick = { viewModel.updateRegistrationStatus(jamId, reg.teamId, "APPROVED") },
-                                        enabled = !state.isActionLoading
-                                    ) {
-                                        Icon(
-                                            Icons.Default.Check,
-                                            "Одобрить",
-                                            tint = MaterialTheme.colorScheme.primary
-                                        )
-                                    }
-                                    IconButton(
-                                        onClick = { viewModel.updateRegistrationStatus(jamId, reg.teamId, "REJECTED") },
-                                        enabled = !state.isActionLoading
-                                    ) {
-                                        Icon(
-                                            Icons.Default.Close,
-                                            "Отклонить",
-                                            tint = MaterialTheme.colorScheme.error
-                                        )
-                                    }
-                                }
-                                if (reg.status != "DISQUALIFIED") {
-                                    IconButton(
-                                        onClick = { viewModel.updateRegistrationStatus(jamId, reg.teamId, "DISQUALIFIED") },
-                                        enabled = !state.isActionLoading
-                                    ) {
-                                        Icon(
-                                            Icons.Default.Block,
-                                            "Дисквалифицировать",
-                                            tint = MaterialTheme.colorScheme.error
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    registrations = state.registrations.filter { it.status == "APPROVED" }
                 )
             }
 
-            if (isParticipant && state.userTeams.isNotEmpty()) {
+            if (state.userTeams.isNotEmpty()) {
                 val registeredTeams = state.userTeams.filter { state.isTeamRegistered(it.id) }
                 registeredTeams.forEach { team ->
                     OutlinedButton(
@@ -196,61 +122,20 @@ fun RegistrationScreen(
                         Text("Отменить заявку: ${team.name}")
                     }
                 }
-                Button(
-                    onClick = { showRegisterDialog = true },
-                    modifier = Modifier.fillMaxWidth(),
-                    enabled = !state.isActionLoading
-                ) {
-                    if (state.isActionLoading) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(20.dp),
-                            color = MaterialTheme.colorScheme.onPrimary
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                    }
-                    Text("Подать заявку на участие")
-                }
-            }
-
-            if (isAdminOrOrganizer) {
-                Card(modifier = Modifier.fillMaxWidth()) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text("Управление судьями (${state.judges.size})", style = MaterialTheme.typography.titleMedium)
-                            TextButton(onClick = { showAssignJudgeDialog = true }) {
-                                Icon(Icons.Default.PersonAdd, null)
-                                Spacer(modifier = Modifier.width(4.dp))
-                                Text("Назначить")
-                            }
+                if (state.canTeamRegister(jam)){
+                    Button(
+                        onClick = { showRegisterDialog = true },
+                        modifier = Modifier.fillMaxWidth(),
+                        enabled = !state.isActionLoading
+                    ) {
+                        if (state.isActionLoading) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(20.dp),
+                                color = MaterialTheme.colorScheme.onPrimary
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
                         }
-
-                        if (state.judges.isEmpty()) {
-                            Text("Судьи не назначены.")
-                        } else {
-                            state.judges.forEachIndexed { index, judge ->
-                                ListItem(
-                                    headlineContent = { Text(judge.nickname) },
-                                    supportingContent = { Text("Назначен: ${judge.assignedAt}") },
-                                    trailingContent = {
-                                        IconButton(
-                                            onClick = { viewModel.unassignJudge(jamId, judge.userId) },
-                                            enabled = !state.isActionLoading
-                                        ) {
-                                            Icon(
-                                                Icons.Default.PersonRemove,
-                                                "Снять",
-                                                tint = MaterialTheme.colorScheme.error
-                                            )
-                                        }
-                                    }
-                                )
-                                if (index < state.judges.lastIndex) HorizontalDivider()
-                            }
-                        }
+                        Text("Подать заявку на участие")
                     }
                 }
             }

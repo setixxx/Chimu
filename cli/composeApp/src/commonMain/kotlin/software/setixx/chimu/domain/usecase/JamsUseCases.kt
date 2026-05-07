@@ -5,12 +5,6 @@ import software.setixx.chimu.domain.model.GameJam
 import software.setixx.chimu.domain.model.UpdateGameJam
 import software.setixx.chimu.domain.repository.GameJamRepository
 
-class GetActiveJamsUseCase(
-    private val repository: GameJamRepository
-) {
-    suspend operator fun invoke() = repository.getActiveJams()
-}
-
 class GetAllJamsUseCase(
     private val repository: GameJamRepository
 ) {
@@ -21,6 +15,12 @@ class CreateJamUseCase(
     private val repository: GameJamRepository
 ) {
     suspend operator fun invoke(data: CreateGameJam) = repository.createJam(data)
+}
+
+class CancelJamUseCase(
+    private val repository: GameJamRepository
+){
+    suspend operator fun invoke(gameId: String) = repository.cancelJam(gameId)
 }
 
 class GetJamDetailsUseCase(

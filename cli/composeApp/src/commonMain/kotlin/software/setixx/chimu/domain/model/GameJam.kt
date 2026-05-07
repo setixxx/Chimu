@@ -51,7 +51,7 @@ data class GameJamDetails(
     val jamEnd: String,
     val judgingStart: String,
     val judgingEnd: String,
-    val status: String,
+    val status: GameJamStatus,
     val organizerId: String,
     val organizerNickname: String,
     val minTeamSize: Int,

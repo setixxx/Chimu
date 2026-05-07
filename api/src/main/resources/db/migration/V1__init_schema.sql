@@ -700,7 +700,7 @@ CREATE TRIGGER trigger_handle_team_soft_delete
 CREATE OR REPLACE FUNCTION check_rating_criteria_delete()
     RETURNS TRIGGER AS $$
 BEGIN
-    IF EXISTS (SELECT 1 FROM game_jams WHERE id = NEW.jam_id AND status NOT IN ('ANNOUNCED','REGISTRATION_OPEN', 'REGISTRATION_CLOSED')) THEN
+    IF EXISTS (SELECT 1 FROM game_jams WHERE id = NEW.jam_id AND status NOT IN ('DRAFT','ANNOUNCED','REGISTRATION_OPEN', 'REGISTRATION_CLOSED')) THEN
         RAISE EXCEPTION 'Cannot delete rating criteria after registration phase.';
     END IF;
     RETURN NEW;

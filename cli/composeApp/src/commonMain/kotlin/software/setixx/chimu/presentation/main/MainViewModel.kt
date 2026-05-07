@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import software.setixx.chimu.domain.model.ApiResult
-import software.setixx.chimu.domain.usecase.GetActiveJamsUseCase
+import software.setixx.chimu.domain.usecase.GetAllJamsUseCase
 import software.setixx.chimu.domain.usecase.GetCurrentUserUseCase
 import software.setixx.chimu.domain.usecase.GetUserProjectsUseCase
 import software.setixx.chimu.domain.usecase.GetUserTeamsUseCase
@@ -21,7 +21,7 @@ import software.setixx.chimu.domain.usecase.LogoutUseCase
 class MainViewModel(
     private val getCurrentUserUseCase: GetCurrentUserUseCase,
     private val logoutUseCase: LogoutUseCase,
-    private val getActiveJamsUseCase: GetActiveJamsUseCase,
+    private val getActiveJamsUseCase: GetAllJamsUseCase,
     private val getUserTeamsUseCase: GetUserTeamsUseCase,
     private val getUserProjectsUseCase: GetUserProjectsUseCase
 ) : ViewModel() {

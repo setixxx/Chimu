@@ -18,7 +18,7 @@ import software.setixx.chimu.presentation.jam.edit.EditJamViewModel
 import software.setixx.chimu.presentation.main.MainViewModel
 import software.setixx.chimu.presentation.profile.ProfileViewModel
 import software.setixx.chimu.presentation.splash.SplashViewModel
-import software.setixx.chimu.presentation.team.TeamDetailsViewModel
+import software.setixx.chimu.presentation.team.details.TeamDetailsViewModel
 import software.setixx.chimu.presentation.team.create.CreateTeamViewModel
 
 val appModule = module {
@@ -39,6 +39,7 @@ val appModule = module {
     single { TeamRegistrationsApi(get<KtorClient>().httpClient) }
     single { RoleUpgradeApi(get<KtorClient>().httpClient) }
     single { JamTransferApi(get<KtorClient>().httpClient) }
+    single { JamPublicationApi(get<KtorClient>().httpClient) }
 
     single<AuthRepository> { AuthRepositoryImpl(get(), get()) }
     single<GameJamRepository> { GameJamRepositoryImpl(get(), get()) }
@@ -55,6 +56,7 @@ val appModule = module {
     single<UserRepository> { UserRepositoryImpl(get(), get()) }
     single<RoleUpgradeRepository> { RoleUpgradeRepositoryImpl(get(), get()) }
     single<JamTransferRepository> { JamTransferRepositoryImpl(get(), get()) }
+    single<JamPublicationRepository> { JamPublicationRepositoryImpl(get(), get()) }
 
     factory { LoginUseCase(get()) }
     factory { RegisterUseCase(get()) }
@@ -62,7 +64,6 @@ val appModule = module {
     factory { GetCurrentUserUseCase(get()) }
     factory { GetSavedEmailUseCase(get()) }
     factory { CheckAuthStatusUseCase(get()) }
-    factory { GetActiveJamsUseCase(get()) }
     factory { GetAllJamsUseCase(get()) }
     factory { GetUserTeamsUseCase(get()) }
     factory { GetUserProjectsUseCase(get()) }
@@ -116,6 +117,11 @@ val appModule = module {
     factory { DeleteProjectUseCase(get()) }
     factory { GetJudgeProgressUseCase(get()) }
     factory { GetJamStatisticsUseCase(get()) }
+    factory { PublishJamUseCase(get()) }
+    factory { GetJamBannerUseCase(get()) }
+    factory { UploadJamBannerUseCase(get()) }
+    factory { DeleteJamBannerUseCase(get()) }
+    factory { CancelJamUseCase(get()) }
 
     viewModel { SplashViewModel(get()) }
     viewModel { LoginViewModel(get(), get()) }
@@ -127,10 +133,10 @@ val appModule = module {
     viewModel { CreateJamViewModel(get(), get()) }
     viewModel { EditJamViewModel(get(), get()) }
 
-    viewModel { JamDetailsViewModel(get(), get(), get()) }
+    viewModel { JamDetailsViewModel(get(), get(), get(), get()) }
     viewModel {
         RegistrationViewModel(
-            get(), get(), get(), get(), get(), get(), get(), get(), get()
+            get(), get(), get(), get(), get()
         )
     }
     viewModel {
@@ -142,7 +148,7 @@ val appModule = module {
     viewModel { JudgingViewModel(get(), get()) }
     viewModel {
         ManagementViewModel(
-            get(), get(), get(), get(), get(), get(), get()
+            get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get()
         )
     }
 }

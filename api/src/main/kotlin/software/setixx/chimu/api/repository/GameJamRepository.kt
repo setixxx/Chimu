@@ -11,6 +11,7 @@ import java.util.UUID
 
 interface GameJamRepository : JpaRepository<GameJam, Long> {
     fun findByPublicIdAndDeletedAtIsNull(publicId: UUID): GameJam?
+    fun findAllByDeletedAtIsNull(): List<GameJam>
     fun findAllByStatusAndDeletedAtIsNull(status: GameJamStatus): List<GameJam>
     fun existsByNameAndDeletedAtIsNull(name: String): Boolean
 

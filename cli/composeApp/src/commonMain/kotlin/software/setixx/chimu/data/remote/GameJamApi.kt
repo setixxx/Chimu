@@ -13,22 +13,12 @@ import software.setixx.chimu.data.remote.dto.CreateGameJamRequest
 import software.setixx.chimu.data.remote.dto.GameJamDetailsResponse
 import software.setixx.chimu.data.remote.dto.GameJamResponse
 import software.setixx.chimu.data.remote.dto.UpdateGameJamRequest
+import software.setixx.chimu.domain.model.ApiResult
 
 class GameJamApi(private val client: HttpClient) {
 
     suspend fun getAllJams(accessToken: String): List<GameJamResponse> {
         val response = client.get("/api/jams") {
-            header(HttpHeaders.Authorization, "Bearer $accessToken")
-        }
-        when (response.status.value) {
-            in 200..299 -> return response.body()
-            401 -> throw IllegalArgumentException("Ошибка авторизации")
-            else -> throw IllegalArgumentException("Неизвестная ошибка")
-        }
-    }
-
-    suspend fun getJamsByStatus(status: String, accessToken: String): List<GameJamResponse> {
-        val response = client.get("/api/jams?status=$status") {
             header(HttpHeaders.Authorization, "Bearer $accessToken")
         }
         when (response.status.value) {
@@ -49,6 +39,19 @@ class GameJamApi(private val client: HttpClient) {
             400 -> throw IllegalArgumentException("Проверьте правильность введенных данных")
             401 -> throw IllegalArgumentException("Ошибка авторизации")
             409 -> throw IllegalArgumentException("Джем с таким названием уже существует")
+            else -> throw IllegalArgumentException("Неизвестная ошибка")
+        }
+    }
+
+    suspend fun cancelJam(jamId: String, accessToken: String): GameJamDetailsResponse {
+        val response = client.post("/api/jams/$jamId/cancel"){
+            header(HttpHeaders.Authorization, "Bearer $accessToken")
+        }
+        when (response.status.value) {
+            in 200..299 -> return response.body()
+            400 -> throw IllegalArgumentException("Джем не может быть отменен в текущей фазе")
+            403 -> throw IllegalArgumentException("Недостаточно прав для отмены джема")
+            404 -> throw IllegalArgumentException("Джем не найден")
             else -> throw IllegalArgumentException("Неизвестная ошибка")
         }
     }

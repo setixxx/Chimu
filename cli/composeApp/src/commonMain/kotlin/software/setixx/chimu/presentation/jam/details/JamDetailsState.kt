@@ -1,5 +1,6 @@
 package software.setixx.chimu.presentation.jam.details
 
+import software.setixx.chimu.api.domain.GameJamStatus
 import software.setixx.chimu.api.domain.UserRole
 import software.setixx.chimu.domain.model.GameJamDetails
 
@@ -12,13 +13,27 @@ data class JamDetailsState(
     val isDeleting: Boolean = false,
     val isDeleted: Boolean = false
 ) {
+    val canCancel: Boolean
+        get() = jamDetails?.status in listOf(
+            GameJamStatus.ANNOUNCED,
+            GameJamStatus.REGISTRATION_OPEN,
+            GameJamStatus.REGISTRATION_CLOSED
+        ) && isAdminOrOrganizer
+
+    val canDelete: Boolean
+        get() = jamDetails?.status == GameJamStatus.DRAFT && isAdminOrOrganizer
+
     val canEdit: Boolean
-        get() = userRole == UserRole.ADMIN ||
-                (userRole == UserRole.ORGANIZER && jamDetails?.organizerId == userId)
+        get() = jamDetails?.status in listOf(
+            GameJamStatus.DRAFT,
+            GameJamStatus.ANNOUNCED,
+            GameJamStatus.REGISTRATION_OPEN,
+            GameJamStatus.REGISTRATION_CLOSED
+        )
 
     val isAdminOrOrganizer: Boolean
         get() = userRole == UserRole.ADMIN ||
-                (userRole == UserRole.ORGANIZER && jamDetails?.organizerId == userId)
+                (userRole == UserRole.ORGANIZER && userId == jamDetails?.organizerId)
 
     val isParticipant: Boolean
         get() = userRole == UserRole.PARTICIPANT

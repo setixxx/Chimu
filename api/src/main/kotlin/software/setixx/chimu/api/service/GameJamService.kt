@@ -91,7 +91,7 @@ class GameJamService(
         val jams = if (statusFilter != null) {
             gameJamRepository.findAllByStatusAndDeletedAtIsNull(statusFilter)
         } else {
-            gameJamRepository.findAll()
+            gameJamRepository.findAllByDeletedAtIsNull()
         }
 
         val userRole = userId?.let { userRepository.findById(it).orElse(null)?.role }
@@ -145,6 +145,7 @@ class GameJamService(
 
         if (jam.status !in listOf(
                 GameJamStatus.DRAFT,
+                GameJamStatus.ANNOUNCED,
                 GameJamStatus.REGISTRATION_OPEN,
                 GameJamStatus.REGISTRATION_CLOSED
             )

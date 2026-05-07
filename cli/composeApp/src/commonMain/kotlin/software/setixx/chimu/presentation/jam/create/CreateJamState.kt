@@ -22,6 +22,7 @@ data class CreateJamState(
     
     val isLoading: Boolean = false,
     val isSuccess: Boolean = false,
+    val createdJamId: String? = null,
     val errorMessage: String? = null,
     val userRole: UserRole? = null
 )

@@ -1,4 +1,4 @@
-package software.setixx.chimu.presentation.team
+package software.setixx.chimu.presentation.team.join
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
@@ -9,6 +9,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import org.koin.compose.viewmodel.koinViewModel
+import software.setixx.chimu.presentation.team.details.TeamDetailsViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

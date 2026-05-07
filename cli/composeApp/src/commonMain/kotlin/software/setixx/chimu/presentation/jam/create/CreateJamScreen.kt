@@ -11,13 +11,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import org.koin.compose.viewmodel.koinViewModel
 import software.setixx.chimu.api.domain.UserRole
+import software.setixx.chimu.presentation.jam.create.components.DateTimePickerField
 import software.setixx.chimu.presentation.jam.create.components.JamSection
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateJamScreen(
     onBack: () -> Unit,
-    onJamCreated: () -> Unit,
+    onJamCreated: (String) -> Unit,
     viewModel: CreateJamViewModel = koinViewModel()
 ) {
     val state by viewModel.state.collectAsState()
@@ -32,8 +33,9 @@ fun CreateJamScreen(
     }
 
     LaunchedEffect(state.isSuccess) {
-        if (state.isSuccess) {
-            onJamCreated()
+        val createdJamId = state.createdJamId
+        if (state.isSuccess && createdJamId != null) {
+            onJamCreated(createdJamId)
         }
     }
 
@@ -111,46 +113,40 @@ fun CreateJamScreen(
                         )
                     }
 
-                    OutlinedTextField(
+                    DateTimePickerField(
+                        label = "Начало регистрации *",
                         value = state.registrationStart,
-                        onValueChange = { viewModel.onRegistrationStartChange(it) },
-                        label = { Text("Начало регистрации (YYYY-MM-DD) *") },
-                        modifier = Modifier.fillMaxWidth()
+                        onValueChange = { viewModel.onRegistrationStartChange(it) }
                     )
 
-                    OutlinedTextField(
+                    DateTimePickerField(
+                        label = "Конец регистрации *",
                         value = state.registrationEnd,
-                        onValueChange = { viewModel.onRegistrationEndChange(it) },
-                        label = { Text("Конец регистрации (YYYY-MM-DD) *") },
-                        modifier = Modifier.fillMaxWidth()
+                        onValueChange = { viewModel.onRegistrationEndChange(it) }
                     )
 
-                    OutlinedTextField(
+                    DateTimePickerField(
+                        label = "Начало джема *",
                         value = state.jamStart,
-                        onValueChange = { viewModel.onJamStartChange(it) },
-                        label = { Text("Начало джема (YYYY-MM-DD) *") },
-                        modifier = Modifier.fillMaxWidth()
+                        onValueChange = { viewModel.onJamStartChange(it) }
                     )
 
-                    OutlinedTextField(
+                    DateTimePickerField(
+                        label = "Конец джема *",
                         value = state.jamEnd,
-                        onValueChange = { viewModel.onJamEndChange(it) },
-                        label = { Text("Конец джема (YYYY-MM-DD) *") },
-                        modifier = Modifier.fillMaxWidth()
+                        onValueChange = { viewModel.onJamEndChange(it) }
                     )
 
-                    OutlinedTextField(
+                    DateTimePickerField(
+                        label = "Начало оценивания *",
                         value = state.judgingStart,
-                        onValueChange = { viewModel.onJudgingStartChange(it) },
-                        label = { Text("Начало оценивания (YYYY-MM-DD) *") },
-                        modifier = Modifier.fillMaxWidth()
+                        onValueChange = { viewModel.onJudgingStartChange(it) }
                     )
 
-                    OutlinedTextField(
+                    DateTimePickerField(
+                        label = "Конец оценивания *",
                         value = state.judgingEnd,
-                        onValueChange = { viewModel.onJudgingEndChange(it) },
-                        label = { Text("Конец оценивания (YYYY-MM-DD) *") },
-                        modifier = Modifier.fillMaxWidth()
+                        onValueChange = { viewModel.onJudgingEndChange(it) }
                     )
                 }
 

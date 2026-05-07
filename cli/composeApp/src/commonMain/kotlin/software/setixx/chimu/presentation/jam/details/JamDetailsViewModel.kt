@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import software.setixx.chimu.domain.model.ApiResult
+import software.setixx.chimu.domain.usecase.CancelJamUseCase
 import software.setixx.chimu.domain.usecase.DeleteJamUseCase
 import software.setixx.chimu.domain.usecase.GetCurrentUserUseCase
 import software.setixx.chimu.domain.usecase.GetJamDetailsUseCase
@@ -14,7 +15,8 @@ import software.setixx.chimu.domain.usecase.GetJamDetailsUseCase
 class JamDetailsViewModel(
     private val getJamDetailsUseCase: GetJamDetailsUseCase,
     private val deleteJamUseCase: DeleteJamUseCase,
-    private val getCurrentUserUseCase: GetCurrentUserUseCase
+    private val getCurrentUserUseCase: GetCurrentUserUseCase,
+    private val cancelJamUseCase: CancelJamUseCase
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(JamDetailsState())
@@ -61,6 +63,23 @@ class JamDetailsViewModel(
         viewModelScope.launch {
             _state.value = _state.value.copy(isDeleting = true)
             when (val result = deleteJamUseCase(jamId)) {
+                is ApiResult.Success -> {
+                    _state.value = _state.value.copy(isDeleting = false, isDeleted = true)
+                }
+                is ApiResult.Error -> {
+                    _state.value = _state.value.copy(
+                        isDeleting = false,
+                        errorMessage = result.message
+                    )
+                }
+            }
+        }
+    }
+
+    fun cancelJam(jamId: String) {
+        viewModelScope.launch {
+            _state.value = _state.value.copy(isDeleting = true)
+            when (val result = cancelJamUseCase(jamId)) {
                 is ApiResult.Success -> {
                     _state.value = _state.value.copy(isDeleting = false, isDeleted = true)
                 }

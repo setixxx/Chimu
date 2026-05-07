@@ -1,30 +1,24 @@
-package software.setixx.chimu.presentation.team
+package software.setixx.chimu.presentation.team.details
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalClipboardManager
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
-import software.setixx.chimu.domain.model.Specialization
-import software.setixx.chimu.domain.model.TeamMember
-import software.setixx.chimu.presentation.components.DeleteTeamDialog
+import software.setixx.chimu.presentation.team.details.components.DeleteTeamDialog
 import software.setixx.chimu.presentation.components.InfoRow
-import software.setixx.chimu.presentation.components.InviteTokenDialog
-import software.setixx.chimu.presentation.components.KickMemberDialog
-import software.setixx.chimu.presentation.components.LeaveTeamDialog
-import software.setixx.chimu.presentation.components.MemberCard
-import software.setixx.chimu.presentation.components.SpecializationDialog
+import software.setixx.chimu.presentation.team.details.components.InviteTokenDialog
+import software.setixx.chimu.presentation.team.details.components.KickMemberDialog
+import software.setixx.chimu.presentation.team.details.components.LeaveTeamDialog
+import software.setixx.chimu.presentation.team.details.components.MemberCard
+import software.setixx.chimu.presentation.team.details.components.SpecializationDialog
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
