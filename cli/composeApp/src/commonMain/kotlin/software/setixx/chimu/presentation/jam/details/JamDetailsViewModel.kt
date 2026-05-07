@@ -6,6 +6,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import software.setixx.chimu.api.domain.GameJamStatus
+import software.setixx.chimu.api.domain.ProjectStatus
 import software.setixx.chimu.api.domain.UserRole
 import software.setixx.chimu.domain.model.*
 import software.setixx.chimu.domain.usecase.*
@@ -26,7 +28,17 @@ class JamDetailsViewModel(
     private val getJamCriteriaUseCase: GetJamCriteriaUseCase,
     private val createJamCriteriaUseCase: CreateJamCriteriaUseCase,
     private val updateJamCriteriaUseCase: UpdateJamCriteriaUseCase,
-    private val deleteJamCriteriaUseCase: DeleteJamCriteriaUseCase
+    private val deleteJamCriteriaUseCase: DeleteJamCriteriaUseCase,
+    private val getTeamProjectsUseCase: GetTeamProjectsUseCase,
+    private val createProjectUseCase: CreateProjectUseCase,
+    private val submitProjectUseCase: SubmitProjectUseCase,
+    private val returnDraftUseCase: ReturnDraftUseCase,
+    private val disqualifyProjectUseCase: DisqualifyProjectUseCase,
+    private val getJamProjectsUseCase: GetJamProjectsUseCase,
+    private val getProjectUseCase: GetProjectUseCase,
+    private val uploadProjectFileUseCase: UploadProjectFileUseCase,
+    private val getProjectFilesUseCase: GetProjectFilesUseCase,
+    private val deleteProjectFileUseCase: DeleteProjectFileUseCase
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(JamDetailsState())
@@ -38,12 +50,13 @@ class JamDetailsViewModel(
             
             val userResult = getCurrentUserUseCase()
             if (userResult is ApiResult.Success) {
+                val user = userResult.data
                 _state.value = _state.value.copy(
-                    userRole = userResult.data.role,
-                    userId = userResult.data.id
+                    userRole = user.role,
+                    userId = user.id
                 )
                 
-                if (userResult.data.role == UserRole.PARTICIPANT) {
+                if (user.role == UserRole.PARTICIPANT) {
                     loadUserTeams()
                 }
             }
@@ -54,10 +67,15 @@ class JamDetailsViewModel(
 
             when (val result = getJamDetailsUseCase(jamId)) {
                 is ApiResult.Success -> {
+                    val jam = result.data
                     _state.value = _state.value.copy(
-                        jamDetails = result.data,
-                        isLoading = false
+                        jamDetails = jam
                     )
+
+                    if (jam.status == GameJamStatus.IN_PROGRESS.name) {
+                        loadInProgressData(jamId)
+                    }
+                    _state.value = _state.value.copy(isLoading = false)
                 }
                 is ApiResult.Error -> {
                     _state.value = _state.value.copy(
@@ -69,12 +87,162 @@ class JamDetailsViewModel(
         }
     }
 
+    private suspend fun loadInProgressData(jamId: String) {
+        val currentState = _state.value
+        if (currentState.isParticipant) {
+            val approvedReg = currentState.getUserRegistration()
+            if (approvedReg != null) {
+                when (val projectsResult = getTeamProjectsUseCase(approvedReg.teamId)) {
+                    is ApiResult.Success -> {
+                        val project = projectsResult.data.firstOrNull()
+                        if (project != null) {
+                            loadProjectDetails(project.id)
+                        }
+                    }
+                    else -> {}
+                }
+            }
+        }
+
+        if (currentState.isAdminOrOrganizer) {
+            loadAllProjects(jamId)
+        }
+    }
+
+    private suspend fun loadProjectDetails(projectId: String) {
+        when (val result = getProjectUseCase(projectId)) {
+            is ApiResult.Success -> {
+                _state.value = _state.value.copy(userProject = result.data)
+                loadProjectFiles(projectId)
+            }
+            else -> {}
+        }
+    }
+
+    private suspend fun loadProjectFiles(projectId: String) {
+        when (val result = getProjectFilesUseCase(projectId)) {
+            is ApiResult.Success -> {
+                _state.value = _state.value.copy(projectFiles = result.data)
+            }
+            else -> {}
+        }
+    }
+
+    fun uploadFile(projectId: String, fileUpload: FileUpload) {
+        viewModelScope.launch {
+            _state.value = _state.value.copy(isActionLoading = true)
+            // Mapping FileUpload to ProjectFile (using bytes)
+            val fileToUpload = ProjectFile(
+                id = "", // Backend will assign
+                fileName = fileUpload.fileName,
+                fileSize = fileUpload.bytes.size.toLong(),
+                mimeType = fileUpload.mimeType,
+                fileType = fileUpload.fileType,
+                uploadedAt = "",
+                uploadedByUserId = "",
+                bytes = fileUpload.bytes
+            )
+            
+            when (val result = uploadProjectFileUseCase(projectId, fileToUpload)) {
+                is ApiResult.Success -> {
+                    loadProjectFiles(projectId)
+                    _state.value = _state.value.copy(isActionLoading = false)
+                }
+                is ApiResult.Error -> {
+                    _state.value = _state.value.copy(isActionLoading = false, errorMessage = result.message)
+                }
+            }
+        }
+    }
+
+    fun deleteFile(projectId: String, fileId: String) {
+        viewModelScope.launch {
+            _state.value = _state.value.copy(isActionLoading = true)
+            when (val result = deleteProjectFileUseCase(projectId, fileId)) {
+                is ApiResult.Success -> {
+                    loadProjectFiles(projectId)
+                    _state.value = _state.value.copy(isActionLoading = false)
+                }
+                is ApiResult.Error -> {
+                    _state.value = _state.value.copy(isActionLoading = false, errorMessage = result.message)
+                }
+            }
+        }
+    }
+
+    private suspend fun loadAllProjects(jamId: String) {
+        when (val result = getJamProjectsUseCase(jamId, ProjectStatus.SUBMITTED)) {
+            is ApiResult.Success -> {
+                _state.value = _state.value.copy(allProjects = result.data)
+            }
+            else -> {}
+        }
+    }
+
     private suspend fun loadUserTeams() {
         when (val result = getUserTeamsUseCase()) {
             is ApiResult.Success -> {
-                _state.value = _state.value.copy(userTeams = result.data.filter { it.isLeader })
+                _state.value = _state.value.copy(userTeams = result.data)
             }
             else -> {}
+        }
+    }
+
+    fun createProject(jamId: String, title: String, description: String?) {
+        viewModelScope.launch {
+            _state.value = _state.value.copy(isActionLoading = true)
+            when (val result = createProjectUseCase(jamId, CreateProject(title, description))) {
+                is ApiResult.Success -> {
+                    _state.value = _state.value.copy(userProject = result.data, isActionLoading = false)
+                    loadProjectFiles(result.data.id)
+                }
+                is ApiResult.Error -> {
+                    _state.value = _state.value.copy(isActionLoading = false, errorMessage = result.message)
+                }
+            }
+        }
+    }
+
+    fun submitProject(projectId: String) {
+        viewModelScope.launch {
+            _state.value = _state.value.copy(isActionLoading = true)
+            when (val result = submitProjectUseCase(projectId)) {
+                is ApiResult.Success -> {
+                    _state.value = _state.value.copy(userProject = result.data, isActionLoading = false)
+                }
+                is ApiResult.Error -> {
+                    _state.value = _state.value.copy(isActionLoading = false, errorMessage = result.message)
+                }
+            }
+        }
+    }
+
+    fun cancelSubmission(projectId: String) {
+        viewModelScope.launch {
+            _state.value = _state.value.copy(isActionLoading = true)
+            when (val result = returnDraftUseCase(projectId)) {
+                is ApiResult.Success -> {
+                    _state.value = _state.value.copy(userProject = result.data, isActionLoading = false)
+                }
+                is ApiResult.Error -> {
+                    _state.value = _state.value.copy(isActionLoading = false, errorMessage = result.message)
+                }
+            }
+        }
+    }
+
+    fun disqualifyProject(jamId: String, projectId: String) {
+        viewModelScope.launch {
+            _state.value = _state.value.copy(isActionLoading = true)
+            when (val result = disqualifyProjectUseCase(projectId)) {
+                is ApiResult.Success -> {
+                    loadAllProjects(jamId)
+                    _state.value = _state.value.copy(isActionLoading = false)
+                }
+                is ApiResult.Error -> {
+                    _state.value = _state.value.copy(isActionLoading = false, errorMessage = result.message)
+                }
+            }
         }
     }
 

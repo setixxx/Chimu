@@ -26,6 +26,7 @@ val appModule = module {
     single { LeaderboardApi(get<KtorClient>().httpClient) }
     single { UserApi(get<KtorClient>().httpClient) }
     single { ProjectApi(get<KtorClient>().httpClient) }
+    single { ProjectFileApi(get<KtorClient>().httpClient) }
     single { RatingApi(get<KtorClient>().httpClient) }
     single { RatingCriteriaApi(get<KtorClient>().httpClient) }
     single { SkillApi(get<KtorClient>().httpClient) }
@@ -41,6 +42,7 @@ val appModule = module {
     single<JudgeRepository> { JudgeRepositoryImpl(get(), get()) }
     single<LeaderboardRepository> { LeaderboardRepositoryImpl(get(), get()) }
     single<ProjectRepository> { ProjectRepositoryImpl(get(), get()) }
+    single<ProjectFileRepository> { ProjectFileRepositoryImpl(get(), get()) }
     single<RatingCriteriaRepository> { RatingCriteriaRepositoryImpl(get(), get()) }
     single<RatingRepository> { RatingRepositoryImpl(get(), get()) }
     single<SkillRepository> { SkillRepositoryImpl(get(), get()) }
@@ -98,6 +100,19 @@ val appModule = module {
     factory { GetAllRoleUpgradesUseCase(get()) }
     factory { CancelRoleUpgradeUseCase(get()) }
 
+    // Project UseCases
+    factory { GetTeamProjectsUseCase(get()) }
+    factory { CreateProjectUseCase(get()) }
+    factory { SubmitProjectUseCase(get()) }
+    factory { ReturnDraftUseCase(get()) }
+    factory { DisqualifyProjectUseCase(get()) }
+    factory { GetJamProjectsUseCase(get()) }
+    factory { GetProjectUseCase(get()) }
+    factory { GetProjectFilesUseCase(get()) }
+    factory { UploadProjectFileUseCase(get()) }
+    factory { DownloadProjectFileUseCase(get()) }
+    factory { DeleteProjectFileUseCase(get()) }
+
 
     viewModel { SplashViewModel(get()) }
     viewModel { LoginViewModel(get(), get()) }
@@ -107,6 +122,6 @@ val appModule = module {
     viewModel { CreateTeamViewModel(get(), get()) }
     viewModel { TeamDetailsViewModel(get(), get(), get(), get(), get(), get(), get(), get(), get(), get()) }
     viewModel { CreateJamViewModel(get(), get()) }
-    viewModel { JamDetailsViewModel(get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get()) }
+    viewModel { JamDetailsViewModel(get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get()) }
     viewModel { EditJamViewModel(get(), get()) }
 }

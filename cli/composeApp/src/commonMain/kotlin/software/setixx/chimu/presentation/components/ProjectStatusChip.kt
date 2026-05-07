@@ -17,7 +17,6 @@ fun ProjectStatusChip(status: ProjectStatus) {
     val (text, color) = when (status) {
         ProjectStatus.DRAFT -> "Черновик" to MaterialTheme.colorScheme.surfaceVariant
         ProjectStatus.SUBMITTED -> "Отправлен" to MaterialTheme.colorScheme.primary
-        ProjectStatus.PUBLISHED -> "Опубликован" to MaterialTheme.colorScheme.tertiary
         ProjectStatus.DISQUALIFIED -> "Дисквалифицирован" to MaterialTheme.colorScheme.error
         else -> status.name to MaterialTheme.colorScheme.surfaceVariant
     }

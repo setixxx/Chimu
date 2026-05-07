@@ -5,6 +5,7 @@ import io.ktor.client.call.body
 import io.ktor.client.request.delete
 import io.ktor.client.request.get
 import io.ktor.client.request.header
+import io.ktor.client.request.patch
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.HttpHeaders
@@ -19,7 +20,7 @@ class ProjectApi(private val client: HttpClient) {
         accessToken: String,
         projectId: String
     ): ProjectDetailsResponse {
-        val response = client.get("/api/projects/$projectId/submit") {
+        val response = client.post("/api/projects/$projectId/submit") {
             header(HttpHeaders.Authorization, "Bearer $accessToken")
         }
         when (response.status.value) {
@@ -34,7 +35,7 @@ class ProjectApi(private val client: HttpClient) {
         accessToken: String,
         projectId: String
     ): ProjectDetailsResponse {
-        val response = client.get("/api/projects/$projectId/return-draft") {
+        val response = client.post("/api/projects/$projectId/return-draft") {
             header(HttpHeaders.Authorization, "Bearer $accessToken")
         }
         when (response.status.value) {
@@ -49,7 +50,7 @@ class ProjectApi(private val client: HttpClient) {
         accessToken: String,
         projectId: String
     ): ProjectDetailsResponse {
-        val response = client.get("/api/projects/$projectId/publish") {
+        val response = client.post("/api/projects/$projectId/publish") {
             header(HttpHeaders.Authorization, "Bearer $accessToken")
         }
         when (response.status.value) {
@@ -64,7 +65,7 @@ class ProjectApi(private val client: HttpClient) {
         accessToken: String,
         projectId: String
     ): ProjectDetailsResponse {
-        val response = client.get("/api/projects/$projectId/disqualify") {
+        val response = client.post("/api/projects/$projectId/disqualify") {
             header(HttpHeaders.Authorization, "Bearer $accessToken")
         }
         when (response.status.value) {
@@ -138,7 +139,7 @@ class ProjectApi(private val client: HttpClient) {
         projectId: String,
         body: UpdateProjectRequest
     ): ProjectDetailsResponse {
-        val response = client.post("/api/projects/$projectId") {
+        val response = client.patch("/api/projects/$projectId") {
             header(HttpHeaders.Authorization, "Bearer $accessToken")
             setBody(body)
         }

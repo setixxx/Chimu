@@ -1,6 +1,8 @@
 package software.setixx.chimu.presentation.navigation
 
 import androidx.compose.runtime.*
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -19,8 +21,14 @@ import software.setixx.chimu.presentation.team.JoinTeamScreen
 import software.setixx.chimu.presentation.team.TeamDetailsScreen
 
 @Composable
-fun AppNavigation() {
+fun AppNavigation(
+    onNavHostReady: suspend (NavController) -> Unit = {}
+) {
     val navController = rememberNavController()
+
+    LaunchedEffect(navController) {
+        onNavHostReady(navController)
+    }
 
     NavHost(
         navController = navController,

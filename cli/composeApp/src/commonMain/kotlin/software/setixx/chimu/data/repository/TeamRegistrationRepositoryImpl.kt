@@ -41,7 +41,7 @@ class TeamRegistrationRepositoryImpl(
         }
     }
 
-    override suspend fun withdrawTeam(jamId: String, teamId: String): ApiResult<Unit> {
+    override suspend fun cancelWithdrawTeam(jamId: String, teamId: String): ApiResult<Unit> {
         return try {
             val token = tokenStorage.getAccessToken()
                 ?: return ApiResult.Error("Ошибка аутентификации")

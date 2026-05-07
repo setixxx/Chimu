@@ -1,5 +1,6 @@
 package software.setixx.chimu
 
+/*
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.window.ComposeViewport
 
@@ -9,3 +10,4 @@ fun main() {
         App()
     }
 }
+*/

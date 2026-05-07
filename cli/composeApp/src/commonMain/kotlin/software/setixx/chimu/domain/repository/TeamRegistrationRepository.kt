@@ -8,6 +8,6 @@ import software.setixx.chimu.domain.model.UpdateRegistrationStatus
 interface TeamRegistrationRepository {
     suspend fun getJamRegistrations(jamId: String): ApiResult<List<Registration>>
     suspend fun registerTeam(jamId: String, data: RegisterTeam): ApiResult<Registration>
-    suspend fun withdrawTeam(jamId: String, teamId: String): ApiResult<Unit>
+    suspend fun cancelWithdrawTeam(jamId: String, teamId: String): ApiResult<Unit>
     suspend fun updateRegistrationStatus(jamId: String, teamId: String, data: UpdateRegistrationStatus): ApiResult<Unit>
 }

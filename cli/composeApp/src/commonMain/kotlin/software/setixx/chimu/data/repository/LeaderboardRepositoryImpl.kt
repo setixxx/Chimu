@@ -40,7 +40,7 @@ class LeaderboardRepositoryImpl(
             jamId = jamId,
             jamName = jamName,
             totalProjects = totalProjects,
-            publishedProjects = publishedProjects,
+            submittedProjects = submittedProjects,
             disqualifiedProjects = disqualifiedProjects,
             totalJudges = totalJudges,
             averageScoresPerCriteria = averageScoresPerCriteria.map { 

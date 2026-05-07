@@ -19,7 +19,7 @@ class RegisterTeamUseCase(
 class WithdrawTeamUseCase(
     private val repository: TeamRegistrationRepository
 ){
-    suspend operator fun invoke(jamId: String, teamId: String) = repository.withdrawTeam(jamId, teamId)
+    suspend operator fun invoke(jamId: String, teamId: String) = repository.cancelWithdrawTeam(jamId, teamId)
 }
 
 class UpdateRegistrationStatusUseCase(

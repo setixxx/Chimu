@@ -11,9 +11,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import org.koin.compose.viewmodel.koinViewModel
+import software.setixx.chimu.api.domain.GameJamStatus
+import software.setixx.chimu.api.domain.ProjectFileType
+import software.setixx.chimu.api.domain.ProjectStatus
+import software.setixx.chimu.data.picker.rememberFilePicker
 import software.setixx.chimu.domain.model.CreateRatingCriteria
 import software.setixx.chimu.presentation.components.InfoRow
-import software.setixx.chimu.presentation.components.StatusChip
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -25,20 +28,48 @@ fun JamDetailsScreen(
 ) {
     val state by viewModel.state.collectAsState()
     val scrollState = rememberScrollState()
-    
+
     var showDeleteDialog by remember { mutableStateOf(false) }
     var showRegisterDialog by remember { mutableStateOf(false) }
     var showAssignJudgeDialog by remember { mutableStateOf(false) }
     var showAddCriteriaDialog by remember { mutableStateOf(false) }
-    
+    var showCreateProjectDialog by remember { mutableStateOf(false) }
+
     var judgeUserIdInput by remember { mutableStateOf("") }
-    
+
     var criteriaName by remember { mutableStateOf("") }
     var criteriaDesc by remember { mutableStateOf("") }
     var criteriaMaxScore by remember { mutableStateOf("10") }
     var criteriaWeight by remember { mutableStateOf("1.0") }
-    
+
+    var projectTitle by remember { mutableStateOf("") }
+    var projectDescription by remember { mutableStateOf("") }
+
     val snackbarHostState = remember { SnackbarHostState() }
+
+    val screenshotPicker = rememberFilePicker { fileUpload ->
+        fileUpload?.let {
+            state.userProject?.id?.let { projectId ->
+                viewModel.uploadFile(projectId, it.copy(fileType = ProjectFileType.SCREENSHOT))
+            }
+        }
+    }
+
+    val buildPicker = rememberFilePicker { fileUpload ->
+        fileUpload?.let {
+            state.userProject?.id?.let { projectId ->
+                viewModel.uploadFile(projectId, it.copy(fileType = ProjectFileType.BUILD))
+            }
+        }
+    }
+
+    val videoPicker = rememberFilePicker { fileUpload ->
+        fileUpload?.let {
+            state.userProject?.id?.let { projectId ->
+                viewModel.uploadFile(projectId, it.copy(fileType = ProjectFileType.VIDEO))
+            }
+        }
+    }
 
     LaunchedEffect(jamId) {
         viewModel.loadJamDetails(jamId)
@@ -94,6 +125,7 @@ fun JamDetailsScreen(
                         .padding(16.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
+                    // COMMON INFO (Visible to everyone)
                     Card(modifier = Modifier.fillMaxWidth()) {
                         Column(modifier = Modifier.padding(16.dp)) {
                             Text("Информация", style = MaterialTheme.typography.titleLarge)
@@ -108,83 +140,6 @@ fun JamDetailsScreen(
 
                     Card(modifier = Modifier.fillMaxWidth()) {
                         Column(modifier = Modifier.padding(16.dp)) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text("Критерии оценивания", style = MaterialTheme.typography.titleMedium)
-                                if (state.canEdit) {
-                                    IconButton(onClick = { showAddCriteriaDialog = true }) {
-                                        Icon(Icons.Default.Add, "Добавить критерий")
-                                    }
-                                }
-                            }
-                            if (state.criteria.isEmpty()) {
-                                Text("Критерии еще не созданы", style = MaterialTheme.typography.bodySmall)
-                            } else {
-                                state.criteria.forEach { item ->
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
-                                        horizontalArrangement = Arrangement.SpaceBetween,
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        Column(modifier = Modifier.weight(1f)) {
-                                            Text(item.name, style = MaterialTheme.typography.bodyLarge)
-                                            if (!item.description.isNullOrBlank()) {
-                                                Text(item.description!!, style = MaterialTheme.typography.bodySmall)
-                                            }
-                                            Text("Макс. балл: ${item.maxScore}, Вес: ${item.weight}", style = MaterialTheme.typography.labelSmall)
-                                        }
-                                        if (state.canEdit) {
-                                            IconButton(onClick = { viewModel.deleteCriteria(jamId, item.id) }) {
-                                                Icon(Icons.Default.Delete, "Удалить", tint = MaterialTheme.colorScheme.error)
-                                            }
-                                        }
-                                    }
-                                    if (item != state.criteria.last()) HorizontalDivider()
-                                }
-                            }
-                        }
-                    }
-
-                    Card(modifier = Modifier.fillMaxWidth()) {
-                        Column(modifier = Modifier.padding(16.dp)) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text("Судьи", style = MaterialTheme.typography.titleMedium)
-                                if (state.canEdit) {
-                                    IconButton(onClick = { showAssignJudgeDialog = true }) {
-                                        Icon(Icons.Default.PersonAdd, "Назначить судью")
-                                    }
-                                }
-                            }
-                            if (state.judges.isEmpty()) {
-                                Text("Судьи еще не назначены", style = MaterialTheme.typography.bodySmall)
-                            } else {
-                                state.judges.forEach { judge ->
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
-                                        horizontalArrangement = Arrangement.SpaceBetween,
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        Text(judge.nickname, style = MaterialTheme.typography.bodyLarge)
-                                        if (state.canEdit) {
-                                            IconButton(onClick = { viewModel.unassignJudge(jamId, judge.userId) }) {
-                                                Icon(Icons.Default.Close, "Удалить", tint = MaterialTheme.colorScheme.error)
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    Card(modifier = Modifier.fillMaxWidth()) {
-                        Column(modifier = Modifier.padding(16.dp)) {
                             Text("Даты", style = MaterialTheme.typography.titleMedium)
                             InfoRow(icon = Icons.Default.AppRegistration, label = "Регистрация", value = "${jam.registrationStart} - ${jam.registrationEnd}")
                             InfoRow(icon = Icons.Default.PlayArrow, label = "Джем", value = "${jam.jamStart} - ${jam.jamEnd}")
@@ -192,51 +147,108 @@ fun JamDetailsScreen(
                         }
                     }
 
-                    if (state.isParticipant && state.userTeams.isNotEmpty()) {
-                        Button(
-                            onClick = { showRegisterDialog = true },
-                            modifier = Modifier.fillMaxWidth(),
-                            enabled = !state.isActionLoading
-                        ) {
-                            Text("Подать заявку на участие")
+                    // ROLE-BASED LOGIC
+                    if (state.isJudge) {
+                        Card(modifier = Modifier.fillMaxWidth()) {
+                            Row(
+                                modifier = Modifier.padding(16.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                            ) {
+                                Icon(Icons.Default.Gavel, null, tint = MaterialTheme.colorScheme.primary)
+                                Text("Вы участвуете как судья. Вы сможете оценивать проекты после окончания периода разработки.")
+                            }
+                        }
+                    } else {
+                        // PARTICIPANT SECTION
+                        if (jam.status == GameJamStatus.IN_PROGRESS.name && state.isParticipant) {
+                            val registration = state.getUserRegistration()
+                            if (registration != null) {
+                                ParticipantInProgressSection(
+                                    state = state,
+                                    onCreateProject = { showCreateProjectDialog = true },
+                                    onSubmitProject = { viewModel.submitProject(it) },
+                                    onCancelSubmission = { viewModel.cancelSubmission(it) },
+                                    onUploadScreenshot = screenshotPicker,
+                                    onUploadBuild = buildPicker,
+                                    onUploadVideo = videoPicker,
+                                    onDeleteFile = { viewModel.deleteFile(state.userProject?.id ?: "", it) }
+                                )
+                            }
+                        }
+
+                        if (jam.status == GameJamStatus.REGISTRATION_OPEN.name && state.isParticipant && state.userTeams.isNotEmpty()) {
+                            Button(
+                                onClick = { showRegisterDialog = true },
+                                modifier = Modifier.fillMaxWidth(),
+                                enabled = !state.isActionLoading
+                            ) {
+                                Text("Подать заявку на участие")
+                            }
+                        }
+
+                        // ADMIN / ORGANIZER SECTION
+                        if (jam.status == GameJamStatus.IN_PROGRESS.name && state.isAdminOrOrganizer) {
+                            AdminInProgressSection(
+                                state = state,
+                                onDisqualifyProject = { viewModel.disqualifyProject(jamId, it) }
+                            )
+                        }
+
+                        // REGISTERED TEAMS (Visible to Participants, Admins, Organizers)
+                        Card(modifier = Modifier.fillMaxWidth()) {
+                            Column(modifier = Modifier.padding(16.dp)) {
+                                Text("Команды-участники (${state.registrations.size})", style = MaterialTheme.typography.titleMedium)
+                                Spacer(modifier = Modifier.height(8.dp))
+                                if (state.registrations.isEmpty()) {
+                                    Text("Пока нет зарегистрированных команд", style = MaterialTheme.typography.bodyMedium)
+                                } else {
+                                    state.registrations.forEach { reg ->
+                                        ListItem(
+                                            headlineContent = { Text(reg.teamName) },
+                                            supportingContent = { Text("От: ${reg.registeredByNickname}") },
+                                            trailingContent = {
+                                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                                    Badge { Text(reg.status) }
+                                                    if (state.canEdit && reg.status == "PENDING") {
+                                                        IconButton(onClick = { viewModel.updateRegistrationStatus(jamId, reg.teamId, "APPROVED") }) {
+                                                            Icon(Icons.Default.Check, "Одобрить", tint = MaterialTheme.colorScheme.primary)
+                                                        }
+                                                        IconButton(onClick = { viewModel.updateRegistrationStatus(jamId, reg.teamId, "REJECTED") }) {
+                                                            Icon(Icons.Default.Close, "Отклонить", tint = MaterialTheme.colorScheme.error)
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        )
+                                        if (reg != state.registrations.last()) HorizontalDivider()
+                                    }
+                                }
+                            }
                         }
                     }
 
-                    Card(modifier = Modifier.fillMaxWidth()) {
-                        Column(modifier = Modifier.padding(16.dp)) {
-                            Text("Команды-участники (${state.registrations.size})", style = MaterialTheme.typography.titleMedium)
-                            Spacer(modifier = Modifier.height(8.dp))
-                            if (state.registrations.isEmpty()) {
-                                Text("Пока нет зарегистрированных команд", style = MaterialTheme.typography.bodyMedium)
-                            } else {
-                                state.registrations.forEach { registration ->
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
-                                        horizontalArrangement = Arrangement.SpaceBetween,
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        Column {
-                                            Text(registration.teamName, style = MaterialTheme.typography.bodyLarge)
-                                            Text("От: ${registration.registeredByNickname}", style = MaterialTheme.typography.bodySmall)
-                                        }
-                                        Row(verticalAlignment = Alignment.CenterVertically) {
-                                            Text(registration.status, style = MaterialTheme.typography.bodySmall)
-                                            if (state.canEdit && registration.status == "PENDING") {
-                                                IconButton(onClick = { viewModel.updateRegistrationStatus(jamId, registration.teamId, "APPROVED") }) {
-                                                    Icon(Icons.Default.Check, "Одобрить", tint = MaterialTheme.colorScheme.primary)
-                                                }
-                                                IconButton(onClick = { viewModel.updateRegistrationStatus(jamId, registration.teamId, "REJECTED") }) {
-                                                    Icon(Icons.Default.Close, "Отклонить", tint = MaterialTheme.colorScheme.error)
-                                                }
-                                            }
-                                            if (registration.registeredBy == state.userId && registration.status != "WITHDRAWN") {
-                                                IconButton(onClick = { viewModel.withdrawTeam(jamId, registration.teamId) }) {
-                                                    Icon(Icons.Default.ExitToApp, "Отозвать", tint = MaterialTheme.colorScheme.error)
-                                                }
-                                            }
-                                        }
-                                    }
-                                    if (registration != state.registrations.last()) HorizontalDivider()
+                    // MANAGE SECTION (Admins & Organizers)
+                    if (state.isAdminOrOrganizer) {
+                        Card(modifier = Modifier.fillMaxWidth()) {
+                            Column(modifier = Modifier.padding(16.dp)) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text("Управление джемом", style = MaterialTheme.typography.titleMedium)
+                                }
+                                Spacer(modifier = Modifier.height(8.dp))
+                                TextButton(onClick = { showAddCriteriaDialog = true }) {
+                                    Icon(Icons.Default.Add, null)
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text("Добавить критерий оценивания")
+                                }
+                                TextButton(onClick = { showAssignJudgeDialog = true }) {
+                                    Icon(Icons.Default.PersonAdd, null)
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text("Назначить судью")
                                 }
                             }
                         }
@@ -246,16 +258,49 @@ fun JamDetailsScreen(
         }
     }
 
+    // DIALOGS
+    if (showCreateProjectDialog) {
+        AlertDialog(
+            onDismissRequest = { showCreateProjectDialog = false },
+            title = { Text("Создание проекта") },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    OutlinedTextField(
+                        value = projectTitle,
+                        onValueChange = { projectTitle = it },
+                        label = { Text("Название проекта") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    OutlinedTextField(
+                        value = projectDescription,
+                        onValueChange = { projectDescription = it },
+                        label = { Text("Описание (необязательно)") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            },
+            confirmButton = {
+                Button(onClick = {
+                    viewModel.createProject(jamId, projectTitle, projectDescription)
+                    showCreateProjectDialog = false
+                }) { Text("Создать") }
+            },
+            dismissButton = {
+                TextButton(onClick = { showCreateProjectDialog = false }) { Text("Отмена") }
+            }
+        )
+    }
+
     if (showAddCriteriaDialog) {
         AlertDialog(
             onDismissRequest = { showAddCriteriaDialog = false },
-            title = { Text("Добавить критерий") },
+            title = { Text("Новый критерий") },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     OutlinedTextField(value = criteriaName, onValueChange = { criteriaName = it }, label = { Text("Название") })
                     OutlinedTextField(value = criteriaDesc, onValueChange = { criteriaDesc = it }, label = { Text("Описание") })
                     OutlinedTextField(value = criteriaMaxScore, onValueChange = { criteriaMaxScore = it }, label = { Text("Макс. балл") })
-                    OutlinedTextField(value = criteriaWeight, onValueChange = { criteriaWeight = it }, label = { Text("Вес (например 1.0)") })
+                    OutlinedTextField(value = criteriaWeight, onValueChange = { criteriaWeight = it }, label = { Text("Вес") })
                 }
             },
             confirmButton = {
@@ -263,22 +308,17 @@ fun JamDetailsScreen(
                     viewModel.createCriteria(
                         jamId,
                         CreateRatingCriteria(
-                            name = criteriaName,
-                            description = criteriaDesc.takeIf { it.isNotBlank() },
-                            maxScore = criteriaMaxScore.toIntOrNull() ?: 10,
-                            weight = criteriaWeight.toDoubleOrNull() ?: 1.0,
-                            orderIndex = state.criteria.size
+                            criteriaName,
+                            criteriaDesc.takeIf { it.isNotBlank() },
+                            criteriaMaxScore.toIntOrNull() ?: 10,
+                            criteriaWeight.toDoubleOrNull() ?: 1.0,
+                            state.criteria.size
                         )
                     )
                     showAddCriteriaDialog = false
-                    criteriaName = ""; criteriaDesc = ""
-                }) {
-                    Text("Создать")
-                }
+                }) { Text("Добавить") }
             },
-            dismissButton = {
-                TextButton(onClick = { showAddCriteriaDialog = false }) { Text("Отмена") }
-            }
+            dismissButton = { TextButton(onClick = { showAddCriteriaDialog = false }) { Text("Отмена") } }
         )
     }
 
@@ -298,16 +338,9 @@ fun JamDetailsScreen(
                 Button(onClick = {
                     viewModel.assignJudge(jamId, judgeUserIdInput)
                     showAssignJudgeDialog = false
-                    judgeUserIdInput = ""
-                }) {
-                    Text("Назначить")
-                }
+                }) { Text("Назначить") }
             },
-            dismissButton = {
-                TextButton(onClick = { showAssignJudgeDialog = false }) {
-                    Text("Отмена")
-                }
-            }
+            dismissButton = { TextButton(onClick = { showAssignJudgeDialog = false }) { Text("Отмена") } }
         )
     }
 
@@ -349,23 +382,173 @@ fun JamDetailsScreen(
         AlertDialog(
             onDismissRequest = { showDeleteDialog = false },
             title = { Text("Удалить джем?") },
-            text = { Text("Это действие нельзя будет отменить.") },
+            text = { Text("Все данные, включая регистрации и проекты, будут безвозвратно удалены.") },
             confirmButton = {
-                TextButton(
-                    onClick = {
-                        viewModel.deleteJam(jamId)
-                        showDeleteDialog = false
-                    },
-                    colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)
-                ) {
+                TextButton(onClick = { viewModel.deleteJam(jamId); showDeleteDialog = false }, colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)) {
                     Text("Удалить")
                 }
             },
-            dismissButton = {
-                TextButton(onClick = { showDeleteDialog = false }) {
-                    Text("Отмена")
+            dismissButton = { TextButton(onClick = { showDeleteDialog = false }) { Text("Отмена") } }
+        )
+    }
+}
+
+@Composable
+fun ParticipantInProgressSection(
+    state: JamDetailsState,
+    onCreateProject: () -> Unit,
+    onSubmitProject: (String) -> Unit,
+    onCancelSubmission: (String) -> Unit,
+    onUploadScreenshot: () -> Unit,
+    onUploadBuild: () -> Unit,
+    onUploadVideo: () -> Unit,
+    onDeleteFile: (String) -> Unit
+) {
+    val isLeader = state.isUserLeaderOfRegisteredTeam()
+    
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)
+    ) {
+        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Text("Ваш проект", style = MaterialTheme.typography.titleMedium)
+            
+            val project = state.userProject
+            if (project == null) {
+                Text("Проект еще не создан. Создать его может только лидер команды.")
+                if (isLeader) {
+                    Button(onClick = onCreateProject, modifier = Modifier.fillMaxWidth()) {
+                        Icon(Icons.Default.Add, null)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Создать проект")
+                    }
+                }
+            } else {
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Text(project.title, style = MaterialTheme.typography.headlineSmall)
+                    Text(project.description ?: "Нет описания", style = MaterialTheme.typography.bodyMedium)
+                    Spacer(modifier = Modifier.height(4.dp))
+                    SuggestionChip(onClick = {}, label = { Text("Статус: ${project.status}") })
+                }
+
+                HorizontalDivider()
+
+                Text("Файлы проекта", style = MaterialTheme.typography.labelLarge)
+                
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    val screenshotsCount = state.projectFiles.count { it.fileType == ProjectFileType.SCREENSHOT }
+                    val buildsCount = state.projectFiles.count { it.fileType == ProjectFileType.BUILD }
+                    val videosCount = state.projectFiles.count { it.fileType == ProjectFileType.VIDEO }
+
+                    FileUploadButton(Icons.Default.Image, "Изображения", screenshotsCount, 5, isLeader, onUploadScreenshot)
+                    FileUploadButton(Icons.Default.Build, "Сборки", buildsCount, 5, isLeader, onUploadBuild)
+                    FileUploadButton(Icons.Default.VideoLibrary, "Видео", videosCount, 5, isLeader, onUploadVideo)
+                }
+
+                if (state.projectFiles.isNotEmpty()) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text("Список файлов", style = MaterialTheme.typography.labelMedium)
+                    state.projectFiles.forEach { file ->
+                        ListItem(
+                            headlineContent = { Text(file.fileName) },
+                            supportingContent = { Text("${file.fileType} • ${file.fileSize / 1024} KB") },
+                            trailingContent = {
+                                if (isLeader) {
+                                    IconButton(onClick = { onDeleteFile(file.id) }) {
+                                        Icon(Icons.Default.Delete, "Удалить", tint = MaterialTheme.colorScheme.error)
+                                    }
+                                }
+                            }
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                if (isLeader) {
+                    if (project.status == ProjectStatus.DRAFT.name) {
+                        Button(
+                            onClick = { onSubmitProject(project.id) },
+                            modifier = Modifier.fillMaxWidth(),
+                            enabled = !state.isActionLoading
+                        ) {
+                            Text("Отправить проект")
+                        }
+                    } else if (project.status == ProjectStatus.SUBMITTED.name) {
+                        OutlinedButton(
+                            onClick = { onCancelSubmission(project.id) },
+                            modifier = Modifier.fillMaxWidth(),
+                            enabled = !state.isActionLoading
+                        ) {
+                            Text("Отменить отправку")
+                        }
+                    }
+                } else {
+                    Text("Только лидер может отправлять или изменять файлы проекта.", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.outline)
                 }
             }
-        )
+        }
+    }
+}
+
+@Composable
+fun AdminInProgressSection(
+    state: JamDetailsState,
+    onDisqualifyProject: (String) -> Unit
+) {
+    Card(modifier = Modifier.fillMaxWidth()) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text("Текущие проекты", style = MaterialTheme.typography.titleMedium)
+            Spacer(modifier = Modifier.height(12.dp))
+            
+            if (state.allProjects.isEmpty()) {
+                Text("Пока нет отправленных проектов.", style = MaterialTheme.typography.bodyMedium)
+            } else {
+                state.allProjects.forEach { project ->
+                    ListItem(
+                        headlineContent = { Text(project.title) },
+                        supportingContent = { Text("Команда: ${project.teamName ?: "Без названия"}") },
+                        trailingContent = {
+                            if (project.status == ProjectStatus.SUBMITTED) {
+                                IconButton(onClick = { onDisqualifyProject(project.id) }) {
+                                    Icon(Icons.Default.Block, "Дисквалифицировать", tint = MaterialTheme.colorScheme.error)
+                                }
+                            }
+                        }
+                    )
+                    if (project != state.allProjects.last()) HorizontalDivider()
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun FileUploadButton(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    label: String,
+    currentCount: Int,
+    maxCount: Int,
+    enabled: Boolean,
+    onClick: () -> Unit
+) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(4.dp)) {
+        Box(contentAlignment = Alignment.Center) {
+            FilledIconButton(
+                onClick = onClick,
+                enabled = enabled && currentCount < maxCount,
+                modifier = Modifier.size(48.dp)
+            ) {
+                Icon(icon, contentDescription = null)
+            }
+            if (currentCount > 0) {
+                Badge(modifier = Modifier.align(Alignment.TopEnd)) { Text(currentCount.toString()) }
+            }
+        }
+        Text(label, style = MaterialTheme.typography.labelSmall)
+        Text("$currentCount/$maxCount", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.outline)
     }
 }
