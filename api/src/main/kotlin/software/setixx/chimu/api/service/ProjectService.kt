@@ -14,7 +14,8 @@ class ProjectService(
     private val gameJamRepository: GameJamRepository,
     private val teamRepository: TeamRepository,
     private val registrationRepository: JamTeamRegistrationRepository,
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val jamJudgeRepository: JamJudgeRepository
 ) {
 
     @Transactional
@@ -65,11 +66,11 @@ class ProjectService(
     }
 
     @Transactional(readOnly = true)
-    fun getJamProjects(jamId: String, userId: Long?, status: ProjectStatus?): List<ProjectResponse> {
+    fun getJamProjects(jamId: String, userId: Long, status: ProjectStatus?): List<ProjectResponse> {
         val jam = gameJamRepository.findByPublicIdAndDeletedAtIsNull(UUID.fromString(jamId))
             ?: throw IllegalArgumentException("Game jam not found")
 
-        val user = userId?.let { userRepository.findById(it).orElse(null) }
+        val user = userRepository.findById(userId).orElseThrow()
 
         val projects = if (status != null) {
             projectRepository.findAllByGameJamIdAndStatusAndDeletedAtIsNull(jam.id!!, status)
@@ -78,7 +79,7 @@ class ProjectService(
         }
 
         return projects
-            .filter { canViewProject(it, jam, userId, user?.role) }
+            .filter { canViewProject(it, jam, user) }
             .map { project ->
                 val team = project.team.id?.let { teamRepository.findById(it).orElse(null) }
                 toResponse(project, jam, team)
@@ -254,14 +255,15 @@ class ProjectService(
         }
     }
 
-    private fun canViewProject(project: Project, jam: GameJam, userId: Long?, userRole: UserRole?): Boolean {
+    private fun canViewProject(project: Project, jam: GameJam, user: User): Boolean {
         return when (project.status) {
             ProjectStatus.DRAFT, ProjectStatus.SUBMITTED, ProjectStatus.UNDER_REVIEW -> {
-                if (userId == null) return false
+                if (user.id == null) return false
                 val team = project.team.id?.let { teamRepository.findById(it).orElse(null) }
-                team != null && (team.leader.id == userId || jam.organizer.id == userId || userRole == UserRole.ADMIN)
+                val isJudge = jamJudgeRepository.existsByGameJamIdAndJudgeIdAndDeletedAtIsNull(jam.id!!, user.id!!)
+                team != null && (team.leader.id == user.id || jam.organizer.id == user.id || user.role == UserRole.ADMIN || isJudge)
             }
-            ProjectStatus.DISQUALIFIED -> jam.organizer.id == userId || userRole == UserRole.ADMIN
+            ProjectStatus.DISQUALIFIED -> jam.organizer.id == user.id || user.role == UserRole.ADMIN
         }
     }
 

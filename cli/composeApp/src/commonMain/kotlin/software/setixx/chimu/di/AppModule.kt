@@ -11,6 +11,7 @@ import software.setixx.chimu.presentation.auth.register.RegisterViewModel
 import software.setixx.chimu.presentation.jam.create.CreateJamViewModel
 import software.setixx.chimu.presentation.jam.details.JamDetailsViewModel
 import software.setixx.chimu.presentation.jam.details.judging.JudgingViewModel
+import software.setixx.chimu.presentation.jam.details.leaderboard.LeaderboardViewModel
 import software.setixx.chimu.presentation.jam.details.management.ManagementViewModel
 import software.setixx.chimu.presentation.jam.details.progress.ProgressViewModel
 import software.setixx.chimu.presentation.jam.details.registration.RegistrationViewModel
@@ -122,33 +123,135 @@ val appModule = module {
     factory { UploadJamBannerUseCase(get()) }
     factory { DeleteJamBannerUseCase(get()) }
     factory { CancelJamUseCase(get()) }
+    factory { GetLeaderboardUseCase(get()) }
+    factory { GetMyRatingsUseCase(get()) }
+    factory { RateProjectUseCase(get()) }
+    factory { DeleteProjectRatingUseCase(get()) }
+    factory { UpdateProjectRatingUseCase(get()) }
+    factory { GetProjectRatingsUseCases(get()) }
 
-    viewModel { SplashViewModel(get()) }
-    viewModel { LoginViewModel(get(), get()) }
-    viewModel { RegisterViewModel(get()) }
-    viewModel { MainViewModel(get(), get(), get(), get(), get()) }
-    viewModel { ProfileViewModel(get(), get(), get(), get()) }
-    viewModel { CreateTeamViewModel(get(), get()) }
-    viewModel { TeamDetailsViewModel(get(), get(), get(), get(), get(), get(), get(), get(), get(), get()) }
-    viewModel { CreateJamViewModel(get(), get()) }
-    viewModel { EditJamViewModel(get(), get()) }
+    viewModel {
+        SplashViewModel(get())
+    }
+    viewModel {
+        LoginViewModel(
+            get(),
+            get())
+    }
+    viewModel {
+        RegisterViewModel(get())
+    }
+    viewModel {
+        MainViewModel(
+            get(),
+            get(),
+            get(),
+            get(),
+            get())
+    }
+    viewModel {
+        ProfileViewModel(
+            get(),
+            get(),
+            get(),
+            get())
+    }
+    viewModel {
+        CreateTeamViewModel(
+            get(),
+            get())
+    }
+    viewModel {
+        TeamDetailsViewModel(
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get())
+    }
+    viewModel {
+        CreateJamViewModel(
+        get(),
+        get())
+    }
+    viewModel { EditJamViewModel(
+        get(),
+        get())
+    }
 
-    viewModel { JamDetailsViewModel(get(), get(), get(), get()) }
+    viewModel { JamDetailsViewModel(
+        get(),
+        get(),
+        get(),
+        get())
+    }
     viewModel {
         RegistrationViewModel(
-            get(), get(), get(), get(), get()
+            get(),
+            get(),
+            get(),
+            get(),
+            get()
         )
     }
     viewModel {
         ProgressViewModel(
-            get(), get(), get(), get(), get(), get(),
-            get(), get(), get(), get(), get(), get(), get(), get(), get()
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get()
         )
     }
-    viewModel { JudgingViewModel(get(), get()) }
+    viewModel {
+        JudgingViewModel(
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get()
+        )
+    }
     viewModel {
         ManagementViewModel(
-            get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get()
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get()
         )
+    }
+    viewModel {
+        LeaderboardViewModel(
+            get(),
+            get())
     }
 }

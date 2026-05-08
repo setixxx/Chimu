@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import software.setixx.chimu.api.domain.ProjectStatus
 import software.setixx.chimu.api.domain.RegistrationStatus
 import software.setixx.chimu.domain.model.ApiResult
 import software.setixx.chimu.domain.model.AssignJudge
@@ -20,7 +21,10 @@ import software.setixx.chimu.domain.usecase.DeleteJamCriteriaUseCase
 import software.setixx.chimu.domain.usecase.GetJamBannerUseCase
 import software.setixx.chimu.domain.usecase.GetJamCriteriaUseCase
 import software.setixx.chimu.domain.usecase.GetJamJudgesUseCase
+import software.setixx.chimu.domain.usecase.GetJamProjectsUseCase
 import software.setixx.chimu.domain.usecase.GetJamRegistrationsUseCase
+import software.setixx.chimu.domain.usecase.GetJamStatisticsUseCase
+import software.setixx.chimu.domain.usecase.GetLeaderboardUseCase
 import software.setixx.chimu.domain.usecase.PublishJamUseCase
 import software.setixx.chimu.domain.usecase.UnassignJudgeUseCase
 import software.setixx.chimu.domain.usecase.UpdateJamCriteriaUseCase
@@ -40,7 +44,10 @@ class ManagementViewModel(
     private val publishJamUseCase: PublishJamUseCase,
     private val getJamBannerUseCase: GetJamBannerUseCase,
     private val uploadJamBannerUseCase: UploadJamBannerUseCase,
-    private val deleteJamBannerUseCase: DeleteJamBannerUseCase
+    private val deleteJamBannerUseCase: DeleteJamBannerUseCase,
+    private val getJamStatisticsUseCase: GetJamStatisticsUseCase,
+    private val getLeaderboardUseCase: GetLeaderboardUseCase,
+    private val getJamProjectsUseCase: GetJamProjectsUseCase
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(ManagementState())
@@ -63,6 +70,24 @@ class ManagementViewModel(
             val bannerResult = getJamBannerUseCase(jamId)
             _state.value = _state.value.copy(hasBanner = bannerResult is ApiResult.Success)
 
+            // Load statistics
+            val statsResult = getJamStatisticsUseCase(jamId)
+            if (statsResult is ApiResult.Success) {
+                _state.value = _state.value.copy(statistics = statsResult.data)
+            }
+
+            // Load leaderboard
+            val leaderboardResult = getLeaderboardUseCase(jamId)
+            if (leaderboardResult is ApiResult.Success) {
+                _state.value = _state.value.copy(leaderboard = leaderboardResult.data)
+            }
+
+            // Load submitted projects for teams section
+            val projectsResult = getJamProjectsUseCase(jamId, ProjectStatus.SUBMITTED)
+            if (projectsResult is ApiResult.Success) {
+                _state.value = _state.value.copy(jamProjects = projectsResult.data)
+            }
+
             when (val criteriaResult = getJamCriteriaUseCase(jamId)) {
                 is ApiResult.Success -> {
                     _state.value = _state.value.copy(
@@ -84,84 +109,11 @@ class ManagementViewModel(
         viewModelScope.launch {
             _state.value = _state.value.copy(isActionLoading = true)
             when (val result = updateRegistrationStatusUseCase(
-                jamId,
-                teamId,
-                UpdateRegistrationStatus(status)
+                jamId, teamId, UpdateRegistrationStatus(status)
             )) {
                 is ApiResult.Success -> {
                     load(jamId)
                     _state.value = _state.value.copy(isActionLoading = false)
-                }
-                is ApiResult.Error -> {
-                    _state.value = _state.value.copy(
-                        isActionLoading = false,
-                        errorMessage = result.message
-                    )
-                }
-            }
-        }
-    }
-
-    fun publishJam(jamId: String) {
-        viewModelScope.launch {
-            val current = _state.value
-            if (current.criteria.isEmpty() || current.judges.isEmpty() || !current.hasBanner) {
-                _state.value = current.copy(
-                    errorMessage = "Для публикации добавьте критерии, судей и баннер"
-                )
-                return@launch
-            }
-
-            _state.value = current.copy(isActionLoading = true)
-            when (val result = publishJamUseCase(jamId)) {
-                is ApiResult.Success -> {
-                    _state.value = _state.value.copy(
-                        isActionLoading = false,
-                        isPublished = true,
-                        successMessage = "Джем опубликован"
-                    )
-                }
-                is ApiResult.Error -> {
-                    _state.value = _state.value.copy(
-                        isActionLoading = false,
-                        errorMessage = result.message
-                    )
-                }
-            }
-        }
-    }
-
-    fun uploadBanner(jamId: String, file: FileUpload) {
-        viewModelScope.launch {
-            _state.value = _state.value.copy(isActionLoading = true)
-            when (val result = uploadJamBannerUseCase(jamId, file)) {
-                is ApiResult.Success -> {
-                    _state.value = _state.value.copy(
-                        hasBanner = true,
-                        isActionLoading = false,
-                        successMessage = "Баннер загружен"
-                    )
-                }
-                is ApiResult.Error -> {
-                    _state.value = _state.value.copy(
-                        isActionLoading = false,
-                        errorMessage = result.message
-                    )
-                }
-            }
-        }
-    }
-
-    fun deleteBanner(jamId: String) {
-        viewModelScope.launch {
-            _state.value = _state.value.copy(isActionLoading = true)
-            when (val result = deleteJamBannerUseCase(jamId)) {
-                is ApiResult.Success -> {
-                    _state.value = _state.value.copy(
-                        hasBanner = false,
-                        isActionLoading = false,
-                        successMessage = "Баннер удален"
-                    )
                 }
                 is ApiResult.Error -> {
                     _state.value = _state.value.copy(
@@ -267,6 +219,76 @@ class ManagementViewModel(
                     _state.value = _state.value.copy(
                         criteria = _state.value.criteria.filter { it.id != criteriaId },
                         isActionLoading = false
+                    )
+                }
+                is ApiResult.Error -> {
+                    _state.value = _state.value.copy(
+                        isActionLoading = false,
+                        errorMessage = result.message
+                    )
+                }
+            }
+        }
+    }
+
+    fun publishJam(jamId: String) {
+        viewModelScope.launch {
+            val current = _state.value
+            if (current.criteria.isEmpty() || current.judges.isEmpty() || !current.hasBanner) {
+                _state.value = current.copy(
+                    errorMessage = "Для публикации добавьте критерии, судей и баннер"
+                )
+                return@launch
+            }
+            _state.value = current.copy(isActionLoading = true)
+            when (val result = publishJamUseCase(jamId)) {
+                is ApiResult.Success -> {
+                    _state.value = _state.value.copy(
+                        isActionLoading = false,
+                        isPublished = true,
+                        successMessage = "Джем опубликован"
+                    )
+                }
+                is ApiResult.Error -> {
+                    _state.value = _state.value.copy(
+                        isActionLoading = false,
+                        errorMessage = result.message
+                    )
+                }
+            }
+        }
+    }
+
+    fun uploadBanner(jamId: String, file: FileUpload) {
+        viewModelScope.launch {
+            _state.value = _state.value.copy(isActionLoading = true)
+            when (val result = uploadJamBannerUseCase(jamId, file)) {
+                is ApiResult.Success -> {
+                    _state.value = _state.value.copy(
+                        hasBanner = true,
+                        isActionLoading = false,
+                        successMessage = "Баннер загружен"
+                    )
+                }
+                is ApiResult.Error -> {
+                    _state.value = _state.value.copy(
+                        isActionLoading = false,
+                        errorMessage = result.message
+                    )
+                }
+            }
+        }
+    }
+
+    fun deleteBanner(jamId: String) {
+        viewModelScope.launch {
+            _state.value = _state.value.copy(isActionLoading = true)
+            when (val result = deleteJamBannerUseCase(jamId)) {
+                is ApiResult.Success -> {
+                    _state.value = _state.value.copy(
+                        hasBanner = false,
+                        isActionLoading = false,
+                        successMessage = "Баннер удален"
                     )
                 }
                 is ApiResult.Error -> {

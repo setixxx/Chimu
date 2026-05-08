@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import org.koin.compose.viewmodel.koinViewModel
 import software.setixx.chimu.api.domain.GameJamStatus
 import software.setixx.chimu.presentation.jam.details.judging.JudgingScreen
+import software.setixx.chimu.presentation.jam.details.leaderboard.LeaderboardScreen
 import software.setixx.chimu.presentation.jam.details.management.ManagementScreen
 import software.setixx.chimu.presentation.jam.details.progress.ProgressScreen
 import software.setixx.chimu.presentation.jam.details.registration.RegistrationScreen
@@ -101,7 +102,11 @@ fun JamDetailsScreen(
                     val jamStatus = jam.status
                     when (state.resolveSection(section, jamStatus)) {
                         JamDetailsSection.Judging -> {
-                            JudgingScreen(jamId = jamId, jam = jam)
+                            JudgingScreen(
+                                jamId = jamId,
+                                jam = jam,
+                                userRole = state.userRole
+                            )
                         }
                         JamDetailsSection.Registration -> {
                             RegistrationScreen(
@@ -126,6 +131,13 @@ fun JamDetailsScreen(
                         }
                         JamDetailsSection.AccessDenied -> {
                             AccessDeniedContent()
+                        }
+                        JamDetailsSection.Leaderboard -> {
+                            LeaderboardScreen(
+                                jamId = jamId,
+                                jam = jam,
+                                isAdminOrOrganizer = state.isAdminOrOrganizer
+                            )
                         }
                     }
                 }
@@ -183,41 +195,45 @@ enum class JamDetailsSection {
     Progress,
     Judging,
     Management,
+    Leaderboard,
     AccessDenied
 }
 
-private fun JamDetailsState.resolveSection(
-    requestedSection: JamDetailsSection?,
-    jamStatus: GameJamStatus
-): JamDetailsSection {
-    if (isAdminOrOrganizer) return JamDetailsSection.Management
-
-    return when (requestedSection) {
-        JamDetailsSection.Management -> JamDetailsSection.AccessDenied
-        JamDetailsSection.Registration -> {
-            if (isParticipant) JamDetailsSection.Registration else JamDetailsSection.AccessDenied
+    private fun JamDetailsState.resolveSection(
+        requestedSection: JamDetailsSection?,
+        jamStatus: GameJamStatus
+    ): JamDetailsSection {
+        if (requestedSection == JamDetailsSection.Leaderboard) {
+            return JamDetailsSection.Leaderboard
         }
-        JamDetailsSection.Progress -> {
-            if (isParticipant || isJudge) JamDetailsSection.Progress else JamDetailsSection.AccessDenied
+        if (isAdminOrOrganizer) {
+            return if (requestedSection == null && jamStatus == GameJamStatus.COMPLETED)
+                JamDetailsSection.Leaderboard
+            else
+                JamDetailsSection.Management
         }
-        JamDetailsSection.Judging -> {
-            if (isParticipant || isJudge) JamDetailsSection.Judging else JamDetailsSection.AccessDenied
+        return when (requestedSection) {
+            JamDetailsSection.Management -> JamDetailsSection.AccessDenied
+            JamDetailsSection.Registration -> if (isParticipant) JamDetailsSection.Registration else JamDetailsSection.AccessDenied
+            JamDetailsSection.Progress    -> if (isParticipant || isJudge) JamDetailsSection.Progress else JamDetailsSection.AccessDenied
+            JamDetailsSection.Judging     -> if (isParticipant || isJudge) JamDetailsSection.Judging else JamDetailsSection.AccessDenied
+            JamDetailsSection.AccessDenied -> JamDetailsSection.AccessDenied
+            null -> defaultSection(jamStatus)
+            else -> JamDetailsSection.AccessDenied
         }
-        JamDetailsSection.AccessDenied -> JamDetailsSection.AccessDenied
-        null -> defaultSection(jamStatus)
     }
-}
 
-private fun JamDetailsState.defaultSection(jamStatus: GameJamStatus): JamDetailsSection {
-    return when {
-        isParticipant && jamStatus == GameJamStatus.IN_PROGRESS -> JamDetailsSection.Progress
-        isParticipant && (jamStatus == GameJamStatus.JUDGING || jamStatus == GameJamStatus.COMPLETED) -> JamDetailsSection.Judging
-        isParticipant -> JamDetailsSection.Registration
-        isJudge && (jamStatus == GameJamStatus.JUDGING || jamStatus == GameJamStatus.COMPLETED) -> JamDetailsSection.Judging
-        isJudge -> JamDetailsSection.Progress
-        else -> JamDetailsSection.AccessDenied
+    private fun JamDetailsState.defaultSection(jamStatus: GameJamStatus): JamDetailsSection {
+        return when {
+            jamStatus == GameJamStatus.COMPLETED -> JamDetailsSection.Leaderboard
+            isParticipant && jamStatus == GameJamStatus.IN_PROGRESS -> JamDetailsSection.Progress
+            isParticipant && jamStatus == GameJamStatus.JUDGING -> JamDetailsSection.Judging
+            isParticipant -> JamDetailsSection.Registration
+            isJudge && (jamStatus == GameJamStatus.JUDGING || jamStatus == GameJamStatus.COMPLETED) -> JamDetailsSection.Judging
+            isJudge -> JamDetailsSection.Progress
+            else -> JamDetailsSection.AccessDenied
+        }
     }
-}
 
 @Composable
 private fun AccessDeniedContent() {

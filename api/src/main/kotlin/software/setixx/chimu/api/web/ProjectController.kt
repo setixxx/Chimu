@@ -75,7 +75,7 @@ class ProjectController(
         val user = userRepository.findByPublicIdAndDeletedAtIsNull(userDetails.publicId)
             ?: throw IllegalStateException("User not found")
 
-        val projects = projectService.getJamProjects(jamId, user.id, status)
+        val projects = projectService.getJamProjects(jamId, user.id!!, status)
         return ResponseEntity.ok(projects)
     }
 

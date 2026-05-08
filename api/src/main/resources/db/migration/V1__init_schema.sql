@@ -724,7 +724,7 @@ BEGIN
     ) THEN
         RAISE EXCEPTION 'Ratings can only be deleted during the judging phase.';
     END IF;
-    RETURN OLD;
+    RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 

@@ -29,7 +29,7 @@ data class JamDetailsState(
             GameJamStatus.ANNOUNCED,
             GameJamStatus.REGISTRATION_OPEN,
             GameJamStatus.REGISTRATION_CLOSED
-        )
+        ) && isAdminOrOrganizer
 
     val isAdminOrOrganizer: Boolean
         get() = userRole == UserRole.ADMIN ||
