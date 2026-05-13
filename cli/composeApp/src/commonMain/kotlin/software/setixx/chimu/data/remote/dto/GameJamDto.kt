@@ -21,7 +21,8 @@ data class GameJamResponse(
     val maxTeamSize: Int,
     val minTeamSize: Int,
     val bannerUrl: String? = null,
-    val createdAt: String
+    val createdAt: String,
+    val updatedAt: String
 )
 
 @Serializable

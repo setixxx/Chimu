@@ -152,7 +152,10 @@ class GameJamRepositoryImpl(
             registeredTeamsCount = registeredTeamsCount,
             maxTeamSize = maxTeamSize,
             minTeamSize = minTeamSize,
-            bannerUrl = if (bannerUrl != null) "${Constants.BASE_URL}/api/jams/$id/banner" else null,
+            bannerUrl = if (bannerUrl != null) {
+                val version = updatedAt.hashCode()
+                "${Constants.BASE_URL}/api/jams/$id/banner?v=$version"
+            } else null,
             createdAt = createdAt
         )
     }
@@ -175,7 +178,10 @@ class GameJamRepositoryImpl(
             organizerNickname = organizerNickname,
             minTeamSize = minTeamSize,
             maxTeamSize = maxTeamSize,
-            bannerUrl = if (bannerUrl != null) "${Constants.BASE_URL}/api/jams/$id/banner" else null,
+            bannerUrl = if (bannerUrl != null) {
+                val version = updatedAt.hashCode()
+                "${Constants.BASE_URL}/api/jams/$id/banner?v=$version"
+            } else null,
             createdAt = createdAt,
             updatedAt = updatedAt,
             criteria = criteria,

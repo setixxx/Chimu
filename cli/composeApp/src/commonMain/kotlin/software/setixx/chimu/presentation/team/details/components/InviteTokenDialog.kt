@@ -13,6 +13,7 @@ import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -26,6 +27,7 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun InviteTokenDialog(
     token: String?,
@@ -39,14 +41,15 @@ fun InviteTokenDialog(
         icon = { Icon(Icons.Default.Share, null) },
         title = { Text("Токен приглашения") },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(16.dp)) {
                 Text("Поделитесь этим токеном с другими, чтобы они могли присоединиться к вашей команде:")
 
                 if (token != null) {
                     Surface(
                         modifier = Modifier.fillMaxWidth(),
                         color = MaterialTheme.colorScheme.surfaceVariant,
-                        shape = MaterialTheme.shapes.medium
+                        shape = MaterialTheme.shapes.largeIncreased
                     ) {
                         Row(
                             modifier = Modifier.padding(12.dp),

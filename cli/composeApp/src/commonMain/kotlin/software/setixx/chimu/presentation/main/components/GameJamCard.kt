@@ -65,16 +65,14 @@ fun GameJamCard(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
-                jam.theme?.let { theme ->
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = "Тема: $theme",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "Тема: ${jam.theme}",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
                 Spacer(modifier = Modifier.height(12.dp))
 
                 Row(verticalAlignment = Alignment.CenterVertically) {

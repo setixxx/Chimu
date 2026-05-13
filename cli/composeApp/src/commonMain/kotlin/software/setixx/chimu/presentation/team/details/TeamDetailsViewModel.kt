@@ -2,6 +2,7 @@ package software.setixx.chimu.presentation.team.details
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -26,15 +27,15 @@ class TeamDetailsViewModel(
     private val _state = MutableStateFlow(TeamDetailsState())
     val state: StateFlow<TeamDetailsState> = _state.asStateFlow()
 
-    private var currentUserId: String? = null
-
     fun loadTeamDetails(teamId: String) {
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true) }
 
             when (val userResult = getCurrentUserUseCase()) {
                 is ApiResult.Success -> {
-                    currentUserId = userResult.data.id
+                    _state.update {
+                        it.copy(user = userResult.data)
+                    }
                 }
                 is ApiResult.Error -> {
                     _state.update {
@@ -428,13 +429,5 @@ class TeamDetailsViewModel(
 
     fun clearSuccess() {
         _state.update { it.copy(successMessage = null) }
-    }
-
-    fun isCurrentUserLeader(): Boolean {
-        return _state.value.team?.leaderId == currentUserId
-    }
-
-    fun getCurrentUserMember(): TeamMember? {
-        return _state.value.team?.members?.find { it.userId == currentUserId }
     }
 }

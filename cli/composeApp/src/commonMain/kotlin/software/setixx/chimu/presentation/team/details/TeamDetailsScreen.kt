@@ -2,13 +2,19 @@ package software.setixx.chimu.presentation.team.details
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -17,11 +23,10 @@ import software.setixx.chimu.presentation.components.InfoRow
 import software.setixx.chimu.presentation.team.details.components.InviteTokenDialog
 import software.setixx.chimu.presentation.team.details.components.KickMemberDialog
 import software.setixx.chimu.presentation.team.details.components.LeaveTeamDialog
-import software.setixx.chimu.presentation.team.details.components.MemberCard
 import software.setixx.chimu.presentation.team.details.components.SpecializationDialog
 import software.setixx.chimu.presentation.utils.DateTimeUtils
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun TeamDetailsScreen(
     teamId: String,
@@ -99,7 +104,7 @@ fun TeamDetailsScreen(
                     }
                 },
                 actions = {
-                    if (viewModel.isCurrentUserLeader() && !state.isEditing) {
+                    if (state.isCurrentUserLeader() && !state.isEditing) {
                         IconButton(onClick = { viewModel.showInviteDialog() }) {
                             Icon(Icons.Default.Share, "Пригласить")
                         }
@@ -117,9 +122,8 @@ fun TeamDetailsScreen(
                             enabled = !state.isSaving
                         ) {
                             if (state.isSaving) {
-                                CircularProgressIndicator(
-                                    modifier = Modifier.size(20.dp),
-                                    strokeWidth = 2.dp
+                                LoadingIndicator(
+                                    modifier = Modifier.size(24.dp),
                                 )
                             } else {
                                 Text("Сохранить")
@@ -127,48 +131,21 @@ fun TeamDetailsScreen(
                         }
                     }
 
-                    var showMenu by remember { mutableStateOf(false) }
-
-                    Box {
-                        IconButton(onClick = { showMenu = true }) {
-                            Icon(Icons.Default.MoreVert, "Меню")
+                    if (state.isCurrentUserLeader()) {
+                        IconButton(onClick = { viewModel.showDeleteDialog() }) {
+                            Icon(
+                                Icons.Default.Delete,
+                                "Удалить команду",
+                                tint = MaterialTheme.colorScheme.error
+                            )
                         }
-
-                        DropdownMenu(
-                            expanded = showMenu,
-                            onDismissRequest = { showMenu = false }
-                        ) {
-                            if (viewModel.isCurrentUserLeader()) {
-                                DropdownMenuItem(
-                                    text = { Text("Удалить команду") },
-                                    onClick = {
-                                        showMenu = false
-                                        viewModel.showDeleteDialog()
-                                    },
-                                    leadingIcon = {
-                                        Icon(
-                                            Icons.Default.Delete,
-                                            null,
-                                            tint = MaterialTheme.colorScheme.error
-                                        )
-                                    }
-                                )
-                            } else {
-                                DropdownMenuItem(
-                                    text = { Text("Покинуть команду") },
-                                    onClick = {
-                                        showMenu = false
-                                        viewModel.showLeaveDialog()
-                                    },
-                                    leadingIcon = {
-                                        Icon(
-                                            Icons.Default.ExitToApp,
-                                            null,
-                                            tint = MaterialTheme.colorScheme.error
-                                        )
-                                    }
-                                )
-                            }
+                    } else {
+                        IconButton(onClick = { viewModel.showLeaveDialog() }) {
+                            Icon(
+                                Icons.AutoMirrored.Filled.ExitToApp,
+                                "Покинуть команду",
+                                tint = MaterialTheme.colorScheme.error
+                            )
                         }
                     }
                 }
@@ -183,7 +160,7 @@ fun TeamDetailsScreen(
                     .padding(paddingValues),
                 contentAlignment = Alignment.Center
             ) {
-                CircularProgressIndicator()
+                LoadingIndicator()
             }
         } else {
             state.team?.let { team ->
@@ -192,12 +169,13 @@ fun TeamDetailsScreen(
                         .fillMaxSize()
                         .padding(paddingValues)
                         .padding(horizontal = 24.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     item { Spacer(modifier = Modifier.height(8.dp)) }
 
                     item {
-                        Card {
+                        Card(
+                            shape = MaterialTheme.shapes.largeIncreased
+                        ) {
                             Column(
                                 modifier = Modifier.padding(16.dp),
                                 verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -216,7 +194,12 @@ fun TeamDetailsScreen(
                                         modifier = Modifier.fillMaxWidth(),
                                         isError = state.nameError != null,
                                         supportingText = state.nameError?.let { { Text(it) } },
-                                        singleLine = true
+                                        singleLine = true,
+                                        keyboardOptions = KeyboardOptions(
+                                            keyboardType = KeyboardType.Text,
+                                            imeAction = ImeAction.Next
+                                        ),
+                                        shape = MaterialTheme.shapes.largeIncreased
                                     )
 
                                     OutlinedTextField(
@@ -226,7 +209,8 @@ fun TeamDetailsScreen(
                                         enabled = !state.isSaving,
                                         modifier = Modifier.fillMaxWidth(),
                                         minLines = 3,
-                                        maxLines = 5
+                                        maxLines = 5,
+                                        shape = MaterialTheme.shapes.largeIncreased
                                     )
                                 } else {
                                     InfoRow(
@@ -259,6 +243,8 @@ fun TeamDetailsScreen(
                         }
                     }
 
+                    item { Spacer(modifier = Modifier.height(16.dp)) }
+
                     item {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
@@ -270,7 +256,7 @@ fun TeamDetailsScreen(
                                 style = MaterialTheme.typography.titleMedium
                             )
 
-                            val currentMember = viewModel.getCurrentUserMember()
+                            val currentMember = state.getCurrentUserMember()
                             if (currentMember != null) {
                                 TextButton(
                                     onClick = {
@@ -288,17 +274,82 @@ fun TeamDetailsScreen(
                             }
                         }
                     }
-
-                    items(team.members) { member ->
-                        MemberCard(
-                            member = member,
-                            isLeader = viewModel.isCurrentUserLeader(),
-                            currentUserId = viewModel.getCurrentUserMember()?.userId,
-                            onKick = { viewModel.showKickDialog(member) }
-                        )
+                    item {
+                        Column(verticalArrangement = Arrangement.spacedBy(ListItemDefaults.SegmentedGap)) {
+                            team.members.forEachIndexed { index, member ->
+                                val colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.onSecondary)
+                                SegmentedListItem(
+                                    colors = colors,
+                                    selected = false,
+                                    onClick = { },
+                                    shapes = ListItemDefaults.segmentedShapes(
+                                        index = index,
+                                        count = team.members.size
+                                    ),
+                                    content = {
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            Text(
+                                                member.nickname,
+                                                style = MaterialTheme.typography.titleMedium
+                                            )
+                                            if (member.isLeader) {
+                                                Spacer(modifier = Modifier.width(8.dp))
+                                                Icon(
+                                                    Icons.Default.Star,
+                                                    "Лидер",
+                                                    modifier = Modifier.size(16.dp),
+                                                    tint = MaterialTheme.colorScheme.primary
+                                                )
+                                            }
+                                        }
+                                    },
+                                    supportingContent = {
+                                        Column {
+                                            member.specialization?.let { spec ->
+                                                Text(
+                                                    spec.name,
+                                                    style = MaterialTheme.typography.bodySmall
+                                                )
+                                            }
+                                            Text(
+                                                "Присоединился: ${DateTimeUtils.formatDateTime(member.joinedAt)}",
+                                                style = MaterialTheme.typography.bodySmall,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                            )
+                                        }
+                                    },
+                                    leadingContent = {
+                                        Surface(
+                                            modifier = Modifier
+                                                .size(40.dp)
+                                                .clip(CircleShape),
+                                            color = MaterialTheme.colorScheme.primaryContainer
+                                        ) {
+                                            Box(contentAlignment = Alignment.Center) {
+                                                Icon(
+                                                    Icons.Default.Person,
+                                                    null,
+                                                    tint = if (member.isLeader) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onPrimaryContainer
+                                                )
+                                            }
+                                        }
+                                    },
+                                    trailingContent = {
+                                        val currentUserId = state.getCurrentUserMember()?.userId
+                                        if (state.isCurrentUserLeader() && !member.isLeader && member.userId != currentUserId) {
+                                            IconButton(onClick = { viewModel.showKickDialog(member) }) {
+                                                Icon(
+                                                    Icons.Default.PersonRemove,
+                                                    "Исключить",
+                                                    tint = MaterialTheme.colorScheme.error
+                                                )
+                                            }
+                                        }
+                                    }
+                                )
+                            }
+                        }
                     }
-
-                    item { Spacer(modifier = Modifier.height(8.dp)) }
                 }
             }
         }

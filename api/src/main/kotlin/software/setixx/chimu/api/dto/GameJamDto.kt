@@ -102,7 +102,8 @@ data class GameJamResponse(
     val registeredTeamsCount: Int,
     val maxTeamSize: Int,
     val minTeamSize: Int,
-    val createdAt: String
+    val createdAt: String,
+    val updatedAt: String
 )
 
 data class GameJamDetailsResponse(

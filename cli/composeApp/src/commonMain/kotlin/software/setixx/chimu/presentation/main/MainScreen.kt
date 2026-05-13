@@ -54,13 +54,6 @@ fun MainScreen(
 ) {
     val groupInteractionSource = remember { MutableInteractionSource() }
     var showUserMenu by remember { mutableStateOf(false) }
-    val groupLabels = listOf("Профиль", "Действия", "Выход")
-    val groupItemLabels = listOf(listOf(), listOf("Профиль", "Настройки"), listOf("Выйти"))
-    val groupItemLeadingIcons = listOf(
-        listOf(),
-        listOf(Icons.Outlined.Person, Icons.Outlined.Settings),
-        listOf(Icons.AutoMirrored.Outlined.ExitToApp)
-    )
 
     var showNotifications by remember { mutableStateOf(false) }
 

@@ -15,6 +15,7 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -26,13 +27,15 @@ import androidx.compose.ui.unit.dp
 import software.setixx.chimu.domain.model.Team
 
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun TeamCard(team: Team, onClick: () -> Unit) {
     Card(
         modifier = Modifier
             .width(280.dp)
             .clickable(onClick = onClick),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        shape = MaterialTheme.shapes.largeIncreased,
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(

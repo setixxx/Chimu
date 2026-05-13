@@ -370,7 +370,8 @@ class GameJamService(
             registeredTeamsCount = registeredCount,
             maxTeamSize = jam.maxTeamSize,
             minTeamSize = jam.minTeamSize,
-            createdAt = jam.createdAt.toString()
+            createdAt = jam.createdAt.toString(),
+            updatedAt = jam.updatedAt.toString(),
         )
     }
 
