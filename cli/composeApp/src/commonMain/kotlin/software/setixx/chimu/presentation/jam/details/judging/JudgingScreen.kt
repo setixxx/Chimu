@@ -399,7 +399,7 @@ private fun ProjectRatingPanel(
                     modifier = Modifier.fillMaxWidth().padding(32.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    CircularProgressIndicator()
+                    LoadingIndicator()
                 }
             } else {
                 Text(

@@ -7,8 +7,8 @@ import software.setixx.chimu.data.remote.dto.RatingCriteriaResponse
 data class GameJam(
     val id: String,
     val name: String,
-    val description: String? = null,
-    val theme: String? = null,
+    val description: String,
+    val theme: String,
     val registrationStart: String,
     val registrationEnd: String,
     val jamStart: String,
@@ -21,14 +21,15 @@ data class GameJam(
     val registeredTeamsCount: Int,
     val maxTeamSize: Int,
     val minTeamSize: Int,
+    val bannerUrl: String? = null,
     val createdAt: String
 )
 
 data class CreateGameJam(
     val name: String,
-    val description: String? = null,
-    val theme: String? = null,
-    val rules: String? = null,
+    val description: String,
+    val theme: String,
+    val rules: String,
     val registrationStart: String,
     val registrationEnd: String,
     val jamStart: String,
@@ -42,9 +43,9 @@ data class CreateGameJam(
 data class GameJamDetails(
     val id: String,
     val name: String,
-    val description: String? = null,
-    val theme: String? = null,
-    val rules: String? = null,
+    val description: String,
+    val theme: String,
+    val rules: String,
     val registrationStart: String,
     val registrationEnd: String,
     val jamStart: String,
@@ -56,6 +57,7 @@ data class GameJamDetails(
     val organizerNickname: String,
     val minTeamSize: Int,
     val maxTeamSize: Int,
+    val bannerUrl: String? = null,
     val createdAt: String,
     val updatedAt: String,
     val criteria: List<RatingCriteriaResponse>,

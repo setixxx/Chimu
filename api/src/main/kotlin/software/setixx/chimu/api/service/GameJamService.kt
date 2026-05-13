@@ -34,7 +34,6 @@ class GameJamService(
     private val jamJudgeRepository: JamJudgeRepository,
     private val registrationRepository: JamTeamRegistrationRepository,
     private val projectRepository: ProjectRepository,
-    private val jamBannerService: JamBannerService,
 ) {
     companion object {
         private val CANCELLABLE_STATUSES = setOf(
@@ -42,6 +41,13 @@ class GameJamService(
             GameJamStatus.REGISTRATION_OPEN,
             GameJamStatus.REGISTRATION_CLOSED
         )
+        private val THEME_HIDDEN_STATUSES = setOf(
+            GameJamStatus.DRAFT,
+            GameJamStatus.ANNOUNCED,
+            GameJamStatus.REGISTRATION_OPEN,
+            GameJamStatus.REGISTRATION_CLOSED
+        )
+        private const val UNKNOWN_THEME = "unknown"
     }
 
     @Transactional
@@ -105,7 +111,7 @@ class GameJamService(
             .map { jam ->
                 val organizer = userRepository.findById(jam.organizer.id!!).orElseThrow()
                 val registeredCount = registrationRepository.countRegisteredTeams(jam.id!!).toInt()
-                toResponse(jam, organizer, registeredCount)
+                toResponse(jam, organizer, registeredCount, userId, userRole)
             }
     }
 
@@ -127,7 +133,8 @@ class GameJamService(
         }
 
         val organizer = userRepository.findById(jam.organizer.id!!).orElseThrow()
-        return toDetailsResponse(jam, organizer)
+        val userRole = userId?.let { userRepository.findById(it).orElse(null)?.role }
+        return toDetailsResponse(jam, organizer, userId, userRole)
     }
 
     @Transactional
@@ -338,12 +345,18 @@ class GameJamService(
         }
     }
 
-    private fun toResponse(jam: GameJam, organizer: User, registeredCount: Int): GameJamResponse {
+    private fun toResponse(
+        jam: GameJam,
+        organizer: User,
+        registeredCount: Int,
+        currentUserId: Long? = null,
+        currentUserRole: UserRole? = null
+    ): GameJamResponse {
         return GameJamResponse(
             id = jam.publicId.toString(),
             name = jam.name,
             description = jam.description,
-            theme = jam.theme,
+            theme = visibleTheme(jam, currentUserId, currentUserRole),
             bannerUrl = jam.bannerUrl,
             registrationStart = jam.registrationStart.toString(),
             registrationEnd = jam.registrationEnd.toString(),
@@ -361,7 +374,12 @@ class GameJamService(
         )
     }
 
-    private fun toDetailsResponse(jam: GameJam, organizer: User): GameJamDetailsResponse {
+    private fun toDetailsResponse(
+        jam: GameJam,
+        organizer: User,
+        currentUserId: Long? = organizer.id,
+        currentUserRole: UserRole? = organizer.role
+    ): GameJamDetailsResponse {
         val criteria = ratingCriteriaRepository.findAllByJamIdOrderByOrderIndex(jam.id!!)
         val judges = jamJudgeRepository.findAllByGameJamIdAndDeletedAtIsNull(jam.id!!)
         val registeredCount = registrationRepository.countRegisteredTeams(jam.id!!).toInt()
@@ -384,7 +402,7 @@ class GameJamService(
             id = jam.publicId.toString(),
             name = jam.name,
             description = jam.description,
-            theme = jam.theme,
+            theme = visibleTheme(jam, currentUserId, currentUserRole),
             rules = jam.rules,
             bannerUrl = jam.bannerUrl,
             registrationStart = jam.registrationStart.toString(),
@@ -405,6 +423,16 @@ class GameJamService(
             registeredTeamsCount = registeredCount,
             submittedProjectsCount = submittedCount
         )
+    }
+
+    private fun visibleTheme(jam: GameJam, currentUserId: Long?, currentUserRole: UserRole?): String {
+        if (jam.status !in THEME_HIDDEN_STATUSES) {
+            return jam.theme
+        }
+
+        val isOrganizer = jam.organizer.id == currentUserId
+        val isAdmin = currentUserRole == UserRole.ADMIN
+        return if (isOrganizer || isAdmin) jam.theme else UNKNOWN_THEME
     }
 
     private fun toCriteriaResponse(criteria: RatingCriteria): CriteriaResponse {

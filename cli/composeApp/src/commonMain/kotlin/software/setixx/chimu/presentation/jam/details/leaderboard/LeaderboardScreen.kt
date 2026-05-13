@@ -60,10 +60,8 @@ fun LeaderboardScreen(
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                // Completion banner
                 CompletionBanner()
 
-                // Jam overview
                 JamOverviewSection(
                     jam = jam,
                     showRules = false,
@@ -71,14 +69,12 @@ fun LeaderboardScreen(
                     showJudges = false
                 )
 
-                // Statistics (admin/org only)
                 if (isAdminOrOrganizer) {
                     state.statistics?.let { stats ->
                         AdminStatisticsSection(statistics = stats)
                     }
                 }
 
-                // Leaderboard
                 state.leaderboard?.let { lb ->
                     LeaderboardSection(leaderboard = lb)
                 } ?: run {
@@ -109,8 +105,6 @@ fun LeaderboardScreen(
         )
     }
 }
-
-// ── Completion banner ────────────────────────────────────────────────────────
 
 @Composable
 private fun CompletionBanner() {
@@ -148,12 +142,9 @@ private fun CompletionBanner() {
     }
 }
 
-// ── Leaderboard section ──────────────────────────────────────────────────────
-
 @Composable
 private fun LeaderboardSection(leaderboard: Leaderboard) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        // Header row
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -231,7 +222,6 @@ private fun RankingCard(ranking: ProjectRanking) {
         colors = CardDefaults.cardColors(containerColor = containerColor)
     ) {
         Column {
-            // Main row (always visible) — tappable to expand score breakdown
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -239,7 +229,6 @@ private fun RankingCard(ranking: ProjectRanking) {
                     .padding(horizontal = 16.dp, vertical = 12.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Rank badge
                 Box(
                     modifier = Modifier.size(36.dp),
                     contentAlignment = Alignment.Center
@@ -267,7 +256,6 @@ private fun RankingCard(ranking: ProjectRanking) {
 
                 Spacer(modifier = Modifier.width(12.dp))
 
-                // Project info
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         ranking.project.title,
@@ -283,7 +271,6 @@ private fun RankingCard(ranking: ProjectRanking) {
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
-                    // Rating completeness
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(4.dp)
@@ -303,7 +290,6 @@ private fun RankingCard(ranking: ProjectRanking) {
                     }
                 }
 
-                // Total score
                 Column(horizontalAlignment = Alignment.End) {
                     Text(
                         ranking.score.total,
@@ -328,7 +314,6 @@ private fun RankingCard(ranking: ProjectRanking) {
                 )
             }
 
-            // Expanded: score breakdown per criteria
             AnimatedVisibility(
                 visible = expanded,
                 enter = expandVertically(),
@@ -342,7 +327,6 @@ private fun RankingCard(ranking: ProjectRanking) {
                 ) {
                     HorizontalDivider()
 
-                    // Project description + links
                     ranking.project.description?.let { desc ->
                         Text(
                             desc,
@@ -377,7 +361,6 @@ private fun RankingCard(ranking: ProjectRanking) {
                         }
                     }
 
-                    // Submitted at
                     ranking.project.submittedAt?.let { date ->
                         Text(
                             "Подан: $date",
@@ -452,8 +435,6 @@ private fun CriteriaBreakdownRow(detail: CriteriaScoreDetail) {
     }
 }
 
-// ── Admin statistics section ─────────────────────────────────────────────────
-
 @Composable
 private fun AdminStatisticsSection(statistics: JamStatistics) {
     Card(modifier = Modifier.fillMaxWidth()) {
@@ -476,7 +457,6 @@ private fun AdminStatisticsSection(statistics: JamStatistics) {
                 )
             }
 
-            // Key metrics
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
@@ -488,7 +468,6 @@ private fun AdminStatisticsSection(statistics: JamStatistics) {
                 StatBadge("Судей", statistics.totalJudges.toString())
             }
 
-            // Average scores
             if (statistics.averageScoresPerCriteria.isNotEmpty()) {
                 HorizontalDivider()
                 Text(
@@ -520,7 +499,6 @@ private fun AdminStatisticsSection(statistics: JamStatistics) {
                 }
             }
 
-            // Judge completion
             if (statistics.judgeCompletionRate.isNotEmpty()) {
                 HorizontalDivider()
                 Text(

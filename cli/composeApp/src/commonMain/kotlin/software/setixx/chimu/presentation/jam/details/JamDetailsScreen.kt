@@ -125,7 +125,6 @@ fun JamDetailsScreen(
                         }
                         JamDetailsSection.Management -> {
                             ManagementScreen(
-                                jamId = jamId,
                                 jam = jam
                             )
                         }

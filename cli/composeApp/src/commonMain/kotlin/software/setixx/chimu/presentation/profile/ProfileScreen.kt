@@ -59,10 +59,7 @@ fun ProfileScreen(
                             enabled = !state.isSaving
                         ) {
                             if (state.isSaving) {
-                                CircularProgressIndicator(
-                                    modifier = Modifier.size(20.dp),
-                                    strokeWidth = 2.dp
-                                )
+                                LoadingIndicator()
                             } else {
                                 Text("Сохранить")
                             }

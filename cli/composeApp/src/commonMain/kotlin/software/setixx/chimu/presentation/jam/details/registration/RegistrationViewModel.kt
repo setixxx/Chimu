@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import software.setixx.chimu.domain.model.ApiResult
 import software.setixx.chimu.domain.model.RegisterTeam
@@ -27,25 +28,33 @@ class RegistrationViewModel(
 
     fun load(jamId: String) {
         viewModelScope.launch {
-            _state.value = _state.value.copy(isLoading = true)
-
-            val teamsResult = getUserTeamsUseCase()
-            if (teamsResult is ApiResult.Success) {
-                _state.value = _state.value.copy(userTeams = teamsResult.data)
+            _state.update { it.copy(isLoading = true) }
+            
+            when (val teamsResult = getUserTeamsUseCase()){
+                is ApiResult.Success -> {
+                    _state.update { it.copy(userTeams = teamsResult.data) }
+                }
+                is ApiResult.Error -> {
+                    _state.update { it.copy(errorMessage = teamsResult.message) }
+                }
             }
 
             when (val result = getJamRegistrationsUseCase(jamId)) {
                 is ApiResult.Success -> {
-                    _state.value = _state.value.copy(
-                        registrations = result.data,
-                        isLoading = false
-                    )
+                    _state.update {
+                        it.copy(
+                            registrations = result.data,
+                            isLoading = false
+                        )
+                    }
                 }
                 is ApiResult.Error -> {
-                    _state.value = _state.value.copy(
-                        isLoading = false,
-                        errorMessage = result.message
-                    )
+                    _state.update {
+                        it.copy(
+                            isLoading = false,
+                            errorMessage = result.message
+                        )
+                    }
                 }
             }
         }
@@ -53,7 +62,7 @@ class RegistrationViewModel(
 
     fun registerTeam(jamId: String, teamId: String) {
         viewModelScope.launch {
-            _state.value = _state.value.copy(isActionLoading = true)
+            _state.update { it.copy(isActionLoading = true) }
 
             when (val teamDetailsResult = getTeamDetailsUseCase(teamId)) {
                 is ApiResult.Success -> {
@@ -62,18 +71,22 @@ class RegistrationViewModel(
                     }
                     if (membersWithoutSpec.isNotEmpty()) {
                         val names = membersWithoutSpec.joinToString { it.nickname }
-                        _state.value = _state.value.copy(
-                            isActionLoading = false,
-                            errorMessage = "У следующих участников не указана специализация: $names"
-                        )
+                        _state.update {
+                            it.copy(
+                                isActionLoading = false,
+                                errorMessage = "У следующих участников не указана специализация: $names"
+                            )
+                        }
                         return@launch
                     }
                 }
                 is ApiResult.Error -> {
-                    _state.value = _state.value.copy(
-                        isActionLoading = false,
-                        errorMessage = teamDetailsResult.message
-                    )
+                    _state.update {
+                        it.copy(
+                            isActionLoading = false,
+                            errorMessage = teamDetailsResult.message
+                        )
+                    }
                     return@launch
                 }
             }
@@ -81,13 +94,15 @@ class RegistrationViewModel(
             when (val result = registerTeamUseCase(jamId, RegisterTeam(teamId))) {
                 is ApiResult.Success -> {
                     load(jamId)
-                    _state.value = _state.value.copy(isActionLoading = false)
+                    _state.update { it.copy(isActionLoading = false) }
                 }
                 is ApiResult.Error -> {
-                    _state.value = _state.value.copy(
-                        isActionLoading = false,
-                        errorMessage = result.message
-                    )
+                    _state.update {
+                        it.copy(
+                            isActionLoading = false,
+                            errorMessage = result.message
+                        )
+                    }
                 }
             }
         }
@@ -95,23 +110,25 @@ class RegistrationViewModel(
 
     fun withdrawTeam(jamId: String, teamId: String) {
         viewModelScope.launch {
-            _state.value = _state.value.copy(isActionLoading = true)
+            _state.update { it.copy(isActionLoading = true) }
             when (val result = withdrawTeamUseCase(jamId, teamId)) {
                 is ApiResult.Success -> {
                     load(jamId)
-                    _state.value = _state.value.copy(isActionLoading = false)
+                    _state.update { it.copy(isActionLoading = false) }
                 }
                 is ApiResult.Error -> {
-                    _state.value = _state.value.copy(
-                        isActionLoading = false,
-                        errorMessage = result.message
-                    )
+                    _state.update {
+                        it.copy(
+                            isActionLoading = false,
+                            errorMessage = result.message
+                        )
+                    }
                 }
             }
         }
     }
 
     fun clearError() {
-        _state.value = _state.value.copy(errorMessage = null)
+        _state.update { it.copy(errorMessage = null) }
     }
 }

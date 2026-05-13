@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import software.setixx.chimu.domain.model.*
 import software.setixx.chimu.domain.usecase.*
@@ -29,35 +30,41 @@ class TeamDetailsViewModel(
 
     fun loadTeamDetails(teamId: String) {
         viewModelScope.launch {
-            _state.value = _state.value.copy(isLoading = true)
+            _state.update { it.copy(isLoading = true) }
 
             when (val userResult = getCurrentUserUseCase()) {
                 is ApiResult.Success -> {
                     currentUserId = userResult.data.id
                 }
                 is ApiResult.Error -> {
-                    _state.value = _state.value.copy(
-                        isLoading = false,
-                        errorMessage = userResult.message
-                    )
+                    _state.update {
+                        it.copy(
+                            isLoading = false,
+                            errorMessage = userResult.message
+                        )
+                    }
                 }
             }
 
             when (val result = getTeamDetailsUseCase(teamId)) {
                 is ApiResult.Success -> {
-                    _state.value = _state.value.copy(
-                        team = result.data,
-                        editName = result.data.name,
-                        editDescription = result.data.description ?: "",
-                        isLoading = false
-                    )
+                    _state.update {
+                        it.copy(
+                            team = result.data,
+                            editName = result.data.name,
+                            editDescription = result.data.description ?: "",
+                            isLoading = false
+                        )
+                    }
                     loadSpecializations()
                 }
                 is ApiResult.Error -> {
-                    _state.value = _state.value.copy(
-                        isLoading = false,
-                        errorMessage = result.message
-                    )
+                    _state.update {
+                        it.copy(
+                            isLoading = false,
+                            errorMessage = result.message
+                        )
+                    }
                 }
             }
         }
@@ -67,41 +74,49 @@ class TeamDetailsViewModel(
         viewModelScope.launch {
             when (val result = getAllSpecializationsUseCase()) {
                 is ApiResult.Success -> {
-                    _state.value = _state.value.copy(
-                        availableSpecializations = result.data
-                    )
+                    _state.update {
+                        it.copy(
+                            availableSpecializations = result.data
+                        )
+                    }
                 }
                 is ApiResult.Error -> {
-                    _state.value = _state.value.copy(
-                        errorMessage = result.message
-                    )
+                    _state.update {
+                        it.copy(
+                            errorMessage = result.message
+                        )
+                    }
                 }
             }
         }
     }
 
     fun toggleEditMode() {
-        if (_state.value.isEditing) {
-            _state.value = _state.value.copy(
-                isEditing = false,
-                editName = _state.value.team?.name ?: "",
-                editDescription = _state.value.team?.description ?: "",
-                nameError = null
-            )
-        } else {
-            _state.value = _state.value.copy(isEditing = true)
+        _state.update { currentState ->
+            if (currentState.isEditing) {
+                currentState.copy(
+                    isEditing = false,
+                    editName = currentState.team?.name ?: "",
+                    editDescription = currentState.team?.description ?: "",
+                    nameError = null
+                )
+            } else {
+                currentState.copy(isEditing = true)
+            }
         }
     }
 
     fun updateName(name: String) {
-        _state.value = _state.value.copy(
-            editName = name,
-            nameError = null
-        )
+        _state.update {
+            it.copy(
+                editName = name,
+                nameError = null
+            )
+        }
     }
 
     fun updateDescription(description: String) {
-        _state.value = _state.value.copy(editDescription = description)
+        _state.update { it.copy(editDescription = description) }
     }
 
     fun saveTeam() {
@@ -110,54 +125,60 @@ class TeamDetailsViewModel(
         if (!validateTeamData()) return
 
         viewModelScope.launch {
-            _state.value = _state.value.copy(isSaving = true)
+            _state.update { it.copy(isSaving = true) }
 
+            val currentState = _state.value
             val data = UpdateTeam(
-                name = _state.value.editName.trim().takeIf { it != team.name },
-                description = _state.value.editDescription.trim().takeIf { it != team.description }
+                name = currentState.editName.trim().takeIf { it != team.name },
+                description = currentState.editDescription.trim().takeIf { it != team.description }
             )
 
             when (val result = updateTeamUseCase(team.id, data)) {
                 is ApiResult.Success -> {
-                    _state.value = _state.value.copy(
-                        team = result.data,
-                        editName = result.data.name,
-                        editDescription = result.data.description ?: "",
-                        isEditing = false,
-                        isSaving = false,
-                        successMessage = "Команда обновлена"
-                    )
+                    _state.update {
+                        it.copy(
+                            team = result.data,
+                            editName = result.data.name,
+                            editDescription = result.data.description ?: "",
+                            isEditing = false,
+                            isSaving = false,
+                            successMessage = "Команда обновлена"
+                        )
+                    }
                 }
                 is ApiResult.Error -> {
-                    _state.value = _state.value.copy(
-                        isSaving = false,
-                        errorMessage = result.message
-                    )
+                    _state.update {
+                        it.copy(
+                            isSaving = false,
+                            errorMessage = result.message
+                        )
+                    }
                 }
             }
         }
     }
 
     private fun validateTeamData(): Boolean {
-        val name = _state.value.editName.trim()
+        val currentState = _state.value
+        val name = currentState.editName.trim()
 
         if (name.isBlank()) {
-            _state.value = _state.value.copy(nameError = "Название не может быть пустым")
+            _state.update { it.copy(nameError = "Название не может быть пустым") }
             return false
         }
 
         if (name.length < 3) {
-            _state.value = _state.value.copy(nameError = "Название должно содержать минимум 3 символа")
+            _state.update { it.copy(nameError = "Название должно содержать минимум 3 символа") }
             return false
         }
 
         if (name.length > 100) {
-            _state.value = _state.value.copy(nameError = "Название не может превышать 100 символов")
+            _state.update { it.copy(nameError = "Название не может превышать 100 символов") }
             return false
         }
 
         if (!name.matches(Regex("^[a-zA-Z0-9]+( [a-zA-Z0-9]+)*$"))) {
-            _state.value = _state.value.copy(nameError = "Название может содержать только буквы, цифры и пробелы")
+            _state.update { it.copy(nameError = "Название может содержать только буквы, цифры и пробелы") }
             return false
         }
 
@@ -165,11 +186,11 @@ class TeamDetailsViewModel(
     }
 
     fun showLeaveDialog() {
-        _state.value = _state.value.copy(showLeaveDialog = true)
+        _state.update { it.copy(showLeaveDialog = true) }
     }
 
     fun hideLeaveDialog() {
-        _state.value = _state.value.copy(showLeaveDialog = false)
+        _state.update { it.copy(showLeaveDialog = false) }
     }
 
     fun leaveTeam(onSuccess: () -> Unit) {
@@ -177,28 +198,30 @@ class TeamDetailsViewModel(
 
         viewModelScope.launch {
             hideLeaveDialog()
-            _state.value = _state.value.copy(isLoading = true)
+            _state.update { it.copy(isLoading = true) }
 
             when (val result = leaveTeamUseCase(team.id)) {
                 is ApiResult.Success -> {
-                    _state.value = _state.value.copy(isLoading = false)
+                    _state.update { it.copy(isLoading = false) }
                 }
                 is ApiResult.Error -> {
-                    _state.value = _state.value.copy(
-                        isLoading = false,
-                        errorMessage = result.message
-                    )
+                    _state.update {
+                        it.copy(
+                            isLoading = false,
+                            errorMessage = result.message
+                        )
+                    }
                 }
             }
         }
     }
 
     fun showDeleteDialog() {
-        _state.value = _state.value.copy(showDeleteDialog = true)
+        _state.update { it.copy(showDeleteDialog = true) }
     }
 
     fun hideDeleteDialog() {
-        _state.value = _state.value.copy(showDeleteDialog = false)
+        _state.update { it.copy(showDeleteDialog = false) }
     }
 
     fun deleteTeam(onSuccess: () -> Unit) {
@@ -206,36 +229,42 @@ class TeamDetailsViewModel(
 
         viewModelScope.launch {
             hideDeleteDialog()
-            _state.value = _state.value.copy(isLoading = true)
+            _state.update { it.copy(isLoading = true) }
 
             when (val result = deleteTeamUseCase(team.id)) {
                 is ApiResult.Success -> {
-                    _state.value = _state.value.copy(isLoading = false)
+                    _state.update { it.copy(isLoading = false) }
                     onSuccess()
                 }
 
                 is ApiResult.Error -> {
-                    _state.value = _state.value.copy(
-                        isLoading = false,
-                        errorMessage = result.message
-                    )
+                    _state.update {
+                        it.copy(
+                            isLoading = false,
+                            errorMessage = result.message
+                        )
+                    }
                 }
             }
         }
     }
 
     fun showKickDialog(member: TeamMember) {
-        _state.value = _state.value.copy(
-            showKickDialog = true,
-            memberToKick = member
-        )
+        _state.update {
+            it.copy(
+                showKickDialog = true,
+                memberToKick = member
+            )
+        }
     }
 
     fun hideKickDialog() {
-        _state.value = _state.value.copy(
-            showKickDialog = false,
-            memberToKick = null
-        )
+        _state.update {
+            it.copy(
+                showKickDialog = false,
+                memberToKick = null
+            )
+        }
     }
 
     fun kickMember() {
@@ -248,25 +277,29 @@ class TeamDetailsViewModel(
             when (val result = kickMemberUseCase(team.id, member.userId)) {
                 is ApiResult.Success -> {
                     loadTeamDetails(team.id)
-                    _state.value = _state.value.copy(
-                        successMessage = "Участник исключен"
-                    )
+                    _state.update {
+                        it.copy(
+                            successMessage = "Участник исключен"
+                        )
+                    }
                 }
                 is ApiResult.Error -> {
-                    _state.value = _state.value.copy(
-                        errorMessage = result.message
-                    )
+                    _state.update {
+                        it.copy(
+                            errorMessage = result.message
+                        )
+                    }
                 }
             }
         }
     }
 
     fun showInviteDialog() {
-        _state.value = _state.value.copy(showInviteDialog = true)
+        _state.update { it.copy(showInviteDialog = true) }
     }
 
     fun hideInviteDialog() {
-        _state.value = _state.value.copy(showInviteDialog = false)
+        _state.update { it.copy(showInviteDialog = false) }
     }
 
     fun regenerateToken() {
@@ -275,83 +308,96 @@ class TeamDetailsViewModel(
         viewModelScope.launch {
             when (val result = regenerateInviteTokenUseCase(team.id)) {
                 is ApiResult.Success -> {
-                    _state.value = _state.value.copy(
-                        team = _state.value.team?.copy(inviteToken = result.data),
-                        successMessage = "Токен обновлен"
-                    )
+                    _state.update {
+                        it.copy(
+                            team = it.team?.copy(inviteToken = result.data),
+                            successMessage = "Токен обновлен"
+                        )
+                    }
                 }
                 is ApiResult.Error -> {
-                    _state.value = _state.value.copy(
-                        errorMessage = result.message
-                    )
+                    _state.update {
+                        it.copy(
+                            errorMessage = result.message
+                        )
+                    }
                 }
             }
         }
     }
 
     fun showJoinDialog() {
-        _state.value = _state.value.copy(showJoinDialog = true)
+        _state.update { it.copy(showJoinDialog = true) }
     }
 
     fun hideJoinDialog() {
-        _state.value = _state.value.copy(
-            showJoinDialog = false,
-            inviteToken = ""
-        )
+        _state.update {
+            it.copy(
+                showJoinDialog = false,
+                inviteToken = ""
+            )
+        }
     }
 
     fun updateInviteToken(token: String) {
-        _state.value = _state.value.copy(inviteToken = token)
+        _state.update { it.copy(inviteToken = token) }
     }
 
     fun joinTeam(onSuccess: (String) -> Unit) {
         val token = _state.value.inviteToken.trim()
 
         if (token.isBlank()) {
-            _state.value = _state.value.copy(errorMessage = "Введите токен приглашения")
+            _state.update { it.copy(errorMessage = "Введите токен приглашения") }
             return
         }
 
         viewModelScope.launch {
             hideJoinDialog()
-            _state.value = _state.value.copy(isLoading = true)
+            _state.update { it.copy(isLoading = true) }
 
             when (val result = joinTeamUseCase(token)) {
                 is ApiResult.Success -> {
-                    _state.value = _state.value.copy(isLoading = false)
+                    _state.update { it.copy(isLoading = false) }
                     onSuccess(result.data.id)
                 }
                 is ApiResult.Error -> {
-                    _state.value = _state.value.copy(
-                        isLoading = false,
-                        errorMessage = result.message
-                    )
+                    _state.update {
+                        it.copy(
+                            isLoading = false,
+                            errorMessage = result.message
+                        )
+                    }
                 }
             }
         }
     }
 
     fun showSpecializationDialog(currentSpec: Specialization?) {
-        _state.value = _state.value.copy(
-            showSpecializationDialog = true,
-            selectedSpecialization = currentSpec
-        )
+        _state.update {
+            it.copy(
+                showSpecializationDialog = true,
+                selectedSpecialization = currentSpec
+            )
+        }
     }
 
     fun hideSpecializationDialog() {
-        _state.value = _state.value.copy(
-            showSpecializationDialog = false,
-            selectedSpecialization = null
-        )
+        _state.update {
+            it.copy(
+                showSpecializationDialog = false,
+                selectedSpecialization = null
+            )
+        }
     }
 
     fun updateSpecialization(spec: Specialization?) {
-        _state.value = _state.value.copy(selectedSpecialization = spec)
+        _state.update { it.copy(selectedSpecialization = spec) }
     }
 
     fun saveSpecialization() {
-        val team = _state.value.team ?: return
-        val specId = _state.value.selectedSpecialization?.id
+        val currentState = _state.value
+        val team = currentState.team ?: return
+        val specId = currentState.selectedSpecialization?.id
 
         viewModelScope.launch {
             hideSpecializationDialog()
@@ -359,25 +405,29 @@ class TeamDetailsViewModel(
             when (val result = updateMemberSpecializationUseCase(team.id, specId)) {
                 is ApiResult.Success -> {
                     loadTeamDetails(team.id)
-                    _state.value = _state.value.copy(
-                        successMessage = "Специализация обновлена"
-                    )
+                    _state.update {
+                        it.copy(
+                            successMessage = "Специализация обновлена"
+                        )
+                    }
                 }
                 is ApiResult.Error -> {
-                    _state.value = _state.value.copy(
-                        errorMessage = result.message
-                    )
+                    _state.update {
+                        it.copy(
+                            errorMessage = result.message
+                        )
+                    }
                 }
             }
         }
     }
 
     fun clearError() {
-        _state.value = _state.value.copy(errorMessage = null)
+        _state.update { it.copy(errorMessage = null) }
     }
 
     fun clearSuccess() {
-        _state.value = _state.value.copy(successMessage = null)
+        _state.update { it.copy(successMessage = null) }
     }
 
     fun isCurrentUserLeader(): Boolean {

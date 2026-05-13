@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import software.setixx.chimu.domain.model.ApiResult
 import software.setixx.chimu.domain.usecase.GetSavedEmailUseCase
@@ -26,45 +27,53 @@ class LoginViewModel(
         viewModelScope.launch {
             val savedEmail = getSavedEmailUseCase()
             if (savedEmail != null) {
-                _state.value = _state.value.copy(
-                    email = savedEmail,
-                    rememberMe = true
-                )
+                _state.update {
+                    it.copy(
+                        email = savedEmail,
+                        rememberMe = true
+                    )
+                }
             }
         }
     }
 
     fun onEmailChange(email: String) {
-        _state.value = _state.value.copy(
-            email = email,
-            emailError = null,
-            errorMessage = null
-        )
+        _state.update {
+            it.copy(
+                email = email,
+                emailError = null,
+                errorMessage = null
+            )
+        }
     }
 
     fun onPasswordChange(password: String) {
-        _state.value = _state.value.copy(
-            password = password,
-            passwordError = null,
-            errorMessage = null
-        )
+        _state.update {
+            it.copy(
+                password = password,
+                passwordError = null,
+                errorMessage = null
+            )
+        }
     }
 
     fun onRememberMeChange(rememberMe: Boolean) {
-        _state.value = _state.value.copy(rememberMe = rememberMe)
+        _state.update { it.copy(rememberMe = rememberMe) }
     }
 
     fun togglePasswordVisibility() {
-        _state.value = _state.value.copy(
-            isPasswordVisible = !_state.value.isPasswordVisible
-        )
+        _state.update {
+            it.copy(
+                isPasswordVisible = !it.isPasswordVisible
+            )
+        }
     }
 
     fun onLoginClick(onSuccess: () -> Unit) {
         if (!validateInput()) return
 
         viewModelScope.launch {
-            _state.value = _state.value.copy(isLoading = true, errorMessage = null)
+            _state.update { it.copy(isLoading = true, errorMessage = null) }
 
             when (val result = loginUseCase(
                 email = _state.value.email.trim(),
@@ -72,14 +81,16 @@ class LoginViewModel(
                 rememberMe = _state.value.rememberMe
             )) {
                 is ApiResult.Success -> {
-                    _state.value = _state.value.copy(isLoading = false)
+                    _state.update { it.copy(isLoading = false) }
                     onSuccess()
                 }
                 is ApiResult.Error -> {
-                    _state.value = _state.value.copy(
-                        isLoading = false,
-                        errorMessage = result.message
-                    )
+                    _state.update {
+                        it.copy(
+                            isLoading = false,
+                            errorMessage = result.message
+                        )
+                    }
                 }
             }
         }
@@ -92,15 +103,15 @@ class LoginViewModel(
         var isValid = true
 
         if (email.isEmpty()) {
-            _state.value = _state.value.copy(emailError = "Email не может быть пустым")
+            _state.update { it.copy(emailError = "Email не может быть пустым") }
             isValid = false
         } else if (!isValidEmail(email)) {
-            _state.value = _state.value.copy(emailError = "Неверный формат email")
+            _state.update { it.copy(emailError = "Неверный формат email") }
             isValid = false
         }
 
         if (password.isEmpty()) {
-            _state.value = _state.value.copy(passwordError = "Пароль не может быть пустым")
+            _state.update { it.copy(passwordError = "Пароль не может быть пустым") }
             isValid = false
         }
 
@@ -112,6 +123,6 @@ class LoginViewModel(
     }
 
     fun clearError() {
-        _state.value = _state.value.copy(errorMessage = null)
+        _state.update { it.copy(errorMessage = null) }
     }
 }

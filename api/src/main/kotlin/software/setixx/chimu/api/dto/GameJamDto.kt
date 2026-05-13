@@ -9,14 +9,17 @@ data class CreateGameJamRequest(
     @field:Size(min = 3, max = 200, message = "Name must be between 3 and 200 characters")
     val name: String,
 
+    @field:NotBlank(message = "Game jam description is required")
     @field:Size(max = 5000, message = "Description must not exceed 5000 characters")
-    val description: String? = null,
+    val description: String,
 
+    @field:NotBlank(message = "Game jam theme is required")
     @field:Size(max = 200, message = "Theme must not exceed 200 characters")
-    val theme: String? = null,
+    val theme: String,
 
+    @field:NotBlank(message = "Game jam rules is required")
     @field:Size(max = 5000, message = "Rules must not exceed 5000 characters")
-    val rules: String? = null,
+    val rules: String,
 
     @field:NotNull(message = "Registration start date is required")
     val registrationStart: Instant,

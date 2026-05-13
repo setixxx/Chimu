@@ -11,11 +11,14 @@ import io.ktor.serialization.kotlinx.json.*
 import io.ktor.http.*
 import kotlinx.serialization.json.Json
 import software.setixx.chimu.data.local.TokenStorage
+import software.setixx.chimu.data.util.Constants
 import software.setixx.chimu.getPlatform
 
 class KtorClient(
     private val tokenStorage: TokenStorage,
 ) {
+    val baseUrl = Constants.BASE_URL
+
     val httpClient = HttpClient {
         install(ContentNegotiation) {
             json(Json {
@@ -36,11 +39,7 @@ class KtorClient(
         }
 
         defaultRequest {
-/*            url {
-                protocol = URLProtocol.HTTP
-                host = "localhost"
-                port = 8080
-            }*/
+            url(baseUrl)
             contentType(ContentType.Application.Json)
         }
     }

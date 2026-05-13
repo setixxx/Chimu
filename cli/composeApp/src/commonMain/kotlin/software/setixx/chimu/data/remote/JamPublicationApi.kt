@@ -12,7 +12,6 @@ import io.ktor.client.request.setBody
 import io.ktor.http.Headers
 import io.ktor.http.HttpHeaders
 import software.setixx.chimu.data.remote.dto.GameJamDetailsResponse
-import software.setixx.chimu.data.remote.dto.JamBannerResponse
 import software.setixx.chimu.domain.model.FileUpload
 
 class JamPublicationApi(private val client: HttpClient) {
@@ -29,27 +28,6 @@ class JamPublicationApi(private val client: HttpClient) {
             403 -> throw IllegalArgumentException("Недостаточно прав для публикации джема")
             404 -> throw IllegalArgumentException("Джем не найден")
             409 -> throw IllegalArgumentException("Джем уже опубликован или не может быть опубликован")
-            else -> throw IllegalArgumentException("Неизвестная ошибка")
-        }
-    }
-
-    suspend fun getBanner(jamId: String, accessToken: String): JamBannerResponse {
-        val response = client.get("/api/jams/$jamId/banner") {
-            header(HttpHeaders.Authorization, "Bearer $accessToken")
-            header(JAM_ID_HEADER, jamId)
-        }
-        when (response.status.value) {
-            in 200..299 -> {
-                val contentType = response.headers[HttpHeaders.ContentType] ?: "application/octet-stream"
-                return JamBannerResponse(
-                    bytes = response.body(),
-                    mimeType = contentType.substringBefore(";").trim(),
-                    fileName = "jam-$jamId-banner"
-                )
-            }
-            401 -> throw IllegalArgumentException("Ошибка авторизации")
-            403 -> throw IllegalArgumentException("Недостаточно прав")
-            404 -> throw IllegalArgumentException("Баннер не найден")
             else -> throw IllegalArgumentException("Неизвестная ошибка")
         }
     }

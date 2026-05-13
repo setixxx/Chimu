@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import software.setixx.chimu.domain.model.ApiResult
 import software.setixx.chimu.domain.usecase.GetJamStatisticsUseCase
@@ -20,25 +21,25 @@ class LeaderboardViewModel(
 
     fun load(jamId: String, loadStatistics: Boolean = false) {
         viewModelScope.launch {
-            _state.value = _state.value.copy(isLoading = true)
+            _state.update { it.copy(isLoading = true) }
 
             when (val result = getLeaderboardUseCase(jamId)) {
-                is ApiResult.Success -> _state.value = _state.value.copy(leaderboard = result.data)
-                is ApiResult.Error  -> _state.value = _state.value.copy(errorMessage = result.message)
+                is ApiResult.Success -> _state.update { it.copy(leaderboard = result.data) }
+                is ApiResult.Error -> _state.update { it.copy(errorMessage = result.message) }
             }
 
             if (loadStatistics) {
                 when (val result = getJamStatisticsUseCase(jamId)) {
-                    is ApiResult.Success -> _state.value = _state.value.copy(statistics = result.data)
-                    is ApiResult.Error  -> { /* statistics are optional – don't block */ }
+                    is ApiResult.Success -> _state.update { it.copy(statistics = result.data) }
+                    is ApiResult.Error -> { /* statistics are optional – don't block */ }
                 }
             }
 
-            _state.value = _state.value.copy(isLoading = false)
+            _state.update { it.copy(isLoading = false) }
         }
     }
 
     fun clearError() {
-        _state.value = _state.value.copy(errorMessage = null)
+        _state.update { it.copy(errorMessage = null) }
     }
 }

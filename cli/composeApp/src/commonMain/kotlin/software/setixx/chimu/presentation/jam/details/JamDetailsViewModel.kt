@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import software.setixx.chimu.domain.model.ApiResult
 import software.setixx.chimu.domain.usecase.CancelJamUseCase
@@ -24,36 +25,44 @@ class JamDetailsViewModel(
 
     fun loadJamDetails(jamId: String) {
         viewModelScope.launch {
-            _state.value = _state.value.copy(isLoading = true)
+            _state.update { it.copy(isLoading = true) }
 
             when (val userResult = getCurrentUserUseCase()) {
                 is ApiResult.Success -> {
-                    _state.value = _state.value.copy(
-                        userRole = userResult.data.role,
-                        userId = userResult.data.id
-                    )
+                    _state.update {
+                        it.copy(
+                            userRole = userResult.data.role,
+                            userId = userResult.data.id
+                        )
+                    }
                 }
                 is ApiResult.Error -> {
-                    _state.value = _state.value.copy(
-                        isLoading = false,
-                        errorMessage = userResult.message
-                    )
+                    _state.update {
+                        it.copy(
+                            isLoading = false,
+                            errorMessage = userResult.message
+                        )
+                    }
                     return@launch
                 }
             }
 
             when (val result = getJamDetailsUseCase(jamId)) {
                 is ApiResult.Success -> {
-                    _state.value = _state.value.copy(
-                        jamDetails = result.data,
-                        isLoading = false
-                    )
+                    _state.update {
+                        it.copy(
+                            jamDetails = result.data,
+                            isLoading = false
+                        )
+                    }
                 }
                 is ApiResult.Error -> {
-                    _state.value = _state.value.copy(
-                        isLoading = false,
-                        errorMessage = result.message
-                    )
+                    _state.update {
+                        it.copy(
+                            isLoading = false,
+                            errorMessage = result.message
+                        )
+                    }
                 }
             }
         }
@@ -61,16 +70,18 @@ class JamDetailsViewModel(
 
     fun deleteJam(jamId: String) {
         viewModelScope.launch {
-            _state.value = _state.value.copy(isDeleting = true)
+            _state.update { it.copy(isDeleting = true) }
             when (val result = deleteJamUseCase(jamId)) {
                 is ApiResult.Success -> {
-                    _state.value = _state.value.copy(isDeleting = false, isDeleted = true)
+                    _state.update { it.copy(isDeleting = false, isDeleted = true) }
                 }
                 is ApiResult.Error -> {
-                    _state.value = _state.value.copy(
-                        isDeleting = false,
-                        errorMessage = result.message
-                    )
+                    _state.update {
+                        it.copy(
+                            isDeleting = false,
+                            errorMessage = result.message
+                        )
+                    }
                 }
             }
         }
@@ -78,22 +89,24 @@ class JamDetailsViewModel(
 
     fun cancelJam(jamId: String) {
         viewModelScope.launch {
-            _state.value = _state.value.copy(isDeleting = true)
+            _state.update { it.copy(isDeleting = true) }
             when (val result = cancelJamUseCase(jamId)) {
                 is ApiResult.Success -> {
-                    _state.value = _state.value.copy(isDeleting = false, isDeleted = true)
+                    _state.update { it.copy(isDeleting = false, isDeleted = true) }
                 }
                 is ApiResult.Error -> {
-                    _state.value = _state.value.copy(
-                        isDeleting = false,
-                        errorMessage = result.message
-                    )
+                    _state.update {
+                        it.copy(
+                            isDeleting = false,
+                            errorMessage = result.message
+                        )
+                    }
                 }
             }
         }
     }
 
     fun clearError() {
-        _state.value = _state.value.copy(errorMessage = null)
+        _state.update { it.copy(errorMessage = null) }
     }
 }

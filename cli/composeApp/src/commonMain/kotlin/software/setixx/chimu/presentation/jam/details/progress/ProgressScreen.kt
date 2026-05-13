@@ -112,7 +112,7 @@ fun ProgressScreen(
 
     Box(modifier = Modifier.fillMaxSize()) {
         if (state.isLoading) {
-            CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+            LoadingIndicator(modifier = Modifier.align(Alignment.Center))
         } else {
             Column(
                 modifier = Modifier

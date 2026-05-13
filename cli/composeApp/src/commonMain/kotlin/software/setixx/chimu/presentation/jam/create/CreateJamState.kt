@@ -17,6 +17,9 @@ data class CreateJamState(
     val maxTeamSize: String = "5",
     
     val nameError: String? = null,
+    val descriptionError: String? = null,
+    val themeError: String? = null,
+    val rulesError: String? = null,
     val dateError: String? = null,
     val teamSizeError: String? = null,
     

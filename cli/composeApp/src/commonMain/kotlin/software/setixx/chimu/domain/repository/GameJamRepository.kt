@@ -1,5 +1,6 @@
 package software.setixx.chimu.domain.repository
 
+import kotlinx.coroutines.flow.Flow
 import software.setixx.chimu.domain.model.ApiResult
 import software.setixx.chimu.domain.model.CreateGameJam
 import software.setixx.chimu.domain.model.GameJam
@@ -7,6 +8,7 @@ import software.setixx.chimu.domain.model.GameJamDetails
 import software.setixx.chimu.domain.model.UpdateGameJam
 
 interface GameJamRepository {
+    val jams: Flow<List<GameJam>>
     suspend fun getAllJams(): ApiResult<List<GameJam>>
     suspend fun createJam(data: CreateGameJam): ApiResult<GameJamDetails>
     suspend fun cancelJam(gameJamId: String): ApiResult<GameJamDetails>

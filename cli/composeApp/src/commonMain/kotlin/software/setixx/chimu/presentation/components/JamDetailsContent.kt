@@ -40,9 +40,9 @@ fun JamOverviewSection(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Text("Информация", style = MaterialTheme.typography.titleLarge)
-            Text(jam.description ?: "Нет описания")
-            jam.theme?.let { Text("Тема: $it", style = MaterialTheme.typography.bodyLarge) }
-            if (showRules && !jam.rules.isNullOrBlank()) {
+            Text(jam.description)
+            Text("Тема: ${jam.theme}", style = MaterialTheme.typography.bodyLarge)
+            if (showRules) {
                 HorizontalDivider()
                 Text("Правила", style = MaterialTheme.typography.titleMedium)
                 Text(jam.rules)

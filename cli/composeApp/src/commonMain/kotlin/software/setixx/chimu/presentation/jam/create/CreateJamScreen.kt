@@ -2,19 +2,22 @@ package software.setixx.chimu.presentation.jam.create
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import org.koin.compose.viewmodel.koinViewModel
 import software.setixx.chimu.api.domain.UserRole
 import software.setixx.chimu.presentation.jam.create.components.DateTimePickerField
 import software.setixx.chimu.presentation.jam.create.components.JamSection
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun CreateJamScreen(
     onBack: () -> Unit,
@@ -77,30 +80,52 @@ fun CreateJamScreen(
                         label = { Text("Название *") },
                         modifier = Modifier.fillMaxWidth(),
                         isError = state.nameError != null,
-                        supportingText = state.nameError?.let { { Text(it) } }
+                        supportingText = state.nameError?.let { { Text(it) } },
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Text,
+                            imeAction = ImeAction.Next
+                        ),
+                        shape = MaterialTheme.shapes.largeIncreased
                     )
 
                     OutlinedTextField(
                         value = state.description,
                         onValueChange = { viewModel.onDescriptionChange(it) },
-                        label = { Text("Описание") },
+                        label = { Text("Описание *") },
                         modifier = Modifier.fillMaxWidth(),
-                        minLines = 3
+                        minLines = 3,
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Text,
+                            imeAction = ImeAction.Next
+                        ),
+                        shape = MaterialTheme.shapes.largeIncreased
                     )
 
                     OutlinedTextField(
                         value = state.theme,
                         onValueChange = { viewModel.onThemeChange(it) },
-                        label = { Text("Тема") },
-                        modifier = Modifier.fillMaxWidth()
+                        label = { Text("Тема *") },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Text,
+                            imeAction = ImeAction.Next
+                        ),
+                        shape = MaterialTheme.shapes.largeIncreased
                     )
 
                     OutlinedTextField(
                         value = state.rules,
                         onValueChange = { viewModel.onRulesChange(it) },
-                        label = { Text("Правила") },
+                        label = { Text("Правила *") },
                         modifier = Modifier.fillMaxWidth(),
-                        minLines = 3
+                        minLines = 3,
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Text,
+                            imeAction = ImeAction.Next
+                        ),
+                        shape = MaterialTheme.shapes.largeIncreased
                     )
                 }
 
@@ -160,7 +185,13 @@ fun CreateJamScreen(
                             onValueChange = { viewModel.onMinTeamSizeChange(it) },
                             label = { Text("Мин. участников") },
                             modifier = Modifier.weight(1f),
-                            isError = state.teamSizeError != null
+                            isError = state.teamSizeError != null,
+                            singleLine = true,
+                            keyboardOptions = KeyboardOptions(
+                                keyboardType = KeyboardType.Text,
+                                imeAction = ImeAction.Next
+                            ),
+                            shape = MaterialTheme.shapes.largeIncreased
                         )
 
                         OutlinedTextField(
@@ -168,7 +199,13 @@ fun CreateJamScreen(
                             onValueChange = { viewModel.onMaxTeamSizeChange(it) },
                             label = { Text("Макс. участников") },
                             modifier = Modifier.weight(1f),
-                            isError = state.teamSizeError != null
+                            isError = state.teamSizeError != null,
+                            singleLine = true,
+                            keyboardOptions = KeyboardOptions(
+                                keyboardType = KeyboardType.Text,
+                                imeAction = ImeAction.Next
+                            ),
+                            shape = MaterialTheme.shapes.largeIncreased
                         )
                     }
                     if (state.teamSizeError != null) {
@@ -188,7 +225,7 @@ fun CreateJamScreen(
                     enabled = !state.isLoading
                 ) {
                     if (state.isLoading) {
-                        CircularProgressIndicator(
+                        LoadingIndicator(
                             modifier = Modifier.size(24.dp),
                             color = MaterialTheme.colorScheme.onPrimary
                         )

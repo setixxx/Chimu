@@ -1,5 +1,8 @@
 package software.setixx.chimu.data.repository
 
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.update
 import software.setixx.chimu.api.domain.ProjectStatus
 import software.setixx.chimu.data.local.TokenStorage
 import software.setixx.chimu.data.remote.ProjectApi
@@ -18,6 +21,67 @@ class ProjectRepositoryImpl(
     private val api: ProjectApi,
     private val tokenStorage: TokenStorage
 ) : ProjectRepository {
+    private val _userProjects = MutableStateFlow<List<Project>>(emptyList())
+    override val userProjects: Flow<List<Project>> = _userProjects
+
+    private val _jamProjects = MutableStateFlow<List<Project>>(emptyList())
+    override val jamProjects: Flow<List<Project>> = _jamProjects
+
+    private val _teamProjects = MutableStateFlow<List<Project>>(emptyList())
+    override val teamProjects: Flow<List<Project>> = _teamProjects
+
+    private val _projects = MutableStateFlow<List<Project>>(emptyList())
+    override val projects: Flow<List<Project>> = _projects
+
+    override suspend fun getUserProjects(): ApiResult<List<Project>> {
+        return try {
+            val token = tokenStorage.getAccessToken()
+                ?: return ApiResult.Error("Ошибка аутентификации")
+
+            val response = api.getUserProjects(token)
+            val projects = response.map { it.toDomain() }
+            _userProjects.value = projects
+            ApiResult.Success(projects)
+        } catch (e: Exception) {
+            ApiResult.Error(e.message ?: "Ошибка подключения к серверу")
+        } catch (e: IllegalArgumentException) {
+            ApiResult.Error(e.message ?: "Неизвестная ошибка")
+        }
+    }
+
+    override suspend fun getJamProjects(
+        jamId: String,
+        status: ProjectStatus
+    ): ApiResult<List<Project>> {
+        return try {
+            val token = tokenStorage.getAccessToken()
+                ?: return ApiResult.Error("Ошибка аутентификации")
+            val response = api.getJamProjects(token, jamId, status)
+            val projects = response.map { it.toDomain() }
+            _jamProjects.value = projects
+            ApiResult.Success(projects)
+        } catch (e: Exception) {
+            ApiResult.Error(e.message ?: "Ошибка подключения к серверу")
+        } catch (e: IllegalArgumentException) {
+            ApiResult.Error(e.message ?: "Неизвестная ошибка")
+        }
+    }
+
+    override suspend fun getTeamProjects(teamId: String): ApiResult<List<Project>> {
+        return try {
+            val token = tokenStorage.getAccessToken()
+                ?: return ApiResult.Error("Ошибка аутентификации")
+            val response = api.getTeamProjects(token, teamId)
+            val projects = response.map { it.toDomain() }
+            _teamProjects.value = projects
+            ApiResult.Success(projects)
+        } catch (e: Exception) {
+            ApiResult.Error(e.message ?: "Ошибка подключения к серверу")
+        } catch (e: IllegalArgumentException) {
+            ApiResult.Error(e.message ?: "Неизвестная ошибка")
+        }
+    }
+
     override suspend fun submitProject(projectId: String): ApiResult<ProjectDetails> {
         return try {
             val token = tokenStorage.getAccessToken()
@@ -59,23 +123,6 @@ class ProjectRepositoryImpl(
             ApiResult.Success(response.toDomain())
         } catch (e: Exception) {
             ApiResult.Error(e.message ?: "Ошибка подключения к серверу")
-        }
-    }
-
-    override suspend fun getJamProjects(
-        jamId: String,
-        status: ProjectStatus
-    ): ApiResult<List<Project>> {
-        return try {
-            val token = tokenStorage.getAccessToken()
-                ?: return ApiResult.Error("Ошибка аутентификации")
-            val response = api.getJamProjects(token, jamId, status)
-            val projects = response.map { it.toDomain() }
-            ApiResult.Success(projects)
-        } catch (e: Exception) {
-            ApiResult.Error(e.message ?: "Ошибка подключения к серверу")
-        } catch (e: IllegalArgumentException) {
-            ApiResult.Error(e.message ?: "Неизвестная ошибка")
         }
     }
 
@@ -136,35 +183,6 @@ class ProjectRepositoryImpl(
             ApiResult.Success(response.toDomain())
         } catch (e: Exception) {
             ApiResult.Error(e.message ?: "Ошибка подключения к серверу")
-        }
-    }
-
-    override suspend fun getUserProjects(): ApiResult<List<Project>> {
-        return try {
-            val token = tokenStorage.getAccessToken()
-                ?: return ApiResult.Error("Ошибка аутентификации")
-
-            val response = api.getUserProjects(token)
-            val projects = response.map { it.toDomain() }
-            ApiResult.Success(projects)
-        } catch (e: Exception) {
-            ApiResult.Error(e.message ?: "Ошибка подключения к серверу")
-        } catch (e: IllegalArgumentException) {
-            ApiResult.Error(e.message ?: "Неизвестная ошибка")
-        }
-    }
-
-    override suspend fun getTeamProjects(teamId: String): ApiResult<List<Project>> {
-        return try {
-            val token = tokenStorage.getAccessToken()
-                ?: return ApiResult.Error("Ошибка аутентификации")
-            val response = api.getTeamProjects(token, teamId)
-            val projects = response.map { it.toDomain() }
-            ApiResult.Success(projects)
-            } catch (e: Exception) {
-            ApiResult.Error(e.message ?: "Ошибка подключения к серверу")
-        } catch (e: IllegalArgumentException) {
-            ApiResult.Error(e.message ?: "Неизвестная ошибка")
         }
     }
 

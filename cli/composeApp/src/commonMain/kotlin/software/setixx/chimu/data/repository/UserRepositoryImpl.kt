@@ -1,5 +1,8 @@
 package software.setixx.chimu.data.repository
 
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import software.setixx.chimu.api.domain.UserRole
 import software.setixx.chimu.data.local.TokenStorage
 import software.setixx.chimu.data.remote.UserApi
@@ -20,6 +23,9 @@ class UserRepositoryImpl(
     private val api: UserApi,
     private val tokenStorage: TokenStorage
 ) : UserRepository {
+    private val _userProfile = MutableStateFlow<UserProfile?>(null)
+    override val user: Flow<UserProfile?> = _userProfile.asStateFlow()
+
 
     override suspend fun changePassword(
         body: ChangePassword
@@ -41,6 +47,7 @@ class UserRepositoryImpl(
                 ?: return ApiResult.Error("Не авторизован")
 
             val response = api.getCurrentUser(accessToken)
+            _userProfile.value = response.toDomain()
             ApiResult.Success(response.toDomain())
         } catch (e: Exception) {
             ApiResult.Error(e.message ?: "Ошибка подключения")
@@ -77,6 +84,7 @@ class UserRepositoryImpl(
             )
 
             val response = api.updateProfile(token, apiRequest)
+            getCurrentUser()
             ApiResult.Success(response.toDomain())
         } catch (e: Exception) {
             ApiResult.Error(e.message ?: "Ошибка подключения")

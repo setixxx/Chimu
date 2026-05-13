@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import software.setixx.chimu.api.domain.UserRole
 import software.setixx.chimu.domain.model.ApiResult
@@ -29,69 +30,71 @@ class CreateJamViewModel(
             when (val result = getCurrentUserUseCase()) {
                 is ApiResult.Success -> {
                     val role = result.data.role
-                    _state.value = _state.value.copy(userRole = role)
+                    _state.update { it.copy(userRole = role) }
                     if (role != UserRole.ADMIN && role != UserRole.ORGANIZER) {
-                        _state.value = _state.value.copy(
-                            errorMessage = "У вас нет прав для создания Game Jam"
-                        )
+                        _state.update {
+                            it.copy(
+                                errorMessage = "У вас нет прав для создания Game Jam"
+                            )
+                        }
                     }
                 }
                 is ApiResult.Error -> {
-                    _state.value = _state.value.copy(errorMessage = result.message)
+                    _state.update { it.copy(errorMessage = result.message) }
                 }
             }
         }
     }
 
     fun onNameChange(name: String) {
-        _state.value = _state.value.copy(name = name, nameError = null)
+        _state.update { it.copy(name = name, nameError = null) }
     }
 
     fun onDescriptionChange(description: String) {
-        _state.value = _state.value.copy(description = description)
+        _state.update { it.copy(description = description) }
     }
 
     fun onThemeChange(theme: String) {
-        _state.value = _state.value.copy(theme = theme)
+        _state.update { it.copy(theme = theme) }
     }
 
     fun onRulesChange(rules: String) {
-        _state.value = _state.value.copy(rules = rules)
+        _state.update { it.copy(rules = rules) }
     }
 
     fun onRegistrationStartChange(date: String) {
-        _state.value = _state.value.copy(registrationStart = date, dateError = null)
+        _state.update { it.copy(registrationStart = date, dateError = null) }
     }
 
     fun onRegistrationEndChange(date: String) {
-        _state.value = _state.value.copy(registrationEnd = date, dateError = null)
+        _state.update { it.copy(registrationEnd = date, dateError = null) }
     }
 
     fun onJamStartChange(date: String) {
-        _state.value = _state.value.copy(jamStart = date, dateError = null)
+        _state.update { it.copy(jamStart = date, dateError = null) }
     }
 
     fun onJamEndChange(date: String) {
-        _state.value = _state.value.copy(jamEnd = date, dateError = null)
+        _state.update { it.copy(jamEnd = date, dateError = null) }
     }
 
     fun onJudgingStartChange(date: String) {
-        _state.value = _state.value.copy(judgingStart = date, dateError = null)
+        _state.update { it.copy(judgingStart = date, dateError = null) }
     }
 
     fun onJudgingEndChange(date: String) {
-        _state.value = _state.value.copy(judgingEnd = date, dateError = null)
+        _state.update { it.copy(judgingEnd = date, dateError = null) }
     }
 
     fun onMinTeamSizeChange(size: String) {
         if (size.isEmpty() || size.all { it.isDigit() }) {
-            _state.value = _state.value.copy(minTeamSize = size, teamSizeError = null)
+            _state.update { it.copy(minTeamSize = size, teamSizeError = null) }
         }
     }
 
     fun onMaxTeamSizeChange(size: String) {
         if (size.isEmpty() || size.all { it.isDigit() }) {
-            _state.value = _state.value.copy(maxTeamSize = size, teamSizeError = null)
+            _state.update { it.copy(maxTeamSize = size, teamSizeError = null) }
         }
     }
 
@@ -99,33 +102,36 @@ class CreateJamViewModel(
         if (!validateInputs()) return
 
         viewModelScope.launch {
-            _state.value = _state.value.copy(isLoading = true)
+            _state.update { it.copy(isLoading = true) }
 
+            val currentState = _state.value
             val createGameJam = CreateGameJam(
-                name = _state.value.name,
-                description = _state.value.description.takeIf { it.isNotBlank() },
-                theme = _state.value.theme.takeIf { it.isNotBlank() },
-                rules = _state.value.rules.takeIf { it.isNotBlank() },
-                registrationStart = _state.value.registrationStart,
-                registrationEnd = _state.value.registrationEnd,
-                jamStart = _state.value.jamStart,
-                jamEnd = _state.value.jamEnd,
-                judgingStart = _state.value.judgingStart,
-                judgingEnd = _state.value.judgingEnd,
-                minTeamSize = _state.value.minTeamSize.toIntOrNull() ?: 1,
-                maxTeamSize = _state.value.maxTeamSize.toIntOrNull() ?: 5
+                name = currentState.name,
+                description = currentState.description,
+                theme = currentState.theme,
+                rules = currentState.rules,
+                registrationStart = currentState.registrationStart,
+                registrationEnd = currentState.registrationEnd,
+                jamStart = currentState.jamStart,
+                jamEnd = currentState.jamEnd,
+                judgingStart = currentState.judgingStart,
+                judgingEnd = currentState.judgingEnd,
+                minTeamSize = currentState.minTeamSize.toIntOrNull() ?: 1,
+                maxTeamSize = currentState.maxTeamSize.toIntOrNull() ?: 5
             )
 
             when (val result = createJamUseCase(createGameJam)) {
                 is ApiResult.Success -> {
-                    _state.value = _state.value.copy(
-                        isLoading = false,
-                        isSuccess = true,
-                        createdJamId = result.data.id
-                    )
+                    _state.update {
+                        it.copy(
+                            isLoading = false,
+                            isSuccess = true,
+                            createdJamId = result.data.id
+                        )
+                    }
                 }
                 is ApiResult.Error -> {
-                    _state.value = _state.value.copy(isLoading = false, errorMessage = result.message)
+                    _state.update { it.copy(isLoading = false, errorMessage = result.message) }
                 }
             }
         }
@@ -133,16 +139,31 @@ class CreateJamViewModel(
 
     private fun validateInputs(): Boolean {
         var isValid = true
-        
+
         if (_state.value.name.isBlank()) {
-            _state.value = _state.value.copy(nameError = "Название обязательно")
+            _state.update { it.copy(nameError = "Название обязательно") }
+            isValid = false
+        }
+
+        if (_state.value.description.isBlank()) {
+            _state.update { it.copy(nameError = "Описание обязательно") }
+            isValid = false
+        }
+
+        if (_state.value.theme.isBlank()) {
+            _state.update { it.copy(nameError = "Тема обязательна") }
+            isValid = false
+        }
+
+        if (_state.value.rules.isBlank()) {
+            _state.update { it.copy(nameError = "Правила обязательны") }
             isValid = false
         }
 
         if (_state.value.registrationStart.isBlank() || _state.value.registrationEnd.isBlank() ||
             _state.value.jamStart.isBlank() || _state.value.jamEnd.isBlank() ||
             _state.value.judgingStart.isBlank() || _state.value.judgingEnd.isBlank()) {
-            _state.value = _state.value.copy(dateError = "Все даты должны быть заполнены")
+            _state.update { it.copy(dateError = "Все даты должны быть заполнены") }
             isValid = false
         }
 
@@ -150,7 +171,7 @@ class CreateJamViewModel(
         val maxSize = _state.value.maxTeamSize.toIntOrNull()
 
         if (minSize == null || maxSize == null || minSize > maxSize || minSize < 1) {
-            _state.value = _state.value.copy(teamSizeError = "Некорректный размер команды")
+            _state.update { it.copy(teamSizeError = "Некорректный размер команды") }
             isValid = false
         }
 
@@ -158,6 +179,6 @@ class CreateJamViewModel(
     }
 
     fun clearError() {
-        _state.value = _state.value.copy(errorMessage = null)
+        _state.update { it.copy(errorMessage = null) }
     }
 }

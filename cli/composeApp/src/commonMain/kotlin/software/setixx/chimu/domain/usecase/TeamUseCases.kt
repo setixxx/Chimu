@@ -1,7 +1,14 @@
 package software.setixx.chimu.domain.usecase
 
+import kotlinx.coroutines.flow.Flow
 import software.setixx.chimu.domain.model.*
 import software.setixx.chimu.domain.repository.TeamRepository
+
+class ObserveUserTeamsUseCase(
+    private val repository: TeamRepository
+) {
+    operator fun invoke(): Flow<List<Team>> = repository.teams
+}
 
 class GetTeamDetailsUseCase(
     private val repository: TeamRepository

@@ -1,5 +1,8 @@
 package software.setixx.chimu.data.repository
 
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import software.setixx.chimu.data.local.TokenStorage
 import software.setixx.chimu.data.remote.TeamApi
 import software.setixx.chimu.data.remote.dto.*
@@ -10,6 +13,9 @@ class TeamRepositoryImpl(
     private val api: TeamApi,
     private val tokenStorage: TokenStorage
 ) : TeamRepository {
+
+    private val _teams = MutableStateFlow<List<Team>>(emptyList())
+    override val teams: Flow<List<Team>> = _teams.asStateFlow()
 
     override suspend fun getUserTeams(): ApiResult<List<Team>> {
         return try {
@@ -27,6 +33,7 @@ class TeamRepositoryImpl(
                     createdAt = dto.createdAt
                 )
             }
+            _teams.value = teams
             ApiResult.Success(teams)
         } catch (e: Exception) {
             ApiResult.Error(e.message ?: "Ошибка подключения к серверу")
@@ -56,6 +63,7 @@ class TeamRepositoryImpl(
                 createdAt = response.createdAt
             )
 
+            getUserTeams()
             ApiResult.Success(team)
         } catch (e: Exception) {
             ApiResult.Error(e.message ?: "Ошибка подключения к серверу")
@@ -106,6 +114,7 @@ class TeamRepositoryImpl(
 
             val response = api.joinTeam(token, inviteToken)
             val details = response.toTeamDetails()
+            getUserTeams()
             ApiResult.Success(details)
         } catch (e: Exception) {
             ApiResult.Error(e.message ?: "Ошибка подключения к серверу")
@@ -120,6 +129,7 @@ class TeamRepositoryImpl(
                 ?: return ApiResult.Error("Ошибка аутентификации")
 
             api.leaveTeam(token, teamId)
+            getUserTeams()
             ApiResult.Success(Unit)
         } catch (e: Exception) {
             ApiResult.Error(e.message ?: "Ошибка подключения к серверу")
@@ -134,6 +144,7 @@ class TeamRepositoryImpl(
                 ?: return ApiResult.Error("Ошибка аутентификации")
 
             api.deleteTeam(token, teamId)
+            getUserTeams()
             ApiResult.Success(Unit)
         } catch (e: Exception) {
             ApiResult.Error(e.message ?: "Ошибка подключения к серверу")
@@ -148,6 +159,7 @@ class TeamRepositoryImpl(
                 ?: return ApiResult.Error("Ошибка аутентификации")
 
             api.kickMember(token, teamId, userId)
+            getUserTeams()
             ApiResult.Success(Unit)
         } catch (e: Exception) {
             ApiResult.Error(e.message ?: "Ошибка подключения к серверу")

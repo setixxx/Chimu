@@ -25,16 +25,16 @@ class GameJam(
     @Column(nullable = false, length = 200)
     var name: String,
 
-    @Column(columnDefinition = "TEXT")
+    @Column(columnDefinition = "TEXT", nullable = false)
     var description: String? = null,
 
     @Column(name = "banner_url", columnDefinition = "TEXT")
     var bannerUrl: String? = null,
 
-    @Column(length = 200)
-    var theme: String? = null,
+    @Column(length = 200, nullable = false)
+    var theme: String,
 
-    @Column(columnDefinition = "TEXT")
+    @Column(columnDefinition = "TEXT", nullable = false)
     var rules: String? = null,
 
     @Column(name = "registration_start", nullable = false)

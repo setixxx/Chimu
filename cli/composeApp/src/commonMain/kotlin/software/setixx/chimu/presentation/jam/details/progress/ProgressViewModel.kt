@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import software.setixx.chimu.api.domain.ProjectStatus
 import software.setixx.chimu.api.domain.RegistrationStatus
@@ -52,25 +53,37 @@ class ProgressViewModel(
 
     fun load(jamId: String, isAdminOrOrganizer: Boolean) {
         viewModelScope.launch {
-            _state.value = _state.value.copy(isLoading = true)
+            _state.update { it.copy(isLoading = true) }
 
-            val teamsResult = getUserTeamsUseCase()
-            if (teamsResult is ApiResult.Success) {
-                _state.value = _state.value.copy(userTeams = teamsResult.data)
+            when (val teamsResult = getUserTeamsUseCase()){
+                is ApiResult.Success -> {
+                    _state.update { it.copy(userTeams = teamsResult.data) }
+                }
+                is ApiResult.Error -> {
+                    _state.update { it.copy(errorMessage = teamsResult.message) }
+                }
             }
 
-            val registrationsResult = getJamRegistrationsUseCase(jamId)
-            if (registrationsResult is ApiResult.Success) {
-                _state.value = _state.value.copy(registrations = registrationsResult.data)
+            when (val registrationsResult = getJamRegistrationsUseCase(jamId)){
+                is ApiResult.Success -> {
+                    _state.update { it.copy(registrations = registrationsResult.data) }
+                }
+                is ApiResult.Error -> {
+                    _state.update { it.copy(errorMessage = registrationsResult.message) }
+                }
             }
 
             val approvedReg = _state.value.getUserRegistration()
             if (approvedReg != null) {
-                val projectsResult = getTeamProjectsUseCase(approvedReg.teamId)
-                if (projectsResult is ApiResult.Success) {
-                    val project = projectsResult.data.firstOrNull { it.jamId == jamId }
-                    if (project != null) {
-                        loadProjectDetails(project.id)
+                when (val projectsResult = getTeamProjectsUseCase(approvedReg.teamId)){
+                    is ApiResult.Success -> {
+                        val project = projectsResult.data.firstOrNull { it.jamId == jamId }
+                        if (project != null) {
+                            loadProjectDetails(project.id)
+                        }
+                    }
+                    is ApiResult.Error -> {
+                        _state.update { it.copy(errorMessage = projectsResult.message) }
                     }
                 }
             }
@@ -80,62 +93,72 @@ class ProgressViewModel(
                 loadStatistics(jamId)
             }
 
-            _state.value = _state.value.copy(isLoading = false)
+            _state.update { it.copy(isLoading = false) }
         }
     }
 
     private suspend fun loadProjectDetails(projectId: String) {
         when (val result = getProjectUseCase(projectId)) {
             is ApiResult.Success -> {
-                _state.value = _state.value.copy(userProject = result.data)
+                _state.update { it.copy(userProject = result.data) }
                 loadProjectFiles(projectId)
             }
-            else -> {}
+            is ApiResult.Error -> {
+                _state.update { it.copy(errorMessage = result.message) }
+            }
         }
     }
 
     private suspend fun loadProjectFiles(projectId: String) {
         when (val result = getProjectFilesUseCase(projectId)) {
             is ApiResult.Success -> {
-                _state.value = _state.value.copy(projectFiles = result.data)
+                _state.update { it.copy(projectFiles = result.data) }
             }
-            else -> {}
+            is ApiResult.Error -> {
+                _state.update { it.copy(errorMessage = result.message) }
+            }
         }
     }
 
     private suspend fun loadAllProjects(jamId: String) {
-        val projects = ProjectStatus.values().flatMap { status ->
+        val projects = ProjectStatus.entries.flatMap { status ->
             when (val result = getJamProjectsUseCase(jamId, status)) {
                 is ApiResult.Success -> result.data
                 else -> emptyList()
             }
         }.distinctBy { it.id }
-        _state.value = _state.value.copy(allProjects = projects)
+        _state.update { it.copy(allProjects = projects) }
     }
 
     private suspend fun loadStatistics(jamId: String) {
         when (val result = getJamStatisticsUseCase(jamId)) {
-            is ApiResult.Success -> _state.value = _state.value.copy(statistics = result.data)
-            else -> {}
+            is ApiResult.Success -> _state.update { it.copy(statistics = result.data) }
+            is ApiResult.Error -> {
+                _state.update { it.copy(errorMessage = result.message) }
+            }
         }
     }
 
     fun createProject(jamId: String, title: String, description: String?) {
         viewModelScope.launch {
-            _state.value = _state.value.copy(isActionLoading = true)
+            _state.update { it.copy(isActionLoading = true) }
             when (val result = createProjectUseCase(jamId, CreateProject(title, description))) {
                 is ApiResult.Success -> {
-                    _state.value = _state.value.copy(
-                        userProject = result.data,
-                        isActionLoading = false
-                    )
+                    _state.update {
+                        it.copy(
+                            userProject = result.data,
+                            isActionLoading = false
+                        )
+                    }
                     loadProjectFiles(result.data.id)
                 }
                 is ApiResult.Error -> {
-                    _state.value = _state.value.copy(
-                        isActionLoading = false,
-                        errorMessage = result.message
-                    )
+                    _state.update {
+                        it.copy(
+                            isActionLoading = false,
+                            errorMessage = result.message
+                        )
+                    }
                 }
             }
         }
@@ -143,19 +166,23 @@ class ProgressViewModel(
 
     fun submitProject(projectId: String) {
         viewModelScope.launch {
-            _state.value = _state.value.copy(isActionLoading = true)
+            _state.update { it.copy(isActionLoading = true) }
             when (val result = submitProjectUseCase(projectId)) {
                 is ApiResult.Success -> {
-                    _state.value = _state.value.copy(
-                        userProject = result.data,
-                        isActionLoading = false
-                    )
+                    _state.update {
+                        it.copy(
+                            userProject = result.data,
+                            isActionLoading = false
+                        )
+                    }
                 }
                 is ApiResult.Error -> {
-                    _state.value = _state.value.copy(
-                        isActionLoading = false,
-                        errorMessage = result.message
-                    )
+                    _state.update {
+                        it.copy(
+                            isActionLoading = false,
+                            errorMessage = result.message
+                        )
+                    }
                 }
             }
         }
@@ -163,19 +190,23 @@ class ProgressViewModel(
 
     fun cancelSubmission(projectId: String) {
         viewModelScope.launch {
-            _state.value = _state.value.copy(isActionLoading = true)
+            _state.update { it.copy(isActionLoading = true) }
             when (val result = returnDraftUseCase(projectId)) {
                 is ApiResult.Success -> {
-                    _state.value = _state.value.copy(
-                        userProject = result.data,
-                        isActionLoading = false
-                    )
+                    _state.update {
+                        it.copy(
+                            userProject = result.data,
+                            isActionLoading = false
+                        )
+                    }
                 }
                 is ApiResult.Error -> {
-                    _state.value = _state.value.copy(
-                        isActionLoading = false,
-                        errorMessage = result.message
-                    )
+                    _state.update {
+                        it.copy(
+                            isActionLoading = false,
+                            errorMessage = result.message
+                        )
+                    }
                 }
             }
         }
@@ -183,20 +214,24 @@ class ProgressViewModel(
 
     fun deleteProject(projectId: String) {
         viewModelScope.launch {
-            _state.value = _state.value.copy(isActionLoading = true)
+            _state.update { it.copy(isActionLoading = true) }
             when (val result = deleteProjectUseCase(projectId)) {
                 is ApiResult.Success -> {
-                    _state.value = _state.value.copy(
-                        userProject = null,
-                        projectFiles = emptyList(),
-                        isActionLoading = false
-                    )
+                    _state.update {
+                        it.copy(
+                            userProject = null,
+                            projectFiles = emptyList(),
+                            isActionLoading = false
+                        )
+                    }
                 }
                 is ApiResult.Error -> {
-                    _state.value = _state.value.copy(
-                        isActionLoading = false,
-                        errorMessage = result.message
-                    )
+                    _state.update {
+                        it.copy(
+                            isActionLoading = false,
+                            errorMessage = result.message
+                        )
+                    }
                 }
             }
         }
@@ -204,17 +239,19 @@ class ProgressViewModel(
 
     fun disqualifyProject(jamId: String, projectId: String) {
         viewModelScope.launch {
-            _state.value = _state.value.copy(isActionLoading = true)
+            _state.update { it.copy(isActionLoading = true) }
             when (val result = disqualifyProjectUseCase(projectId)) {
                 is ApiResult.Success -> {
                     loadAllProjects(jamId)
-                    _state.value = _state.value.copy(isActionLoading = false)
+                    _state.update { it.copy(isActionLoading = false) }
                 }
                 is ApiResult.Error -> {
-                    _state.value = _state.value.copy(
-                        isActionLoading = false,
-                        errorMessage = result.message
-                    )
+                    _state.update {
+                        it.copy(
+                            isActionLoading = false,
+                            errorMessage = result.message
+                        )
+                    }
                 }
             }
         }
@@ -222,26 +259,30 @@ class ProgressViewModel(
 
     fun disqualifyTeam(jamId: String, teamId: String) {
         viewModelScope.launch {
-            _state.value = _state.value.copy(isActionLoading = true)
+            _state.update { it.copy(isActionLoading = true) }
             when (val result = updateRegistrationStatusUseCase(
                 jamId,
                 teamId,
                 UpdateRegistrationStatus(RegistrationStatus.DISQUALIFIED)
             )) {
                 is ApiResult.Success -> {
-                    val updatedRegistrations = _state.value.registrations.map {
-                        if (it.teamId == teamId) it.copy(status = RegistrationStatus.DISQUALIFIED) else it
+                    _state.update { currentState ->
+                        val updatedRegistrations = currentState.registrations.map {
+                            if (it.teamId == teamId) it.copy(status = RegistrationStatus.DISQUALIFIED) else it
+                        }
+                        currentState.copy(
+                            registrations = updatedRegistrations,
+                            isActionLoading = false
+                        )
                     }
-                    _state.value = _state.value.copy(
-                        registrations = updatedRegistrations,
-                        isActionLoading = false
-                    )
                 }
                 is ApiResult.Error -> {
-                    _state.value = _state.value.copy(
-                        isActionLoading = false,
-                        errorMessage = result.message
-                    )
+                    _state.update {
+                        it.copy(
+                            isActionLoading = false,
+                            errorMessage = result.message
+                        )
+                    }
                 }
             }
         }
@@ -249,7 +290,7 @@ class ProgressViewModel(
 
     fun uploadFile(projectId: String, fileUpload: FileUpload) {
         viewModelScope.launch {
-            _state.value = _state.value.copy(isActionLoading = true)
+            _state.update { it.copy(isActionLoading = true) }
             val fileToUpload = ProjectFile(
                 id = "",
                 fileName = fileUpload.fileName,
@@ -263,13 +304,15 @@ class ProgressViewModel(
             when (val result = uploadProjectFileUseCase(projectId, fileToUpload)) {
                 is ApiResult.Success -> {
                     loadProjectFiles(projectId)
-                    _state.value = _state.value.copy(isActionLoading = false)
+                    _state.update { it.copy(isActionLoading = false) }
                 }
                 is ApiResult.Error -> {
-                    _state.value = _state.value.copy(
-                        isActionLoading = false,
-                        errorMessage = result.message
-                    )
+                    _state.update {
+                        it.copy(
+                            isActionLoading = false,
+                            errorMessage = result.message
+                        )
+                    }
                 }
             }
         }
@@ -277,23 +320,25 @@ class ProgressViewModel(
 
     fun deleteFile(projectId: String, fileId: String) {
         viewModelScope.launch {
-            _state.value = _state.value.copy(isActionLoading = true)
+            _state.update { it.copy(isActionLoading = true) }
             when (val result = deleteProjectFileUseCase(projectId, fileId)) {
                 is ApiResult.Success -> {
                     loadProjectFiles(projectId)
-                    _state.value = _state.value.copy(isActionLoading = false)
+                    _state.update { it.copy(isActionLoading = false) }
                 }
                 is ApiResult.Error -> {
-                    _state.value = _state.value.copy(
-                        isActionLoading = false,
-                        errorMessage = result.message
-                    )
+                    _state.update {
+                        it.copy(
+                            isActionLoading = false,
+                            errorMessage = result.message
+                        )
+                    }
                 }
             }
         }
     }
 
     fun clearError() {
-        _state.value = _state.value.copy(errorMessage = null)
+        _state.update { it.copy(errorMessage = null) }
     }
 }

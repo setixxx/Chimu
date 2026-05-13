@@ -1,8 +1,10 @@
 package software.setixx.chimu.domain.repository
 
+import kotlinx.coroutines.flow.Flow
 import software.setixx.chimu.domain.model.*
 
 interface TeamRepository {
+    val teams: Flow<List<Team>>
     suspend fun getUserTeams(): ApiResult<List<Team>>
     suspend fun createTeam(data: CreateTeam): ApiResult<Team>
     suspend fun getTeamDetails(teamId: String): ApiResult<TeamDetails>

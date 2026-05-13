@@ -32,6 +32,7 @@ import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import kotlin.Float
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun RegisterScreen(
     onNavigateToLogin: () -> Unit,
@@ -102,7 +103,8 @@ fun RegisterScreen(
                                 imeAction = ImeAction.Next
                             ),
                             modifier = Modifier.fillMaxWidth(),
-                            enabled = !state.isLoading
+                            enabled = !state.isLoading,
+                            shape = MaterialTheme.shapes.largeIncreased
                         )
 
                         OutlinedTextField(
@@ -135,7 +137,8 @@ fun RegisterScreen(
                                 imeAction = ImeAction.Next
                             ),
                             modifier = Modifier.fillMaxWidth(),
-                            enabled = !state.isLoading
+                            enabled = !state.isLoading,
+                            shape = MaterialTheme.shapes.largeIncreased
                         )
 
                         if (state.password.isNotEmpty()) {
@@ -175,7 +178,8 @@ fun RegisterScreen(
                                 onDone = { viewModel.onRegisterClick(onRegisterSuccess) }
                             ),
                             modifier = Modifier.fillMaxWidth(),
-                            enabled = !state.isLoading
+                            enabled = !state.isLoading,
+                            shape = MaterialTheme.shapes.largeIncreased
                         )
 
                         Spacer(modifier = Modifier.height(8.dp))

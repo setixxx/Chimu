@@ -2,6 +2,7 @@ package software.setixx.chimu.di
 
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
+import org.koin.plugin.module.dsl.factory
 import software.setixx.chimu.data.remote.*
 import software.setixx.chimu.data.repository.*
 import software.setixx.chimu.domain.repository.*
@@ -42,23 +43,105 @@ val appModule = module {
     single { JamTransferApi(get<KtorClient>().httpClient) }
     single { JamPublicationApi(get<KtorClient>().httpClient) }
 
-    single<AuthRepository> { AuthRepositoryImpl(get(), get()) }
-    single<GameJamRepository> { GameJamRepositoryImpl(get(), get()) }
-    single<JudgeRepository> { JudgeRepositoryImpl(get(), get()) }
-    single<LeaderboardRepository> { LeaderboardRepositoryImpl(get(), get()) }
-    single<ProjectRepository> { ProjectRepositoryImpl(get(), get()) }
-    single<ProjectFileRepository> { ProjectFileRepositoryImpl(get(), get()) }
-    single<RatingCriteriaRepository> { RatingCriteriaRepositoryImpl(get(), get()) }
-    single<RatingRepository> { RatingRepositoryImpl(get(), get()) }
-    single<SkillRepository> { SkillRepositoryImpl(get(), get()) }
-    single<SpecializationRepository> { SpecializationRepositoryImpl(get(), get()) }
-    single<TeamRegistrationRepository> { TeamRegistrationRepositoryImpl(get(), get()) }
-    single<TeamRepository> { TeamRepositoryImpl(get(), get()) }
-    single<UserRepository> { UserRepositoryImpl(get(), get()) }
-    single<RoleUpgradeRepository> { RoleUpgradeRepositoryImpl(get(), get()) }
-    single<JamTransferRepository> { JamTransferRepositoryImpl(get(), get()) }
-    single<JamPublicationRepository> { JamPublicationRepositoryImpl(get(), get()) }
+    single<AuthRepository> {
+        AuthRepositoryImpl(
+            get(),
+            get()
+        )
+    }
+    single<GameJamRepository> {
+        GameJamRepositoryImpl(
+            get(),
+            get()
+        )
+    }
+    single<JudgeRepository> {
+        JudgeRepositoryImpl(
+            get(),
+            get()
+        )
+    }
+    single<LeaderboardRepository> {
+        LeaderboardRepositoryImpl(
+            get(),
+            get()
+        )
+    }
+    single<ProjectRepository> {
+        ProjectRepositoryImpl(
+            get(),
+            get()
+        )
+    }
+    single<ProjectFileRepository> {
+        ProjectFileRepositoryImpl(
+            get(),
+            get()
+        )
+    }
+    single<RatingCriteriaRepository> {
+        RatingCriteriaRepositoryImpl(
+            get(),
+            get()
+        )
+    }
+    single<RatingRepository> {
+        RatingRepositoryImpl(
+            get(),
+            get()
+        )
+    }
+    single<SkillRepository> {
+        SkillRepositoryImpl(
+            get(),
+            get()
+        )
+    }
+    single<SpecializationRepository> {
+        SpecializationRepositoryImpl(
+            get(),
+            get()
+        )
+    }
+    single<TeamRegistrationRepository> {
+        TeamRegistrationRepositoryImpl(
+            get(),
+            get())
+    }
+    single<TeamRepository> {
+        TeamRepositoryImpl(
+            get(),
+            get()
+        )
+    }
+    single<UserRepository> {
+        UserRepositoryImpl(
+            get(),
+            get()
+        )
+    }
+    single<RoleUpgradeRepository> {
+        RoleUpgradeRepositoryImpl(
+            get(),
+            get()
+        )
+    }
+    single<JamTransferRepository> {
+        JamTransferRepositoryImpl(
+            get(),
+            get()
+        )
+    }
+    single<JamPublicationRepository> {
+        JamPublicationRepositoryImpl(
+            get(),
+            get()
+        )
+    }
 
+    factory { ObserveUserTeamsUseCase(get()) }
+    factory { ObserverUserUseCase(get()) }
+    factory { ObserveJamsUseCase(get()) }
     factory { LoginUseCase(get()) }
     factory { RegisterUseCase(get()) }
     factory { LogoutUseCase(get()) }
@@ -119,7 +202,6 @@ val appModule = module {
     factory { GetJudgeProgressUseCase(get()) }
     factory { GetJamStatisticsUseCase(get()) }
     factory { PublishJamUseCase(get()) }
-    factory { GetJamBannerUseCase(get()) }
     factory { UploadJamBannerUseCase(get()) }
     factory { DeleteJamBannerUseCase(get()) }
     factory { CancelJamUseCase(get()) }
@@ -143,6 +225,9 @@ val appModule = module {
     }
     viewModel {
         MainViewModel(
+            get(),
+            get(),
+            get(),
             get(),
             get(),
             get(),

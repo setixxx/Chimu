@@ -26,7 +26,7 @@ fun JamSection(
             color = MaterialTheme.colorScheme.primary
         )
         Surface(
-            shape = MaterialTheme.shapes.medium,
+            shape = MaterialTheme.shapes.extraLarge,
             tonalElevation = 2.dp,
             modifier = Modifier.padding(bottom = 8.dp)
         ) {

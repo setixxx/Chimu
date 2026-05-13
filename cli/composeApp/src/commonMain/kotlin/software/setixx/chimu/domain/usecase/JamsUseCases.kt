@@ -5,6 +5,12 @@ import software.setixx.chimu.domain.model.GameJam
 import software.setixx.chimu.domain.model.UpdateGameJam
 import software.setixx.chimu.domain.repository.GameJamRepository
 
+class ObserveJamsUseCase(
+    private val repository: GameJamRepository
+){
+    operator fun invoke() = repository.jams
+}
+
 class GetAllJamsUseCase(
     private val repository: GameJamRepository
 ) {

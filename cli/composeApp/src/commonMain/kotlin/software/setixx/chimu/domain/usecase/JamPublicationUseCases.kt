@@ -9,12 +9,6 @@ class PublishJamUseCase(
     suspend operator fun invoke(jamId: String) = repository.publishJam(jamId)
 }
 
-class GetJamBannerUseCase(
-    private val repository: JamPublicationRepository
-) {
-    suspend operator fun invoke(jamId: String) = repository.getBanner(jamId)
-}
-
 class UploadJamBannerUseCase(
     private val repository: JamPublicationRepository
 ) {

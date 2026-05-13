@@ -33,7 +33,7 @@ class UserService(
 
 ) {
     fun getUserByPublicId(publicId: UUID): User {
-        return userRepository.findByPublicIdAndDeletedAtIsNull(publicId)
+        return userRepository.findByPublicId(publicId)
             ?: throw IllegalStateException("User not found")
     }
 

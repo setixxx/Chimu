@@ -6,8 +6,8 @@ import kotlinx.serialization.Serializable
 data class GameJamResponse(
     val id: String,
     val name: String,
-    val description: String? = null,
-    val theme: String? = null,
+    val description: String,
+    val theme: String,
     val registrationStart: String,
     val registrationEnd: String,
     val jamStart: String,
@@ -20,15 +20,16 @@ data class GameJamResponse(
     val registeredTeamsCount: Int,
     val maxTeamSize: Int,
     val minTeamSize: Int,
+    val bannerUrl: String? = null,
     val createdAt: String
 )
 
 @Serializable
 data class CreateGameJamRequest(
     val name: String,
-    val description: String? = null,
-    val theme: String? = null,
-    val rules: String? = null,
+    val description: String,
+    val theme: String,
+    val rules: String,
     val registrationStart: String,
     val registrationEnd: String,
     val jamStart: String,
@@ -43,9 +44,9 @@ data class CreateGameJamRequest(
 data class GameJamDetailsResponse(
     val id: String,
     val name: String,
-    val description: String? = null,
-    val theme: String? = null,
-    val rules: String? = null,
+    val description: String,
+    val theme: String,
+    val rules: String,
     val registrationStart: String,
     val registrationEnd: String,
     val jamStart: String,
@@ -57,6 +58,7 @@ data class GameJamDetailsResponse(
     val organizerNickname: String,
     val minTeamSize: Int,
     val maxTeamSize: Int,
+    val bannerUrl: String? = null,
     val createdAt: String,
     val updatedAt: String,
     val criteria: List<RatingCriteriaResponse>,

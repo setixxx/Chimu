@@ -15,7 +15,7 @@ import kotlinx.datetime.number
 import kotlin.time.Clock
 import kotlin.time.Instant
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun DateTimePickerField(
     label: String,
@@ -63,7 +63,8 @@ fun DateTimePickerField(
                     label = { Text("Дата") },
                     trailingIcon = {
                         Icon(Icons.Default.CalendarToday, contentDescription = "Выбрать дату")
-                    }
+                    },
+                    shape = MaterialTheme.shapes.largeIncreased
                 )
                 Box(
                     modifier = Modifier
@@ -81,7 +82,8 @@ fun DateTimePickerField(
                     label = { Text("Время") },
                     trailingIcon = {
                         Icon(Icons.Default.Schedule, contentDescription = "Выбрать время")
-                    }
+                    },
+                    shape = MaterialTheme.shapes.largeIncreased
                 )
                 Box(
                     modifier = Modifier

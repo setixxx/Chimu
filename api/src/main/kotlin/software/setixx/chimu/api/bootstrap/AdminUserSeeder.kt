@@ -32,7 +32,7 @@ class AdminUserSeeder(
                 userRepository.save(adminUser)
                 println("Administrator user successfully initialized from environment variables.")
             } else {
-                throw IllegalArgumentException("Administrator user with email $adminEmail already exists.")
+                println("Administrator user with email $adminEmail already exists. Skipping.")
             }
         } else {
             println("Admin credentials not provided in environment. Skipping admin initialization.")

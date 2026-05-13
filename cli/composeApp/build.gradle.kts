@@ -84,6 +84,8 @@ kotlin {
 
             implementation(libs.kotlinx.datetime)
 
+            implementation(libs.coil.compose)
+            implementation(libs.coil.network.ktor)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

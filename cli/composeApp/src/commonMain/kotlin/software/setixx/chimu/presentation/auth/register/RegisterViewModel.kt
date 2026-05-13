@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import software.setixx.chimu.domain.model.ApiResult
 import software.setixx.chimu.domain.usecase.RegisterUseCase
@@ -17,63 +18,74 @@ class RegisterViewModel(
     val state: StateFlow<RegisterState> = _state.asStateFlow()
 
     fun onEmailChange(email: String) {
-        _state.value = _state.value.copy(
-            email = email,
-            emailError = null,
-            errorMessage = null
-        )
+        _state.update {
+            it.copy(
+                email = email,
+                emailError = null,
+                errorMessage = null
+            )
+        }
     }
 
     fun onPasswordChange(password: String) {
-        _state.value = _state.value.copy(
-            password = password,
-            passwordError = null,
-            errorMessage = null,
-            passwordStrength = calculatePasswordStrength(password)
-        )
+        _state.update {
+            it.copy(
+                password = password,
+                passwordError = null,
+                errorMessage = null,
+                passwordStrength = calculatePasswordStrength(password)
+            )
+        }
     }
 
     fun onConfirmPasswordChange(confirmPassword: String) {
-        _state.value = _state.value.copy(
-            confirmPassword = confirmPassword,
-            confirmPasswordError = null,
-            errorMessage = null
-        )
+        _state.update {
+            it.copy(
+                confirmPassword = confirmPassword,
+                confirmPasswordError = null,
+                errorMessage = null
+            )
+        }
     }
 
     fun togglePasswordVisibility() {
-        _state.value = _state.value.copy(
-            isPasswordVisible = !_state.value.isPasswordVisible
-        )
+        _state.update {
+            it.copy(
+                isPasswordVisible = !it.isPasswordVisible
+            )
+        }
     }
 
     fun toggleConfirmPasswordVisibility() {
-        _state.value = _state.value.copy(
-            isConfirmPasswordVisible = !_state.value.isConfirmPasswordVisible
-        )
+        _state.update {
+            it.copy(
+                isConfirmPasswordVisible = !it.isConfirmPasswordVisible
+            )
+        }
     }
 
     fun onRegisterClick(onSuccess: () -> Unit) {
         if (!validateInput()) return
 
         viewModelScope.launch {
-            _state.value = _state.value.copy(isLoading = true, errorMessage = null)
+            _state.update { it.copy(isLoading = true, errorMessage = null) }
 
             when (val result = registerUseCase(
                 email = _state.value.email.trim(),
                 password = _state.value.password
             )) {
                 is ApiResult.Success -> {
-                    _state.value = _state.value.copy(isLoading = false)
+                    _state.update { it.copy(isLoading = false) }
                     onSuccess()
                 }
                 is ApiResult.Error -> {
-                    _state.value = _state.value.copy(
-                        isLoading = false,
-                        errorMessage = result.message
-                    )
+                    _state.update {
+                        it.copy(
+                            isLoading = false,
+                            errorMessage = result.message
+                        )
+                    }
                 }
-                else -> {}
             }
         }
     }
@@ -86,31 +98,33 @@ class RegisterViewModel(
         var isValid = true
 
         if (email.isEmpty()) {
-            _state.value = _state.value.copy(emailError = "Email не может быть пустым")
+            _state.update { it.copy(emailError = "Email не может быть пустым") }
             isValid = false
         } else if (!isValidEmail(email)) {
-            _state.value = _state.value.copy(emailError = "Неверный формат email")
+            _state.update { it.copy(emailError = "Неверный формат email") }
             isValid = false
         }
 
         if (password.isEmpty()) {
-            _state.value = _state.value.copy(passwordError = "Пароль не может быть пустым")
+            _state.update { it.copy(passwordError = "Пароль не может быть пустым") }
             isValid = false
         } else if (password.length < 8) {
-            _state.value = _state.value.copy(passwordError = "Пароль должен содержать минимум 8 символов")
+            _state.update { it.copy(passwordError = "Пароль должен содержать минимум 8 символов") }
             isValid = false
         } else if (!isValidPassword(password)) {
-            _state.value = _state.value.copy(
-                passwordError = "Пароль должен содержать заглавные, строчные буквы и цифры"
-            )
+            _state.update {
+                it.copy(
+                    passwordError = "Пароль должен содержать заглавные, строчные буквы и цифры"
+                )
+            }
             isValid = false
         }
 
         if (confirmPassword.isEmpty()) {
-            _state.value = _state.value.copy(confirmPasswordError = "Подтвердите пароль")
+            _state.update { it.copy(confirmPasswordError = "Подтвердите пароль") }
             isValid = false
         } else if (password != confirmPassword) {
-            _state.value = _state.value.copy(confirmPasswordError = "Пароли не совпадают")
+            _state.update { it.copy(confirmPasswordError = "Пароли не совпадают") }
             isValid = false
         }
 
@@ -146,6 +160,6 @@ class RegisterViewModel(
     }
 
     fun clearError() {
-        _state.value = _state.value.copy(errorMessage = null)
+        _state.update { it.copy(errorMessage = null) }
     }
 }

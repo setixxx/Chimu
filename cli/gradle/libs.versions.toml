@@ -23,6 +23,7 @@ kotlinx-datetime = "0.7.1"
 androidx-datastore = "1.2.1"
 androidx-security-crypto = "1.1.0"
 materialIconsCore = "1.7.3"
+coil = "3.4.0"
 
 
 [libraries]
@@ -69,6 +70,9 @@ androidx-datastore-preferences = { module = "androidx.datastore:datastore-prefer
 androidx-security-crypto = { module = "androidx.security:security-crypto", version.ref = "androidx-security-crypto" }
 material-icons-core = { module = "org.jetbrains.compose.material:material-icons-core", version.ref = "materialIconsCore" }
 material-icons-extended = { module = "org.jetbrains.compose.material:material-icons-extended", version.ref = "materialIconsCore" }
+
+coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil" }
+coil-network-ktor = { module = "io.coil-kt.coil3:coil-network-ktor3", version.ref = "coil" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

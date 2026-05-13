@@ -30,6 +30,7 @@ import chimu.composeapp.generated.resources.sign_up_button
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun LoginScreen(
     onNavigateToRegister: () -> Unit,
@@ -56,7 +57,8 @@ fun LoginScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues),
+                .padding(paddingValues)
+                .background(MaterialTheme.colorScheme.onSecondary),
             contentAlignment = Alignment.Center
         ) {
             Column(
@@ -71,16 +73,16 @@ fun LoginScreen(
                     color = MaterialTheme.colorScheme.onSurface,
                     textAlign = TextAlign.Center
                 )
-                Card(
+                Column(
                     modifier = Modifier
                         .padding(16.dp)
-                        .clip(MaterialTheme.shapes.extraLarge),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                        .clip(MaterialTheme.shapes.extraLarge)
+                        .background(MaterialTheme.colorScheme.background),
                 ) {
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(24.dp),
+                            .padding(48.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
@@ -98,7 +100,8 @@ fun LoginScreen(
                                 imeAction = ImeAction.Next
                             ),
                             modifier = Modifier.fillMaxWidth(),
-                            enabled = !state.isLoading
+                            enabled = !state.isLoading,
+                            shape = MaterialTheme.shapes.largeIncreased
                         )
 
                         OutlinedTextField(
@@ -133,8 +136,10 @@ fun LoginScreen(
                             keyboardActions = KeyboardActions(
                                 onDone = { viewModel.onLoginClick(onLoginSuccess) }
                             ),
-                            modifier = Modifier.fillMaxWidth(),
-                            enabled = !state.isLoading
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                            enabled = !state.isLoading,
+                            shape = MaterialTheme.shapes.largeIncreased
                         )
 
                         Row(

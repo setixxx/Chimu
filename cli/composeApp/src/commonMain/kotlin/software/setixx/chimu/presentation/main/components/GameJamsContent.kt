@@ -53,7 +53,7 @@ fun GameJamsContent(
                 items(state.activeJams.size) { index ->
                     GameJamCard(
                         jam = state.activeJams[index],
-                        onDetailsClick = onNavigateToJamDetails
+                        onDetailsClick = onNavigateToJamDetails,
                     )
                 }
             }

@@ -4,11 +4,10 @@ import software.setixx.chimu.api.domain.GameJamStatus
 import software.setixx.chimu.data.local.TokenStorage
 import software.setixx.chimu.data.remote.JamPublicationApi
 import software.setixx.chimu.data.remote.dto.GameJamDetailsResponse
-import software.setixx.chimu.data.remote.dto.JamBannerResponse
+import software.setixx.chimu.data.util.Constants
 import software.setixx.chimu.domain.model.ApiResult
 import software.setixx.chimu.domain.model.FileUpload
 import software.setixx.chimu.domain.model.GameJamDetails
-import software.setixx.chimu.domain.model.JamBanner
 import software.setixx.chimu.domain.repository.JamPublicationRepository
 
 class JamPublicationRepositoryImpl(
@@ -22,18 +21,6 @@ class JamPublicationRepositoryImpl(
                 ?: return ApiResult.Error("Ошибка аутентификации")
 
             val response = api.publishJam(jamId, token)
-            ApiResult.Success(response.toDomain())
-        } catch (e: Exception) {
-            ApiResult.Error(e.message ?: "Ошибка подключения к серверу")
-        }
-    }
-
-    override suspend fun getBanner(jamId: String): ApiResult<JamBanner> {
-        return try {
-            val token = tokenStorage.getAccessToken()
-                ?: return ApiResult.Error("Ошибка аутентификации")
-
-            val response = api.getBanner(jamId, token)
             ApiResult.Success(response.toDomain())
         } catch (e: Exception) {
             ApiResult.Error(e.message ?: "Ошибка подключения к серверу")
@@ -74,14 +61,6 @@ class JamPublicationRepositoryImpl(
         return normalizedMime in ALLOWED_IMAGE_MIME_TYPES || extension in ALLOWED_IMAGE_EXTENSIONS
     }
 
-    private fun JamBannerResponse.toDomain(): JamBanner {
-        return JamBanner(
-            bytes = bytes,
-            mimeType = mimeType,
-            fileName = fileName
-        )
-    }
-
     private fun GameJamDetailsResponse.toDomain(): GameJamDetails {
         return GameJamDetails(
             id = id,
@@ -100,6 +79,7 @@ class JamPublicationRepositoryImpl(
             organizerNickname = organizerNickname,
             minTeamSize = minTeamSize,
             maxTeamSize = maxTeamSize,
+            bannerUrl = if (bannerUrl != null) "${Constants.BASE_URL}/api/jams/$id/banner" else null,
             createdAt = createdAt,
             updatedAt = updatedAt,
             criteria = criteria,

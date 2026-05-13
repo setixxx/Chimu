@@ -27,7 +27,6 @@ import java.util.UUID
 @Tag(name = "Users", description = "User profile management endpoints")
 class UserController(
     private val userService: UserService,
-    private val specializationService: SpecializationService,
     private val userRepository: UserRepository,
 ) {
     @GetMapping("/{publicId}")
@@ -37,10 +36,14 @@ class UserController(
         ApiResponse(responseCode = "404", description = "User not found")
     )
     fun getUserById(
-        @PathVariable publicId: String
+        @PathVariable publicId: String,
+        @AuthenticationPrincipal userDetails: CustomUserDetails
     ): ResponseEntity<PublicUserProfileResponse?> {
-        val user = userService.getUserByPublicId(UUID.fromString(publicId))
-        val body = userService.toPublicUserResponse(user)
+        if (userRepository.findByPublicIdAndDeletedAtIsNull(userDetails.publicId) == null)
+            throw IllegalStateException("User not found")
+
+        val userResponse = userService.getUserByPublicId(UUID.fromString(publicId))
+        val body = userService.toPublicUserResponse(userResponse)
         return ResponseEntity.ok(body)
     }
 

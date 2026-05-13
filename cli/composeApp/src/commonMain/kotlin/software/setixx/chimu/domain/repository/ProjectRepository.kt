@@ -1,5 +1,6 @@
 package software.setixx.chimu.domain.repository
 
+import kotlinx.coroutines.flow.Flow
 import software.setixx.chimu.api.domain.ProjectStatus
 import software.setixx.chimu.domain.model.ApiResult
 import software.setixx.chimu.domain.model.CreateProject
@@ -8,6 +9,10 @@ import software.setixx.chimu.domain.model.ProjectDetails
 import software.setixx.chimu.domain.model.UpdateProject
 
 interface ProjectRepository {
+    val userProjects: Flow<List<Project>>
+    val jamProjects: Flow<List<Project>>
+    val teamProjects: Flow<List<Project>>
+    val projects: Flow<List<Project>>
     suspend fun submitProject(projectId: String): ApiResult<ProjectDetails>
     suspend fun returnDraft(projectId: String): ApiResult<ProjectDetails>
     suspend fun publishProject(projectId: String): ApiResult<ProjectDetails>
