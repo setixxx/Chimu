@@ -39,7 +39,6 @@ class KtorClient(
         }
 
         defaultRequest {
-            url(baseUrl)
             contentType(ContentType.Application.Json)
         }
     }
