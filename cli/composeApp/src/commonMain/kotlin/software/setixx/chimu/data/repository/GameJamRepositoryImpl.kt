@@ -10,7 +10,7 @@ import software.setixx.chimu.data.remote.dto.CreateGameJamRequest
 import software.setixx.chimu.data.remote.dto.GameJamDetailsResponse
 import software.setixx.chimu.data.remote.dto.GameJamResponse
 import software.setixx.chimu.data.remote.dto.UpdateGameJamRequest
-import software.setixx.chimu.data.util.Constants
+import software.setixx.chimu.data.util.getBaseUrl
 import software.setixx.chimu.domain.model.*
 import software.setixx.chimu.domain.repository.GameJamRepository
 
@@ -154,7 +154,7 @@ class GameJamRepositoryImpl(
             minTeamSize = minTeamSize,
             bannerUrl = if (bannerUrl != null) {
                 val version = updatedAt.hashCode()
-                "${Constants.BASE_URL}/api/jams/$id/banner?v=$version"
+                "${getBaseUrl()}/api/jams/$id/banner?v=$version"
             } else null,
             createdAt = createdAt
         )
@@ -180,7 +180,7 @@ class GameJamRepositoryImpl(
             maxTeamSize = maxTeamSize,
             bannerUrl = if (bannerUrl != null) {
                 val version = updatedAt.hashCode()
-                "${Constants.BASE_URL}/api/jams/$id/banner?v=$version"
+                "${getBaseUrl()}/api/jams/$id/banner?v=$version"
             } else null,
             createdAt = createdAt,
             updatedAt = updatedAt,

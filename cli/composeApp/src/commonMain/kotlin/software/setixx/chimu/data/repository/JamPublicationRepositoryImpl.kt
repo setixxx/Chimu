@@ -4,7 +4,7 @@ import software.setixx.chimu.api.domain.GameJamStatus
 import software.setixx.chimu.data.local.TokenStorage
 import software.setixx.chimu.data.remote.JamPublicationApi
 import software.setixx.chimu.data.remote.dto.GameJamDetailsResponse
-import software.setixx.chimu.data.util.Constants
+import software.setixx.chimu.data.util.getBaseUrl
 import software.setixx.chimu.domain.model.ApiResult
 import software.setixx.chimu.domain.model.FileUpload
 import software.setixx.chimu.domain.model.GameJamDetails
@@ -81,7 +81,7 @@ class JamPublicationRepositoryImpl(
             maxTeamSize = maxTeamSize,
             bannerUrl = if (bannerUrl != null) {
                 val version = updatedAt.hashCode()
-                "${Constants.BASE_URL}/api/jams/$id/banner?v=$version"
+                "${getBaseUrl()}/api/jams/$id/banner?v=$version"
             } else null,
             createdAt = createdAt,
             updatedAt = updatedAt,

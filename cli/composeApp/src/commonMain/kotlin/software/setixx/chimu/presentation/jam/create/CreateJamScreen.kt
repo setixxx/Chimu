@@ -221,7 +221,7 @@ fun CreateJamScreen(
                     onClick = { viewModel.createJam() },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(56.dp),
+                        .height(ButtonDefaults.MediumContainerHeight),
                     enabled = !state.isLoading
                 ) {
                     if (state.isLoading) {

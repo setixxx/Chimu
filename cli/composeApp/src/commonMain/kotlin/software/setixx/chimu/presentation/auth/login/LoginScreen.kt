@@ -36,7 +36,6 @@ fun LoginScreen(
     onNavigateToRegister: () -> Unit,
     onLoginSuccess: () -> Unit,
     viewModel: LoginViewModel = koinViewModel(),
-    platformSizeModifier: Float
 ) {
     val state by viewModel.state.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -58,12 +57,14 @@ fun LoginScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .background(MaterialTheme.colorScheme.onSecondary),
+                .background(MaterialTheme.colorScheme.surface),
             contentAlignment = Alignment.Center
         ) {
             Column(
                 modifier = Modifier
-                    .fillMaxWidth(),
+                    .widthIn(max = 600.dp)
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ){
@@ -75,115 +76,106 @@ fun LoginScreen(
                 )
                 Column(
                     modifier = Modifier
-                        .padding(16.dp)
-                        .clip(MaterialTheme.shapes.extraLarge)
-                        .background(MaterialTheme.colorScheme.background),
+                        .fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    Column(
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    OutlinedTextField(
+                        value = state.email,
+                        onValueChange = viewModel::onEmailChange,
+                        label = { Text(stringResource(Res.string.email_hint)) },
+                        singleLine = true,
+                        isError = state.emailError != null,
+                        supportingText = state.emailError?.let { { Text(it) } },
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Email,
+                            imeAction = ImeAction.Next
+                        ),
+                        modifier = Modifier.fillMaxWidth(),
+                        enabled = !state.isLoading,
+                        shape = MaterialTheme.shapes.largeIncreased
+                    )
+
+                    OutlinedTextField(
+                        value = state.password,
+                        onValueChange = viewModel::onPasswordChange,
+                        label = { Text(stringResource(Res.string.password_hint)) },
+                        singleLine = true,
+                        isError = state.passwordError != null,
+                        supportingText = state.passwordError?.let { { Text(it) } },
+                        visualTransformation = if (state.isPasswordVisible)
+                            VisualTransformation.None
+                        else
+                            PasswordVisualTransformation(),
+                        trailingIcon = {
+                            IconButton(onClick = viewModel::togglePasswordVisibility) {
+                                Icon(
+                                    imageVector = if (state.isPasswordVisible)
+                                        Icons.Filled.Visibility
+                                    else
+                                        Icons.Filled.VisibilityOff,
+                                    contentDescription = if (state.isPasswordVisible)
+                                        stringResource(Res.string.hide_password_hint)
+                                    else
+                                        stringResource(Res.string.show_password_hint)
+                                )
+                            }
+                        },
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Password,
+                            imeAction = ImeAction.Done
+                        ),
+                        keyboardActions = KeyboardActions(
+                            onDone = { viewModel.onLoginClick(onLoginSuccess) }
+                        ),
+                        modifier = Modifier.fillMaxWidth(),
+                        enabled = !state.isLoading,
+                        shape = MaterialTheme.shapes.largeIncreased
+                    )
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Checkbox(
+                            checked = state.rememberMe,
+                            onCheckedChange = viewModel::onRememberMeChange,
+                            enabled = !state.isLoading
+                        )
+                        Text(
+                            text = stringResource(Res.string.remember_user_title),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+
+                    Button(
+                        onClick = { viewModel.onLoginClick(onLoginSuccess) },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(48.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                            .height(ButtonDefaults.MediumContainerHeight),
+                        enabled = !state.isLoading
                     ) {
-                        Spacer(modifier = Modifier.height(8.dp))
-
-                        OutlinedTextField(
-                            value = state.email,
-                            onValueChange = viewModel::onEmailChange,
-                            label = { Text(stringResource(Res.string.email_hint)) },
-                            singleLine = true,
-                            isError = state.emailError != null,
-                            supportingText = state.emailError?.let { { Text(it) } },
-                            keyboardOptions = KeyboardOptions(
-                                keyboardType = KeyboardType.Email,
-                                imeAction = ImeAction.Next
-                            ),
-                            modifier = Modifier.fillMaxWidth(),
-                            enabled = !state.isLoading,
-                            shape = MaterialTheme.shapes.largeIncreased
-                        )
-
-                        OutlinedTextField(
-                            value = state.password,
-                            onValueChange = viewModel::onPasswordChange,
-                            label = { Text(stringResource(Res.string.password_hint)) },
-                            singleLine = true,
-                            isError = state.passwordError != null,
-                            supportingText = state.passwordError?.let { { Text(it) } },
-                            visualTransformation = if (state.isPasswordVisible)
-                                VisualTransformation.None
-                            else
-                                PasswordVisualTransformation(),
-                            trailingIcon = {
-                                IconButton(onClick = viewModel::togglePasswordVisibility) {
-                                    Icon(
-                                        imageVector = if (state.isPasswordVisible)
-                                            Icons.Filled.Visibility
-                                        else
-                                            Icons.Filled.VisibilityOff,
-                                        contentDescription = if (state.isPasswordVisible)
-                                            stringResource(Res.string.hide_password_hint)
-                                        else
-                                            stringResource(Res.string.show_password_hint)
-                                    )
-                                }
-                            },
-                            keyboardOptions = KeyboardOptions(
-                                keyboardType = KeyboardType.Password,
-                                imeAction = ImeAction.Done
-                            ),
-                            keyboardActions = KeyboardActions(
-                                onDone = { viewModel.onLoginClick(onLoginSuccess) }
-                            ),
-                            modifier = Modifier
-                                .fillMaxWidth(),
-                            enabled = !state.isLoading,
-                            shape = MaterialTheme.shapes.largeIncreased
-                        )
-
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Checkbox(
-                                checked = state.rememberMe,
-                                onCheckedChange = viewModel::onRememberMeChange,
-                                enabled = !state.isLoading
+                        if (state.isLoading) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(24.dp),
+                                color = MaterialTheme.colorScheme.onPrimary
                             )
-                            Text(
-                                text = stringResource(Res.string.remember_user_title),
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
+                        } else {
+                            Text(stringResource(Res.string.sign_in_button))
                         }
+                    }
 
-                        Button(
-                            onClick = { viewModel.onLoginClick(onLoginSuccess) },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(50.dp),
-                            enabled = !state.isLoading
-                        ) {
-                            if (state.isLoading) {
-                                CircularProgressIndicator(
-                                    modifier = Modifier.size(24.dp),
-                                    color = MaterialTheme.colorScheme.onPrimary
-                                )
-                            } else {
-                                Text(stringResource(Res.string.sign_in_button))
-                            }
-                        }
-
-                        OutlinedButton(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(50.dp),
-                            onClick = onNavigateToRegister,
-                            enabled = !state.isLoading
-                        ) {
-                            Text(stringResource(Res.string.sign_up_button))
-                        }
+                    OutlinedButton(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(ButtonDefaults.MediumContainerHeight),
+                        onClick = onNavigateToRegister,
+                        enabled = !state.isLoading
+                    ) {
+                        Text(stringResource(Res.string.sign_up_button))
                     }
                 }
             }

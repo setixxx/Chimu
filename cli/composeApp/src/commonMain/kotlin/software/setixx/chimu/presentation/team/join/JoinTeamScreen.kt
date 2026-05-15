@@ -11,7 +11,7 @@ import androidx.compose.ui.unit.dp
 import org.koin.compose.viewmodel.koinViewModel
 import software.setixx.chimu.presentation.team.details.TeamDetailsViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun JoinTeamScreen(
     onBack: () -> Unit,
@@ -65,7 +65,8 @@ fun JoinTeamScreen(
                         enabled = !state.isLoading,
                         modifier = Modifier.fillMaxWidth(),
                         leadingIcon = { Icon(Icons.Default.Key, null) },
-                        singleLine = true
+                        singleLine = true,
+                        shape = MaterialTheme.shapes.largeIncreased
                     )
                 }
             }
@@ -76,7 +77,9 @@ fun JoinTeamScreen(
                 )
             ) {
                 Column(
-                    modifier = Modifier.padding(16.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -115,17 +118,17 @@ fun JoinTeamScreen(
 
             Button(
                 onClick = { viewModel.joinTeam(onTeamJoined) },
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(ButtonDefaults.MediumContainerHeight),
                 enabled = !state.isLoading && state.inviteToken.isNotBlank()
             ) {
                 if (state.isLoading) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(24.dp),
-                        color = MaterialTheme.colorScheme.onPrimary
-                    )
+                    LoadingIndicator()
                     Spacer(modifier = Modifier.width(8.dp))
+                } else {
+                    Text("Присоединиться")
                 }
-                Text("Присоединиться")
             }
         }
     }

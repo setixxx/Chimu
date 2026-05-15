@@ -31,6 +31,7 @@ import software.setixx.chimu.presentation.utils.DateTimeUtils
 fun TeamDetailsScreen(
     teamId: String,
     onBack: () -> Unit,
+    onNavigateToUserProfile: (String) -> Unit,
     viewModel: TeamDetailsViewModel = koinViewModel { parametersOf(teamId) }
 ) {
     val state by viewModel.state.collectAsState()
@@ -281,7 +282,7 @@ fun TeamDetailsScreen(
                                 SegmentedListItem(
                                     colors = colors,
                                     selected = false,
-                                    onClick = { },
+                                    onClick = { onNavigateToUserProfile(member.userId) },
                                     shapes = ListItemDefaults.segmentedShapes(
                                         index = index,
                                         count = team.members.size

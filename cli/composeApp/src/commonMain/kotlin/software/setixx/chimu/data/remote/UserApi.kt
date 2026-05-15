@@ -10,6 +10,7 @@ import io.ktor.client.request.setBody
 import io.ktor.http.HttpHeaders
 import software.setixx.chimu.data.remote.dto.ChangePasswordRequest
 import software.setixx.chimu.data.remote.dto.ChangePasswordResponse
+import software.setixx.chimu.data.remote.dto.PublicUserProfileResponse
 import software.setixx.chimu.data.remote.dto.UpdateProfileRequest
 import software.setixx.chimu.data.remote.dto.UserProfileResponse
 
@@ -57,7 +58,6 @@ class UserApi(private val client: HttpClient) {
             header(HttpHeaders.Authorization, "Bearer $accessToken")
             setBody(request)
         }
-
         when (response.status.value) {
             in 200..299 -> return response.body()
             400 -> throw IllegalArgumentException("Проверьте правильность введенных данных")
@@ -66,7 +66,7 @@ class UserApi(private val client: HttpClient) {
         }
     }
 
-    suspend fun getUserById(accessToken: String, userId: String): UserProfileResponse {
+    suspend fun getUserById(accessToken: String, userId: String): PublicUserProfileResponse {
         val response = client.get("/api/users/$userId") {
             header(HttpHeaders.Authorization, "Bearer $accessToken")
         }

@@ -38,7 +38,6 @@ fun RegisterScreen(
     onNavigateToLogin: () -> Unit,
     onRegisterSuccess: () -> Unit,
     viewModel: RegisterViewModel = koinViewModel(),
-    platformSizeModifier: Float
 ) {
     val state by viewModel.state.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -64,7 +63,9 @@ fun RegisterScreen(
         ) {
             Column(
                 modifier = Modifier
-                    .fillMaxWidth(),
+                    .widthIn(max = 600.dp)
+                    .fillMaxWidth()
+                    .padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
@@ -74,142 +75,132 @@ fun RegisterScreen(
                     color = MaterialTheme.colorScheme.onSurface,
                     textAlign = TextAlign.Center
                 )
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp)
-                        .clip(MaterialTheme.shapes.extraLarge),
-                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-                ) {
                     Column(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(24.dp),
+                            .fillMaxWidth(),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
+                    Spacer(modifier = Modifier.height(8.dp))
 
-                        Spacer(modifier = Modifier.height(8.dp))
+                    OutlinedTextField(
+                        value = state.email,
+                        onValueChange = viewModel::onEmailChange,
+                        label = { Text(stringResource(Res.string.email_hint)) },
+                        singleLine = true,
+                        isError = state.emailError != null,
+                        supportingText = state.emailError?.let { { Text(it) } },
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Email,
+                            imeAction = ImeAction.Next
+                        ),
+                        modifier = Modifier.fillMaxWidth(),
+                        enabled = !state.isLoading,
+                        shape = MaterialTheme.shapes.largeIncreased
+                    )
 
-                        OutlinedTextField(
-                            value = state.email,
-                            onValueChange = viewModel::onEmailChange,
-                            label = { Text(stringResource(Res.string.email_hint)) },
-                            singleLine = true,
-                            isError = state.emailError != null,
-                            supportingText = state.emailError?.let { { Text(it) } },
-                            keyboardOptions = KeyboardOptions(
-                                keyboardType = KeyboardType.Email,
-                                imeAction = ImeAction.Next
-                            ),
-                            modifier = Modifier.fillMaxWidth(),
-                            enabled = !state.isLoading,
-                            shape = MaterialTheme.shapes.largeIncreased
-                        )
-
-                        OutlinedTextField(
-                            value = state.password,
-                            onValueChange = viewModel::onPasswordChange,
-                            label = { Text(stringResource(Res.string.password_hint)) },
-                            singleLine = true,
-                            isError = state.passwordError != null,
-                            supportingText = state.passwordError?.let { { Text(it) } },
-                            visualTransformation = if (state.isPasswordVisible)
-                                VisualTransformation.None
-                            else
-                                PasswordVisualTransformation(),
-                            trailingIcon = {
-                                IconButton(onClick = viewModel::togglePasswordVisibility) {
-                                    Icon(
-                                        imageVector = if (state.isPasswordVisible)
-                                            Icons.Default.Visibility
-                                        else
-                                            Icons.Default.VisibilityOff,
-                                        contentDescription = if (state.isPasswordVisible)
-                                            stringResource(Res.string.hide_password_hint)
-                                        else
-                                            stringResource(Res.string.show_password_hint)
-                                    )
-                                }
-                            },
-                            keyboardOptions = KeyboardOptions(
-                                keyboardType = KeyboardType.Password,
-                                imeAction = ImeAction.Next
-                            ),
-                            modifier = Modifier.fillMaxWidth(),
-                            enabled = !state.isLoading,
-                            shape = MaterialTheme.shapes.largeIncreased
-                        )
-
-                        if (state.password.isNotEmpty()) {
-                            PasswordStrengthIndicator(strength = state.passwordStrength)
-                        }
-
-                        OutlinedTextField(
-                            value = state.confirmPassword,
-                            onValueChange = viewModel::onConfirmPasswordChange,
-                            label = { Text(stringResource(Res.string.password_confirm_hint)) },
-                            singleLine = true,
-                            isError = state.confirmPasswordError != null,
-                            supportingText = state.confirmPasswordError?.let { { Text(it) } },
-                            visualTransformation = if (state.isConfirmPasswordVisible)
-                                VisualTransformation.None
-                            else
-                                PasswordVisualTransformation(),
-                            trailingIcon = {
-                                IconButton(onClick = viewModel::toggleConfirmPasswordVisibility) {
-                                    Icon(
-                                        imageVector = if (state.isConfirmPasswordVisible)
-                                            Icons.Default.Visibility
-                                        else
-                                            Icons.Default.VisibilityOff,
-                                        contentDescription = if (state.isConfirmPasswordVisible)
-                                            stringResource(Res.string.hide_password_hint)
-                                        else
-                                            stringResource(Res.string.show_password_hint)
-                                    )
-                                }
-                            },
-                            keyboardOptions = KeyboardOptions(
-                                keyboardType = KeyboardType.Password,
-                                imeAction = ImeAction.Done
-                            ),
-                            keyboardActions = KeyboardActions(
-                                onDone = { viewModel.onRegisterClick(onRegisterSuccess) }
-                            ),
-                            modifier = Modifier.fillMaxWidth(),
-                            enabled = !state.isLoading,
-                            shape = MaterialTheme.shapes.largeIncreased
-                        )
-
-                        Spacer(modifier = Modifier.height(8.dp))
-
-                        Button(
-                            onClick = { viewModel.onRegisterClick(onRegisterSuccess) },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(50.dp),
-                            enabled = !state.isLoading
-                        ) {
-                            if (state.isLoading) {
-                                CircularProgressIndicator(
-                                    modifier = Modifier.size(24.dp),
-                                    color = MaterialTheme.colorScheme.onPrimary
+                    OutlinedTextField(
+                        value = state.password,
+                        onValueChange = viewModel::onPasswordChange,
+                        label = { Text(stringResource(Res.string.password_hint)) },
+                        singleLine = true,
+                        isError = state.passwordError != null,
+                        supportingText = state.passwordError?.let { { Text(it) } },
+                        visualTransformation = if (state.isPasswordVisible)
+                            VisualTransformation.None
+                        else
+                            PasswordVisualTransformation(),
+                        trailingIcon = {
+                            IconButton(onClick = viewModel::togglePasswordVisibility) {
+                                Icon(
+                                    imageVector = if (state.isPasswordVisible)
+                                        Icons.Default.Visibility
+                                    else
+                                        Icons.Default.VisibilityOff,
+                                    contentDescription = if (state.isPasswordVisible)
+                                        stringResource(Res.string.hide_password_hint)
+                                    else
+                                        stringResource(Res.string.show_password_hint)
                                 )
-                            } else {
-                                Text(stringResource(Res.string.sign_up_button))
                             }
-                        }
+                        },
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Password,
+                            imeAction = ImeAction.Next
+                        ),
+                        modifier = Modifier.fillMaxWidth(),
+                        enabled = !state.isLoading,
+                        shape = MaterialTheme.shapes.largeIncreased
+                    )
 
-                        OutlinedButton(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(50.dp),
-                            onClick = onNavigateToLogin,
-                            enabled = !state.isLoading
-                        ) {
-                            Text(stringResource(Res.string.sign_in_button))
+                    if (state.password.isNotEmpty()) {
+                        PasswordStrengthIndicator(strength = state.passwordStrength)
+                    }
+
+                    OutlinedTextField(
+                        value = state.confirmPassword,
+                        onValueChange = viewModel::onConfirmPasswordChange,
+                        label = { Text(stringResource(Res.string.password_confirm_hint)) },
+                        singleLine = true,
+                        isError = state.confirmPasswordError != null,
+                        supportingText = state.confirmPasswordError?.let { { Text(it) } },
+                        visualTransformation = if (state.isConfirmPasswordVisible)
+                            VisualTransformation.None
+                        else
+                            PasswordVisualTransformation(),
+                        trailingIcon = {
+                            IconButton(onClick = viewModel::toggleConfirmPasswordVisibility) {
+                                Icon(
+                                    imageVector = if (state.isConfirmPasswordVisible)
+                                        Icons.Default.Visibility
+                                    else
+                                        Icons.Default.VisibilityOff,
+                                    contentDescription = if (state.isConfirmPasswordVisible)
+                                        stringResource(Res.string.hide_password_hint)
+                                    else
+                                        stringResource(Res.string.show_password_hint)
+                                )
+                            }
+                        },
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Password,
+                            imeAction = ImeAction.Done
+                        ),
+                        keyboardActions = KeyboardActions(
+                            onDone = { viewModel.onRegisterClick(onRegisterSuccess) }
+                        ),
+                        modifier = Modifier.fillMaxWidth(),
+                        enabled = !state.isLoading,
+                        shape = MaterialTheme.shapes.largeIncreased
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Button(
+                        onClick = { viewModel.onRegisterClick(onRegisterSuccess) },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(ButtonDefaults.MediumContainerHeight),
+                        enabled = !state.isLoading
+                    ) {
+                        if (state.isLoading) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(24.dp),
+                                color = MaterialTheme.colorScheme.onPrimary
+                            )
+                        } else {
+                            Text(stringResource(Res.string.sign_up_button))
                         }
+                    }
+
+                    OutlinedButton(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(ButtonDefaults.MediumContainerHeight),
+                        onClick = onNavigateToLogin,
+                        enabled = !state.isLoading
+                    ) {
+                        Text(stringResource(Res.string.sign_in_button))
                     }
                 }
             }

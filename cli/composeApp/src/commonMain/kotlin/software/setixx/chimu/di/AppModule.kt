@@ -22,6 +22,7 @@ import software.setixx.chimu.presentation.profile.ProfileViewModel
 import software.setixx.chimu.presentation.splash.SplashViewModel
 import software.setixx.chimu.presentation.team.details.TeamDetailsViewModel
 import software.setixx.chimu.presentation.team.create.CreateTeamViewModel
+import software.setixx.chimu.presentation.user.UserProfileViewModel
 
 val appModule = module {
     single { KtorClient(get()) }
@@ -163,6 +164,7 @@ val appModule = module {
     factory { KickMemberUseCase(get()) }
     factory { UpdateMemberSpecializationUseCase(get()) }
     factory { RegenerateInviteTokenUseCase(get()) }
+    factory { GetUserByIdUseCase(get()) }
     factory { CreateJamUseCase(get()) }
     factory { GetJamDetailsUseCase(get()) }
     factory { UpdateJamUseCase(get()) }
@@ -338,5 +340,11 @@ val appModule = module {
         LeaderboardViewModel(
             get(),
             get())
+    }
+    viewModel { params ->
+        UserProfileViewModel(
+            userId = params.get(),
+            getUserByIdUseCase = get()
+        )
     }
 }

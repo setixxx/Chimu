@@ -89,11 +89,7 @@ fun GameJamCard(
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
-            }
-
-            Spacer(modifier = Modifier.width(8.dp))
-
-            Column {
+                Spacer(modifier = Modifier.width(4.dp))
                 StatusChip(status = jam.status)
             }
         }

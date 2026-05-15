@@ -19,6 +19,7 @@ import software.setixx.chimu.presentation.splash.SplashScreen
 import software.setixx.chimu.presentation.team.create.CreateTeamScreen
 import software.setixx.chimu.presentation.team.join.JoinTeamScreen
 import software.setixx.chimu.presentation.team.details.TeamDetailsScreen
+import software.setixx.chimu.presentation.user.UserProfileScreen
 
 @Composable
 fun AppNavigation(
@@ -58,8 +59,7 @@ fun AppNavigation(
                     navController.navigate(Screen.Home) {
                         popUpTo(Screen.Login) { inclusive = true }
                     }
-                },
-                platformSizeModifier = calculatePlatformSizeModifier()
+                }
             )
         }
 
@@ -72,8 +72,7 @@ fun AppNavigation(
                     navController.navigate(Screen.Login) {
                         popUpTo(Screen.Register) { inclusive = true }
                     }
-                },
-                platformSizeModifier = calculatePlatformSizeModifier()
+                }
             )
         }
 
@@ -130,7 +129,18 @@ fun AppNavigation(
                 teamId = args.teamId,
                 onBack = {
                     navController.popBackStack()
+                },
+                onNavigateToUserProfile = { userId ->
+                    navController.navigate(Screen.UserProfile(userId))
                 }
+            )
+        }
+
+        composable<Screen.UserProfile> {
+            val args = it.toRoute<Screen.UserProfile>()
+            UserProfileScreen(
+                userId = args.userId,
+                onBack = { navController.popBackStack() }
             )
         }
 
@@ -242,11 +252,4 @@ fun AppNavigation(
             )
         }
     }
-}
-
-fun calculatePlatformSizeModifier(): Float {
-    return if (getPlatform().name == "Android" || getPlatform().name == "iOS") {
-        0.35f
-    } else
-        0f
 }

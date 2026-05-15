@@ -5,6 +5,7 @@ import software.setixx.chimu.domain.model.ApiResult
 import software.setixx.chimu.domain.model.ChangePassword
 import software.setixx.chimu.domain.model.ChangedPassword
 import software.setixx.chimu.domain.model.ProfileUpdate
+import software.setixx.chimu.domain.model.PublicUserProfile
 import software.setixx.chimu.domain.model.UserProfile
 
 interface UserRepository {
@@ -13,5 +14,5 @@ interface UserRepository {
     suspend fun getCurrentUser(): ApiResult<UserProfile>
     suspend fun deleteProfile(): ApiResult<Unit>
     suspend fun updateProfile(request: ProfileUpdate): ApiResult<UserProfile>
-    suspend fun getUserById(userId: String): ApiResult<UserProfile>
+    suspend fun getUserById(userId: String): ApiResult<PublicUserProfile>
 }

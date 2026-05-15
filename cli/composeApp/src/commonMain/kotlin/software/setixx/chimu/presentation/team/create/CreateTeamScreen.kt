@@ -1,16 +1,19 @@
 package software.setixx.chimu.presentation.team.create
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import org.koin.compose.viewmodel.koinViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun CreateTeamScreen(
     onBack: () -> Unit,
@@ -72,9 +75,13 @@ fun CreateTeamScreen(
                         isError = state.nameError != null,
                         supportingText = state.nameError?.let { { Text(it) } },
                         leadingIcon = { Icon(Icons.Default.Group, null) },
-                        singleLine = true
+                        singleLine = true,
+                        shape = MaterialTheme.shapes.largeIncreased,
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Text,
+                            imeAction = ImeAction.Done
+                        )
                     )
-
                     OutlinedTextField(
                         value = state.description,
                         onValueChange = { viewModel.updateDescription(it) },
@@ -83,7 +90,8 @@ fun CreateTeamScreen(
                         modifier = Modifier.fillMaxWidth(),
                         minLines = 3,
                         maxLines = 5,
-                        leadingIcon = { Icon(Icons.Default.Description, null) }
+                        leadingIcon = { Icon(Icons.Default.Description, null) },
+                        shape = MaterialTheme.shapes.largeIncreased
                     )
                 }
             }
@@ -94,7 +102,9 @@ fun CreateTeamScreen(
                 )
             ) {
                 Column(
-                    modifier = Modifier.padding(16.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -138,17 +148,16 @@ fun CreateTeamScreen(
 
             Button(
                 onClick = { viewModel.createTeam() },
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(ButtonDefaults.MediumContainerHeight),
                 enabled = !state.isCreating
             ) {
                 if (state.isCreating) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(24.dp),
-                        color = MaterialTheme.colorScheme.onPrimary
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
+                    LoadingIndicator()
+                } else {
+                    Text("Создать команду")
                 }
-                Text("Создать команду")
             }
         }
     }

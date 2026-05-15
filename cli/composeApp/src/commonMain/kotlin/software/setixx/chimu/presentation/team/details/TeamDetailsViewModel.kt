@@ -355,7 +355,7 @@ class TeamDetailsViewModel(
         viewModelScope.launch {
             hideJoinDialog()
             _state.update { it.copy(isLoading = true) }
-
+            delay(2000)
             when (val result = joinTeamUseCase(token)) {
                 is ApiResult.Success -> {
                     _state.update { it.copy(isLoading = false) }
