@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -25,6 +26,7 @@ import software.setixx.chimu.api.domain.RegistrationStatus
 import software.setixx.chimu.api.domain.RegistrationStatus.*
 import software.setixx.chimu.domain.model.GameJamDetails
 import software.setixx.chimu.domain.model.Registration
+import software.setixx.chimu.presentation.main.components.JamBanner
 import software.setixx.chimu.presentation.utils.DateTimeUtils
 
 @Composable
@@ -34,79 +36,93 @@ fun JamOverviewSection(
     showCriteria: Boolean = true,
     showJudges: Boolean = true
 ) {
-    Card(modifier = Modifier.fillMaxWidth()) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            Text("Информация", style = MaterialTheme.typography.titleLarge)
-            Text(jam.description)
-            Text("Тема: ${jam.theme}", style = MaterialTheme.typography.bodyLarge)
-            if (showRules) {
-                HorizontalDivider()
-                Text("Правила", style = MaterialTheme.typography.titleMedium)
-                Text(jam.rules)
+    JamBanner(
+        status = jam.status,
+        bannerUrl = jam.bannerUrl,
+        name = jam.name,
+        theme = jam.theme
+    )
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        Card(modifier = Modifier.fillMaxWidth()) {
+            Column(
+                modifier = Modifier.padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Text("Информация", style = MaterialTheme.typography.titleLarge)
+                Text(jam.description)
+                Text("Тема: ${jam.theme}", style = MaterialTheme.typography.bodyLarge)
+                if (showRules) {
+                    HorizontalDivider()
+                    Text("Правила", style = MaterialTheme.typography.titleMedium)
+                    Text(jam.rules)
+                }
             }
         }
-    }
 
-    Card(modifier = Modifier.fillMaxWidth()) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text("Даты", style = MaterialTheme.typography.titleMedium)
-            InfoRow(
-                icon = Icons.Default.AppRegistration,
-                label = "Регистрация",
-                value = "${DateTimeUtils.formatDateTime(jam.registrationStart)} - ${DateTimeUtils.formatDateTime(jam.registrationEnd)}"
-            )
-            InfoRow(
-                icon = Icons.Default.PlayArrow,
-                label = "Джем",
-                value = "${DateTimeUtils.formatDateTime(jam.jamStart)} - ${DateTimeUtils.formatDateTime(jam.jamEnd)}"
-            )
-            InfoRow(
-                icon = Icons.Default.Star,
-                label = "Оценивание",
-                value = "${DateTimeUtils.formatDateTime(jam.judgingStart)} - ${DateTimeUtils.formatDateTime(jam.judgingEnd)}"
-            )
-        }
-    }
-
-    if (showCriteria) {
         Card(modifier = Modifier.fillMaxWidth()) {
             Column(modifier = Modifier.padding(16.dp)) {
-                Text("Критерии оценивания (${jam.criteria.size})", style = MaterialTheme.typography.titleMedium)
-                Spacer(modifier = Modifier.height(8.dp))
-                if (jam.criteria.isEmpty()) {
-                    Text("Критерии не добавлены.")
-                } else {
-                    jam.criteria.sortedBy { it.orderIndex }.forEachIndexed { index, criteria ->
-                        ListItem(
-                            headlineContent = { Text(criteria.name) },
-                            supportingContent = {
-                                Text("${criteria.description ?: "Без описания"}\nМакс: ${criteria.maxScore} | Вес: ${criteria.weight}")
-                            }
-                        )
-                        if (index < jam.criteria.lastIndex) HorizontalDivider()
+                Text("Даты", style = MaterialTheme.typography.titleMedium)
+                InfoRow(
+                    icon = Icons.Default.AppRegistration,
+                    label = "Регистрация",
+                    value = "${DateTimeUtils.formatDateTime(jam.registrationStart)} - ${DateTimeUtils.formatDateTime(jam.registrationEnd)}"
+                )
+                InfoRow(
+                    icon = Icons.Default.PlayArrow,
+                    label = "Джем",
+                    value = "${DateTimeUtils.formatDateTime(jam.jamStart)} - ${DateTimeUtils.formatDateTime(jam.jamEnd)}"
+                )
+                InfoRow(
+                    icon = Icons.Default.Star,
+                    label = "Оценивание",
+                    value = "${DateTimeUtils.formatDateTime(jam.judgingStart)} - ${DateTimeUtils.formatDateTime(jam.judgingEnd)}"
+                )
+            }
+        }
+
+        if (showCriteria) {
+            Card(modifier = Modifier.fillMaxWidth()) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text("Критерии оценивания (${jam.criteria.size})", style = MaterialTheme.typography.titleMedium)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    if (jam.criteria.isEmpty()) {
+                        Text("Критерии не добавлены.")
+                    } else {
+                        jam.criteria.sortedBy { it.orderIndex }.forEachIndexed { index, criteria ->
+                            ListItem(
+                                headlineContent = { Text(criteria.name) },
+                                supportingContent = {
+                                    Text("${criteria.description ?: "Без описания"}\nМакс: ${criteria.maxScore} | Вес: ${criteria.weight}")
+                                }
+                            )
+                            if (index < jam.criteria.lastIndex) HorizontalDivider()
+                        }
                     }
                 }
             }
         }
-    }
 
-    if (showJudges) {
-        Card(modifier = Modifier.fillMaxWidth()) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                Text("Судьи (${jam.judges.size})", style = MaterialTheme.typography.titleMedium)
-                Spacer(modifier = Modifier.height(8.dp))
-                if (jam.judges.isEmpty()) {
-                    Text("Судьи не назначены.")
-                } else {
-                    jam.judges.forEachIndexed { index, judge ->
-                        ListItem(
-                            headlineContent = { Text(judge.nickname) },
-                            supportingContent = { Text("Назначен: ${DateTimeUtils.formatDateTime(judge.assignedAt)}") }
-                        )
-                        if (index < jam.judges.lastIndex) HorizontalDivider()
+        if (showJudges) {
+            Card(modifier = Modifier.fillMaxWidth()) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text("Судьи (${jam.judges.size})", style = MaterialTheme.typography.titleMedium)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    if (jam.judges.isEmpty()) {
+                        Text("Судьи не назначены.")
+                    } else {
+                        jam.judges.forEachIndexed { index, judge ->
+                            ListItem(
+                                headlineContent = { Text(judge.nickname) },
+                                supportingContent = { Text("Назначен: ${DateTimeUtils.formatDateTime(judge.assignedAt)}") }
+                            )
+                            if (index < jam.judges.lastIndex) HorizontalDivider()
+                        }
                     }
                 }
             }

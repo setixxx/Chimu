@@ -266,12 +266,17 @@ val appModule = module {
         get(),
         get())
     }
-    viewModel { EditJamViewModel(
+    viewModel {
+        EditJamViewModel(
         get(),
-        get())
+        get(),
+            get(),
+            get()
+        )
     }
 
-    viewModel { JamDetailsViewModel(
+    viewModel {
+        JamDetailsViewModel(
         get(),
         get(),
         get(),
@@ -318,8 +323,6 @@ val appModule = module {
     }
     viewModel {
         ManagementViewModel(
-            get(),
-            get(),
             get(),
             get(),
             get(),

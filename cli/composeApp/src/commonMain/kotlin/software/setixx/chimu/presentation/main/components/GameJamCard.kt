@@ -74,7 +74,8 @@ fun GameJamCard(
                     overflow = TextOverflow.Ellipsis
                 )
                 Spacer(modifier = Modifier.height(12.dp))
-
+                StatusChip(status = jam.status)
+                Spacer(modifier = Modifier.height(12.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
                         Icons.Default.Group,
@@ -89,8 +90,6 @@ fun GameJamCard(
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
-                Spacer(modifier = Modifier.width(4.dp))
-                StatusChip(status = jam.status)
             }
         }
     }

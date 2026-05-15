@@ -117,75 +117,81 @@ fun ProgressScreen(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .verticalScroll(scrollState)
-                    .padding(16.dp),
+                    .verticalScroll(scrollState),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 JamOverviewSection(jam = jam)
 
-                RegisteredTeamsSection(
-                    registrations = if (isAdminOrOrganizer) {
-                        state.registrations
-                    } else {
-                        state.registrations.filter { it.status == RegistrationStatus.APPROVED }
-                    },
-                    actions = { reg ->
-                        if (isAdminOrOrganizer && reg.status != RegistrationStatus.DISQUALIFIED) {
-                            IconButton(
-                                onClick = { viewModel.disqualifyTeam(jamId, reg.teamId) },
-                                enabled = !state.isActionLoading
-                            ) {
-                                Icon(
-                                    Icons.Default.Block,
-                                    "Дисквалифицировать команду",
-                                    tint = MaterialTheme.colorScheme.error
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    RegisteredTeamsSection(
+                        registrations = if (isAdminOrOrganizer) {
+                            state.registrations
+                        } else {
+                            state.registrations.filter { it.status == RegistrationStatus.APPROVED }
+                        },
+                        actions = { reg ->
+                            if (isAdminOrOrganizer && reg.status != RegistrationStatus.DISQUALIFIED) {
+                                IconButton(
+                                    onClick = { viewModel.disqualifyTeam(jamId, reg.teamId) },
+                                    enabled = !state.isActionLoading
+                                ) {
+                                    Icon(
+                                        Icons.Default.Block,
+                                        "Дисквалифицировать команду",
+                                        tint = MaterialTheme.colorScheme.error
+                                    )
+                                }
+                            }
+                        }
+                    )
+
+                    if (isParticipant) {
+                        val registration = state.getUserRegistration()
+                        val isLeader = state.isUserLeaderOfRegisteredTeam()
+
+                        if (registration != null) {
+                            ParticipantProjectSection(
+                                state = state,
+                                isLeader = isLeader,
+                                onCreateProject = { showCreateProjectDialog = true },
+                                onSubmitProject = { viewModel.submitProject(it) },
+                                onCancelSubmission = { viewModel.cancelSubmission(it) },
+                                onDeleteProject = { viewModel.deleteProject(it) },
+                                onUploadScreenshot = screenshotPicker,
+                                onUploadBuild = buildPicker,
+                                onUploadVideo = videoPicker,
+                                onDeleteFile = { fileId ->
+                                    state.userProject?.id?.let {
+                                        viewModel.deleteFile(it, fileId)
+                                    }
+                                }
+                            )
+                        } else {
+                            Card(modifier = Modifier.fillMaxWidth()) {
+                                Text(
+                                    "Ваша команда не зарегистрирована или заявка не одобрена.",
+                                    modifier = Modifier.padding(16.dp)
                                 )
                             }
                         }
                     }
-                )
 
-                if (isParticipant) {
-                    val registration = state.getUserRegistration()
-                    val isLeader = state.isUserLeaderOfRegisteredTeam()
-
-                    if (registration != null) {
-                        ParticipantProjectSection(
-                            state = state,
-                            isLeader = isLeader,
-                            onCreateProject = { showCreateProjectDialog = true },
-                            onSubmitProject = { viewModel.submitProject(it) },
-                            onCancelSubmission = { viewModel.cancelSubmission(it) },
-                            onDeleteProject = { viewModel.deleteProject(it) },
-                            onUploadScreenshot = screenshotPicker,
-                            onUploadBuild = buildPicker,
-                            onUploadVideo = videoPicker,
-                            onDeleteFile = { fileId ->
-                                state.userProject?.id?.let {
-                                    viewModel.deleteFile(it, fileId)
-                                }
-                            }
-                        )
-                    } else {
-                        Card(modifier = Modifier.fillMaxWidth()) {
-                            Text(
-                                "Ваша команда не зарегистрирована или заявка не одобрена.",
-                                modifier = Modifier.padding(16.dp)
-                            )
-                        }
+                    if (isJudge) {
+                        StagePlaceholder("Оценка проектов еще не началась. Дождитесь стадии оценивания.")
                     }
-                }
 
-                if (isJudge) {
-                    StagePlaceholder("Оценка проектов еще не началась. Дождитесь стадии оценивания.")
-                }
-
-                if (isAdminOrOrganizer) {
-                    StatisticsSection(state)
-                    AdminProjectsSection(
-                        state = state,
-                        onDisqualify = { viewModel.disqualifyProject(jamId, it) }
-                    )
+                    if (isAdminOrOrganizer) {
+                        StatisticsSection(state)
+                        AdminProjectsSection(
+                            state = state,
+                            onDisqualify = { viewModel.disqualifyProject(jamId, it) }
+                        )
+                    }
                 }
             }
         }

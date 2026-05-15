@@ -8,6 +8,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import org.koin.compose.viewmodel.koinViewModel
 import software.setixx.chimu.api.domain.GameJamStatus
 import software.setixx.chimu.presentation.jam.details.judging.JudgingScreen
@@ -48,20 +49,21 @@ fun JamDetailsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(state.jamDetails?.name ?: "Загрузка...") },
+                colors = TopAppBarDefaults.topAppBarColors(Color.Transparent),
+                title = { },
                 navigationIcon = {
-                    IconButton(onClick = onBack) {
+                    FilledTonalIconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, "Назад")
                     }
                 },
                 actions = {
                     if (state.canEdit){
-                        IconButton(onClick = { onEditJam(jamId) }) {
+                        FilledTonalIconButton(onClick = { onEditJam(jamId) }) {
                             Icon(Icons.Default.Edit, "Редактировать")
                         }
                     }
                     if (state.canDelete) {
-                        IconButton(onClick = { showDeleteDialog = true }) {
+                        FilledTonalIconButton(onClick = { showDeleteDialog = true }) {
                             Icon(
                                 Icons.Default.Delete,
                                 "Удалить",
@@ -70,7 +72,15 @@ fun JamDetailsScreen(
                         }
                     }
                     if (state.canCancel){
-                        IconButton(onClick = { showCancelDialog = true }) {
+                        FilledTonalIconButton(
+                            onClick = { showCancelDialog = true },
+                            colors = IconButtonColors(
+                                containerColor = MaterialTheme.colorScheme.errorContainer,
+                                contentColor = MaterialTheme.colorScheme.error,
+                                disabledContainerColor = MaterialTheme.colorScheme.errorContainer,
+                                disabledContentColor = MaterialTheme.colorScheme.errorContainer
+                            )
+                        ) {
                             Icon(
                                 Icons.Default.Cancel,
                                 "Отменить",
@@ -97,7 +107,7 @@ fun JamDetailsScreen(
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(paddingValues)
+                        /*.padding(paddingValues)*/
                 ) {
                     val jamStatus = jam.status
                     when (state.resolveSection(section, jamStatus)) {

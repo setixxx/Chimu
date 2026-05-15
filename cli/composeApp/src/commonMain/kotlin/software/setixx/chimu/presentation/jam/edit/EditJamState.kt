@@ -1,7 +1,10 @@
 package software.setixx.chimu.presentation.jam.edit
 
+import software.setixx.chimu.domain.model.GameJam
+import software.setixx.chimu.domain.model.GameJamDetails
+
 data class EditJamState(
-    val jamId: String = "",
+    val jam: GameJamDetails? = null,
     val name: String = "",
     val description: String = "",
     val theme: String = "",
@@ -12,8 +15,8 @@ data class EditJamState(
     val jamEnd: String = "",
     val judgingStart: String = "",
     val judgingEnd: String = "",
-    val minTeamSize: String = "1",
-    val maxTeamSize: String = "5",
+    val minTeamSize: String = "",
+    val maxTeamSize: String = "",
     
     val nameError: String? = null,
     val dateError: String? = null,
@@ -21,6 +24,8 @@ data class EditJamState(
     
     val isLoading: Boolean = false,
     val isUpdating: Boolean = false,
+    val isActionLoading: Boolean = false,
     val isSuccess: Boolean = false,
-    val errorMessage: String? = null
+    val errorMessage: String? = null,
+    val successMessage: String? = null
 )
