@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class RatingCriteriaResponse(
-    val id: Long,
+    val id: String,
     val name: String,
     val description: String? = null,
     val maxScore: Int,

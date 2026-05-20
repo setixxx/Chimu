@@ -4,6 +4,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class SkillResponse(
-    val id: Long,
+    val id: String,
     val name: String
 )

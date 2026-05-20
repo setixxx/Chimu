@@ -2,18 +2,6 @@ package software.setixx.chimu.domain.model
 
 import software.setixx.chimu.api.domain.UserRole
 
-data class UpdateProfile(
-    val firstName: String? = null,
-    val lastName: String? = null,
-    val nickname: String? = null,
-    val bio: String? = null,
-    val specializationId: Long? = null,
-    val githubUrl: String? = null,
-    val telegramUsername: String? = null,
-    val avatarUrl: String? = null,
-    val skillIds: List<Long> = emptyList()
-)
-
 data class UserProfile(
     val id: String,
     val email: String,

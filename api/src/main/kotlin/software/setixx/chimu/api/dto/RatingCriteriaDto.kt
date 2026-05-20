@@ -8,7 +8,7 @@ import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Size
 
 data class CriteriaResponse(
-    val id: Long,
+    val id: String,
     val name: String,
     val description: String?,
     val maxScore: Int,

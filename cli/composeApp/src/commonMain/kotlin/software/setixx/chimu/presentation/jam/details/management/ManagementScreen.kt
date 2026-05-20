@@ -45,7 +45,8 @@ import software.setixx.chimu.presentation.utils.DateTimeUtils
 @Composable
 fun ManagementScreen(
     jam: GameJamDetails,
-    viewModel: ManagementViewModel = koinViewModel()
+    viewModel: ManagementViewModel = koinViewModel(),
+    paddingValues: PaddingValues
 ) {
     val state by viewModel.state.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -86,17 +87,9 @@ fun ManagementScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .verticalScroll(scrollState),
+                .padding(paddingValues),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            state.jam?.let { jam ->
-                JamBanner(
-                    status = jam.status,
-                    bannerUrl = currentBannerUrl,
-                    name = jam.name,
-                    theme = jam.theme
-                )
-            }
             Column(
                 modifier = Modifier
                     .fillMaxSize()

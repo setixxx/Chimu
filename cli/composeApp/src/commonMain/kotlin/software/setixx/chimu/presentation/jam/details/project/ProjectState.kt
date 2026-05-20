@@ -1,7 +1,6 @@
-package software.setixx.chimu.presentation.jam.details.progress
+package software.setixx.chimu.presentation.jam.details.project
 
 import software.setixx.chimu.api.domain.RegistrationStatus
-import software.setixx.chimu.api.domain.UserRole
 import software.setixx.chimu.domain.model.Project
 import software.setixx.chimu.domain.model.ProjectDetails
 import software.setixx.chimu.domain.model.ProjectFile
@@ -9,7 +8,7 @@ import software.setixx.chimu.domain.model.Registration
 import software.setixx.chimu.domain.model.JamStatistics
 import software.setixx.chimu.domain.model.Team
 
-data class ProgressState(
+data class ProjectState(
     val userProject: ProjectDetails? = null,
     val projectFiles: List<ProjectFile> = emptyList(),
     val allProjects: List<Project> = emptyList(),

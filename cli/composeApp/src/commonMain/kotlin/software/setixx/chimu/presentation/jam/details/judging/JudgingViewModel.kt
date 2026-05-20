@@ -108,7 +108,7 @@ class JudgingViewModel(
         }
     }
 
-    fun rateProject(projectId: String, criteriaId: Long, score: Int, comment: String?) {
+    fun rateProject(projectId: String, criteriaId: String, score: Int, comment: String?) {
         viewModelScope.launch {
             _state.update { it.copy(isActionLoading = true) }
             when (val result = rateProjectUseCase(
@@ -134,11 +134,11 @@ class JudgingViewModel(
         }
     }
 
-    fun updateRating(ratingId: Long, projectId: String, score: Int, comment: String?) {
+    fun updateRating(ratingId: String, projectId: String, score: Int, comment: String?) {
         viewModelScope.launch {
             _state.update { it.copy(isActionLoading = true) }
             when (val result = updateProjectRatingUseCase(
-                ratingId.toString(),
+                ratingId,
                 UpdateRating(score = score, comment = comment?.takeIf { it.isNotBlank() })
             )) {
                 is ApiResult.Success -> {
@@ -160,10 +160,10 @@ class JudgingViewModel(
         }
     }
 
-    fun deleteRating(ratingId: Long, projectId: String) {
+    fun deleteRating(ratingId: String, projectId: String) {
         viewModelScope.launch {
             _state.update { it.copy(isActionLoading = true) }
-            when (val result = deleteProjectRatingUseCase(ratingId.toString())) {
+            when (val result = deleteProjectRatingUseCase(ratingId)) {
                 is ApiResult.Success -> {
                     loadMyRatings(projectId)
                     _state.update {

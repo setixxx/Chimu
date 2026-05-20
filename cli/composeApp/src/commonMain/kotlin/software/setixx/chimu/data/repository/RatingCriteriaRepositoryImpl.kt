@@ -51,7 +51,7 @@ class RatingCriteriaRepositoryImpl(
         }
     }
 
-    override suspend fun deleteJamCriteria(jamId: String, criteriaId: Long): ApiResult<Unit> {
+    override suspend fun deleteJamCriteria(jamId: String, criteriaId: String): ApiResult<Unit> {
         return try {
             val token = tokenStorage.getAccessToken()
                 ?: return ApiResult.Error("Ошибка аутентификации")
@@ -65,7 +65,7 @@ class RatingCriteriaRepositoryImpl(
 
     override suspend fun updateJamCriteria(
         jamId: String,
-        criteriaId: Long,
+        criteriaId: String,
         data: UpdateRatingCriteria
     ): ApiResult<RatingCriteria> {
         return try {

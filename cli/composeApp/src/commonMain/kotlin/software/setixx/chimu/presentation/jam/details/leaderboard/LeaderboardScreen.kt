@@ -30,7 +30,8 @@ fun LeaderboardScreen(
     jamId: String,
     jam: GameJamDetails,
     isAdminOrOrganizer: Boolean,
-    viewModel: LeaderboardViewModel = koinViewModel()
+    viewModel: LeaderboardViewModel = koinViewModel(),
+    paddingValues: PaddingValues
 ) {
     val state by viewModel.state.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -57,17 +58,11 @@ fun LeaderboardScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .verticalScroll(scrollState)
-                    .padding(16.dp),
+                    .padding(16.dp)
+                    .padding(paddingValues),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 CompletionBanner()
-
-                JamOverviewSection(
-                    jam = jam,
-                    showRules = false,
-                    showCriteria = true,
-                    showJudges = false
-                )
 
                 if (isAdminOrOrganizer) {
                     state.statistics?.let { stats ->

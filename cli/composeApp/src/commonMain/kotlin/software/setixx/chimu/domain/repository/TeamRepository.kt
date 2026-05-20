@@ -13,6 +13,6 @@ interface TeamRepository {
     suspend fun leaveTeam(teamId: String): ApiResult<Unit>
     suspend fun deleteTeam(teamId: String): ApiResult<Unit>
     suspend fun kickMember(teamId: String, userId: String): ApiResult<Unit>
-    suspend fun updateMemberSpecialization(teamId: String, specializationId: Long?): ApiResult<TeamMember>
+    suspend fun updateMemberSpecialization(teamId: String, specializationId: String?): ApiResult<TeamMember>
     suspend fun regenerateInviteToken(teamId: String): ApiResult<String>
 }

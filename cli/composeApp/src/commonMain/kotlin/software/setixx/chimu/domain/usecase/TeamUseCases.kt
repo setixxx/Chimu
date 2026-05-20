@@ -49,7 +49,7 @@ class KickMemberUseCase(
 class UpdateMemberSpecializationUseCase(
     private val repository: TeamRepository
 ) {
-    suspend operator fun invoke(teamId: String, specializationId: Long?) = repository.updateMemberSpecialization(teamId, specializationId)
+    suspend operator fun invoke(teamId: String, specializationId: String?) = repository.updateMemberSpecialization(teamId, specializationId)
 }
 
 class RegenerateInviteTokenUseCase(

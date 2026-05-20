@@ -71,7 +71,7 @@ class CriteriaService(
     @Transactional
     fun updateCriteria(
         jamId: String,
-        criteriaId: Long,
+        criteriaId: String,
         userId: Long,
         request: UpdateCriteriaRequest
     ): CriteriaResponse {
@@ -94,8 +94,8 @@ class CriteriaService(
             throw IllegalArgumentException("Cannot add criteria after jam has started")
         }
 
-        val criteria = ratingCriteriaRepository.findById(criteriaId)
-            .orElseThrow { IllegalArgumentException("Criteria not found") }
+        val criteria = ratingCriteriaRepository.findByPublicIdAndDeletedAtIsNull(UUID.fromString(criteriaId))
+            ?: throw IllegalArgumentException("Criteria not found")
 
         if (criteria.gameJam.id != jam.id) {
             throw IllegalArgumentException("Criteria does not belong to this jam")
@@ -117,7 +117,7 @@ class CriteriaService(
     }
 
     @Transactional
-    fun deleteCriteria(jamId: String, criteriaId: Long, userId: Long) {
+    fun deleteCriteria(jamId: String, criteriaId: String, userId: Long) {
         val jam = gameJamRepository.findByPublicIdAndDeletedAtIsNull(UUID.fromString(jamId))
             ?: throw IllegalArgumentException("Game jam not found")
 
@@ -131,8 +131,8 @@ class CriteriaService(
             throw IllegalArgumentException("Cannot delete criteria after judging has started")
         }
 
-        val criteria = ratingCriteriaRepository.findById(criteriaId)
-            .orElseThrow { IllegalArgumentException("Criteria not found") }
+        val criteria = ratingCriteriaRepository.findByPublicIdAndDeletedAtIsNull(UUID.fromString(criteriaId))
+            ?: throw IllegalArgumentException("Criteria not found")
 
         if (criteria.gameJam.id != jam.id) {
             throw IllegalArgumentException("Criteria does not belong to this jam")
@@ -143,7 +143,7 @@ class CriteriaService(
 
     private fun toCriteriaResponse(criteria: RatingCriteria): CriteriaResponse {
         return CriteriaResponse(
-            id = criteria.id!!,
+            id = criteria.publicId.toString(),
             name = criteria.name,
             description = criteria.description,
             maxScore = criteria.maxScore,

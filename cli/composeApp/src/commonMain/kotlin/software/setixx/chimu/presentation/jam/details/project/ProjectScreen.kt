@@ -1,4 +1,4 @@
-package software.setixx.chimu.presentation.jam.details.progress
+package software.setixx.chimu.presentation.jam.details.project
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -17,10 +17,8 @@ import software.setixx.chimu.api.domain.RegistrationStatus
 import software.setixx.chimu.api.domain.UserRole
 import software.setixx.chimu.data.picker.rememberFilePicker
 import software.setixx.chimu.domain.model.GameJamDetails
-import software.setixx.chimu.presentation.jam.details.progress.components.FileUploadButton
-import software.setixx.chimu.presentation.components.JamOverviewSection
+import software.setixx.chimu.presentation.jam.details.project.components.FileUploadButton
 import software.setixx.chimu.presentation.components.RegisteredTeamsSection
-import software.setixx.chimu.presentation.components.StagePlaceholder
 
 @Composable
 fun ProgressScreen(
@@ -28,7 +26,8 @@ fun ProgressScreen(
     jam: GameJamDetails,
     userRole: UserRole?,
     userId: String?,
-    viewModel: ProgressViewModel = koinViewModel()
+    viewModel: ProjectViewModel = koinViewModel(),
+    paddingValues: PaddingValues
 ) {
     val state by viewModel.state.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -41,7 +40,6 @@ fun ProgressScreen(
     val isAdminOrOrganizer = userRole == UserRole.ADMIN ||
             (userRole == UserRole.ORGANIZER && jam.organizerId == userId)
     val isParticipant = userRole == UserRole.PARTICIPANT
-    val isJudge = userRole == UserRole.JUDGE
 
     val screenshotPicker = rememberFilePicker { fileUpload ->
         fileUpload?.let {
@@ -78,38 +76,6 @@ fun ProgressScreen(
         }
     }
 
-    if (showCreateProjectDialog) {
-        AlertDialog(
-            onDismissRequest = { showCreateProjectDialog = false },
-            title = { Text("Создание проекта") },
-            text = {
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    OutlinedTextField(
-                        value = projectTitle,
-                        onValueChange = { projectTitle = it },
-                        label = { Text("Название проекта") },
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    OutlinedTextField(
-                        value = projectDescription,
-                        onValueChange = { projectDescription = it },
-                        label = { Text("Описание (необязательно)") },
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                }
-            },
-            confirmButton = {
-                Button(onClick = {
-                    viewModel.createProject(jamId, projectTitle, projectDescription)
-                    showCreateProjectDialog = false
-                }) { Text("Создать") }
-            },
-            dismissButton = {
-                TextButton(onClick = { showCreateProjectDialog = false }) { Text("Отмена") }
-            }
-        )
-    }
-
     Box(modifier = Modifier.fillMaxSize()) {
         if (state.isLoading) {
             LoadingIndicator(modifier = Modifier.align(Alignment.Center))
@@ -117,11 +83,10 @@ fun ProgressScreen(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .verticalScroll(scrollState),
+                    .verticalScroll(scrollState)
+                    .padding(paddingValues),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                JamOverviewSection(jam = jam)
-
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
@@ -181,12 +146,7 @@ fun ProgressScreen(
                         }
                     }
 
-                    if (isJudge) {
-                        StagePlaceholder("Оценка проектов еще не началась. Дождитесь стадии оценивания.")
-                    }
-
                     if (isAdminOrOrganizer) {
-                        StatisticsSection(state)
                         AdminProjectsSection(
                             state = state,
                             onDisqualify = { viewModel.disqualifyProject(jamId, it) }
@@ -201,11 +161,43 @@ fun ProgressScreen(
             modifier = Modifier.align(Alignment.BottomCenter)
         )
     }
+
+    if (showCreateProjectDialog) {
+        AlertDialog(
+            onDismissRequest = { showCreateProjectDialog = false },
+            title = { Text("Создание проекта") },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    OutlinedTextField(
+                        value = projectTitle,
+                        onValueChange = { projectTitle = it },
+                        label = { Text("Название проекта") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    OutlinedTextField(
+                        value = projectDescription,
+                        onValueChange = { projectDescription = it },
+                        label = { Text("Описание (необязательно)") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            },
+            confirmButton = {
+                Button(onClick = {
+                    viewModel.createProject(jamId, projectTitle, projectDescription)
+                    showCreateProjectDialog = false
+                }) { Text("Создать") }
+            },
+            dismissButton = {
+                TextButton(onClick = { showCreateProjectDialog = false }) { Text("Отмена") }
+            }
+        )
+    }
 }
 
 @Composable
 private fun ParticipantProjectSection(
-    state: ProgressState,
+    state: ProjectState,
     isLeader: Boolean,
     onCreateProject: () -> Unit,
     onSubmitProject: (String) -> Unit,
@@ -349,34 +341,8 @@ private fun ParticipantProjectSection(
 }
 
 @Composable
-private fun StatisticsSection(state: ProgressState) {
-    val statistics = state.statistics ?: return
-
-    Card(modifier = Modifier.fillMaxWidth()) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            Text("Статистика джема", style = MaterialTheme.typography.titleMedium)
-            Text("Всего проектов: ${statistics.totalProjects}")
-            Text("Отправлено: ${statistics.submittedProjects}")
-            Text("Дисквалифицировано: ${statistics.disqualifiedProjects}")
-            Text("Судей: ${statistics.totalJudges}")
-
-            if (statistics.judgeCompletionRate.isNotEmpty()) {
-                HorizontalDivider()
-                Text("Прогресс судей", style = MaterialTheme.typography.labelLarge)
-                statistics.judgeCompletionRate.forEach { judge ->
-                    Text("${judge.judgeNickname}: ${judge.ratedProjects}/${judge.totalProjects} (${judge.completionPercentage}%)")
-                }
-            }
-        }
-    }
-}
-
-@Composable
 private fun AdminProjectsSection(
-    state: ProgressState,
+    state: ProjectState,
     onDisqualify: (String) -> Unit
 ) {
     Card(modifier = Modifier.fillMaxWidth()) {

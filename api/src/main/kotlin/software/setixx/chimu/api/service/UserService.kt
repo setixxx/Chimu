@@ -59,28 +59,32 @@ class UserService(
             }
         }
         request.bio?.let { user.bio = it }
-
-        if (request.specializationId != null) {
-            user.specialization = specializationService.getSpecializationById(request.specializationId)
-        } else {
-            user.specialization = null
+        request.specializationId?.let {
+            val specialization = specializationService.getSpecializationByPublicId(it)
+            user.specialization = specialization
         }
 
         request.telegramUsername?.let { user.telegramUsername = it }
         request.avatarUrl?.let { user.avatarUrl = it }
 
         request.skillIds?.let { skillIds ->
-            user.skills.clear()
-            val skills = skillRepository.findAllById(skillIds)
-            if (skills.size != skillIds.size) {
-                throw IllegalArgumentException("Some skills not found")
+            val publicIds = skillIds.map { UUID.fromString(it) }
+            val requestedSkills = skillRepository.findAllByPublicIdIn(publicIds)
+
+            if (requestedSkills.size != publicIds.size) {
+                throw IllegalArgumentException("One or more skills not found")
             }
 
-            val userSkills = skills.map { skill ->
-                UserSkill(user = user, skill = skill)
-            }
+            val currentSkillPublicIds = user.skills.map { it.skill.publicId }.toSet()
+            val requestedSkillPublicIds = requestedSkills.map { it.publicId }.toSet()
 
-            user.skills.addAll(userSkills)
+            user.skills.removeIf { it.skill.publicId !in requestedSkillPublicIds }
+
+            requestedSkills.forEach { skill ->
+                if (skill.publicId !in currentSkillPublicIds) {
+                    user.skills.add(UserSkill(user = user, skill = skill))
+                }
+            }
         }
 
         return userRepository.save(user)
@@ -122,7 +126,7 @@ class UserService(
         }
 
         val specialization = user.specialization?.let { spec ->
-            SpecializationResponse(spec.id!!, spec.name, spec.description)
+            SpecializationResponse(spec.publicId.toString(), spec.name, spec.description)
         }
 
         return PublicUserProfileResponse(
@@ -134,7 +138,7 @@ class UserService(
             specialization = specialization,
             avatarUrl = user.avatarUrl,
             createdAt = user.createdAt.toString(),
-            skills = user.skills.map { SkillResponse(id = it.skill.id!!, name = it.skill.name) },
+            skills = user.skills.map { SkillResponse(id = it.skill.publicId.toString(), name = it.skill.name) },
             bio = user.bio,
             githubUrl = user.githubUrl,
             telegramUrl = user.telegramUsername,
@@ -143,11 +147,11 @@ class UserService(
 
     fun toUserResponse(user: User): UserProfileResponse {
         val specialization = user.specialization?.let { spec ->
-            SpecializationResponse(spec.id!!, spec.name, spec.description)
+            SpecializationResponse(spec.publicId.toString(), spec.name, spec.description)
         }
 
         val skills = user.skills.map { userSkill ->
-            SkillResponse(id = userSkill.skill.id!!, name = userSkill.skill.name)
+            SkillResponse(id = userSkill.skill.publicId.toString(), name = userSkill.skill.name)
         }
 
         return UserProfileResponse(

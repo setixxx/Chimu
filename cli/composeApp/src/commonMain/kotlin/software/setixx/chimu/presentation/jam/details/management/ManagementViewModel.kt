@@ -204,7 +204,7 @@ class ManagementViewModel(
         }
     }
 
-    fun updateCriteria(jamId: String, criteriaId: Long, data: UpdateRatingCriteria) {
+    fun updateCriteria(jamId: String, criteriaId: String, data: UpdateRatingCriteria) {
         viewModelScope.launch {
             _state.update { it.copy(isActionLoading = true) }
             when (val result = updateJamCriteriaUseCase(jamId, criteriaId, data)) {
@@ -231,7 +231,7 @@ class ManagementViewModel(
         }
     }
 
-    fun deleteCriteria(jamId: String, criteriaId: Long) {
+    fun deleteCriteria(jamId: String, criteriaId: String) {
         viewModelScope.launch {
             _state.update { it.copy(isActionLoading = true) }
             when (val result = deleteJamCriteriaUseCase(jamId, criteriaId)) {

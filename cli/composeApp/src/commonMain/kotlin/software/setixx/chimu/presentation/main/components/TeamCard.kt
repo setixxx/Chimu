@@ -32,10 +32,10 @@ import software.setixx.chimu.domain.model.Team
 fun TeamCard(team: Team, onClick: () -> Unit) {
     Card(
         modifier = Modifier
-            .width(280.dp)
-            .clickable(onClick = onClick),
+            .width(280.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         shape = MaterialTheme.shapes.largeIncreased,
+        onClick = onClick
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(

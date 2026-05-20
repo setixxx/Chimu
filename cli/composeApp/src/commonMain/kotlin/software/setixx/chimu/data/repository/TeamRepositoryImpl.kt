@@ -170,7 +170,7 @@ class TeamRepositoryImpl(
 
     override suspend fun updateMemberSpecialization(
         teamId: String,
-        specializationId: Long?
+        specializationId: String?
     ): ApiResult<TeamMember> {
         return try {
             val token = tokenStorage.getAccessToken()

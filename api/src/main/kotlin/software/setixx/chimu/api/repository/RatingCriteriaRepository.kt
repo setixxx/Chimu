@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 import software.setixx.chimu.api.domain.RatingCriteria
+import java.util.UUID
 
 interface RatingCriteriaRepository : JpaRepository<RatingCriteria, Long> {
     @Query("""
@@ -14,6 +15,8 @@ interface RatingCriteriaRepository : JpaRepository<RatingCriteria, Long> {
         ORDER BY rc.orderIndex ASC
     """)
     fun findAllByJamIdOrderByOrderIndex(@Param("jamId") jamId: Long): List<RatingCriteria>
+
+    fun findByPublicIdAndDeletedAtIsNull(publicId: UUID): RatingCriteria?
 
     fun existsByGameJamIdAndNameAndDeletedAtIsNull(jamId: Long, name: String): Boolean
 

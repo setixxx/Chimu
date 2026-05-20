@@ -22,7 +22,7 @@ class SkillController(
     @ApiResponse(responseCode = "200", description = "Skills retrieved successfully")
     fun getAllSkills(): ResponseEntity<List<SkillResponse>> {
         val skills = skillRepository.findAll().map {
-            SkillResponse(id = it.id!!, name = it.name)
+            SkillResponse(id = it.publicId.toString(), name = it.name)
         }
         return ResponseEntity.ok(skills)
     }

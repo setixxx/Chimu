@@ -5,7 +5,7 @@ import java.math.BigDecimal
 
 data class RateProjectRequest(
     @field:NotNull(message = "Criteria ID is required")
-    val criteriaId: Long,
+    val criteriaId: String,
 
     @field:NotNull(message = "Score is required")
     @field:DecimalMin(value = "0.0", message = "Score must be at least 0")
@@ -25,11 +25,11 @@ data class UpdateRatingRequest(
 )
 
 data class RatingResponse(
-    val id: Long,
+    val id: String,
     val projectId: String,
     val judgeId: String,
     val judgeNickname: String,
-    val criteriaId: Long,
+    val criteriaId: String,
     val criteriaName: String,
     val score: String,
     val maxScore: Int,
@@ -39,8 +39,8 @@ data class RatingResponse(
 )
 
 data class MyRatingResponse(
-    val id: Long,
-    val criteriaId: Long,
+    val id: String,
+    val criteriaId: String,
     val criteriaName: String,
     val score: String,
     val maxScore: Int,
@@ -54,7 +54,7 @@ data class ProjectRatingSummaryResponse(
 )
 
 data class CriteriaRatingSummary(
-    val criteriaId: Long,
+    val criteriaId: String,
     val criteriaName: String,
     val maxScore: Int,
     val weight: String,

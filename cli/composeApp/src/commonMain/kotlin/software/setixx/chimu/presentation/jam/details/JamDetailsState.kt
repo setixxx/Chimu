@@ -40,4 +40,25 @@ data class JamDetailsState(
 
     val isJudge: Boolean
         get() = userRole == UserRole.JUDGE
+
+    val availableTabs: List<JamDetailsTab>
+        get() {
+            val tabs = mutableListOf(JamDetailsTab.Overview)
+
+            if (isParticipant || isAdminOrOrganizer) {
+                tabs.add(JamDetailsTab.Project)
+            }
+
+            if (isJudge) {
+                tabs.add(JamDetailsTab.Judging)
+            }
+
+            tabs.add(JamDetailsTab.Leaderboard)
+
+            if (isAdminOrOrganizer) {
+                tabs.add(JamDetailsTab.Management)
+            }
+
+            return tabs
+        }
 }

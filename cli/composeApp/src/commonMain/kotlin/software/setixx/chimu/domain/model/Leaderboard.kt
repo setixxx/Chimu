@@ -36,7 +36,7 @@ data class ScoreBreakdown(
 )
 
 data class CriteriaScoreDetail(
-    val criteriaId: Long,
+    val criteriaId: String,
     val criteriaName: String,
     val weight: String,
     val maxScore: Int,

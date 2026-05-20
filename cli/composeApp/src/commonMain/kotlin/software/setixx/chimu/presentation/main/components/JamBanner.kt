@@ -40,7 +40,7 @@ fun JamBanner(
             topStart = CornerSize(0.dp),
             topEnd = CornerSize(0.dp),
             bottomEnd = MaterialTheme.shapes.extraLarge.bottomEnd,
-            bottomStart = MaterialTheme.shapes.extraLarge.bottomStart
+            bottomStart = MaterialTheme.shapes.extraLarge.bottomEnd
         )
     ) {
         if (bannerUrl != null) {
@@ -55,8 +55,7 @@ fun JamBanner(
                     contentDescription = "Баннер джема",
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(280.dp)
-                        .clip(MaterialTheme.shapes.medium),
+                        .height(280.dp),
                     contentScale = ContentScale.Crop
                 )
                 Box(
@@ -81,13 +80,15 @@ fun JamBanner(
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
                         text = name,
-                        style = MaterialTheme.typography.displaySmall
+                        style = MaterialTheme.typography.displaySmall,
+                        color = Color.White
                     )
                     Spacer(modifier = Modifier.height(12.dp))
                     Text(
                         text = "Тема: $theme",
                         style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Normal
+                        fontWeight = FontWeight.Normal,
+                        color = Color.White
                     )
                 }
             }

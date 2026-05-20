@@ -6,6 +6,7 @@ import org.hibernate.annotations.JdbcTypeCode
 import org.hibernate.generator.EventType
 import org.hibernate.type.SqlTypes
 import java.time.Instant
+import java.util.UUID
 
 @Entity
 @Table(name = "jam_team_registrations")
@@ -13,6 +14,9 @@ class JamTeamRegistration(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null,
+
+    @Column(name = "public_id", nullable = false, columnDefinition = "uuid")
+    var publicId: UUID = UUID.randomUUID(),
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "jam_id", nullable = false)

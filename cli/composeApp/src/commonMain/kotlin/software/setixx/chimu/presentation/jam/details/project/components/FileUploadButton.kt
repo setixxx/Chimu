@@ -1,4 +1,4 @@
-package software.setixx.chimu.presentation.jam.details.progress.components
+package software.setixx.chimu.presentation.jam.details.project.components
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column

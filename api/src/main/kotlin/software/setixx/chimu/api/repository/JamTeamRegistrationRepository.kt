@@ -16,6 +16,8 @@ interface JamTeamRegistrationRepository : JpaRepository<JamTeamRegistration, Lon
 
     fun existsByGameJamIdAndTeamIdAndDeletedAtIsNull(jamId: Long, teamId: Long): Boolean
 
+    fun existsByGameJamIdAndRegisteredByAndDeletedAtIsNull(jamId: Long, registeredBy: Long): Boolean
+
     @Query("""
         SELECT COUNT(r) FROM JamTeamRegistration r 
         WHERE r.gameJam.id = :jamId 

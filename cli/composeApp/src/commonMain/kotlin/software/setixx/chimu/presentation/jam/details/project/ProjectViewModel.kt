@@ -1,4 +1,4 @@
-package software.setixx.chimu.presentation.jam.details.progress
+package software.setixx.chimu.presentation.jam.details.project
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -30,7 +30,7 @@ import software.setixx.chimu.domain.usecase.SubmitProjectUseCase
 import software.setixx.chimu.domain.usecase.UpdateRegistrationStatusUseCase
 import software.setixx.chimu.domain.usecase.UploadProjectFileUseCase
 
-class ProgressViewModel(
+class ProjectViewModel(
     private val getUserTeamsUseCase: GetUserTeamsUseCase,
     private val getJamRegistrationsUseCase: GetJamRegistrationsUseCase,
     private val getTeamProjectsUseCase: GetTeamProjectsUseCase,
@@ -48,8 +48,8 @@ class ProgressViewModel(
     private val updateRegistrationStatusUseCase: UpdateRegistrationStatusUseCase
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow(ProgressState())
-    val state: StateFlow<ProgressState> = _state.asStateFlow()
+    private val _state = MutableStateFlow(ProjectState())
+    val state: StateFlow<ProjectState> = _state.asStateFlow()
 
     fun load(jamId: String, isAdminOrOrganizer: Boolean) {
         viewModelScope.launch {

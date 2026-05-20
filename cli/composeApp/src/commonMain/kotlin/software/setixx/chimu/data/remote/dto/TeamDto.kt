@@ -48,5 +48,5 @@ data class UpdateTeamRequest(
 
 @Serializable
 data class UpdateMemberSpecializationRequest(
-    val specializationId: Long? = null
+    val specializationId: String? = null
 )

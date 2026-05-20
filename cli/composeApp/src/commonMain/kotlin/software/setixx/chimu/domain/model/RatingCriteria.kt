@@ -1,7 +1,7 @@
 package software.setixx.chimu.domain.model
 
 data class RatingCriteria(
-    val id: Long,
+    val id: String,
     val name: String,
     val description: String?,
     val maxScore: Int,

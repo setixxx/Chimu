@@ -68,7 +68,7 @@ class CriteriaController(
         @Parameter(description = "Game jam public ID")
         @PathVariable jamId: String,
         @Parameter(description = "Criteria ID")
-        @PathVariable criteriaId: Long,
+        @PathVariable criteriaId: String,
         @Valid @RequestBody request: UpdateCriteriaRequest
     ): ResponseEntity<CriteriaResponse> {
         val user = userRepository.findByPublicIdAndDeletedAtIsNull(userDetails.publicId)
@@ -90,7 +90,7 @@ class CriteriaController(
         @Parameter(description = "Game jam public ID")
         @PathVariable jamId: String,
         @Parameter(description = "Criteria ID")
-        @PathVariable criteriaId: Long
+        @PathVariable criteriaId: String
     ): ResponseEntity<Map<String, String>> {
         val user = userRepository.findByPublicIdAndDeletedAtIsNull(userDetails.publicId)
             ?: throw IllegalStateException("User not found")

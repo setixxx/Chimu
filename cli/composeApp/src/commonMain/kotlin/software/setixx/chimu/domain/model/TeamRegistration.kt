@@ -7,7 +7,7 @@ data class RegisterTeam(
 )
 
 data class Registration(
-    val id: Long,
+    val id: String,
     val jamId: String,
     val jamName: String,
     val teamId: String,

@@ -5,12 +5,15 @@ import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 import software.setixx.chimu.api.domain.Rating
+import java.util.UUID
 
 interface RatingRepository : JpaRepository<Rating, Long> {
     fun findByProjectIdAndJudgeIdAndCriteriaIdAndDeletedAtIsNull(projectId: Long, judgeId: Long, criteriaId: Long): Rating?
     fun findAllByProjectIdAndDeletedAtIsNull(projectId: Long): List<Rating>
     fun findAllByJudgeId(judgeId: Long): List<Rating>
     fun findAllByProjectIdAndJudgeIdAndDeletedAtIsNull(projectId: Long, judgeId: Long): List<Rating>
+
+    fun findByPublicIdAndDeletedAtIsNull(publicId: UUID): Rating?
 
     @Query("""
         SELECT r FROM Rating r 

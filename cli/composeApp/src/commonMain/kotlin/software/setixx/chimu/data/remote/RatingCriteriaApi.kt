@@ -51,7 +51,7 @@ class RatingCriteriaApi(
 
     suspend fun deleteJamCriteria(
         jamId: String,
-        criteriaId: Long,
+        criteriaId: String,
         accessToken: String
     ){
         val response = client.delete("/api/jams/$jamId/criteria/$criteriaId"){
@@ -69,7 +69,7 @@ class RatingCriteriaApi(
     suspend fun updateJamCriteria(
         body: UpdateRatingCriteriaRequest,
         jamId: String,
-        criteriaId: Long,
+        criteriaId: String,
         accessToken: String
     ): RatingCriteriaResponse {
         val response = client.patch("/api/jams/$jamId/criteria/$criteriaId"){

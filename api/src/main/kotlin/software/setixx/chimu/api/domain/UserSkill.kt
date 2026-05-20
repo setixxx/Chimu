@@ -22,4 +22,19 @@ class UserSkill(
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "skill_id", nullable = false)
     val skill: Skill
-)
+){
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is UserSkill) return false
+
+        if (id != null && other.id != null) {
+            return id == other.id
+        }
+
+        return user.publicId == other.user.publicId && skill.publicId == other.skill.publicId
+    }
+
+    override fun hashCode(): Int {
+        return 31 * user.publicId.hashCode() + skill.publicId.hashCode()
+    }
+}

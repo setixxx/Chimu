@@ -61,5 +61,6 @@ data class TeamMemberResponse(
 )
 
 data class UpdateMemberSpecializationRequest(
-    val specializationId: Long?
+    @field:NotBlank(message = "Specialization is required")
+    val specializationId: String
 )

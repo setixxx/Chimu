@@ -10,7 +10,7 @@ data class ProjectRatingResponse(
 
 @Serializable
 data class ProjectCriteriaRatingResponse(
-    val criteriaId: Long,
+    val criteriaId: String,
     val criteriaName: String,
     val maxScore: Int,
     val weight: String,
@@ -27,18 +27,18 @@ data class ProjectJudgeRatingResponse(
 
 @Serializable
 data class RateProjectRequest(
-    val criteriaId: Long,
+    val criteriaId: String,
     val score: Int,
     val comment: String? = null
 )
 
 @Serializable
 data class RatingResponse(
-    val id: Long,
+    val id: String,
     val projectId: String,
     val judgeId: String,
     val judgeNickname: String,
-    val criteriaId: Long,
+    val criteriaId: String,
     val criteriaName: String,
     val score: String,
     val maxScore: Int,
@@ -55,8 +55,8 @@ data class UpdateRatingRequest(
 
 @Serializable
 data class MyRatingResponse(
-    val id: Long,
-    val criteriaId: Long,
+    val id: String,
+    val criteriaId: String,
     val criteriaName: String,
     val score: String,
     val maxScore: Int,

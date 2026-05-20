@@ -23,7 +23,7 @@ data class UpdateProfileRequest(
     @field:Size(max = 500, message = "Bio must not exceed 500 characters")
     val bio: String? = null,
 
-    val specializationId: Long? = null,
+    val specializationId: String? = null,
 
     @field:Pattern(
         regexp = "^https://github\\.com/[a-zA-Z0-9_-]+/?$",
@@ -40,7 +40,7 @@ data class UpdateProfileRequest(
 
     val avatarUrl: String? = null,
 
-    val skillIds: List<Long>? = null
+    val skillIds: List<String>? = null
 )
 
 data class UserProfileResponse(

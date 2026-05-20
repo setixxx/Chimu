@@ -11,16 +11,19 @@ import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
 import software.setixx.chimu.api.dto.*
+import software.setixx.chimu.api.repository.RatingRepository
 import software.setixx.chimu.api.repository.UserRepository
 import software.setixx.chimu.api.security.CustomUserDetails
 import software.setixx.chimu.api.service.RatingService
+import java.util.UUID
 
 @RestController
 @RequestMapping("/api")
 @Tag(name = "Ratings", description = "Project rating management for judges")
 class RatingController(
     private val ratingService: RatingService,
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val ratingRepository: RatingRepository
 ) {
 
     @PostMapping("/projects/{projectId}/ratings")
@@ -52,14 +55,17 @@ class RatingController(
     fun updateRating(
         @AuthenticationPrincipal userDetails: CustomUserDetails,
         @Parameter(description = "Rating ID")
-        @PathVariable ratingId: Long,
+        @PathVariable ratingId: String,
         @Valid @RequestBody request: UpdateRatingRequest
     ): ResponseEntity<RatingResponse> {
         val user = userRepository.findByPublicIdAndDeletedAtIsNull(userDetails.publicId)
             ?: throw IllegalStateException("User not found")
 
-        val rating = ratingService.updateRating(ratingId, user.id!!, request)
-        return ResponseEntity.ok(rating)
+        val rating = ratingRepository.findByPublicIdAndDeletedAtIsNull(UUID.fromString(ratingId))
+            ?: throw IllegalStateException("Rating not found")
+
+        val ratingResponse = ratingService.updateRating(rating.id!!, user.id!!, request)
+        return ResponseEntity.ok(ratingResponse)
     }
 
     @DeleteMapping("/ratings/{ratingId}")
@@ -71,12 +77,15 @@ class RatingController(
     fun deleteRating(
         @AuthenticationPrincipal userDetails: CustomUserDetails,
         @Parameter(description = "Rating ID")
-        @PathVariable ratingId: Long
+        @PathVariable ratingId: String
     ): ResponseEntity<Map<String, String>> {
         val user = userRepository.findByPublicIdAndDeletedAtIsNull(userDetails.publicId)
             ?: throw IllegalStateException("User not found")
 
-        ratingService.deleteRating(ratingId, user.id!!)
+        val rating = ratingRepository.findByPublicIdAndDeletedAtIsNull(UUID.fromString(ratingId))
+            ?: throw IllegalStateException("Rating not found")
+
+        ratingService.deleteRating(rating.id!!, user.id!!)
         return ResponseEntity.ok(mapOf("message" to "Rating deleted successfully"))
     }
 

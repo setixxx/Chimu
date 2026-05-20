@@ -5,6 +5,7 @@ import org.hibernate.annotations.Generated
 import org.hibernate.generator.EventType
 import java.math.BigDecimal
 import java.time.Instant
+import java.util.UUID
 
 @Entity
 @Table(name = "rating_criteria")
@@ -12,6 +13,9 @@ class RatingCriteria(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null,
+
+    @Column(name = "public_id", nullable = false, columnDefinition = "uuid")
+    var publicId: UUID = UUID.randomUUID(),
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "jam_id", nullable = false)

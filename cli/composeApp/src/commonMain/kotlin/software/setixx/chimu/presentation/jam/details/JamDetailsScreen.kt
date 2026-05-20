@@ -1,35 +1,48 @@
 package software.setixx.chimu.presentation.jam.details
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.AdminPanelSettings
+import androidx.compose.material.icons.outlined.Gamepad
+import androidx.compose.material.icons.outlined.Gavel
+import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.outlined.Leaderboard
 import androidx.compose.material3.*
+import androidx.compose.material3.FloatingToolbarExitDirection.Companion.Bottom
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.unit.dp
 import org.koin.compose.viewmodel.koinViewModel
-import software.setixx.chimu.api.domain.GameJamStatus
+import software.setixx.chimu.presentation.jam.details.components.HomeBottomBar
 import software.setixx.chimu.presentation.jam.details.judging.JudgingScreen
 import software.setixx.chimu.presentation.jam.details.leaderboard.LeaderboardScreen
 import software.setixx.chimu.presentation.jam.details.management.ManagementScreen
-import software.setixx.chimu.presentation.jam.details.progress.ProgressScreen
-import software.setixx.chimu.presentation.jam.details.registration.RegistrationScreen
+import software.setixx.chimu.presentation.jam.details.project.ProgressScreen
+import software.setixx.chimu.presentation.jam.details.overview.OverviewScreen
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun JamDetailsScreen(
     jamId: String,
     onBack: () -> Unit,
     onEditJam: (String) -> Unit,
-    section: JamDetailsSection? = null,
     viewModel: JamDetailsViewModel = koinViewModel()
 ) {
     val state by viewModel.state.collectAsState()
-    val snackbarHostState = remember { SnackbarHostState() }
+    val snackBarHostState = remember { SnackbarHostState() }
     var showDeleteDialog by remember { mutableStateOf(false) }
     var showCancelDialog by remember { mutableStateOf(false) }
+    val exitAlwaysScrollBehavior =
+        FloatingToolbarDefaults.exitAlwaysScrollBehavior(exitDirection = Bottom)
+    val pagerState = rememberPagerState(pageCount = { state.availableTabs.size })
 
     LaunchedEffect(jamId) {
         viewModel.loadJamDetails(jamId)
@@ -37,7 +50,7 @@ fun JamDetailsScreen(
 
     LaunchedEffect(state.errorMessage) {
         state.errorMessage?.let {
-            snackbarHostState.showSnackbar(it)
+            snackBarHostState.showSnackbar(it)
             viewModel.clearError()
         }
     }
@@ -47,6 +60,7 @@ fun JamDetailsScreen(
     }
 
     Scaffold(
+        modifier = Modifier.nestedScroll(exitAlwaysScrollBehavior),
         topBar = {
             TopAppBar(
                 colors = TopAppBarDefaults.topAppBarColors(Color.Transparent),
@@ -91,7 +105,14 @@ fun JamDetailsScreen(
                 }
             )
         },
-        snackbarHost = { SnackbarHost(snackbarHostState) }
+        floatingActionButton = {
+            HomeBottomBar(
+                pagerState = pagerState,
+                scrollBehavior = exitAlwaysScrollBehavior,
+                tabs = state.availableTabs
+            )
+        },
+        snackbarHost = { SnackbarHost(snackBarHostState) }
     ) { paddingValues ->
         if (state.isLoading) {
             Box(
@@ -104,49 +125,68 @@ fun JamDetailsScreen(
             }
         } else {
             state.jamDetails?.let { jam ->
-                Box(
+                HorizontalPager(
+                    userScrollEnabled = false,
+                    state = pagerState,
                     modifier = Modifier
                         .fillMaxSize()
-                        /*.padding(paddingValues)*/
-                ) {
-                    val jamStatus = jam.status
-                    when (state.resolveSection(section, jamStatus)) {
-                        JamDetailsSection.Judging -> {
-                            JudgingScreen(
-                                jamId = jamId,
-                                jam = jam,
-                                userRole = state.userRole
-                            )
-                        }
-                        JamDetailsSection.Registration -> {
-                            RegistrationScreen(
-                                jamId = jamId,
-                                jam = jam,
-                                userRole = state.userRole
-                            )
-                        }
-                        JamDetailsSection.Progress -> {
-                            ProgressScreen(
-                                jamId = jamId,
-                                jam = jam,
-                                userRole = state.userRole,
-                                userId = state.userId
-                            )
-                        }
-                        JamDetailsSection.Management -> {
-                            ManagementScreen(
-                                jam = jam
-                            )
-                        }
-                        JamDetailsSection.AccessDenied -> {
-                            AccessDeniedContent()
-                        }
-                        JamDetailsSection.Leaderboard -> {
-                            LeaderboardScreen(
-                                jamId = jamId,
-                                jam = jam,
-                                isAdminOrOrganizer = state.isAdminOrOrganizer
-                            )
+                ) { page ->
+                    val currentTab = state.availableTabs[page]
+
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.TopCenter
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxHeight()
+                                .widthIn(max = 1500.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            when (currentTab) {
+                                JamDetailsTab.Overview -> {
+                                    OverviewScreen(
+                                        jamId = jamId,
+                                        jam = jam,
+                                        userRole = state.userRole,
+                                        userId = state.userId
+                                    )
+                                }
+                                JamDetailsTab.Project -> {
+                                    ProgressScreen(
+                                        jamId = jamId,
+                                        jam = jam,
+                                        userRole = state.userRole,
+                                        userId = state.userId,
+                                        paddingValues = paddingValues
+                                    )
+                                }
+                                JamDetailsTab.Judging -> {
+                                    JudgingScreen(
+                                        jamId = jamId,
+                                        jam = jam,
+                                        userRole = state.userRole,
+                                        paddingValues = paddingValues
+                                    )
+                                }
+                                JamDetailsTab.Management -> {
+                                    ManagementScreen(
+                                        jam = jam,
+                                        paddingValues = paddingValues
+                                    )
+                                }
+                                JamDetailsTab.AccessDenied -> {
+                                    AccessDeniedContent()
+                                }
+                                JamDetailsTab.Leaderboard -> {
+                                    LeaderboardScreen(
+                                        jamId = jamId,
+                                        jam = jam,
+                                        isAdminOrOrganizer = state.isAdminOrOrganizer,
+                                        paddingValues = paddingValues
+                                    )
+                                }
+                            }
                         }
                     }
                 }
@@ -199,50 +239,14 @@ fun JamDetailsScreen(
     }
 }
 
-enum class JamDetailsSection {
-    Registration,
-    Progress,
-    Judging,
-    Management,
-    Leaderboard,
-    AccessDenied
+enum class JamDetailsTab(val label: String, val filledIcon: ImageVector, val outlinedIcon: ImageVector) {
+    Overview("Overview", Icons.Filled.Home, Icons.Outlined.Home),
+    Project("Project", Icons.Filled.Gamepad, Icons.Outlined.Gamepad),
+    Judging("Judging", Icons.Filled.Gavel, Icons.Outlined.Gavel),
+    Leaderboard("Leaderboard", Icons.Filled.Leaderboard, Icons.Outlined.Leaderboard),
+    Management("Management", Icons.Filled.AdminPanelSettings, Icons.Outlined.AdminPanelSettings),
+    AccessDenied("AccessDenied", Icons.Filled.Block, Icons.Filled.Block)
 }
-
-    private fun JamDetailsState.resolveSection(
-        requestedSection: JamDetailsSection?,
-        jamStatus: GameJamStatus
-    ): JamDetailsSection {
-        if (requestedSection == JamDetailsSection.Leaderboard) {
-            return JamDetailsSection.Leaderboard
-        }
-        if (isAdminOrOrganizer) {
-            return if (requestedSection == null && jamStatus == GameJamStatus.COMPLETED)
-                JamDetailsSection.Leaderboard
-            else
-                JamDetailsSection.Management
-        }
-        return when (requestedSection) {
-            JamDetailsSection.Management -> JamDetailsSection.AccessDenied
-            JamDetailsSection.Registration -> if (isParticipant) JamDetailsSection.Registration else JamDetailsSection.AccessDenied
-            JamDetailsSection.Progress    -> if (isParticipant || isJudge) JamDetailsSection.Progress else JamDetailsSection.AccessDenied
-            JamDetailsSection.Judging     -> if (isParticipant || isJudge) JamDetailsSection.Judging else JamDetailsSection.AccessDenied
-            JamDetailsSection.AccessDenied -> JamDetailsSection.AccessDenied
-            null -> defaultSection(jamStatus)
-            else -> JamDetailsSection.AccessDenied
-        }
-    }
-
-    private fun JamDetailsState.defaultSection(jamStatus: GameJamStatus): JamDetailsSection {
-        return when {
-            jamStatus == GameJamStatus.COMPLETED -> JamDetailsSection.Leaderboard
-            isParticipant && jamStatus == GameJamStatus.IN_PROGRESS -> JamDetailsSection.Progress
-            isParticipant && jamStatus == GameJamStatus.JUDGING -> JamDetailsSection.Judging
-            isParticipant -> JamDetailsSection.Registration
-            isJudge && (jamStatus == GameJamStatus.JUDGING || jamStatus == GameJamStatus.COMPLETED) -> JamDetailsSection.Judging
-            isJudge -> JamDetailsSection.Progress
-            else -> JamDetailsSection.AccessDenied
-        }
-    }
 
 @Composable
 private fun AccessDeniedContent() {

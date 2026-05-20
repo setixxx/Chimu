@@ -69,8 +69,12 @@ class JamRegistrationService(
         if (existingRegistration != null && existingRegistration.status in TEAM_ACTIVE_STATUSES) {
             throw IllegalArgumentException("Team is already registered for this game jam")
         }
-        if (existingRegistration != null) {
-            throw IllegalArgumentException("Team already has a final registration status for this game jam")
+        if (existingRegistration != null && existingRegistration.status == RegistrationStatus.REJECTED) {
+            throw IllegalArgumentException("Team already has a rejected registration status for this game jam")
+        }
+
+        if (registrationRepository.existsByGameJamIdAndRegisteredByAndDeletedAtIsNull(jam.id!!, userId)) {
+            throw IllegalArgumentException("User has already registered a team for this game jam")
         }
 
         val activeRegistrations = registrationRepository.findActiveRegistrationsByTeamId(team.id!!)
@@ -198,8 +202,11 @@ class JamRegistrationService(
             }
             else -> throw IllegalArgumentException("Registration cannot be cancelled or withdrawn in current jam status")
         }
-
-        registrationRepository.save(registration)
+        if (registration.status == RegistrationStatus.CANCELLED){
+            registrationRepository.softDeleteById(registration.id!!)
+        } else {
+            registrationRepository.save(registration)
+        }
 
         return toRegistrationResponse(registration, jam, team, registration.registeredBy)
     }
@@ -262,7 +269,7 @@ class JamRegistrationService(
         val registeredByUser = userRepository.findById(registeredBy).orElseThrow()
 
         return RegistrationResponse(
-            id = registration.id!!,
+            id = registration.publicId.toString(),
             jamId = jam.publicId.toString(),
             jamName = jam.name,
             teamId = team.publicId.toString(),

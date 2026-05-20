@@ -41,8 +41,8 @@ class RatingService(
             throw IllegalArgumentException("You are not assigned as a judge for this jam")
         }
 
-        val criteria = ratingCriteriaRepository.findById(request.criteriaId)
-            .orElseThrow { IllegalArgumentException("Criteria not found") }
+        val criteria = ratingCriteriaRepository.findByPublicIdAndDeletedAtIsNull(UUID.fromString(request.criteriaId))
+            ?: throw IllegalArgumentException("Criteria not found")
 
         if (criteria.gameJam.id != jam.id) {
             throw IllegalArgumentException("Criteria does not belong to this jam")
@@ -158,7 +158,7 @@ class RatingService(
             }
 
             CriteriaRatingSummary(
-                criteriaId = criterion.id!!,
+                criteriaId = criterion.publicId.toString(),
                 criteriaName = criterion.name,
                 maxScore = criterion.maxScore,
                 weight = criterion.weight.toString(),
@@ -192,8 +192,8 @@ class RatingService(
         return ratings.map { rating ->
             val criteria = criteriaMap[rating.criteria.id]!!
             MyRatingResponse(
-                id = rating.id!!,
-                criteriaId = criteria.id!!,
+                id = rating.publicId.toString(),
+                criteriaId = criteria.publicId.toString(),
                 criteriaName = criteria.name,
                 score = rating.score.setScale(2, RoundingMode.HALF_UP).toString(),
                 maxScore = criteria.maxScore,
@@ -298,11 +298,11 @@ class RatingService(
         criteria: RatingCriteria
     ): RatingResponse {
         return RatingResponse(
-            id = rating.id!!,
+            id = rating.publicId.toString(),
             projectId = project.publicId.toString(),
             judgeId = judge.publicId.toString(),
             judgeNickname = judge.nickname,
-            criteriaId = criteria.id!!,
+            criteriaId = criteria.publicId.toString(),
             criteriaName = criteria.name,
             score = rating.score.setScale(2, RoundingMode.HALF_UP).toString(),
             maxScore = criteria.maxScore,

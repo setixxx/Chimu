@@ -6,12 +6,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
-import software.setixx.chimu.getPlatform
 import software.setixx.chimu.presentation.auth.login.LoginScreen
 import software.setixx.chimu.presentation.auth.register.RegisterScreen
 import software.setixx.chimu.presentation.jam.create.CreateJamScreen
 import software.setixx.chimu.presentation.jam.details.JamDetailsScreen
-import software.setixx.chimu.presentation.jam.details.JamDetailsSection
 import software.setixx.chimu.presentation.jam.edit.EditJamScreen
 import software.setixx.chimu.presentation.main.MainScreen
 import software.setixx.chimu.presentation.profile.ProfileScreen
@@ -192,8 +190,7 @@ fun AppNavigation(
                 },
                 onEditJam = { jamId ->
                     navController.navigate(Screen.EditJam(jamId))
-                },
-                section = JamDetailsSection.Registration
+                }
             )
         }
 
@@ -206,8 +203,7 @@ fun AppNavigation(
                 },
                 onEditJam = { jamId ->
                     navController.navigate(Screen.EditJam(jamId))
-                },
-                section = JamDetailsSection.Progress
+                }
             )
         }
 
@@ -220,8 +216,7 @@ fun AppNavigation(
                 },
                 onEditJam = { jamId ->
                     navController.navigate(Screen.EditJam(jamId))
-                },
-                section = JamDetailsSection.Judging
+                }
             )
         }
 
@@ -234,8 +229,7 @@ fun AppNavigation(
                 },
                 onEditJam = { jamId ->
                     navController.navigate(Screen.EditJam(jamId))
-                },
-                section = JamDetailsSection.Management
+                }
             )
         }
 

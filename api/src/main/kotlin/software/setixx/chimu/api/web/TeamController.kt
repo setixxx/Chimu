@@ -188,7 +188,7 @@ class TeamController(
         val user = userRepository.findByPublicIdAndDeletedAtIsNull(userDetails.publicId)
             ?: throw IllegalStateException("User not found")
 
-        val member = teamService.updateMemberSpecializationByPublicId(
+        val member = teamService.updateMemberSpecialization(
             teamId,
             user.id!!,
             request.specializationId

@@ -19,12 +19,12 @@ class CreateJamCriteriaUseCase(
 class DeleteJamCriteriaUseCase(
     private val repository: RatingCriteriaRepository
 ) {
-    suspend operator fun invoke(jamId: String, criteriaId: Long) = repository.deleteJamCriteria(jamId, criteriaId)
+    suspend operator fun invoke(jamId: String, criteriaId: String) = repository.deleteJamCriteria(jamId, criteriaId)
 }
 
 class UpdateJamCriteriaUseCase(
     private val repository: RatingCriteriaRepository
 ) {
-    suspend operator fun invoke(jamId: String, criteriaId: Long, data: UpdateRatingCriteria) =
+    suspend operator fun invoke(jamId: String, criteriaId: String, data: UpdateRatingCriteria) =
         repository.updateJamCriteria(jamId, criteriaId, data)
 }

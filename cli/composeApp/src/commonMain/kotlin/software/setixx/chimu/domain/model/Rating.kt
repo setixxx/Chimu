@@ -6,7 +6,7 @@ data class ProjectRating(
 )
 
 data class ProjectCriteriaRating(
-    val criteriaId: Long,
+    val criteriaId: String,
     val criteriaName: String,
     val maxScore: Int,
     val weight: String,
@@ -21,17 +21,17 @@ data class ProjectJudgeRating(
 )
 
 data class RateProject(
-    val criteriaId: Long,
+    val criteriaId: String,
     val score: Int,
     val comment: String? = null
 )
 
 data class Rating(
-    val id: Long,
+    val id: String,
     val projectId: String,
     val judgeId: String,
     val judgeNickname: String,
-    val criteriaId: Long,
+    val criteriaId: String,
     val criteriaName: String,
     val score: String,
     val maxScore: Int,
@@ -46,8 +46,8 @@ data class UpdateRating(
 )
 
 data class MyRating(
-    val id: Long,
-    val criteriaId: Long,
+    val id: String,
+    val criteriaId: String,
     val criteriaName: String,
     val score: String,
     val maxScore: Int,

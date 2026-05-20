@@ -1,4 +1,4 @@
-package software.setixx.chimu.presentation.jam.details.registration
+package software.setixx.chimu.presentation.jam.details.overview
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -15,7 +15,7 @@ import software.setixx.chimu.domain.usecase.GetUserTeamsUseCase
 import software.setixx.chimu.domain.usecase.RegisterTeamUseCase
 import software.setixx.chimu.domain.usecase.WithdrawTeamUseCase
 
-class RegistrationViewModel(
+class OverviewViewModel(
     private val getJamRegistrationsUseCase: GetJamRegistrationsUseCase,
     private val getUserTeamsUseCase: GetUserTeamsUseCase,
     private val registerTeamUseCase: RegisterTeamUseCase,
@@ -23,8 +23,8 @@ class RegistrationViewModel(
     private val getTeamDetailsUseCase: GetTeamDetailsUseCase
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow(RegistrationState())
-    val state: StateFlow<RegistrationState> = _state.asStateFlow()
+    private val _state = MutableStateFlow(OverviewState())
+    val state: StateFlow<OverviewState> = _state.asStateFlow()
 
     fun load(jamId: String) {
         viewModelScope.launch {
@@ -61,6 +61,11 @@ class RegistrationViewModel(
     }
 
     fun registerTeam(jamId: String, teamId: String) {
+        if (_state.value.hasRegisteredTeam) {
+            _state.update { it.copy(errorMessage = "От вас уже зарегистрирована команда.") }
+            return
+        }
+
         viewModelScope.launch {
             _state.update { it.copy(isActionLoading = true) }
 
@@ -109,6 +114,17 @@ class RegistrationViewModel(
     }
 
     fun withdrawTeam(jamId: String, teamId: String) {
+        val registeredTeam = _state.value.registeredTeam
+        if (registeredTeam?.id != teamId) {
+            _state.update { it.copy(errorMessage = "Вы можете отменить заявку только своей зарегистрированной команды.") }
+            return
+        }
+
+        if (!registeredTeam.isLeader) {
+            _state.update { it.copy(errorMessage = "Только лидер команды может отменить заявку.") }
+            return
+        }
+
         viewModelScope.launch {
             _state.update { it.copy(isActionLoading = true) }
             when (val result = withdrawTeamUseCase(jamId, teamId)) {

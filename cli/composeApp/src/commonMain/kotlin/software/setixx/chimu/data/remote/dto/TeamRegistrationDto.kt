@@ -9,7 +9,7 @@ data class RegisterTeamRequest(
 
 @Serializable
 data class RegistrationResponse(
-    val id: Long,
+    val id: String,
     val jamId: String,
     val jamName: String,
     val teamId: String,

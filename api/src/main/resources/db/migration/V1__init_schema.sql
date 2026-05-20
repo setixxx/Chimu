@@ -4,6 +4,7 @@ CREATE EXTENSION IF NOT EXISTS citext;
 -- Specializations
 CREATE TABLE IF NOT EXISTS specializations (
     id BIGSERIAL PRIMARY KEY,
+    public_id UUID NOT NULL DEFAULT uuid_generate_v4(),
     name VARCHAR(100) NOT NULL UNIQUE,
     description TEXT,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
@@ -340,6 +341,7 @@ CREATE TYPE registration_status AS ENUM (
 -- Jam team registrations
 CREATE TABLE IF NOT EXISTS jam_team_registrations (
     id BIGSERIAL PRIMARY KEY,
+    public_id UUID NOT NULL DEFAULT uuid_generate_v4(),
     jam_id BIGINT NOT NULL,
     team_id BIGINT NOT NULL,
     status registration_status NOT NULL DEFAULT 'PENDING',
@@ -363,6 +365,8 @@ CREATE INDEX IF NOT EXISTS idx_registrations_team_id ON jam_team_registrations(t
 CREATE INDEX IF NOT EXISTS idx_registrations_status ON jam_team_registrations(status);
 CREATE INDEX IF NOT EXISTS idx_registrations_registered_by ON jam_team_registrations(registered_by);
 CREATE UNIQUE INDEX uq_registrations_jam_team_active ON jam_team_registrations (jam_id, team_id) WHERE deleted_at IS NULL;
+CREATE UNIQUE INDEX uq_registrations_jam_registered_by_active ON jam_team_registrations (jam_id, registered_by) WHERE deleted_at IS NULL;
+CREATE UNIQUE INDEX uq_jam_team_registrations_id_active ON jam_team_registrations (public_id) WHERE deleted_at IS NULL;
 
 -- Project statuses
 CREATE TYPE project_status AS ENUM (
@@ -442,6 +446,7 @@ CREATE INDEX IF NOT EXISTS idx_project_files_uploaded_at ON project_files(upload
 -- Rating criteria
 CREATE TABLE IF NOT EXISTS rating_criteria (
     id BIGSERIAL PRIMARY KEY,
+    public_id UUID NOT NULL DEFAULT uuid_generate_v4(),
     jam_id BIGINT NOT NULL,
     name VARCHAR(100) NOT NULL,
     description TEXT,
@@ -456,6 +461,7 @@ CREATE TABLE IF NOT EXISTS rating_criteria (
     CONSTRAINT chk_rating_criteria_weight CHECK (weight > 0 AND weight <= 10)
 );
 
+CREATE UNIQUE INDEX IF NOT EXISTS uq_rating_criteria_public_id_active ON rating_criteria (public_id) WHERE deleted_at IS NULL;
 CREATE UNIQUE INDEX uq_rating_criteria_jam_name ON rating_criteria(jam_id, name) WHERE deleted_at IS NULL;
 CREATE INDEX IF NOT EXISTS idx_rating_criteria_jam_id ON rating_criteria(jam_id);
 CREATE INDEX IF NOT EXISTS idx_rating_criteria_order ON rating_criteria(jam_id, order_index);
@@ -483,6 +489,7 @@ CREATE UNIQUE INDEX uq_jam_judges_jam_judge_active ON jam_judges(jam_id, judge_i
 -- Ratings
 CREATE TABLE IF NOT EXISTS ratings (
     id BIGSERIAL PRIMARY KEY,
+    public_id UUID NOT NULL DEFAULT uuid_generate_v4(),
     project_id BIGINT NOT NULL,
     judge_id BIGINT NOT NULL,
     criteria_id BIGINT NOT NULL,
@@ -503,6 +510,7 @@ CREATE INDEX IF NOT EXISTS idx_ratings_judge_id ON ratings(judge_id);
 CREATE INDEX IF NOT EXISTS idx_ratings_criteria_id ON ratings(criteria_id);
 CREATE INDEX IF NOT EXISTS idx_ratings_created_at ON ratings(created_at DESC);
 CREATE UNIQUE INDEX uq_ratings_project_judge_criteria_active ON ratings(project_id, judge_id, criteria_id) WHERE deleted_at IS NULL;
+CREATE UNIQUE INDEX IF NOT EXISTS uq_ratings_public_id_active ON ratings (public_id) WHERE deleted_at IS NULL;
 
 -- Audit log
 CREATE TABLE IF NOT EXISTS audit_log (
@@ -579,8 +587,11 @@ EXECUTE FUNCTION log_rating_changes();
 -- Skills
 CREATE TABLE IF NOT EXISTS skills (
     id BIGSERIAL PRIMARY KEY,
+    public_id UUID NOT NULL DEFAULT uuid_generate_v4(),
     name VARCHAR(50) NOT NULL UNIQUE
 );
+
+CREATE UNIQUE INDEX IF NOT EXISTS uq_skills_public_id ON skills(public_id);
 
 -- User skills
 CREATE TABLE IF NOT EXISTS user_skills (
@@ -589,6 +600,7 @@ CREATE TABLE IF NOT EXISTS user_skills (
     skill_id BIGINT NOT NULL REFERENCES skills(id) ON DELETE RESTRICT,
     UNIQUE(user_id, skill_id)
 );
+CREATE UNIQUE INDEX IF NOT EXISTS uq_specializations_public_id ON specializations(public_id);
 
 INSERT INTO skills (id, name) VALUES (1, 'Программирование (Java/Kotlin)');
 INSERT INTO skills (id, name) VALUES (2, 'Геймдизайн');

@@ -28,7 +28,8 @@ fun JudgingScreen(
     jamId: String,
     jam: GameJamDetails,
     userRole: UserRole?,
-    viewModel: JudgingViewModel = koinViewModel()
+    viewModel: JudgingViewModel = koinViewModel(),
+    paddingValues: PaddingValues
 ) {
     val state by viewModel.state.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -111,9 +112,9 @@ private fun JudgeView(
     jamCriteria: List<RatingCriteriaResponse>,
     onSelectProject: (Project) -> Unit,
     onBack: () -> Unit,
-    onRate: (projectId: String, criteriaId: Long, score: Int, comment: String?) -> Unit,
-    onUpdate: (ratingId: Long, projectId: String, score: Int, comment: String?) -> Unit,
-    onDelete: (ratingId: Long, projectId: String) -> Unit
+    onRate: (projectId: String, criteriaId: String, score: Int, comment: String?) -> Unit,
+    onUpdate: (ratingId: String, projectId: String, score: Int, comment: String?) -> Unit,
+    onDelete: (ratingId: String, projectId: String) -> Unit
 ) {
     val scrollState = rememberScrollState()
 
@@ -350,9 +351,9 @@ private fun ProjectRatingPanel(
     isRatingLoading: Boolean,
     isActionLoading: Boolean,
     onBack: () -> Unit,
-    onRate: (projectId: String, criteriaId: Long, score: Int, comment: String?) -> Unit,
-    onUpdate: (ratingId: Long, projectId: String, score: Int, comment: String?) -> Unit,
-    onDelete: (ratingId: Long, projectId: String) -> Unit
+    onRate: (projectId: String, criteriaId: String, score: Int, comment: String?) -> Unit,
+    onUpdate: (ratingId: String, projectId: String, score: Int, comment: String?) -> Unit,
+    onDelete: (ratingId: String, projectId: String) -> Unit
 ) {
     val scrollState = rememberScrollState()
 

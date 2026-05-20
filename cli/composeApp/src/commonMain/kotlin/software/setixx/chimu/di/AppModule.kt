@@ -2,7 +2,6 @@ package software.setixx.chimu.di
 
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
-import org.koin.plugin.module.dsl.factory
 import software.setixx.chimu.data.remote.*
 import software.setixx.chimu.data.repository.*
 import software.setixx.chimu.domain.repository.*
@@ -14,8 +13,8 @@ import software.setixx.chimu.presentation.jam.details.JamDetailsViewModel
 import software.setixx.chimu.presentation.jam.details.judging.JudgingViewModel
 import software.setixx.chimu.presentation.jam.details.leaderboard.LeaderboardViewModel
 import software.setixx.chimu.presentation.jam.details.management.ManagementViewModel
-import software.setixx.chimu.presentation.jam.details.progress.ProgressViewModel
-import software.setixx.chimu.presentation.jam.details.registration.RegistrationViewModel
+import software.setixx.chimu.presentation.jam.details.project.ProjectViewModel
+import software.setixx.chimu.presentation.jam.details.overview.OverviewViewModel
 import software.setixx.chimu.presentation.jam.edit.EditJamViewModel
 import software.setixx.chimu.presentation.main.MainViewModel
 import software.setixx.chimu.presentation.profile.ProfileViewModel
@@ -283,7 +282,7 @@ val appModule = module {
         get())
     }
     viewModel {
-        RegistrationViewModel(
+        OverviewViewModel(
             get(),
             get(),
             get(),
@@ -292,7 +291,7 @@ val appModule = module {
         )
     }
     viewModel {
-        ProgressViewModel(
+        ProjectViewModel(
             get(),
             get(),
             get(),

@@ -160,7 +160,7 @@ class LeaderboardService(
                 .setScale(2, RoundingMode.HALF_UP)
 
             CriteriaScoreDetail(
-                criteriaId = criterion.id!!,
+                criteriaId = criterion.publicId.toString(),
                 criteriaName = criterion.name,
                 weight = criterion.weight.toString(),
                 maxScore = criterion.maxScore,

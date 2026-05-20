@@ -438,7 +438,7 @@ class GameJamService(
 
     private fun toCriteriaResponse(criteria: RatingCriteria): CriteriaResponse {
         return CriteriaResponse(
-            id = criteria.id!!,
+            id = criteria.publicId.toString(),
             name = criteria.name,
             description = criteria.description,
             maxScore = criteria.maxScore,
