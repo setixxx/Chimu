@@ -15,8 +15,7 @@ import software.setixx.chimu.api.domain.GameJamStatus
 import software.setixx.chimu.api.domain.RegistrationStatus
 import software.setixx.chimu.api.domain.UserRole
 import software.setixx.chimu.domain.model.GameJamDetails
-import software.setixx.chimu.presentation.components.JamOverviewSection
-import software.setixx.chimu.presentation.components.RegisteredTeamsSection
+import software.setixx.chimu.presentation.jam.details.overview.components.JamOverviewSection
 import software.setixx.chimu.presentation.main.components.JamBanner
 
 @Composable

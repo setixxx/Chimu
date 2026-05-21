@@ -11,6 +11,7 @@ import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
@@ -40,7 +41,7 @@ fun MainScreen(
     val scope = rememberCoroutineScope()
 
     val state by viewModel.state.collectAsState()
-    var selectedDestination by remember { mutableStateOf(NavigationDestination.HOME) }
+    var selectedDestination by rememberSaveable { mutableStateOf(NavigationDestination.HOME) }
     val availableDestinations = remember(state.user?.role) {
         when (state.user?.role) {
             UserRole.ADMIN -> NavigationDestination.entries.toList()

@@ -1,13 +1,22 @@
 package software.setixx.chimu.presentation.jam.details.management
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Rule
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.ExpandLess
+import androidx.compose.material.icons.outlined.ExpandMore
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -34,8 +43,11 @@ import software.setixx.chimu.domain.model.Project
 import software.setixx.chimu.domain.model.Registration
 import software.setixx.chimu.presentation.components.SegmentedListItemWithExpansion
 import software.setixx.chimu.presentation.components.localizeStatus
+import software.setixx.chimu.presentation.jam.details.components.ListWithTwoIcons
+import software.setixx.chimu.presentation.jam.details.management.components.BannerCard
 import software.setixx.chimu.presentation.jam.details.management.components.JamStatisticsCard
 import software.setixx.chimu.presentation.jam.details.management.components.LeaderboardCard
+import software.setixx.chimu.presentation.jam.details.management.components.ManagementListCard
 import software.setixx.chimu.presentation.jam.details.management.components.TeamsWithProjectsSection
 import software.setixx.chimu.presentation.main.components.JamBanner
 import software.setixx.chimu.presentation.main.components.StatusChip
@@ -60,10 +72,18 @@ fun ManagementScreen(
     var criteriaDesc by remember { mutableStateOf("") }
     var criteriaMaxScore by remember { mutableStateOf("10") }
     var criteriaWeight by remember { mutableStateOf("1.0") }
+
+    var isJudgesExpanded by remember { mutableStateOf(true) }
     
     val currentJam = state.jam ?: jam
     val isDraft = state.jam?.status == GameJamStatus.DRAFT && !state.isPublished
-    val currentBannerUrl = currentJam.bannerUrl
+
+    val bannerUrl = currentJam.bannerUrl
+    val bannerPicker = rememberFilePicker { fileUpload ->
+        fileUpload?.let {
+            currentJam.id.let { id -> viewModel.uploadBanner(id, it) }
+        }
+    }
 
     LaunchedEffect(jam.id) {
         viewModel.load(jam.id)
@@ -83,160 +103,242 @@ fun ManagementScreen(
         }
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        Column(
+    if (state.isLoading){
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ){
+            LoadingIndicator()
+        }
+    } else {
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+                .verticalScroll(scrollState)
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(horizontal = 16.dp),
+                    .padding(paddingValues),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                state.statistics?.let { stats ->
-                    JamStatisticsCard(statistics = stats)
-                }
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    BannerCard(
+                        bannerUrl = bannerUrl,
+                        onOpenBannerPicker = bannerPicker,
+                        onDeleteBanner = { state.jam?.id?.let { viewModel.deleteBanner(it) } }
+                    )
 
-                state.leaderboard?.let { lb ->
-                    if (lb.rankings.isNotEmpty()) {
-                        LeaderboardCard(leaderboard = lb)
+                    state.statistics?.let { stats ->
+                        JamStatisticsCard(statistics = stats)
                     }
-                }
 
-                Card(modifier = Modifier.fillMaxWidth()) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                "Судьи (${state.judges.size})",
-                                style = MaterialTheme.typography.titleMedium
-                            )
-                            TextButton(onClick = { showAssignJudgeDialog = true }) {
-                                Icon(Icons.Default.PersonAdd, null)
-                                Spacer(modifier = Modifier.width(4.dp))
-                                Text("Назначить")
-                            }
+                    state.leaderboard?.let { lb ->
+                        if (lb.rankings.isNotEmpty()) {
+                            LeaderboardCard(leaderboard = lb)
                         }
+                    }
 
-                        if (state.judges.isEmpty()) {
-                            Text("Судьи не назначены.", style = MaterialTheme.typography.bodyMedium)
-                        } else {
-                            state.judges.forEachIndexed { index, judge ->
-                                ListItem(
-                                    headlineContent = { Text(judge.nickname) },
-                                    supportingContent = {
-                                        Text("Назначен: ${DateTimeUtils.formatDateTime(judge.assignedAt)}")
-                                    },
-                                    trailingContent = {
-                                        IconButton(
-                                            onClick = { viewModel.unassignJudge(jam.id, judge.userId) }
-                                        ) {
-                                            Icon(
-                                                Icons.Default.PersonRemove,
-                                                "Снять",
-                                                tint = MaterialTheme.colorScheme.error
+/*                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = MaterialTheme.shapes.extraLarge,
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.onSecondary
+                        ),
+                        onClick = { isJudgesExpanded = !isJudgesExpanded }
+                    ) {
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(8.dp))
+                                        .padding(end = 8.dp, top = 4.dp, bottom = 4.dp, start = 8.dp)
+                                ) {
+                                    Text(
+                                        text = "Судьи (${state.judges.size})",
+                                    )
+                                    Icon(
+                                        imageVector = if (isJudgesExpanded) Icons.Outlined.ExpandLess else Icons.Outlined.ExpandMore,
+                                        contentDescription = "Развернуть список судей",
+                                        modifier = Modifier.padding(start = 4.dp)
+                                    )
+                                }
+
+                                FilledTonalButton(
+                                    onClick = { showAssignJudgeDialog = true },
+                                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.PersonAdd,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(18.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text("Назначить")
+                                }
+                            }
+
+                            AnimatedVisibility(
+                                visible = isJudgesExpanded,
+                                enter = expandVertically() + fadeIn(),
+                                exit = shrinkVertically() + fadeOut()
+                            ) {
+                                Column(
+                                    modifier = Modifier.padding(top = 16.dp),
+                                    verticalArrangement = Arrangement.spacedBy(ListItemDefaults.SegmentedGap)
+                                ) {
+                                    if (state.judges.isEmpty()) {
+                                        Text(
+                                            text = "Судьи не назначены.",
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            modifier = Modifier.padding(vertical = 8.dp)
+                                        )
+                                    } else {
+                                        val judges = state.judges
+                                        judges.forEachIndexed { index, judge ->
+                                            SegmentedListItem(
+                                                colors = ListItemDefaults.colors(
+                                                    containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
+                                                ),
+                                                selected = false,
+                                                onClick = {},
+                                                shapes = ListItemDefaults.segmentedShapes(
+                                                    index = index,
+                                                    count = judges.size
+                                                ),
+                                                content = { Text(judge.nickname) },
+                                                supportingContent = {
+                                                    Text("Назначен: ${DateTimeUtils.formatDateTime(judge.assignedAt)}")
+                                                },
+                                                trailingContent = {
+                                                    IconButton(
+                                                        onClick = { viewModel.unassignJudge(jam.id, judge.userId) }
+                                                    ) {
+                                                        Icon(
+                                                            imageVector = Icons.Default.PersonRemove,
+                                                            contentDescription = "Снять",
+                                                            tint = MaterialTheme.colorScheme.error
+                                                        )
+                                                    }
+                                                }
                                             )
                                         }
                                     }
+                                }
+                            }
+                        }
+                    }*/
+
+                    ManagementListCard(
+                        title = "Судьи",
+                        titleIcon = Icons.Default.Gavel,
+                        items = state.judges,
+                        emptyText = "Судьи не назначены.",
+                        buttonText = "Назначить",
+                        buttonIcon = Icons.Default.PersonAdd,
+                        onButtonClick = { showAssignJudgeDialog = true },
+                        itemHeadline = { judge -> Text(judge.nickname) },
+                        itemSupportingContent = { judge ->
+                            Text("Назначен: ${DateTimeUtils.formatDateTime(judge.assignedAt)}")
+                        },
+                        itemTrailingContent = { judge ->
+                            IconButton(
+                                onClick = { viewModel.unassignJudge(jam.id, judge.userId) }
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.PersonRemove,
+                                    contentDescription = "Снять",
+                                    tint = MaterialTheme.colorScheme.error
                                 )
-                                if (index < state.judges.lastIndex) HorizontalDivider()
                             }
                         }
-                    }
-                }
+                    )
 
-                TeamsWithProjectsSection(
-                    registrations = state.registrations,
-                    projectsByTeam = state.projectsByTeam,
-                    isActionLoading = state.isActionLoading,
-                    onApprove = { teamId ->
-                        viewModel.updateRegistrationStatus(jam.id, teamId, RegistrationStatus.APPROVED)
-                    },
-                    onReject = { teamId ->
-                        viewModel.updateRegistrationStatus(jam.id, teamId, RegistrationStatus.REJECTED)
-                    },
-                    onDisqualify = { teamId ->
-                        viewModel.updateRegistrationStatus(jam.id, teamId, RegistrationStatus.DISQUALIFIED)
-                    }
-                )
-
-                Card(modifier = Modifier.fillMaxWidth()) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                "Критерии оценивания (${state.criteria.size})",
-                                style = MaterialTheme.typography.titleMedium
-                            )
-                            TextButton(onClick = { showAddCriteriaDialog = true }) {
-                                Icon(Icons.Default.Add, null)
-                                Spacer(modifier = Modifier.width(4.dp))
-                                Text("Добавить")
-                            }
-                        }
-
-                        if (state.criteria.isEmpty()) {
-                            Text("Критерии не добавлены.", style = MaterialTheme.typography.bodyMedium)
-                        } else {
-                            state.criteria.sortedBy { it.orderIndex }.forEachIndexed { index, criteria ->
-                                ListItem(
-                                    headlineContent = { Text(criteria.name) },
-                                    supportingContent = {
-                                        Text("Макс: ${criteria.maxScore} • Вес: ${criteria.weight}")
-                                    },
-                                    trailingContent = {
-                                        IconButton(
-                                            onClick = { viewModel.deleteCriteria(jam.id, criteria.id) }
-                                        ) {
-                                            Icon(
-                                                Icons.Default.Delete,
-                                                "Удалить",
-                                                tint = MaterialTheme.colorScheme.error
-                                            )
-                                        }
-                                    }
+                    ManagementListCard(
+                        title = "Критерии\nоценивания",
+                        titleIcon = Icons.AutoMirrored.Filled.Rule,
+                        items = state.criteria.sortedBy { it.orderIndex },
+                        emptyText = "Критерии не добавлены.",
+                        buttonText = "Добавить",
+                        buttonIcon = Icons.Default.Add,
+                        onButtonClick = { showAddCriteriaDialog = true },
+                        itemHeadline = { criteria -> Text(criteria.name) },
+                        itemSupportingContent = { criteria ->
+                            Text("Макс: ${criteria.maxScore} • Вес: ${criteria.weight}")
+                        },
+                        itemTrailingContent = { criteria ->
+                            IconButton(
+                                onClick = { viewModel.deleteCriteria(jam.id, criteria.id) }
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Delete,
+                                    contentDescription = "Удалить",
+                                    tint = MaterialTheme.colorScheme.error
                                 )
-                                if (index < state.criteria.lastIndex) HorizontalDivider()
                             }
                         }
-                    }
-                }
+                    )
 
-                if (isDraft) {
-                    Row(modifier = Modifier.fillMaxWidth()) {
-                        Button(
-                            onClick = { viewModel.publishJam(jam.id) },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(56.dp),
-                            enabled = !state.isLoading
-                        ) {
-                            if (state.isLoading) {
-                                LoadingIndicator(
-                                    modifier = Modifier.size(24.dp),
-                                    color = MaterialTheme.colorScheme.onPrimary
-                                )
-                            } else {
-                                Text("Опубликовать джем")
+
+
+                    TeamsWithProjectsSection(
+                        registrations = state.registrations,
+                        projectsByTeam = state.projectsByTeam,
+                        isActionLoading = state.isActionLoading,
+                        onApprove = { teamId ->
+                            viewModel.updateRegistrationStatus(jam.id, teamId, RegistrationStatus.APPROVED)
+                        },
+                        onReject = { teamId ->
+                            viewModel.updateRegistrationStatus(jam.id, teamId, RegistrationStatus.REJECTED)
+                        },
+                        onDisqualify = { teamId ->
+                            viewModel.updateRegistrationStatus(jam.id, teamId, RegistrationStatus.DISQUALIFIED)
+                        }
+                    )
+
+                    if (isDraft) {
+                        Row(modifier = Modifier.fillMaxWidth()) {
+                            Button(
+                                onClick = { viewModel.publishJam(jam.id) },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(56.dp),
+                                enabled = !state.isLoading
+                            ) {
+                                if (state.isActionLoading) {
+                                    LoadingIndicator(
+                                        modifier = Modifier.size(24.dp),
+                                        color = MaterialTheme.colorScheme.onPrimary
+                                    )
+                                } else {
+                                    Text("Опубликовать джем")
+                                }
                             }
                         }
                     }
+
+                    Spacer(modifier = Modifier.height(80.dp))
                 }
             }
+            SnackbarHost(
+                hostState = snackbarHostState,
+                modifier = Modifier
+                    .padding(paddingValues)
+                    .align(Alignment.BottomCenter)
+            )
         }
-        SnackbarHost(
-            hostState = snackbarHostState,
-            modifier = Modifier.align(Alignment.BottomCenter)
-        )
     }
 
 

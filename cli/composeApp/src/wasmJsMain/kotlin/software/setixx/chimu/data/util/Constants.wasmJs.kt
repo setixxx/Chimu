@@ -4,8 +4,8 @@ import kotlinx.browser.window
 
 actual fun getBaseUrl(): String {
     val hostname = window.location.hostname
-    return if (hostname == "localhost" || hostname == "127.0.0.1") {
-        "http://localhost:8080"
+    return if (hostname == "localhost" || hostname == "127.0.0.1" || hostname == "192.168.1.92") {
+        "http://192.168.1.92:8080"
     } else {
         window.location.origin
     }

@@ -20,6 +20,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.dp
+import kotlinx.serialization.Serializable
 import org.koin.compose.viewmodel.koinViewModel
 import software.setixx.chimu.presentation.jam.details.components.HomeBottomBar
 import software.setixx.chimu.presentation.jam.details.judging.JudgingScreen
@@ -34,6 +35,7 @@ fun JamDetailsScreen(
     jamId: String,
     onBack: () -> Unit,
     onEditJam: (String) -> Unit,
+    initialTab: JamDetailsTab? = null,
     viewModel: JamDetailsViewModel = koinViewModel()
 ) {
     val state by viewModel.state.collectAsState()
@@ -42,7 +44,10 @@ fun JamDetailsScreen(
     var showCancelDialog by remember { mutableStateOf(false) }
     val exitAlwaysScrollBehavior =
         FloatingToolbarDefaults.exitAlwaysScrollBehavior(exitDirection = Bottom)
-    val pagerState = rememberPagerState(pageCount = { state.availableTabs.size })
+    val pagerState = rememberPagerState(
+        pageCount = { state.availableTabs.size },
+        initialPage = initialTab?.ordinal ?: JamDetailsTab.Overview.ordinal
+    )
 
     LaunchedEffect(jamId) {
         viewModel.loadJamDetails(jamId)

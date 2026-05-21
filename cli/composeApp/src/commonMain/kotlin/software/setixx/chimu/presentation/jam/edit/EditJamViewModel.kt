@@ -17,9 +17,7 @@ import software.setixx.chimu.domain.usecase.UploadJamBannerUseCase
 
 class EditJamViewModel(
     private val getJamDetailsUseCase: GetJamDetailsUseCase,
-    private val updateJamUseCase: UpdateJamUseCase,
-    private val uploadJamBannerUseCase: UploadJamBannerUseCase,
-    private val deleteJamBannerUseCase: DeleteJamBannerUseCase,
+    private val updateJamUseCase: UpdateJamUseCase
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(EditJamState())
@@ -114,80 +112,6 @@ class EditJamViewModel(
                 }
                 is ApiResult.Error -> {
                     _state.update { it.copy(isUpdating = false, errorMessage = result.message) }
-                }
-            }
-        }
-    }
-
-    fun uploadBanner(jamId: String, file: FileUpload) {
-        viewModelScope.launch {
-            _state.update { it.copy(isLoading = true) }
-            when (val result = uploadJamBannerUseCase(jamId, file)) {
-                is ApiResult.Success -> {
-                    when (val jamResult = getJamDetailsUseCase(jamId)) {
-                        is ApiResult.Success -> {
-                            _state.update {
-                                it.copy(
-                                    jam = jamResult.data,
-                                    isActionLoading = false,
-                                    successMessage = "Баннер загружен"
-                                )
-                            }
-                        }
-                        is ApiResult.Error -> {
-                            _state.update {
-                                it.copy(
-                                    isLoading = false,
-                                    errorMessage = "Ошибка при обновлении данных джема"
-                                )
-                            }
-                        }
-                    }
-                }
-                is ApiResult.Error -> {
-                    _state.update {
-                        it.copy(
-                            isLoading = false,
-                            errorMessage = result.message
-                        )
-                    }
-                }
-            }
-        }
-    }
-
-    fun deleteBanner(jamId: String) {
-        viewModelScope.launch {
-            _state.update { it.copy(isLoading = true) }
-            when (val result = deleteJamBannerUseCase(jamId)) {
-                is ApiResult.Success -> {
-                    when (val jamResult = getJamDetailsUseCase(jamId)) {
-                        is ApiResult.Success -> {
-                            _state.update {
-                                it.copy(
-                                    jam = jamResult.data,
-                                    isActionLoading = false,
-                                    successMessage = "Баннер удален"
-                                )
-                            }
-                        }
-                        is ApiResult.Error -> {
-                            _state.update {
-                                it.copy(
-                                    isLoading = false,
-                                    errorMessage = "Ошибка при обновлении данных джема"
-                                )
-                            }
-                        }
-                    }
-                }
-                is ApiResult.Error -> {
-                    _state.update {
-                        it.copy(
-                            isLoading = false,
-                            errorMessage = result.message
-                        )
-                    }
                 }
             }
         }

@@ -10,8 +10,10 @@ import software.setixx.chimu.presentation.auth.login.LoginScreen
 import software.setixx.chimu.presentation.auth.register.RegisterScreen
 import software.setixx.chimu.presentation.jam.create.CreateJamScreen
 import software.setixx.chimu.presentation.jam.details.JamDetailsScreen
+import software.setixx.chimu.presentation.jam.details.JamDetailsTab
 import software.setixx.chimu.presentation.jam.edit.EditJamScreen
 import software.setixx.chimu.presentation.main.MainScreen
+import software.setixx.chimu.presentation.main.NavigationDestination
 import software.setixx.chimu.presentation.profile.ProfileScreen
 import software.setixx.chimu.presentation.splash.SplashScreen
 import software.setixx.chimu.presentation.team.create.CreateTeamScreen
@@ -115,8 +117,10 @@ fun AppNavigation(
                 onBack = {
                     navController.popBackStack()
                 },
-                onTeamCreated = {
-                    navController.popBackStack()
+                onTeamCreated = { teamId ->
+                    navController.navigate(Screen.TeamDetails(teamId)){
+                        popUpTo(Screen.CreateTeam){ inclusive = true }
+                    }
                 }
             )
         }
@@ -161,7 +165,7 @@ fun AppNavigation(
                     navController.popBackStack()
                 },
                 onJamCreated = { jamId ->
-                    navController.navigate(Screen.JamManagement(jamId)) {
+                    navController.navigate(Screen.JamDetails(jamId, JamDetailsTab.Management.name)) {
                         popUpTo(Screen.CreateJam) { inclusive = true }
                     }
                 }
@@ -170,32 +174,11 @@ fun AppNavigation(
 
         composable<Screen.JamDetails> {
             val args = it.toRoute<Screen.JamDetails>()
-            JamDetailsScreen(
-                jamId = args.jamId,
-                onBack = {
-                    navController.popBackStack()
-                },
-                onEditJam = { jamId ->
-                    navController.navigate(Screen.EditJam(jamId))
-                }
-            )
-        }
 
-        composable<Screen.JamRegistration> {
-            val args = it.toRoute<Screen.JamRegistration>()
-            JamDetailsScreen(
-                jamId = args.jamId,
-                onBack = {
-                    navController.popBackStack()
-                },
-                onEditJam = { jamId ->
-                    navController.navigate(Screen.EditJam(jamId))
-                }
-            )
-        }
+            val parsedTab = args.initialTab?.let { tabName ->
+                runCatching { enumValueOf<JamDetailsTab>(tabName) }.getOrNull()
+            }
 
-        composable<Screen.JamProgress> {
-            val args = it.toRoute<Screen.JamProgress>()
             JamDetailsScreen(
                 jamId = args.jamId,
                 onBack = {
@@ -203,33 +186,8 @@ fun AppNavigation(
                 },
                 onEditJam = { jamId ->
                     navController.navigate(Screen.EditJam(jamId))
-                }
-            )
-        }
-
-        composable<Screen.JamJudging> {
-            val args = it.toRoute<Screen.JamJudging>()
-            JamDetailsScreen(
-                jamId = args.jamId,
-                onBack = {
-                    navController.popBackStack()
                 },
-                onEditJam = { jamId ->
-                    navController.navigate(Screen.EditJam(jamId))
-                }
-            )
-        }
-
-        composable<Screen.JamManagement> {
-            val args = it.toRoute<Screen.JamManagement>()
-            JamDetailsScreen(
-                jamId = args.jamId,
-                onBack = {
-                    navController.popBackStack()
-                },
-                onEditJam = { jamId ->
-                    navController.navigate(Screen.EditJam(jamId))
-                }
+                initialTab = parsedTab
             )
         }
 

@@ -17,7 +17,7 @@ import org.koin.compose.viewmodel.koinViewModel
 @Composable
 fun CreateTeamScreen(
     onBack: () -> Unit,
-    onTeamCreated: () -> Unit,
+    onTeamCreated: (String) -> Unit,
     viewModel: CreateTeamViewModel = koinViewModel()
 ) {
     val state by viewModel.state.collectAsState()
@@ -31,8 +31,9 @@ fun CreateTeamScreen(
     }
 
     LaunchedEffect(state.isSuccess) {
-        if (state.isSuccess) {
-            onTeamCreated()
+        val createdTeamId = state.createdTeamId
+        if (state.isSuccess && createdTeamId != null) {
+            onTeamCreated(createdTeamId)
         }
     }
 

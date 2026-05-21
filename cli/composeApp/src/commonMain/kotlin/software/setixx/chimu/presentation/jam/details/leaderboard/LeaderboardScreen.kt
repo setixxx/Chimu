@@ -17,13 +17,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import org.koin.compose.viewmodel.koinViewModel
+import software.setixx.chimu.api.domain.GameJamStatus
 import software.setixx.chimu.domain.model.CriteriaScoreDetail
 import software.setixx.chimu.domain.model.GameJamDetails
 import software.setixx.chimu.domain.model.JamStatistics
 import software.setixx.chimu.domain.model.Leaderboard
 import software.setixx.chimu.domain.model.ProjectRanking
-import software.setixx.chimu.presentation.components.JamOverviewSection
-import software.setixx.chimu.presentation.utils.DateTimeUtils
 
 @Composable
 fun LeaderboardScreen(
@@ -50,9 +49,13 @@ fun LeaderboardScreen(
 
     Box(modifier = Modifier.fillMaxSize()) {
         if (state.isLoading) {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                LoadingIndicator()
-            }
+            LoadingIndicator(modifier = Modifier.align(Alignment.Center))
+        } else if (jam.status != GameJamStatus.COMPLETED){
+            Text(
+                modifier = Modifier
+                    .align(Alignment.Center),
+                text = "Джем еще не окончен. Дождитесь окончания"
+            )
         } else {
             Column(
                 modifier = Modifier
@@ -92,12 +95,12 @@ fun LeaderboardScreen(
 
                 Spacer(modifier = Modifier.height(80.dp))
             }
-        }
 
-        SnackbarHost(
-            hostState = snackbarHostState,
-            modifier = Modifier.align(Alignment.BottomCenter)
-        )
+            SnackbarHost(
+                hostState = snackbarHostState,
+                modifier = Modifier.align(Alignment.BottomCenter)
+            )
+        }
     }
 }
 

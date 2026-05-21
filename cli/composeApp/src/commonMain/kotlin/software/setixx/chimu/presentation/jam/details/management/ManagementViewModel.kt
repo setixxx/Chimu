@@ -2,6 +2,7 @@ package software.setixx.chimu.presentation.jam.details.management
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -46,7 +47,9 @@ class ManagementViewModel(
     private val getJamDetailsUseCase: GetJamDetailsUseCase,
     private val getJamStatisticsUseCase: GetJamStatisticsUseCase,
     private val getLeaderboardUseCase: GetLeaderboardUseCase,
-    private val getJamProjectsUseCase: GetJamProjectsUseCase
+    private val getJamProjectsUseCase: GetJamProjectsUseCase,
+    private val uploadJamBannerUseCase: UploadJamBannerUseCase,
+    private val deleteJamBannerUseCase: DeleteJamBannerUseCase
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(ManagementState())
@@ -55,7 +58,6 @@ class ManagementViewModel(
     fun load(jamId: String) {
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true) }
-
             val jamResult = getJamDetailsUseCase(jamId)
             if (jamResult is ApiResult.Success) {
                 _state.update { it.copy(jam = jamResult.data) }
@@ -100,6 +102,80 @@ class ManagementViewModel(
                         it.copy(
                             isLoading = false,
                             errorMessage = criteriaResult.message
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    fun uploadBanner(jamId: String, file: FileUpload) {
+        viewModelScope.launch {
+            _state.update { it.copy(isActionLoading = true) }
+            when (val result = uploadJamBannerUseCase(jamId, file)) {
+                is ApiResult.Success -> {
+                    when (val jamResult = getJamDetailsUseCase(jamId)) {
+                        is ApiResult.Success -> {
+                            _state.update {
+                                it.copy(
+                                    jam = jamResult.data,
+                                    isActionLoading = false,
+                                    successMessage = "Баннер загружен"
+                                )
+                            }
+                        }
+                        is ApiResult.Error -> {
+                            _state.update {
+                                it.copy(
+                                    isLoading = false,
+                                    errorMessage = "Ошибка при обновлении данных джема"
+                                )
+                            }
+                        }
+                    }
+                }
+                is ApiResult.Error -> {
+                    _state.update {
+                        it.copy(
+                            isLoading = false,
+                            errorMessage = result.message
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    fun deleteBanner(jamId: String) {
+        viewModelScope.launch {
+            _state.update { it.copy(isActionLoading = true) }
+            when (val result = deleteJamBannerUseCase(jamId)) {
+                is ApiResult.Success -> {
+                    when (val jamResult = getJamDetailsUseCase(jamId)) {
+                        is ApiResult.Success -> {
+                            _state.update {
+                                it.copy(
+                                    jam = jamResult.data,
+                                    isActionLoading = false,
+                                    successMessage = "Баннер удален"
+                                )
+                            }
+                        }
+                        is ApiResult.Error -> {
+                            _state.update {
+                                it.copy(
+                                    isActionLoading = false,
+                                    errorMessage = "Ошибка при обновлении данных джема"
+                                )
+                            }
+                        }
+                    }
+                }
+                is ApiResult.Error -> {
+                    _state.update {
+                        it.copy(
+                            isActionLoading = false,
+                            errorMessage = result.message
                         )
                     }
                 }

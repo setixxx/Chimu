@@ -92,6 +92,15 @@ fun JamBanner(
                     )
                 }
             }
+        } else {
+            Box(
+                modifier = Modifier.fillMaxWidth().height(280.dp)
+            ){
+                Text(
+                    modifier = Modifier.align(Alignment.Center),
+                    text = "Баннер еще не загружен"
+                )
+            }
         }
     }
 }

@@ -26,7 +26,10 @@ import software.setixx.chimu.domain.model.JamStatistics
 
 @Composable
 fun JamStatisticsCard(statistics: JamStatistics) {
-    Card(modifier = Modifier.fillMaxWidth()) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.extraLarge
+    ) {
         Column(
             modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -42,7 +45,6 @@ fun JamStatisticsCard(statistics: JamStatistics) {
                 Text(
                     "Статистика джема",
                     style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
                 )
             }
 

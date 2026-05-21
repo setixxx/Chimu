@@ -27,14 +27,13 @@ class LeaderboardService(
 
         val canView = when (jam.status) {
             GameJamStatus.COMPLETED -> true
-            GameJamStatus.JUDGING -> {
+            else -> {
                 if (userId == null) false
                 else {
                     val user = userRepository.findById(userId).orElse(null)
                     jam.organizer.id == userId || user?.role == UserRole.ADMIN
                 }
             }
-            else -> false
         }
 
         if (!canView) {

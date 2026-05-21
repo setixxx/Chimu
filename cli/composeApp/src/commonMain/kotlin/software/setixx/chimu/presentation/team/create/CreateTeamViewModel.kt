@@ -51,7 +51,8 @@ class CreateTeamViewModel(
                     _state.update {
                         it.copy(
                             isCreating = false,
-                            isSuccess = true
+                            isSuccess = true,
+                            createdTeamId = result.data.id
                         )
                     }
                 }

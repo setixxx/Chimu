@@ -6,5 +6,6 @@ data class CreateTeamState(
     val nameError: String? = null,
     val isCreating: Boolean = false,
     val isSuccess: Boolean = false,
-    val errorMessage: String? = null
+    val errorMessage: String? = null,
+    val createdTeamId: String? = null
 )

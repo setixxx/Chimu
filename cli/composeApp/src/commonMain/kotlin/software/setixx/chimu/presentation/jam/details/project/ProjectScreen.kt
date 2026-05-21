@@ -11,6 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import org.koin.compose.viewmodel.koinViewModel
+import software.setixx.chimu.api.domain.GameJamStatus
 import software.setixx.chimu.api.domain.ProjectFileType
 import software.setixx.chimu.api.domain.ProjectStatus
 import software.setixx.chimu.api.domain.RegistrationStatus
@@ -49,6 +50,13 @@ fun ProgressScreen(
         }
     }
 
+    val allowedJamStatuses = setOf(
+        GameJamStatus.IN_PROGRESS,
+        GameJamStatus.JUDGING,
+        GameJamStatus.COMPLETED,
+        GameJamStatus.CANCELLED
+    )
+
     val buildPicker = rememberFilePicker { fileUpload ->
         fileUpload?.let {
             state.userProject?.id?.let { projectId ->
@@ -79,6 +87,12 @@ fun ProgressScreen(
     Box(modifier = Modifier.fillMaxSize()) {
         if (state.isLoading) {
             LoadingIndicator(modifier = Modifier.align(Alignment.Center))
+        } else if (jam.status !in allowedJamStatuses){
+            Text(
+                modifier = Modifier
+                    .align(Alignment.Center),
+                text = "Джем еще не перешел в стадию разработки. Дождитесь начала"
+            )
         } else {
             Column(
                 modifier = Modifier

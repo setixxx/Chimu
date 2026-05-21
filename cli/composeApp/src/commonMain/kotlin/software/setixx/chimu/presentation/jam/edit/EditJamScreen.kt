@@ -32,12 +32,7 @@ fun EditJamScreen(
 ) {
     val state by viewModel.state.collectAsState()
     val scrollState = rememberScrollState()
-    val bannerUrl = state.jam?.bannerUrl
-    val bannerPicker = rememberFilePicker { fileUpload ->
-        fileUpload?.let {
-            state.jam?.id?.let { id -> viewModel.uploadBanner(id, it) }
-        }
-    }
+
     val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(jamId) {
@@ -84,62 +79,6 @@ fun EditJamScreen(
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(24.dp)
             ) {
-                Card(modifier = Modifier.fillMaxWidth()) {
-                    Column(
-                        modifier = Modifier.padding(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        Column(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            Column {
-                                Text("Баннер джема", style = MaterialTheme.typography.titleMedium)
-                                Text(
-                                    if (bannerUrl != null) "Баннер загружен."
-                                    else "Баннер не загружен.",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
-
-                            if (bannerUrl != null) {
-                                AsyncImage(
-                                    model = ImageRequest.Builder(LocalPlatformContext.current)
-                                        .data(bannerUrl)
-                                        .crossfade(true)
-                                        .build(),
-                                    contentDescription = "Баннер джема",
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .height(180.dp)
-                                        .clip(MaterialTheme.shapes.medium),
-                                    contentScale = ContentScale.Crop
-                                )
-                            }
-
-                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                OutlinedButton(onClick = { bannerPicker() }) {
-                                    Icon(Icons.Default.Upload, null, modifier = Modifier.size(18.dp))
-                                    Spacer(modifier = Modifier.width(6.dp))
-                                    Text(if (bannerUrl != null) "Заменить" else "Загрузить")
-                                }
-                                if (bannerUrl != null) {
-                                    OutlinedButton(
-                                        onClick = { state.jam?.id?.let { viewModel.deleteBanner(it) } },
-                                        colors = ButtonDefaults.outlinedButtonColors(
-                                            contentColor = MaterialTheme.colorScheme.error
-                                        )
-                                    ) {
-                                        Icon(Icons.Default.Delete, null, modifier = Modifier.size(18.dp))
-                                        Spacer(modifier = Modifier.width(6.dp))
-                                        Text("Удалить")
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
 
                 JamSection(title = "Основная информация") {
                     OutlinedTextField(
