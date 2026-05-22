@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import software.setixx.chimu.api.domain.GameJamStatus
 import software.setixx.chimu.api.domain.User
+import software.setixx.chimu.api.domain.UserRole
 import software.setixx.chimu.api.domain.UserSkill
 import software.setixx.chimu.api.dto.ChangePasswordRequest
 import software.setixx.chimu.api.dto.ChangePasswordResponse
@@ -133,6 +134,7 @@ class UserService(
             id = user.publicId.toString(),
             nickname = user.nickname,
             isDeleted = false,
+            role = UserRole.valueOf(user.role.name),
             firstName = user.firstName,
             lastName = user.lastName,
             specialization = specialization,

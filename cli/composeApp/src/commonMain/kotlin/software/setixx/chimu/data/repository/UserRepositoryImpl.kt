@@ -149,7 +149,8 @@ class UserRepositoryImpl(
             skills = skills?.map { it.name } ?: emptyList(),
             bio = bio,
             githubUrl = githubUrl,
-            telegramUrl = telegramUrl
+            telegramUrl = telegramUrl,
+            role = role
         )
     }
 

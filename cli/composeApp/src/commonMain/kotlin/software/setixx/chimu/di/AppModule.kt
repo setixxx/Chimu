@@ -17,11 +17,11 @@ import software.setixx.chimu.presentation.jam.details.project.ProjectViewModel
 import software.setixx.chimu.presentation.jam.details.overview.OverviewViewModel
 import software.setixx.chimu.presentation.jam.edit.EditJamViewModel
 import software.setixx.chimu.presentation.main.MainViewModel
-import software.setixx.chimu.presentation.profile.ProfileViewModel
+import software.setixx.chimu.presentation.profile.own.OwnProfileViewModel
 import software.setixx.chimu.presentation.splash.SplashViewModel
 import software.setixx.chimu.presentation.team.details.TeamDetailsViewModel
 import software.setixx.chimu.presentation.team.create.CreateTeamViewModel
-import software.setixx.chimu.presentation.user.UserProfileViewModel
+import software.setixx.chimu.presentation.profile.alien.AlienProfileViewModel
 
 val appModule = module {
     single { KtorClient(get()) }
@@ -212,6 +212,7 @@ val appModule = module {
     factory { DeleteProjectRatingUseCase(get()) }
     factory { UpdateProjectRatingUseCase(get()) }
     factory { GetProjectRatingsUseCases(get()) }
+    factory { DeleteProfileUseCase(get()) }
 
     viewModel {
         SplashViewModel(get())
@@ -236,11 +237,13 @@ val appModule = module {
             get())
     }
     viewModel {
-        ProfileViewModel(
+        OwnProfileViewModel(
             get(),
             get(),
             get(),
-            get())
+            get(),
+            get()
+        )
     }
     viewModel {
         CreateTeamViewModel(
@@ -344,7 +347,7 @@ val appModule = module {
             get())
     }
     viewModel { params ->
-        UserProfileViewModel(
+        AlienProfileViewModel(
             userId = params.get(),
             getUserByIdUseCase = get()
         )

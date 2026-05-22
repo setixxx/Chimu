@@ -1,30 +1,34 @@
-package software.setixx.chimu.presentation.profile
+package software.setixx.chimu.presentation.profile.own
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import org.koin.compose.viewmodel.koinViewModel
 import software.setixx.chimu.domain.model.Skill
+import software.setixx.chimu.presentation.profile.components.EditableProfileField
+import software.setixx.chimu.presentation.profile.components.ProfileHeader
+import software.setixx.chimu.presentation.profile.components.ProfileSkillsView
 import software.setixx.chimu.presentation.utils.DateTimeUtils
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun ProfileScreen(
     onBack: () -> Unit,
-    viewModel: ProfileViewModel = koinViewModel()
+    onDeleteAccount: () -> Unit,
+    viewModel: OwnProfileViewModel = koinViewModel()
 ) {
     val state by viewModel.state.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
+    var showDeleteDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(state.errorMessage) {
         state.errorMessage?.let { error ->
@@ -45,8 +49,8 @@ fun ProfileScreen(
             TopAppBar(
                 title = { Text("Профиль") },
                 navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, "Назад")
+                    FilledTonalIconButton(onClick = onBack) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Назад")
                     }
                 },
                 actions = {
@@ -59,14 +63,29 @@ fun ProfileScreen(
                             enabled = !state.isSaving
                         ) {
                             if (state.isSaving) {
-                                LoadingIndicator()
+                                CircularProgressIndicator(modifier = Modifier.size(24.dp))
                             } else {
                                 Text("Сохранить")
                             }
                         }
                     } else {
-                        IconButton(onClick = { viewModel.toggleEditMode() }) {
+                        FilledTonalIconButton(onClick = { viewModel.toggleEditMode() }) {
                             Icon(Icons.Default.Edit, "Редактировать")
+                        }
+                        FilledTonalIconButton(
+                            onClick = { showDeleteDialog = true },
+                            colors = IconButtonColors(
+                                containerColor = MaterialTheme.colorScheme.errorContainer,
+                                contentColor = MaterialTheme.colorScheme.error,
+                                disabledContainerColor = MaterialTheme.colorScheme.errorContainer,
+                                disabledContentColor = MaterialTheme.colorScheme.errorContainer
+                            )
+                        ) {
+                            Icon(
+                                Icons.Default.Delete,
+                                "Удалить аккаунт",
+                                tint = MaterialTheme.colorScheme.error,
+                            )
                         }
                     }
                 }
@@ -74,92 +93,83 @@ fun ProfileScreen(
         },
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { paddingValues ->
-        if (state.isLoading) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator()
-            }
-        } else {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-                    .verticalScroll(rememberScrollState())
-                    .padding(24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                Surface(
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues),
+            contentAlignment = Alignment.Center
+        ) {
+            if (state.isLoading){
+                LoadingIndicator()
+            } else {
+                Column(
                     modifier = Modifier
-                        .size(120.dp)
-                        .clip(CircleShape),
-                    color = MaterialTheme.colorScheme.primaryContainer
+                        .widthIn(max = 1500.dp)
+                        .fillMaxWidth()
+                        .verticalScroll(rememberScrollState())
+                        .padding(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    Box(contentAlignment = Alignment.Center) {
-                        Icon(
-                            Icons.Default.Person,
-                            null,
-                            modifier = Modifier.size(80.dp),
-                            tint = MaterialTheme.colorScheme.onPrimaryContainer
+                    state.user?.let {
+                        ProfileHeader(
+                            primaryText = it.email,
+                            secondaryText = state.role
                         )
                     }
-                }
 
-                Text(
-                    text = state.user?.email ?: "",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-
-                Card(
-                    modifier = Modifier.fillMaxWidth()
-                ) {
                     Column(
                         modifier = Modifier.padding(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                        verticalArrangement = Arrangement.spacedBy(ListItemDefaults.SegmentedGap)
                     ) {
-                        OutlinedTextField(
+                        val totalFields = 8
+
+                        EditableProfileField(
                             value = state.nickname,
                             onValueChange = { viewModel.updateNickname(it) },
-                            label = { Text("Никнейм *") },
-                            enabled = state.isEditing && !state.isSaving,
-                            modifier = Modifier.fillMaxWidth(),
+                            label = "Никнейм",
+                            leadingIcon = Icons.Default.AccountCircle,
+                            isEditing = state.isEditing,
+                            enabled = !state.isSaving,
                             isError = state.nicknameError != null,
-                            supportingText = state.nicknameError?.let { { Text(it) } },
-                            leadingIcon = { Icon(Icons.Default.AccountCircle, null) }
+                            supportingText = state.nicknameError,
+                            itemIndex = 0,
+                            listCount = totalFields
                         )
 
-                        OutlinedTextField(
+                        EditableProfileField(
                             value = state.firstName,
                             onValueChange = { viewModel.updateFirstName(it) },
-                            label = { Text("Имя") },
-                            enabled = state.isEditing && !state.isSaving,
-                            modifier = Modifier.fillMaxWidth(),
-                            leadingIcon = { Icon(Icons.Default.Person, null) }
+                            label = "Имя",
+                            leadingIcon = Icons.Default.Person,
+                            isEditing = state.isEditing,
+                            enabled = !state.isSaving,
+                            itemIndex = 1,
+                            listCount = totalFields
                         )
 
-                        OutlinedTextField(
+
+                        EditableProfileField(
                             value = state.lastName,
                             onValueChange = { viewModel.updateLastName(it) },
-                            label = { Text("Фамилия") },
-                            enabled = state.isEditing && !state.isSaving,
-                            modifier = Modifier.fillMaxWidth(),
-                            leadingIcon = { Icon(Icons.Default.Person, null) }
+                            label = "Фамилия",
+                            leadingIcon = Icons.Default.Person,
+                            isEditing = state.isEditing,
+                            enabled = !state.isSaving,
+                            itemIndex = 2,
+                            listCount = totalFields
                         )
 
-                        OutlinedTextField(
+                        EditableProfileField(
                             value = state.bio,
                             onValueChange = { viewModel.updateBio(it) },
-                            label = { Text("О себе") },
-                            enabled = state.isEditing && !state.isSaving,
-                            modifier = Modifier.fillMaxWidth(),
+                            label = "О себе",
+                            leadingIcon = Icons.Default.Info,
+                            isEditing = state.isEditing,
+                            enabled = !state.isSaving,
                             minLines = 3,
-                            maxLines = 5,
-                            leadingIcon = { Icon(Icons.Default.Info, null) }
+                            itemIndex = 3,
+                            listCount = totalFields
                         )
 
                         if (state.isEditing) {
@@ -169,19 +179,20 @@ fun ProfileScreen(
                                 expanded = expandedSpec,
                                 onExpandedChange = { expandedSpec = !state.isSaving && it }
                             ) {
-                                OutlinedTextField(
+                                EditableProfileField(
                                     value = state.selectedSpecialization?.name ?: "Не выбрано",
                                     onValueChange = {},
+                                    label = "Специализация",
+                                    leadingIcon = Icons.Default.Work,
+                                    isEditing = true,
                                     readOnly = true,
-                                    label = { Text("Специализация") },
+                                    enabled = !state.isSaving,
                                     trailingIcon = {
                                         ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedSpec)
                                     },
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .menuAnchor(),
-                                    leadingIcon = { Icon(Icons.Default.Work, null) },
-                                    enabled = !state.isSaving
+                                    modifier = Modifier.menuAnchor(),
+                                    itemIndex = 4,
+                                    listCount = totalFields
                                 )
 
                                 ExposedDropdownMenu(
@@ -218,78 +229,94 @@ fun ProfileScreen(
                                 }
                             }
                         } else {
-                            OutlinedTextField(
-                                value = state.selectedSpecialization?.name ?: "Не указана",
+                            EditableProfileField(
+                                value = state.selectedSpecialization?.name ?: "",
                                 onValueChange = {},
-                                label = { Text("Специализация") },
-                                enabled = false,
-                                modifier = Modifier.fillMaxWidth(),
-                                leadingIcon = { Icon(Icons.Default.Work, null) }
+                                label = "Специализация",
+                                leadingIcon = Icons.Default.Work,
+                                isEditing = false,
+                                itemIndex = 4,
+                                listCount = totalFields
                             )
                         }
 
-                        OutlinedTextField(
+                        EditableProfileField(
                             value = state.githubUrl,
                             onValueChange = { viewModel.updateGithubUrl(it) },
-                            label = { Text("GitHub") },
-                            enabled = state.isEditing && !state.isSaving,
-                            modifier = Modifier.fillMaxWidth(),
+                            label = "GitHub",
+                            leadingIcon = Icons.Default.Code,
+                            isEditing = state.isEditing,
+                            enabled = !state.isSaving,
                             isError = state.githubError != null,
-                            supportingText = state.githubError?.let { { Text(it) } },
-                            leadingIcon = { Icon(Icons.Default.Code, null) },
-                            placeholder = { Text("https://github.com/username") }
+                            supportingText = state.githubError,
+                            placeholder = "https://github.com/username",
+                            itemIndex = 5,
+                            listCount = totalFields
                         )
 
-                        OutlinedTextField(
+                        EditableProfileField(
                             value = state.telegramUsername,
                             onValueChange = { viewModel.updateTelegramUsername(it) },
-                            label = { Text("Telegram") },
-                            enabled = state.isEditing && !state.isSaving,
-                            modifier = Modifier.fillMaxWidth(),
+                            label = "Telegram",
+                            leadingIcon = Icons.Default.Send,
+                            isEditing = state.isEditing,
+                            enabled = !state.isSaving,
                             isError = state.telegramError != null,
-                            supportingText = state.telegramError?.let { { Text(it) } },
-                            leadingIcon = { Icon(Icons.Default.Send, null) },
-                            placeholder = { Text("username") },
-                            prefix = { Text("@") }
+                            supportingText = state.telegramError,
+                            placeholder = "username",
+                            prefix = { Text("@") },
+                            itemIndex = 6,
+                            listCount = totalFields
                         )
 
                         if (state.isEditing) {
+                            Spacer(modifier = Modifier.height(8.dp))
                             SkillsSelector(
                                 availableSkills = state.availableSkills,
                                 selectedSkills = state.selectedSkills,
                                 onSkillToggle = { viewModel.toggleSkill(it) },
                                 enabled = !state.isSaving
                             )
-                        } else if (state.selectedSkills.isNotEmpty()) {
-                            Text(
-                                "Навыки",
-                                style = MaterialTheme.typography.titleSmall
+                        } else {
+                            ProfileSkillsView(
+                                skills = state.selectedSkills.map { it.name },
+                                itemIndex = 7,
+                                listCount = totalFields
                             )
-
-                            FlowRow(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                verticalArrangement = Arrangement.spacedBy(8.dp)
-                            ) {
-                                state.selectedSkills.forEach { skill ->
-                                    AssistChip(
-                                        onClick = { },
-                                        label = { Text(skill.name) }
-                                    )
-                                }
-                            }
                         }
                     }
-                }
 
-                Text(
-                    text = "Зарегистрирован: ${DateTimeUtils.formatDateTime(state.user?.createdAt)}",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    textAlign = TextAlign.Center
-                )
+                    Text(
+                        text = "Зарегистрирован: ${DateTimeUtils.formatDateTime(state.user?.createdAt)}",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        textAlign = TextAlign.Center
+                    )
+                }
             }
         }
+    }
+
+    if (showDeleteDialog) {
+        AlertDialog(
+            onDismissRequest = { showDeleteDialog = false },
+            title = { Text("Удалить аккаунт?") },
+            text = { Text("Все данные будут безвозвратно удалены.") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showDeleteDialog = false
+                        viewModel.deleteProfile(onDeleteAccount)
+                    },
+                    colors = ButtonDefaults.textButtonColors(
+                        contentColor = MaterialTheme.colorScheme.error
+                    )
+                ) { Text("Удалить") }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteDialog = false }) { Text("Отмена") }
+            }
+        )
     }
 }
 

@@ -14,6 +14,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import org.koin.compose.viewmodel.koinViewModel
@@ -23,6 +24,7 @@ import software.setixx.chimu.domain.model.GameJamDetails
 import software.setixx.chimu.domain.model.JamStatistics
 import software.setixx.chimu.domain.model.Leaderboard
 import software.setixx.chimu.domain.model.ProjectRanking
+import software.setixx.chimu.presentation.utils.DateTimeUtils
 
 @Composable
 fun LeaderboardScreen(
@@ -54,7 +56,8 @@ fun LeaderboardScreen(
             Text(
                 modifier = Modifier
                     .align(Alignment.Center),
-                text = "Джем еще не окончен. Дождитесь окончания"
+                text = "Джем еще не окончен. Дождитесь окончания",
+                textAlign = TextAlign.Center
             )
         } else {
             Column(
@@ -361,7 +364,7 @@ private fun RankingCard(ranking: ProjectRanking) {
 
                     ranking.project.submittedAt?.let { date ->
                         Text(
-                            "Подан: $date",
+                            "Подан: ${DateTimeUtils.formatDateTime(date)}",
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )

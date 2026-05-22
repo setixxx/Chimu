@@ -36,7 +36,6 @@ actual fun rememberFilePicker(onResult: (FileUpload?) -> Unit): () -> Unit {
             Unit
         }
 
-        // Добавляем в DOM чтобы браузер не блокировал клик
         document.body?.appendChild(input)
         input.click()
         document.body?.removeChild(input)

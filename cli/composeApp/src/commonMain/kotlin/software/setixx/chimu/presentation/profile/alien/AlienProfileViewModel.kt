@@ -1,4 +1,4 @@
-package software.setixx.chimu.presentation.user
+package software.setixx.chimu.presentation.profile.alien
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -10,13 +10,13 @@ import kotlinx.coroutines.launch
 import software.setixx.chimu.domain.model.ApiResult
 import software.setixx.chimu.domain.usecase.GetUserByIdUseCase
 
-class UserProfileViewModel(
+class AlienProfileViewModel(
     private val userId: String,
     private val getUserByIdUseCase: GetUserByIdUseCase
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow(UserProfileState())
-    val state: StateFlow<UserProfileState> = _state.asStateFlow()
+    private val _state = MutableStateFlow(AlienProfileState())
+    val state: StateFlow<AlienProfileState> = _state.asStateFlow()
 
     init {
         loadProfile()
@@ -27,6 +27,7 @@ class UserProfileViewModel(
             _state.update { it.copy(isLoading = true, errorMessage = null) }
             when (val result = getUserByIdUseCase(userId)) {
                 is ApiResult.Success -> {
+                    println(result.data)
                     _state.update { it.copy(profile = result.data, isLoading = false) }
                 }
                 is ApiResult.Error -> {

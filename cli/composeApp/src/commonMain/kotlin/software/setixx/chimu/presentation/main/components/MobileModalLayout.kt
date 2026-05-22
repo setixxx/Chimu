@@ -320,8 +320,8 @@ fun MobileModalLayout(
 
         AnimatedVisibility(
             visible = isExpanded,
-            enter = slideInHorizontally(tween(300)) { -it }, // Выезжает слева
-            exit = slideOutHorizontally(tween(300)) { -it }  // Уезжает влево
+            enter = slideInHorizontally(tween(300)) { -it },
+            exit = slideOutHorizontally(tween(300)) { -it }
         ) {
             WideNavigationRail(
                 modifier = Modifier.fillMaxHeight(),

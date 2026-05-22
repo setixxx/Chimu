@@ -2,7 +2,6 @@ package software.setixx.chimu.presentation.team.details
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -31,7 +30,8 @@ import software.setixx.chimu.presentation.utils.DateTimeUtils
 fun TeamDetailsScreen(
     teamId: String,
     onBack: () -> Unit,
-    onNavigateToUserProfile: (String) -> Unit,
+    onNavigateToAlienProfile: (String) -> Unit,
+    onNavigateToOwnProfile: () -> Unit,
     viewModel: TeamDetailsViewModel = koinViewModel { parametersOf(teamId) }
 ) {
     val state by viewModel.state.collectAsState()
@@ -282,7 +282,13 @@ fun TeamDetailsScreen(
                                 SegmentedListItem(
                                     colors = colors,
                                     selected = false,
-                                    onClick = { onNavigateToUserProfile(member.userId) },
+                                    onClick = {
+                                        if (member.userId != state.user?.id){
+                                            onNavigateToAlienProfile(member.userId)
+                                        } else {
+                                            onNavigateToOwnProfile()
+                                        }
+                                    },
                                     shapes = ListItemDefaults.segmentedShapes(
                                         index = index,
                                         count = team.members.size

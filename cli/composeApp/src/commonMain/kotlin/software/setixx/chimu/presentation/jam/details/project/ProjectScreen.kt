@@ -9,6 +9,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import org.koin.compose.viewmodel.koinViewModel
 import software.setixx.chimu.api.domain.GameJamStatus
@@ -91,7 +92,8 @@ fun ProgressScreen(
             Text(
                 modifier = Modifier
                     .align(Alignment.Center),
-                text = "Джем еще не перешел в стадию разработки. Дождитесь начала"
+                text = "Джем еще не перешел в стадию разработки. Дождитесь начала",
+                textAlign = TextAlign.Center
             )
         } else {
             Column(

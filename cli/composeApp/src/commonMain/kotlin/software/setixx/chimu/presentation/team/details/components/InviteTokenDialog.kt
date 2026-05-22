@@ -25,6 +25,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -43,7 +44,10 @@ fun InviteTokenDialog(
         text = {
             Column(
                 verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                Text("Поделитесь этим токеном с другими, чтобы они могли присоединиться к вашей команде:")
+                Text(
+                    "Поделитесь этим токеном с другими, чтобы они могли присоединиться к вашей команде:",
+                    textAlign = TextAlign.Center
+                )
 
                 if (token != null) {
                     Surface(

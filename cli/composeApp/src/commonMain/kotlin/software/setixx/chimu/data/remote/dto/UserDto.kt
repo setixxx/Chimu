@@ -1,6 +1,7 @@
 package software.setixx.chimu.data.remote.dto
 
 import kotlinx.serialization.Serializable
+import software.setixx.chimu.api.domain.UserRole
 
 @Serializable
 data class UpdateProfileRequest(
@@ -37,6 +38,7 @@ data class PublicUserProfileResponse(
     val id: String,
     val nickname: String,
     val isDeleted: Boolean,
+    val role: UserRole? = null,
     val firstName: String? = null,
     val lastName: String? = null,
     val specialization: SpecializationResponse? = null,

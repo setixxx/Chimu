@@ -1,10 +1,11 @@
-package software.setixx.chimu.presentation.profile
+package software.setixx.chimu.presentation.profile.own
 
+import software.setixx.chimu.api.domain.UserRole
 import software.setixx.chimu.domain.model.Skill
 import software.setixx.chimu.domain.model.Specialization
 import software.setixx.chimu.domain.model.UserProfile
 
-data class ProfileState(
+data class OwnProfileState(
     val user: UserProfile? = null,
     val nickname: String = "",
     val firstName: String = "",
@@ -24,4 +25,14 @@ data class ProfileState(
     val nicknameError: String? = null,
     val githubError: String? = null,
     val telegramError: String? = null
-)
+){
+    val role: String
+        get() = when (user?.role){
+            UserRole.PARTICIPANT -> "Участник"
+            UserRole.ORGANIZER -> "Организатор"
+            UserRole.JUDGE -> "Судья"
+            UserRole.ADMIN -> "Администратор"
+            UserRole.GUEST -> "Гость"
+            null -> ""
+        }
+}

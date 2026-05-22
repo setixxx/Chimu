@@ -42,7 +42,6 @@ class ProjectFileRepositoryImpl(
         return try {
             val token = tokenStorage.getAccessToken() ?: return ApiResult.Error("Ошибка авторизации")
             val bytes = api.downloadFile(projectId, fileId, token)
-            // Note: We don't have full metadata here, usually this is used for saving to disk
             ApiResult.Error("Метод не полностью реализован для Domain модели")
         } catch (e: Exception) {
             ApiResult.Error(e.message ?: "Неизвестная ошибка")

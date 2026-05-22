@@ -13,13 +13,12 @@ import software.setixx.chimu.presentation.jam.details.JamDetailsScreen
 import software.setixx.chimu.presentation.jam.details.JamDetailsTab
 import software.setixx.chimu.presentation.jam.edit.EditJamScreen
 import software.setixx.chimu.presentation.main.MainScreen
-import software.setixx.chimu.presentation.main.NavigationDestination
-import software.setixx.chimu.presentation.profile.ProfileScreen
+import software.setixx.chimu.presentation.profile.own.ProfileScreen
 import software.setixx.chimu.presentation.splash.SplashScreen
 import software.setixx.chimu.presentation.team.create.CreateTeamScreen
 import software.setixx.chimu.presentation.team.join.JoinTeamScreen
 import software.setixx.chimu.presentation.team.details.TeamDetailsScreen
-import software.setixx.chimu.presentation.user.UserProfileScreen
+import software.setixx.chimu.presentation.profile.alien.UserProfileScreen
 
 @Composable
 fun AppNavigation(
@@ -84,7 +83,7 @@ fun AppNavigation(
                     }
                 },
                 onNavigateToProfile = {
-                    navController.navigate(Screen.Profile)
+                    navController.navigate(Screen.OwnProfile)
                 },
                 onNavigateToCreateTeam = {
                     navController.navigate(Screen.CreateTeam)
@@ -104,10 +103,15 @@ fun AppNavigation(
             )
         }
 
-        composable<Screen.Profile> {
+        composable<Screen.OwnProfile> {
             ProfileScreen(
                 onBack = {
                     navController.popBackStack()
+                },
+                onDeleteAccount = {
+                    navController.navigate(Screen.Login) {
+                        popUpTo(Screen.Home) { inclusive = true }
+                    }
                 }
             )
         }
@@ -132,14 +136,17 @@ fun AppNavigation(
                 onBack = {
                     navController.popBackStack()
                 },
-                onNavigateToUserProfile = { userId ->
-                    navController.navigate(Screen.UserProfile(userId))
+                onNavigateToAlienProfile = { userId ->
+                    navController.navigate(Screen.AlienProfile(userId))
+                },
+                onNavigateToOwnProfile = {
+                    navController.navigate(Screen.OwnProfile)
                 }
             )
         }
 
-        composable<Screen.UserProfile> {
-            val args = it.toRoute<Screen.UserProfile>()
+        composable<Screen.AlienProfile> {
+            val args = it.toRoute<Screen.AlienProfile>()
             UserProfileScreen(
                 userId = args.userId,
                 onBack = { navController.popBackStack() }

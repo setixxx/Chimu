@@ -22,6 +22,7 @@ data class PublicUserProfile(
     val id: String,
     val nickname: String,
     val isDeleted: Boolean,
+    val role: UserRole? = null,
     val firstName: String? = null,
     val lastName: String? = null,
     val specialization: Specialization? = null,

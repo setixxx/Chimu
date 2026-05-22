@@ -46,7 +46,6 @@ actual fun rememberFilePicker(onResult: (FileUpload?) -> Unit): () -> Unit {
             val name = (nameJs as JsString).toString()
             val mime = (mimeJs as JsString).toString()
 
-            // JsArray<JsNumber> конвертируем в ByteArray
             @Suppress("UNCHECKED_CAST")
             val jsArray = bytesJs as JsArray<JsNumber>
             val bytes = ByteArray(jsArray.length) { i ->

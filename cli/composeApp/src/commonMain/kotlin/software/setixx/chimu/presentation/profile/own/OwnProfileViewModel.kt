@@ -1,4 +1,4 @@
-package software.setixx.chimu.presentation.profile
+package software.setixx.chimu.presentation.profile.own
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -10,15 +10,16 @@ import kotlinx.coroutines.launch
 import software.setixx.chimu.domain.model.*
 import software.setixx.chimu.domain.usecase.*
 
-class ProfileViewModel(
+class OwnProfileViewModel(
     private val getCurrentUserUseCase: GetCurrentUserUseCase,
     private val updateProfileUseCase: UpdateProfileUseCase,
     private val getAllSpecializationsUseCase: GetAllSpecializationsUseCase,
-    private val getAllSkillsUseCase: GetAllSkillsUseCase
+    private val getAllSkillsUseCase: GetAllSkillsUseCase,
+    private val deleteProfileUseCase: DeleteProfileUseCase
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow(ProfileState())
-    val state: StateFlow<ProfileState> = _state.asStateFlow()
+    private val _state = MutableStateFlow(OwnProfileState())
+    val state: StateFlow<OwnProfileState> = _state.asStateFlow()
 
     init {
         loadProfile()
@@ -27,7 +28,6 @@ class ProfileViewModel(
     private fun loadProfile() {
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true) }
-
             val availableSpecs = mutableListOf<Specialization>()
             val availableSkills = mutableListOf<Skill>()
 
@@ -169,6 +169,31 @@ class ProfileViewModel(
         }
     }
 
+    fun deleteProfile(onDeleteSuccess: () -> Unit){
+        viewModelScope.launch {
+            _state.update { it.copy(isLoading = true) }
+
+            when (val result = deleteProfileUseCase()){
+                is ApiResult.Success -> {
+                    _state.update {
+                        it.copy(
+                            isLoading = false
+                        )
+                    }
+                    onDeleteSuccess()
+                }
+                is ApiResult.Error -> {
+                    _state.update {
+                        it.copy(
+                            isLoading = false,
+                            errorMessage = result.message
+                        )
+                    }
+                }
+            }
+        }
+    }
+
     fun saveProfile() {
         if (!validateInputs()) return
 
@@ -208,6 +233,8 @@ class ProfileViewModel(
             }
         }
     }
+
+
 
     private fun validateInputs(): Boolean {
         var isValid = true
