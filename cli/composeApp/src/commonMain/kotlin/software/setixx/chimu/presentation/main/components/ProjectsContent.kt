@@ -2,6 +2,7 @@ package software.setixx.chimu.presentation.main.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -27,28 +28,21 @@ fun ProjectsContent(state: MainState) {
         return
     }
 
-    LazyColumn(
-        modifier = Modifier.fillMaxSize().padding(24.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        item {
-            Text(
-                text = "Мои проекты",
-                style = MaterialTheme.typography.headlineMedium
-            )
-        }
-
+    Column(modifier = Modifier.fillMaxSize().padding(24.dp)) {
         if (state.userProjects.isEmpty()) {
-            item {
-                EmptyStateCard(
-                    icon = Icons.Default.Gamepad,
-                    title = "У вас пока нет проектов",
-                    description = "Зарегистрируйтесь на джем и создайте проект"
-                )
-            }
+            EmptyStateCard(
+                icon = Icons.Default.Gamepad,
+                title = "У вас пока нет проектов",
+                description = "Зарегистрируйтесь на джем и создайте проект"
+            )
         } else {
-            items(state.userProjects.size) { index ->
-                ProjectCard(project = state.userProjects[index])
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                items(state.userProjects.size) { index ->
+                    ProjectCard(project = state.userProjects[index])
+                }
             }
         }
     }

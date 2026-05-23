@@ -15,6 +15,7 @@ import software.setixx.chimu.api.domain.GameJamStatus
 import software.setixx.chimu.api.domain.RegistrationStatus
 import software.setixx.chimu.api.domain.UserRole
 import software.setixx.chimu.domain.model.GameJamDetails
+import software.setixx.chimu.presentation.jam.details.management.components.TeamCard
 import software.setixx.chimu.presentation.jam.details.overview.components.JamOverviewSection
 import software.setixx.chimu.presentation.main.components.JamBanner
 
@@ -147,6 +148,11 @@ fun OverviewScreen(
                     JamOverviewSection(
                         jam = jam,
                         registrations = state.registrations.filter { it.status == RegistrationStatus.APPROVED }
+                    )
+
+                    TeamCard(
+                        registrations = state.registrations,
+                        isActionsVisible = false
                     )
 
                     Spacer(modifier = Modifier.height(80.dp))

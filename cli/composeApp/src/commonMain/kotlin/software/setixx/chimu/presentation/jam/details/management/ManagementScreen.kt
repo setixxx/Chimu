@@ -1,56 +1,27 @@
 package software.setixx.chimu.presentation.jam.details.management
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CornerSize
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Rule
 import androidx.compose.material.icons.filled.*
-import androidx.compose.material.icons.outlined.ExpandLess
-import androidx.compose.material.icons.outlined.ExpandMore
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import coil3.compose.AsyncImage
-import coil3.compose.LocalPlatformContext
-import coil3.request.ImageRequest
-import coil3.request.crossfade
 import org.koin.compose.viewmodel.koinViewModel
 import software.setixx.chimu.api.domain.GameJamStatus
 import software.setixx.chimu.api.domain.RegistrationStatus
 import software.setixx.chimu.data.picker.rememberFilePicker
 import software.setixx.chimu.domain.model.CreateRatingCriteria
 import software.setixx.chimu.domain.model.GameJamDetails
-import software.setixx.chimu.domain.model.JamStatistics
-import software.setixx.chimu.domain.model.Leaderboard
-import software.setixx.chimu.domain.model.Project
-import software.setixx.chimu.domain.model.Registration
-import software.setixx.chimu.presentation.components.SegmentedListItemWithExpansion
-import software.setixx.chimu.presentation.components.localizeStatus
-import software.setixx.chimu.presentation.jam.details.components.ListWithTwoIcons
 import software.setixx.chimu.presentation.jam.details.management.components.BannerCard
 import software.setixx.chimu.presentation.jam.details.management.components.JamStatisticsCard
 import software.setixx.chimu.presentation.jam.details.management.components.LeaderboardCard
 import software.setixx.chimu.presentation.jam.details.management.components.ManagementListCard
-import software.setixx.chimu.presentation.jam.details.management.components.TeamsWithProjectsSection
-import software.setixx.chimu.presentation.main.components.JamBanner
-import software.setixx.chimu.presentation.main.components.StatusChip
+import software.setixx.chimu.presentation.jam.details.management.components.TeamCard
 import software.setixx.chimu.presentation.utils.DateTimeUtils
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -144,103 +115,6 @@ fun ManagementScreen(
                         }
                     }
 
-/*                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = MaterialTheme.shapes.extraLarge,
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.onSecondary
-                        ),
-                        onClick = { isJudgesExpanded = !isJudgesExpanded }
-                    ) {
-                        Column(modifier = Modifier.padding(16.dp)) {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    modifier = Modifier
-                                        .clip(RoundedCornerShape(8.dp))
-                                        .padding(end = 8.dp, top = 4.dp, bottom = 4.dp, start = 8.dp)
-                                ) {
-                                    Text(
-                                        text = "Судьи (${state.judges.size})",
-                                    )
-                                    Icon(
-                                        imageVector = if (isJudgesExpanded) Icons.Outlined.ExpandLess else Icons.Outlined.ExpandMore,
-                                        contentDescription = "Развернуть список судей",
-                                        modifier = Modifier.padding(start = 4.dp)
-                                    )
-                                }
-
-                                FilledTonalButton(
-                                    onClick = { showAssignJudgeDialog = true },
-                                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp)
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.PersonAdd,
-                                        contentDescription = null,
-                                        modifier = Modifier.size(18.dp)
-                                    )
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                    Text("Назначить")
-                                }
-                            }
-
-                            AnimatedVisibility(
-                                visible = isJudgesExpanded,
-                                enter = expandVertically() + fadeIn(),
-                                exit = shrinkVertically() + fadeOut()
-                            ) {
-                                Column(
-                                    modifier = Modifier.padding(top = 16.dp),
-                                    verticalArrangement = Arrangement.spacedBy(ListItemDefaults.SegmentedGap)
-                                ) {
-                                    if (state.judges.isEmpty()) {
-                                        Text(
-                                            text = "Судьи не назначены.",
-                                            style = MaterialTheme.typography.bodyMedium,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                            modifier = Modifier.padding(vertical = 8.dp)
-                                        )
-                                    } else {
-                                        val judges = state.judges
-                                        judges.forEachIndexed { index, judge ->
-                                            SegmentedListItem(
-                                                colors = ListItemDefaults.colors(
-                                                    containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
-                                                ),
-                                                selected = false,
-                                                onClick = {},
-                                                shapes = ListItemDefaults.segmentedShapes(
-                                                    index = index,
-                                                    count = judges.size
-                                                ),
-                                                content = { Text(judge.nickname) },
-                                                supportingContent = {
-                                                    Text("Назначен: ${DateTimeUtils.formatDateTime(judge.assignedAt)}")
-                                                },
-                                                trailingContent = {
-                                                    IconButton(
-                                                        onClick = { viewModel.unassignJudge(jam.id, judge.userId) }
-                                                    ) {
-                                                        Icon(
-                                                            imageVector = Icons.Default.PersonRemove,
-                                                            contentDescription = "Снять",
-                                                            tint = MaterialTheme.colorScheme.error
-                                                        )
-                                                    }
-                                                }
-                                            )
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }*/
-
                     ManagementListCard(
                         title = "Судьи",
                         titleIcon = Icons.Default.Gavel,
@@ -291,12 +165,8 @@ fun ManagementScreen(
                         }
                     )
 
-
-
-                    TeamsWithProjectsSection(
+                    TeamCard(
                         registrations = state.registrations,
-                        projectsByTeam = state.projectsByTeam,
-                        isActionLoading = state.isActionLoading,
                         onApprove = { teamId ->
                             viewModel.updateRegistrationStatus(jam.id, teamId, RegistrationStatus.APPROVED)
                         },
@@ -305,7 +175,8 @@ fun ManagementScreen(
                         },
                         onDisqualify = { teamId ->
                             viewModel.updateRegistrationStatus(jam.id, teamId, RegistrationStatus.DISQUALIFIED)
-                        }
+                        },
+                        isActionsVisible = true
                     )
 
                     if (isDraft) {

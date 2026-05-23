@@ -29,45 +29,46 @@ fun GameJamsContent(
 
     val canCreateJam = state.user?.role == UserRole.ADMIN || state.user?.role == UserRole.ORGANIZER
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        LazyColumn(
-            modifier = Modifier.fillMaxSize().padding(horizontal = 24.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-            contentPadding = PaddingValues(top = 24.dp, bottom = 80.dp)
-        ) {
-            item {
-                Text(
-                    text = "Все Game Jams",
-                    style = MaterialTheme.typography.headlineMedium
-                )
-            }
+    Column(
+        modifier = Modifier.fillMaxSize().padding(24.dp),
+    ) {
+        Text(
+            text = "Все Game Jams",
+            style = MaterialTheme.typography.headlineMedium
+        )
 
-            if (state.activeJams.isEmpty()) {
-                item {
-                    EmptyStateCard(
-                        icon = Icons.Default.Event,
-                        title = "Нет джемов"
-                    )
-                }
-            } else {
-                items(state.activeJams.size) { index ->
-                    GameJamCard(
-                        jam = state.activeJams[index],
-                        onDetailsClick = onNavigateToJamDetails,
-                    )
-                }
-            }
-        }
-
-        if (canCreateJam) {
-            ExtendedFloatingActionButton(
-                onClick = onNavigateToCreateJam,
-                icon = { Icon(Icons.Default.Add, contentDescription = null) },
-                text = { Text("Создать джем") },
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(24.dp)
+        if (state.activeJams.isEmpty()) {
+            EmptyStateCard(
+                icon = Icons.Default.Event,
+                title = "Нет активных джемов",
+                description = "Джемы появятся здесь, когда начнется регистрация"
             )
+        } else {
+            Box(modifier = Modifier.fillMaxSize()) {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize().padding(vertical = 24.dp),
+                    verticalArrangement = Arrangement.spacedBy(24.dp),
+                    contentPadding = PaddingValues(bottom = 80.dp)
+                ) {
+                    items(state.activeJams.size) { index ->
+                        GameJamCard(
+                            jam = state.activeJams[index],
+                            onDetailsClick = onNavigateToJamDetails,
+                        )
+                    }
+                }
+
+                if (canCreateJam) {
+                    ExtendedFloatingActionButton(
+                        onClick = onNavigateToCreateJam,
+                        icon = { Icon(Icons.Default.Add, contentDescription = null) },
+                        text = { Text("Создать джем") },
+                        modifier = Modifier
+                            .align(Alignment.BottomEnd)
+                            .padding(24.dp)
+                    )
+                }
+            }
         }
     }
 }

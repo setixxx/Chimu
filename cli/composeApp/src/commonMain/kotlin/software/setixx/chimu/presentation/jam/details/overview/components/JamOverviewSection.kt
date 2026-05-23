@@ -127,58 +127,5 @@ fun JamOverviewSection(
                 Text("Макс: ${criteria.maxScore} • Вес: ${criteria.weight}")
             }
         )
-
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(MaterialTheme.shapes.large),
-        ) {
-            ListWithTwoIcons(
-                contentDescription = "Команды-участники",
-                header = "Команды-участники",
-                onClick = { isTeamsExpanded = !isTeamsExpanded },
-                trailingIcon = if (isTeamsExpanded) Icons.Outlined.ExpandLess else Icons.Outlined.ExpandMore
-            )
-        }
-        AnimatedVisibility(
-            visible = isTeamsExpanded,
-            enter = expandVertically(),
-            exit = shrinkVertically()
-        ) {
-            Column(
-                modifier = Modifier
-                    .clip(MaterialTheme.shapes.largeIncreased),
-                verticalArrangement = Arrangement.spacedBy(ListItemDefaults.SegmentedGap)
-            ) {
-                registrations.forEachIndexed { index, team ->
-                    val colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.onSecondary)
-                    SegmentedListItem(
-                        colors = colors,
-                        selected = false,
-                        onClick = {},
-                        shapes = ListItemDefaults.segmentedShapes(
-                            index = index,
-                            count = registrations.size
-                        ),
-                        content = {
-                            Text(
-                                team.teamName
-                            )
-                        },
-                        supportingContent = {
-                            Text("От: ${team.registeredByNickname}")
-                        },
-                        trailingContent = {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(8.dp)
-                            ) {
-                                Badge { Text(localizeStatus(team.status)) }
-                            }
-                        }
-                    )
-                }
-            }
-        }
     }
 }

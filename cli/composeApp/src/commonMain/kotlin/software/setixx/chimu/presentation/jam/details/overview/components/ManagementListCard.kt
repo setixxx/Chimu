@@ -89,10 +89,8 @@ fun <T> ManagementListCard(
                             ),
                             selected = false,
                             onClick = {},
-                            shapes = ListItemDefaults.segmentedShapes(
-                                index = index,
-                                count = items.size
-                            ),
+                            shapes = if (items.size == 1) ListItemDefaults.shapes(shape = MaterialTheme.shapes.medium)
+                            else ListItemDefaults.segmentedShapes(index = index, items.size),
                             content = { itemHeadline(item) },
                             supportingContent = itemSupportingContent?.let { { it(item) } },
                             trailingContent = itemTrailingContent?.let { { it(item) } }
