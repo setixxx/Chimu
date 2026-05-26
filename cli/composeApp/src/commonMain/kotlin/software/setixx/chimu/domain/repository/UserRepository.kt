@@ -15,4 +15,5 @@ interface UserRepository {
     suspend fun deleteProfile(): ApiResult<Unit>
     suspend fun updateProfile(request: ProfileUpdate): ApiResult<UserProfile>
     suspend fun getUserById(userId: String): ApiResult<PublicUserProfile>
+    suspend fun getUserByNickname(nickname: String): ApiResult<PublicUserProfile>
 }

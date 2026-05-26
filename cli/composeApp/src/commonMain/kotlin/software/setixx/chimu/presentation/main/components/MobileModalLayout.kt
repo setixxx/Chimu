@@ -26,6 +26,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.MenuOpen
 import androidx.compose.material.icons.automirrored.outlined.ExitToApp
+import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
@@ -42,6 +43,7 @@ import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.PlainTooltip
@@ -75,6 +77,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import software.setixx.chimu.presentation.main.MainState
 import software.setixx.chimu.presentation.main.NavigationDestination
+import software.setixx.chimu.presentation.main.Notification
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -99,6 +102,7 @@ fun MobileModalLayout(
     snackBarHostState: SnackbarHostState,
     onRefresh: () -> Unit,
     onLogoutClick: () -> Unit,
+    onNotificationAction: (Notification) -> Unit,
 ) {
     val isExpanded = railState.targetValue == WideNavigationRailValue.Expanded
     Box(modifier = Modifier.fillMaxSize()) {
@@ -155,11 +159,25 @@ fun MobileModalLayout(
                                     state.notifications.forEach { notification ->
                                         DropdownMenuItem(
                                             text = { Text(notification.message) },
-                                            onClick = { onShowNotifications(false) },
+                                            onClick = {
+                                                onShowNotifications(false)
+                                                onNotificationAction(notification)
+                                            },
                                             leadingIcon = {
-                                                Icon(notification.icon, null)
-                                            }
+                                                Icon(
+                                                    notification.icon,
+                                                    contentDescription = null,
+                                                    tint = if (notification.actionType != null)
+                                                        MaterialTheme.colorScheme.primary
+                                                    else
+                                                        LocalContentColor.current
+                                                )
+                                            },
+                                            trailingIcon = if (notification.actionType != null) {
+                                                { Icon(Icons.Default.ChevronRight, contentDescription = null) }
+                                            } else null
                                         )
+
                                         if (notification != state.notifications.last()) {
                                             HorizontalDivider()
                                         }

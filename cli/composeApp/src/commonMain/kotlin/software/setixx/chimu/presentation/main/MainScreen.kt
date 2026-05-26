@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import org.koin.compose.viewmodel.koinViewModel
 import software.setixx.chimu.api.domain.UserRole
 import software.setixx.chimu.presentation.main.components.DesktopRailLayout
+import software.setixx.chimu.presentation.main.components.JamTransferReviewDialog
 import software.setixx.chimu.presentation.main.components.MobileModalLayout
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
@@ -48,11 +49,12 @@ fun MainScreen(
             UserRole.ORGANIZER -> listOf(
                 NavigationDestination.HOME,
                 NavigationDestination.GAME_JAMS,
-                NavigationDestination.JUDGING
+                NavigationDestination.TEAMS
             )
             UserRole.JUDGE -> listOf(
                 NavigationDestination.HOME,
                 NavigationDestination.GAME_JAMS,
+                NavigationDestination.TEAMS,
                 NavigationDestination.JUDGING
             )
             else -> listOf(
@@ -61,6 +63,15 @@ fun MainScreen(
                 NavigationDestination.TEAMS,
                 NavigationDestination.PROJECTS
             )
+        }
+    }
+
+    val onNotificationAction: (Notification) -> Unit = { notification ->
+        when (notification.actionType) {
+            NotificationActionType.JAM_TRANSFER_RECEIVED -> {
+                notification.transferId?.let { viewModel.openTransferReview(it) }
+            }
+            null -> {}
         }
     }
 
@@ -89,6 +100,7 @@ fun MainScreen(
                 snackBarHostState = snackBarHostState,
                 onRefresh = { viewModel.refresh() },
                 onLogoutClick = { viewModel.onLogout(onLogout) },
+                onNotificationAction = onNotificationAction
             )
         } else {
             DesktopRailLayout(
@@ -112,8 +124,19 @@ fun MainScreen(
                 snackBarHostState = snackBarHostState,
                 onRefresh = { viewModel.refresh() },
                 onLogoutClick = { viewModel.onLogout(onLogout) },
+                onNotificationAction = onNotificationAction
             )
         }
+    }
+
+    state.pendingTransferToReview?.let { transfer ->
+        JamTransferReviewDialog(
+            transfer = transfer,
+            isLoading = state.isReviewActionLoading,
+            onAccept = { viewModel.acceptTransfer(transfer.id) },
+            onReject = { viewModel.rejectTransfer(transfer.id) },
+            onDismiss = { viewModel.closeTransferReview() }
+        )
     }
 
     LaunchedEffect(state.errorMessage) {

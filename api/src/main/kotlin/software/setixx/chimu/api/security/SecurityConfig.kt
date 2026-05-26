@@ -47,7 +47,7 @@ class SecurityConfig(
                     .requestMatchers(HttpMethod.POST, "/api/jams/*/publish").hasAnyRole("ORGANIZER", "ADMIN")
 
                     .requestMatchers(HttpMethod.GET, "/api/jams/*/registrations").authenticated()
-                    .requestMatchers(HttpMethod.POST, "/api/jams/*/registrations").hasAnyRole("PARTICIPANT", "ADMIN")
+                    .requestMatchers(HttpMethod.POST, "/api/jams/*/registrations").authenticated()
                     .requestMatchers(HttpMethod.PATCH, "/api/jams/*/registrations/**").hasAnyRole("ORGANIZER", "ADMIN")
                     .requestMatchers(HttpMethod.DELETE, "/api/jams/*/registrations/**").authenticated()
 
@@ -86,6 +86,8 @@ class SecurityConfig(
 
                     .requestMatchers(HttpMethod.GET, "/api/jams/*/leaderboard").permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/jams/*/statistics").hasAnyRole("ORGANIZER", "ADMIN")
+
+                    .requestMatchers(HttpMethod.GET, "/api/admin/*").hasRole("ADMIN")
 
                     .requestMatchers(
                         "/api/users/me",

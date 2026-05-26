@@ -2,22 +2,34 @@ package software.setixx.chimu.presentation.jam.details
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import software.setixx.chimu.api.domain.TransferStatus
 import software.setixx.chimu.domain.model.ApiResult
+import software.setixx.chimu.domain.model.CreateJamTransfer
 import software.setixx.chimu.domain.usecase.CancelJamUseCase
+import software.setixx.chimu.domain.usecase.CancelTransferUseCase
+import software.setixx.chimu.domain.usecase.CreateTransferUseCase
 import software.setixx.chimu.domain.usecase.DeleteJamUseCase
 import software.setixx.chimu.domain.usecase.GetCurrentUserUseCase
 import software.setixx.chimu.domain.usecase.GetJamDetailsUseCase
+import software.setixx.chimu.domain.usecase.GetTransferRequestsUseCase
+import software.setixx.chimu.domain.usecase.GetUserByIdUseCase
+import software.setixx.chimu.domain.usecase.GetUserByNicknameUseCase
 
 class JamDetailsViewModel(
     private val getJamDetailsUseCase: GetJamDetailsUseCase,
     private val deleteJamUseCase: DeleteJamUseCase,
     private val getCurrentUserUseCase: GetCurrentUserUseCase,
-    private val cancelJamUseCase: CancelJamUseCase
+    private val cancelJamUseCase: CancelJamUseCase,
+    private val getTransferRequestsUseCase: GetTransferRequestsUseCase,
+    private val createTransferUseCase: CreateTransferUseCase,
+    private val cancelTransferUseCase: CancelTransferUseCase,
+    private val getUserByNicknameUseCase: GetUserByNicknameUseCase,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(JamDetailsState())
@@ -55,6 +67,7 @@ class JamDetailsViewModel(
                             isLoading = false
                         )
                     }
+                    loadCurrentTransfer(jamId)
                 }
                 is ApiResult.Error -> {
                     _state.update {
@@ -63,6 +76,117 @@ class JamDetailsViewModel(
                             errorMessage = result.message
                         )
                     }
+                }
+            }
+        }
+    }
+
+    private suspend fun loadCurrentTransfer(jamId: String) {
+        when (val result = getTransferRequestsUseCase()) {
+            is ApiResult.Success -> {
+                val transfer = result.data.find {
+                    it.jamId == jamId && it.status == TransferStatus.PENDING
+                } ?: result.data.find { it.jamId == jamId }
+                _state.update { it.copy(currentTransfer = transfer) }
+            }
+            is ApiResult.Error -> { }
+        }
+    }
+
+    fun openTransferDialog() {
+        _state.update {
+            it.copy(
+                showTransferDialog = true,
+                transferError = null,
+                transferRecipientQuery = "",
+                transferRecipientFound = null
+            )
+        }
+    }
+
+    fun closeTransferDialog() {
+        _state.update {
+            it.copy(
+                showTransferDialog = false,
+                transferError = null,
+                transferRecipientQuery = "",
+                transferRecipientFound = null
+            )
+        }
+    }
+
+    fun onTransferRecipientQueryChange(query: String) {
+        _state.update {
+            it.copy(
+                transferRecipientQuery = query,
+                transferRecipientFound = null,
+                transferError = null
+            )
+        }
+    }
+
+    fun searchRecipient() {
+        val query = _state.value.transferRecipientQuery.trim()
+        if (query.isBlank()) return
+        viewModelScope.launch {
+            _state.update { it.copy(isSearchingRecipient = true, transferError = null) }
+            when (val result = getUserByNicknameUseCase(query)) {
+                is ApiResult.Success -> {
+                    val user = result.data
+                    if (user.id == _state.value.userId) {
+                        _state.update {
+                            it.copy(
+                                isSearchingRecipient = false,
+                                transferError = "Нельзя передать джем самому себе"
+                            )
+                        }
+                    } else {
+                        _state.update {
+                            it.copy(isSearchingRecipient = false, transferRecipientFound = user)
+                        }
+                    }
+                }
+                is ApiResult.Error -> _state.update {
+                    it.copy(isSearchingRecipient = false, transferError = result.message)
+                }
+            }
+        }
+    }
+
+    fun createTransfer(jamId: String) {
+        val recipientId = _state.value.transferRecipientFound?.id ?: return
+        viewModelScope.launch {
+            _state.update { it.copy(isTransferActionLoading = true, transferError = null) }
+            when (val result = createTransferUseCase(jamId, CreateJamTransfer(recipientId))) {
+                is ApiResult.Success -> _state.update {
+                    it.copy(
+                        isTransferActionLoading = false,
+                        currentTransfer = result.data,
+                        showTransferDialog = false,
+                        transferRecipientQuery = "",
+                        transferRecipientFound = null
+                    )
+                }
+                is ApiResult.Error -> _state.update {
+                    it.copy(isTransferActionLoading = false, transferError = result.message)
+                }
+            }
+        }
+    }
+
+    fun cancelTransfer(jamId: String) {
+        viewModelScope.launch {
+            _state.update { it.copy(isTransferActionLoading = true, transferError = null) }
+            when (val result = cancelTransferUseCase(jamId)) {
+                is ApiResult.Success -> _state.update {
+                    it.copy(
+                        isTransferActionLoading = false,
+                        currentTransfer = result.data,
+                        showTransferDialog = false
+                    )
+                }
+                is ApiResult.Error -> _state.update {
+                    it.copy(isTransferActionLoading = false, transferError = result.message)
                 }
             }
         }

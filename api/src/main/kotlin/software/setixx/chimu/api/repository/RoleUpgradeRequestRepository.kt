@@ -14,6 +14,6 @@ interface RoleUpgradeRequestRepository : JpaRepository<RoleUpgradeRequest, Long>
         requestedRole: UserRole,
         status: RoleRequestStatus
     ): Boolean
-    fun findByPublicIdAndUserIdAndDeletedAtIsNull(publicId: UUID, userId: Long): RoleUpgradeRequest?
+    fun findByPublicIdAndDeletedAtIsNull(publicId: UUID): RoleUpgradeRequest?
     fun findByIdAndUserIdAndDeletedAtIsNull(id: Long, userId: Long): RoleUpgradeRequest?
 }

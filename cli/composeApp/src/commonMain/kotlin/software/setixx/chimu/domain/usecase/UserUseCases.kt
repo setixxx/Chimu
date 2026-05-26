@@ -33,7 +33,15 @@ class UpdateProfileUseCase(
     suspend operator fun invoke(request: ProfileUpdate) = repository.updateProfile(request)
 }
 
-class GetUserByIdUseCase(private val repository: UserRepository) {
+class GetUserByIdUseCase(
+    private val repository: UserRepository
+) {
     suspend operator fun invoke(userId: String) =
         repository.getUserById(userId)
+}
+
+class GetUserByNicknameUseCase(
+    private val repository: UserRepository
+){
+    suspend operator fun invoke(nickname: String) = repository.getUserByNickname(nickname)
 }

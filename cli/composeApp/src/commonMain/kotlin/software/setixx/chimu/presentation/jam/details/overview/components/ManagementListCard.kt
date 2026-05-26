@@ -23,6 +23,7 @@ fun <T> ManagementListCard(
     buttonText: String? = null,
     buttonIcon: ImageVector? = null,
     onButtonClick: () -> Unit,
+    onItemClick: ((T) -> Unit)? = null,
     modifier: Modifier = Modifier,
     itemHeadline: @Composable (T) -> Unit,
     itemSupportingContent: @Composable ((T) -> Unit)? = null,
@@ -88,7 +89,7 @@ fun <T> ManagementListCard(
                                 containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
                             ),
                             selected = false,
-                            onClick = {},
+                            onClick = { onItemClick?.invoke(item) },
                             shapes = if (items.size == 1) ListItemDefaults.shapes(shape = MaterialTheme.shapes.medium)
                             else ListItemDefaults.segmentedShapes(index = index, items.size),
                             content = { itemHeadline(item) },

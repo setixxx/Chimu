@@ -5,6 +5,7 @@ import io.ktor.client.call.body
 import io.ktor.client.request.delete
 import io.ktor.client.request.get
 import io.ktor.client.request.header
+import io.ktor.client.request.patch
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.HttpHeaders
@@ -50,7 +51,7 @@ class RoleUpgradeApi(
         data: ReviewRoleUpgradeRequest,
         accessToken: String
     ): RoleUpgradeResponse {
-        val response = client.post("/api/admin/role-requests/$requestId") {
+        val response = client.patch("/api/admin/role-requests/$requestId") {
             header(HttpHeaders.Authorization, "Bearer $accessToken")
             setBody(data)
         }

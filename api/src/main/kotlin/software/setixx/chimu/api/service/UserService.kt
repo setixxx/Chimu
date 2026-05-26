@@ -38,6 +38,11 @@ class UserService(
             ?: throw IllegalStateException("User not found")
     }
 
+    fun getUserByNickname(nickname: String): User {
+        return userRepository.findByNicknameAndDeletedAtIsNull(nickname)
+            ?: throw IllegalStateException("User not found")
+    }
+
     fun getCurrentUser(email: String): User {
         return userRepository.findByEmailAndDeletedAtIsNull(email)
             ?: throw IllegalStateException("User not found")

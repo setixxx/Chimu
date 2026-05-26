@@ -69,7 +69,7 @@ class RoleUpgradeController(
     ): ResponseEntity<RoleUpgradeRequestResponse> {
         val user = userRepository.findByPublicIdAndDeletedAtIsNull(userDetails.publicId)
             ?: throw IllegalStateException("User not found")
-        val request = roleUpgradeRequestRepository.findByPublicIdAndUserIdAndDeletedAtIsNull(UUID.fromString(requestId), user.id!!)
+        val request = roleUpgradeRequestRepository.findByPublicIdAndDeletedAtIsNull(UUID.fromString(requestId))
             ?: throw IllegalStateException("Request not found")
         return ResponseEntity.ok(roleUpgradeService.cancelRequest(user.id!!, request.id))
     }
@@ -103,8 +103,10 @@ class RoleUpgradeController(
     ): ResponseEntity<RoleUpgradeRequestResponse> {
         val admin = userRepository.findByPublicIdAndDeletedAtIsNull(userDetails.publicId)
             ?: throw IllegalStateException("User not found")
-        val reviewRequest = roleUpgradeRequestRepository.findByPublicIdAndUserIdAndDeletedAtIsNull(UUID.fromString(requestId), admin.id!!)
+
+        val reviewRequest = roleUpgradeRequestRepository.findByPublicIdAndDeletedAtIsNull(UUID.fromString(requestId))
             ?: throw IllegalStateException("Request not found")
+
         return ResponseEntity.ok(roleUpgradeService.reviewRequest(admin.id!!, reviewRequest.id, request))
     }
 }

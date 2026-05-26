@@ -27,6 +27,7 @@ import software.setixx.chimu.domain.usecase.GetJamProjectsUseCase
 import software.setixx.chimu.domain.usecase.GetJamRegistrationsUseCase
 import software.setixx.chimu.domain.usecase.GetJamStatisticsUseCase
 import software.setixx.chimu.domain.usecase.GetLeaderboardUseCase
+import software.setixx.chimu.domain.usecase.GetUserByNicknameUseCase
 import software.setixx.chimu.domain.usecase.PublishJamUseCase
 import software.setixx.chimu.domain.usecase.UnassignJudgeUseCase
 import software.setixx.chimu.domain.usecase.UpdateJamCriteriaUseCase
@@ -49,7 +50,8 @@ class ManagementViewModel(
     private val getLeaderboardUseCase: GetLeaderboardUseCase,
     private val getJamProjectsUseCase: GetJamProjectsUseCase,
     private val uploadJamBannerUseCase: UploadJamBannerUseCase,
-    private val deleteJamBannerUseCase: DeleteJamBannerUseCase
+    private val deleteJamBannerUseCase: DeleteJamBannerUseCase,
+    private val getUserByNicknameUseCase: GetUserByNicknameUseCase
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(ManagementState())
@@ -205,16 +207,19 @@ class ManagementViewModel(
         }
     }
 
-    fun assignJudge(jamId: String, judgeUserId: String) {
+    fun assignJudge(jamId: String) {
+        val judgeUserId = _state.value.foundJudge?.id ?: return
         viewModelScope.launch {
-            _state.update { it.copy(isActionLoading = true) }
+            _state.update { it.copy(isActionLoading = true, judgeSearchError = null) }
             when (val result = assignJudgeUseCase(jamId, AssignJudge(judgeUserId))) {
                 is ApiResult.Success -> {
                     _state.update {
                         it.copy(
                             judges = it.judges + result.data,
                             isActionLoading = false,
-                            successMessage = "Судья назначен"
+                            successMessage = "Судья назначен",
+                            foundJudge = null,
+                            judgeSearchQuery = ""
                         )
                     }
                 }
@@ -222,9 +227,47 @@ class ManagementViewModel(
                     _state.update {
                         it.copy(
                             isActionLoading = false,
-                            errorMessage = result.message
+                            judgeSearchError = result.message
                         )
                     }
+                }
+            }
+        }
+    }
+
+    fun onJudgeSearchQueryChange(query: String) {
+        _state.update {
+            it.copy(
+                judgeSearchQuery = query,
+                foundJudge = null,
+                judgeSearchError = null
+            )
+        }
+    }
+
+    fun searchJudge() {
+        val query = _state.value.judgeSearchQuery.trim()
+        if (query.isBlank()) return
+        viewModelScope.launch {
+            _state.update { it.copy(isSearchingJudge = true, judgeSearchError = null) }
+            when (val result = getUserByNicknameUseCase(query)) {
+                is ApiResult.Success -> {
+                    val user = result.data
+                    if (_state.value.judges.any { it.userId == user.id }){
+                        _state.update {
+                            it.copy(
+                                isSearchingJudge = false,
+                                judgeSearchError = "Этот пользователь уже назначен судьей"
+                            )
+                        }
+                    } else {
+                        _state.update {
+                            it.copy(isSearchingJudge = false, foundJudge = user)
+                        }
+                    }
+                }
+                is ApiResult.Error -> _state.update {
+                    it.copy(isSearchingJudge = false, judgeSearchError = result.message)
                 }
             }
         }

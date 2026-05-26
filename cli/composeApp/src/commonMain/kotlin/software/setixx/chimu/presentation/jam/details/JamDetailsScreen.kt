@@ -22,12 +22,14 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.dp
 import kotlinx.serialization.Serializable
 import org.koin.compose.viewmodel.koinViewModel
+import software.setixx.chimu.api.domain.TransferStatus
 import software.setixx.chimu.presentation.jam.details.components.HomeBottomBar
 import software.setixx.chimu.presentation.jam.details.judging.JudgingScreen
 import software.setixx.chimu.presentation.jam.details.leaderboard.LeaderboardScreen
 import software.setixx.chimu.presentation.jam.details.management.ManagementScreen
 import software.setixx.chimu.presentation.jam.details.project.ProgressScreen
 import software.setixx.chimu.presentation.jam.details.overview.OverviewScreen
+import software.setixx.chimu.presentation.jam.details.transfer.JamTransferDialog
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -42,12 +44,16 @@ fun JamDetailsScreen(
     val snackBarHostState = remember { SnackbarHostState() }
     var showDeleteDialog by remember { mutableStateOf(false) }
     var showCancelDialog by remember { mutableStateOf(false) }
-    val exitAlwaysScrollBehavior =
-        FloatingToolbarDefaults.exitAlwaysScrollBehavior(exitDirection = Bottom)
     val pagerState = rememberPagerState(
         pageCount = { state.availableTabs.size },
         initialPage = initialTab?.ordinal ?: JamDetailsTab.Overview.ordinal
     )
+
+    val transferIcon = when {
+        state.hasPendingTransfer -> Icons.Default.HourglassTop
+        state.currentTransfer?.status == TransferStatus.ACCEPTED -> Icons.Default.DoneAll
+        else -> Icons.Default.SwapHoriz
+    }
 
     LaunchedEffect(jamId) {
         viewModel.loadJamDetails(jamId)
@@ -65,7 +71,6 @@ fun JamDetailsScreen(
     }
 
     Scaffold(
-        modifier = Modifier.nestedScroll(exitAlwaysScrollBehavior),
         topBar = {
             TopAppBar(
                 colors = TopAppBarDefaults.topAppBarColors(Color.Transparent),
@@ -79,6 +84,14 @@ fun JamDetailsScreen(
                     if (state.canEdit){
                         FilledTonalIconButton(onClick = { onEditJam(jamId) }) {
                             Icon(Icons.Default.Edit, "Редактировать")
+                        }
+                    }
+                    if (state.isAdminOrOrganizer || state.isPreviousOrganizer) {
+                        FilledTonalIconButton(
+                            onClick = { viewModel.openTransferDialog() },
+                            enabled = state.canTransferEnabled
+                        ) {
+                            Icon(transferIcon, contentDescription = "Передача джема")
                         }
                     }
                     if (state.canDelete) {
@@ -113,7 +126,6 @@ fun JamDetailsScreen(
         floatingActionButton = {
             HomeBottomBar(
                 pagerState = pagerState,
-                scrollBehavior = exitAlwaysScrollBehavior,
                 tabs = state.availableTabs
             )
         },
@@ -131,7 +143,7 @@ fun JamDetailsScreen(
         } else {
             state.jamDetails?.let { jam ->
                 HorizontalPager(
-                    userScrollEnabled = false,
+                    userScrollEnabled = true,
                     state = pagerState,
                     modifier = Modifier
                         .fillMaxSize()
@@ -197,6 +209,17 @@ fun JamDetailsScreen(
                 }
             }
         }
+    }
+
+    if (state.showTransferDialog) {
+        JamTransferDialog(
+            state = state,
+            onDismiss = { viewModel.closeTransferDialog() },
+            onQueryChange = { viewModel.onTransferRecipientQueryChange(it) },
+            onSearch = { viewModel.searchRecipient() },
+            onCreate = { viewModel.createTransfer(jamId) },
+            onCancel = { viewModel.cancelTransfer(jamId) }
+        )
     }
 
     if (showDeleteDialog) {

@@ -1,5 +1,6 @@
 package software.setixx.chimu.presentation.profile.components
 
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
@@ -83,9 +84,9 @@ fun ProfileSkillsView(
         content = { Text("Навыки") },
         supportingContent = {
             if (expanded && !isEmpty) {
-                Column(modifier = Modifier.padding(top = 8.dp)) {
+                Column(modifier = Modifier.padding(top = 8.dp).animateContentSize()) {
                     FlowRow(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth().animateContentSize(),
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
@@ -111,6 +112,6 @@ fun ProfileSkillsView(
                 )
             }
         },
-        modifier = modifier
+        modifier = modifier.animateContentSize()
     )
 }

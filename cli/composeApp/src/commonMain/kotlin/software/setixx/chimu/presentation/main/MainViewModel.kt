@@ -4,6 +4,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Comment
 import androidx.compose.material.icons.filled.Event
 import androidx.compose.material.icons.filled.Group
+import androidx.compose.material.icons.filled.SwapHoriz
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.ktor.http.cio.expectHttpBody
@@ -13,15 +14,20 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import software.setixx.chimu.api.domain.TransferStatus
 import software.setixx.chimu.domain.model.ApiResult
+import software.setixx.chimu.domain.model.JamTransfer
+import software.setixx.chimu.domain.model.ReviewJamTransfer
 import software.setixx.chimu.domain.usecase.GetAllJamsUseCase
 import software.setixx.chimu.domain.usecase.GetCurrentUserUseCase
+import software.setixx.chimu.domain.usecase.GetTransferRequestsUseCase
 import software.setixx.chimu.domain.usecase.GetUserProjectsUseCase
 import software.setixx.chimu.domain.usecase.GetUserTeamsUseCase
 import software.setixx.chimu.domain.usecase.LogoutUseCase
 import software.setixx.chimu.domain.usecase.ObserveJamsUseCase
 import software.setixx.chimu.domain.usecase.ObserveUserTeamsUseCase
 import software.setixx.chimu.domain.usecase.ObserverUserUseCase
+import software.setixx.chimu.domain.usecase.ReviewTransferUseCase
 
 class MainViewModel(
     private val getCurrentUserUseCase: GetCurrentUserUseCase,
@@ -31,10 +37,13 @@ class MainViewModel(
     private val getUserProjectsUseCase: GetUserProjectsUseCase,
     private val observeUserTeamsUseCase: ObserveUserTeamsUseCase,
     private val observerUserUseCase: ObserverUserUseCase,
-    private val observeJamsUseCase: ObserveJamsUseCase
+    private val observeJamsUseCase: ObserveJamsUseCase,
+    private val getTransferRequestsUseCase: GetTransferRequestsUseCase,
+    private val reviewTransferUseCase: ReviewTransferUseCase
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(MainState())
+    private var cachedIncomingTransfers: List<JamTransfer> = emptyList()
     val state: StateFlow<MainState> = _state.asStateFlow()
 
     init {
@@ -132,30 +141,58 @@ class MainViewModel(
         }
     }
 
-    private fun loadNotifications() {
-        val mockNotifications = listOf(
-            Notification(
-                id = "1",
-                message = "Новый джем начался!",
-                icon = Icons.Default.Event
-            ),
-            Notification(
-                id = "2",
-                message = "Приглашение в команду",
-                icon = Icons.Default.Group
-            ),
-            Notification(
-                id = "3",
-                message = "Новый комментарий",
-                icon = Icons.Default.Comment
-            )
-        )
+    private suspend fun loadNotifications() {
+        val currentUserId = _state.value.user?.id ?: return
+        when (val result = getTransferRequestsUseCase()) {
+            is ApiResult.Success -> {
+                val incoming = result.data.filter {
+                    it.status == TransferStatus.PENDING && it.recipientId == currentUserId
+                }
+                cachedIncomingTransfers = incoming
+                val notifications = incoming.map { t ->
+                    Notification(
+                        id = t.id,
+                        message = "«${t.jamName}»: ${t.senderNickname} предлагает вам стать организатором",
+                        icon = Icons.Default.SwapHoriz,
+                        actionType = NotificationActionType.JAM_TRANSFER_RECEIVED,
+                        transferId = t.id
+                    )
+                }
+                _state.update {
+                    it.copy(notifications = notifications, notificationCount = notifications.size)
+                }
+            }
+            is ApiResult.Error -> {
+                _state.update { it.copy(notifications = emptyList(), notificationCount = 0) }
+            }
+        }
+    }
 
-        _state.update {
-            it.copy(
-                notifications = mockNotifications,
-                notificationCount = mockNotifications.size
-            )
+    fun openTransferReview(transferId: String) {
+        val transfer = cachedIncomingTransfers.find { it.id == transferId } ?: return
+        _state.update { it.copy(pendingTransferToReview = transfer) }
+    }
+
+    fun closeTransferReview() {
+        _state.update { it.copy(pendingTransferToReview = null, isReviewActionLoading = false) }
+    }
+
+    fun acceptTransfer(requestId: String) = doReview(requestId, accepted = true)
+    fun rejectTransfer(requestId: String) = doReview(requestId, accepted = false)
+
+    private fun doReview(requestId: String, accepted: Boolean) {
+        viewModelScope.launch {
+            _state.update { it.copy(isReviewActionLoading = true) }
+            val status = if (accepted) TransferStatus.ACCEPTED else TransferStatus.REJECTED
+            when (reviewTransferUseCase(requestId, ReviewJamTransfer(status))) {
+                is ApiResult.Success -> {
+                    _state.update { it.copy(isReviewActionLoading = false, pendingTransferToReview = null) }
+                    loadNotifications()
+                }
+                is ApiResult.Error -> {
+                    _state.update { it.copy(isReviewActionLoading = false) }
+                }
+            }
         }
     }
 

@@ -13,12 +13,10 @@ import org.springframework.web.bind.annotation.*
 import software.setixx.chimu.api.dto.ChangePasswordRequest
 import software.setixx.chimu.api.dto.ChangePasswordResponse
 import software.setixx.chimu.api.dto.PublicUserProfileResponse
-import software.setixx.chimu.api.dto.SpecializationResponse
 import software.setixx.chimu.api.dto.UpdateProfileRequest
 import software.setixx.chimu.api.dto.UserProfileResponse
 import software.setixx.chimu.api.repository.UserRepository
 import software.setixx.chimu.api.security.CustomUserDetails
-import software.setixx.chimu.api.service.SpecializationService
 import software.setixx.chimu.api.service.UserService
 import java.util.UUID
 
@@ -29,7 +27,7 @@ class UserController(
     private val userService: UserService,
     private val userRepository: UserRepository,
 ) {
-    @GetMapping("/{publicId}")
+    @GetMapping("/id/{publicId}")
     @Operation(summary = "Get user by ID", description = "Retrieves user information by public ID")
     @ApiResponses(
         ApiResponse(responseCode = "200", description = "User retrieved successfully"),
@@ -43,6 +41,24 @@ class UserController(
             throw IllegalStateException("User not found")
 
         val userResponse = userService.getUserByPublicId(UUID.fromString(publicId))
+        val body = userService.toPublicUserResponse(userResponse)
+        return ResponseEntity.ok(body)
+    }
+
+    @GetMapping("/nickname/{nickname}")
+    @Operation(summary = "Get user by nickname", description = "Retrieves user information by nickname")
+    @ApiResponses(
+        ApiResponse(responseCode = "200", description = "User retrieved successfully"),
+        ApiResponse(responseCode = "404", description = "User not found")
+    )
+    fun getUserByNickname(
+        @PathVariable nickname: String,
+        @AuthenticationPrincipal userDetails: CustomUserDetails
+    ): ResponseEntity<PublicUserProfileResponse?> {
+        if (userRepository.findByPublicIdAndDeletedAtIsNull(userDetails.publicId) == null)
+            throw IllegalStateException("User not found")
+
+        val userResponse = userService.getUserByNickname(nickname)
         val body = userService.toPublicUserResponse(userResponse)
         return ResponseEntity.ok(body)
     }

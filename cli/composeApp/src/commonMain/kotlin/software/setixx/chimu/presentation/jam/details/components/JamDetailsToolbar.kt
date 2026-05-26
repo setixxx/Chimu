@@ -29,7 +29,6 @@ import software.setixx.chimu.presentation.jam.details.JamDetailsTab
 fun HomeBottomBar(
     pagerState: PagerState,
     modifier: Modifier = Modifier,
-    scrollBehavior: FloatingToolbarScrollBehavior,
     tabs: List<JamDetailsTab>
 ) {
     val scope = rememberCoroutineScope()
@@ -45,8 +44,7 @@ fun HomeBottomBar(
             expanded = true,
             colors = FloatingToolbarDefaults.standardFloatingToolbarColors(
                 toolbarContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh
-            ),
-            scrollBehavior = scrollBehavior
+            )
         ) {
             tabs.forEachIndexed { index, tab ->
                 val isSelected = pagerState.currentPage == index

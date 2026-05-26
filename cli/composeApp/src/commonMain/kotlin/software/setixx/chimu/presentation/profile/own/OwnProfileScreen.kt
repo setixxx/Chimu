@@ -13,10 +13,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import org.koin.compose.viewmodel.koinViewModel
+import software.setixx.chimu.api.domain.UserRole
 import software.setixx.chimu.domain.model.Skill
 import software.setixx.chimu.presentation.profile.components.EditableProfileField
 import software.setixx.chimu.presentation.profile.components.ProfileHeader
 import software.setixx.chimu.presentation.profile.components.ProfileSkillsView
+import software.setixx.chimu.presentation.profile.roleupgrade.RoleUpgradeDialog
+import software.setixx.chimu.presentation.profile.roleupgrade.RoleUpgradeViewModel
 import software.setixx.chimu.presentation.utils.DateTimeUtils
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
@@ -24,11 +27,13 @@ import software.setixx.chimu.presentation.utils.DateTimeUtils
 fun ProfileScreen(
     onBack: () -> Unit,
     onDeleteAccount: () -> Unit,
-    viewModel: OwnProfileViewModel = koinViewModel()
+    viewModel: OwnProfileViewModel = koinViewModel(),
+    roleUpgradeViewModel: RoleUpgradeViewModel = koinViewModel()
 ) {
     val state by viewModel.state.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
     var showDeleteDialog by remember { mutableStateOf(false) }
+    var showRoleUpgradeDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(state.errorMessage) {
         state.errorMessage?.let { error ->
@@ -72,6 +77,18 @@ fun ProfileScreen(
                         FilledTonalIconButton(onClick = { viewModel.toggleEditMode() }) {
                             Icon(Icons.Default.Edit, "Редактировать")
                         }
+
+                        if (state.user?.role != UserRole.GUEST) {
+                            FilledTonalIconButton(
+                                onClick = { showRoleUpgradeDialog = true }
+                            ) {
+                                Icon(
+                                    Icons.Default.AdminPanelSettings,
+                                    contentDescription = "Повышение роли"
+                                )
+                            }
+                        }
+
                         FilledTonalIconButton(
                             onClick = { showDeleteDialog = true },
                             colors = IconButtonColors(
@@ -99,7 +116,7 @@ fun ProfileScreen(
                 .padding(paddingValues),
             contentAlignment = Alignment.Center
         ) {
-            if (state.isLoading){
+            if (state.isLoading) {
                 LoadingIndicator()
             } else {
                 Column(
@@ -147,7 +164,6 @@ fun ProfileScreen(
                             itemIndex = 1,
                             listCount = totalFields
                         )
-
 
                         EditableProfileField(
                             value = state.lastName,
@@ -317,6 +333,17 @@ fun ProfileScreen(
                 TextButton(onClick = { showDeleteDialog = false }) { Text("Отмена") }
             }
         )
+    }
+
+    if (showRoleUpgradeDialog) {
+        state.user?.role?.let {
+            RoleUpgradeDialog(
+                currentRole = it,
+                isAdmin = it == UserRole.ADMIN,
+                viewModel = roleUpgradeViewModel,
+                onDismiss = { showRoleUpgradeDialog = false }
+            )
+        }
     }
 }
 

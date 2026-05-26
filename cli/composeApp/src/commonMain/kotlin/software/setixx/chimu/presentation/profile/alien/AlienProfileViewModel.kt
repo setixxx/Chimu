@@ -27,7 +27,6 @@ class AlienProfileViewModel(
             _state.update { it.copy(isLoading = true, errorMessage = null) }
             when (val result = getUserByIdUseCase(userId)) {
                 is ApiResult.Success -> {
-                    println(result.data)
                     _state.update { it.copy(profile = result.data, isLoading = false) }
                 }
                 is ApiResult.Error -> {

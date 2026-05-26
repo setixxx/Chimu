@@ -19,6 +19,22 @@ interface JamTeamRegistrationRepository : JpaRepository<JamTeamRegistration, Lon
     fun existsByGameJamIdAndRegisteredByAndDeletedAtIsNull(jamId: Long, registeredBy: Long): Boolean
 
     @Query("""
+        SELECT CASE WHEN COUNT(r) > 0 THEN true ELSE false END
+        FROM JamTeamRegistration r
+        JOIN TeamMember tm ON tm.team = r.team
+        WHERE r.gameJam.id = :jamId
+        AND tm.user.id = :userId
+        AND r.status IN :statuses
+        AND r.deletedAt IS NULL
+        AND tm.deletedAt IS NULL
+    """)
+    fun existsActiveRegistrationForUserInJam(
+        @Param("jamId") jamId: Long,
+        @Param("userId") userId: Long,
+        @Param("statuses") statuses: Set<RegistrationStatus>
+    ): Boolean
+
+    @Query("""
         SELECT COUNT(r) FROM JamTeamRegistration r 
         WHERE r.gameJam.id = :jamId 
         AND r.status IN ('APPROVED', 'PENDING')

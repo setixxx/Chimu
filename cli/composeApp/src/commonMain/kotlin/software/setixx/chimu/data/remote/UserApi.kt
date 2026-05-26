@@ -67,7 +67,19 @@ class UserApi(private val client: HttpClient) {
     }
 
     suspend fun getUserById(accessToken: String, userId: String): PublicUserProfileResponse {
-        val response = client.get("/api/users/$userId") {
+        val response = client.get("/api/users/id/$userId") {
+            header(HttpHeaders.Authorization, "Bearer $accessToken")
+        }
+        when (response.status.value) {
+            in 200..299 -> return response.body()
+            401 -> throw IllegalArgumentException("Ошибка авторизации")
+            404 -> throw IllegalArgumentException("Пользователь не найден")
+            else -> throw IllegalArgumentException("Неизвестная ошибка")
+        }
+    }
+
+    suspend fun getUserByNickname(accessToken: String, nickname: String): PublicUserProfileResponse {
+        val response = client.get("/api/users/nickname/$nickname") {
             header(HttpHeaders.Authorization, "Bearer $accessToken")
         }
         when (response.status.value) {

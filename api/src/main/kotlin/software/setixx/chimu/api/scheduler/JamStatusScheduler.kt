@@ -20,7 +20,7 @@ class JamStatusScheduler(
 ) {
     private val logger = LoggerFactory.getLogger(JamStatusScheduler::class.java)
 
-    @Scheduled(cron = "0 */5 * * * *")
+    @Scheduled(cron = "0 */50 * * * *")
     @Transactional
     fun updateJamStatuses() {
         logger.info("Starting automatic jam status update")

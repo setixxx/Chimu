@@ -49,10 +49,6 @@ class TeamService(
             throw IllegalArgumentException("Team with name '${request.name}' already exists")
         }
 
-        if (user.role != UserRole.PARTICIPANT && user.role != UserRole.ADMIN) {
-            throw IllegalArgumentException("Only participant or admin can create a team")
-        }
-
         val userTeamsCount = teamRepository.findAllByLeaderIdAndDeletedAtIsNull(userId).size
         if (userTeamsCount >= 10) {
             throw IllegalArgumentException("You cannot create more than 10 teams")

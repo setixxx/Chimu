@@ -3,12 +3,14 @@ package software.setixx.chimu.api.service
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import software.setixx.chimu.api.domain.JamTransferRequest
+import software.setixx.chimu.api.domain.RegistrationStatus
 import software.setixx.chimu.api.domain.TransferStatus
 import software.setixx.chimu.api.domain.UserRole
 import software.setixx.chimu.api.dto.CreateJamTransferRequest
 import software.setixx.chimu.api.dto.JamTransferRequestResponse
 import software.setixx.chimu.api.dto.ReviewJamTransferRequest
 import software.setixx.chimu.api.repository.GameJamRepository
+import software.setixx.chimu.api.repository.JamTeamRegistrationRepository
 import software.setixx.chimu.api.repository.JamTransferRequestRepository
 import software.setixx.chimu.api.repository.UserRepository
 import java.time.Instant
@@ -18,7 +20,8 @@ import java.util.UUID
 class JamTransferService(
     private val jamTransferRequestRepository: JamTransferRequestRepository,
     private val gameJamRepository: GameJamRepository,
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val jamRegistrationRepository: JamTeamRegistrationRepository
 ) {
 
     @Transactional
@@ -40,6 +43,8 @@ class JamTransferService(
         if (recipient.id == senderId) {
             throw IllegalArgumentException("Cannot transfer jam to yourself")
         }
+
+        ensureRecipientIsNotParticipant(jam.id!!, recipient.id!!)
 
         val existing = jamTransferRequestRepository.findByJamIdAndStatusAndDeletedAtIsNull(jam.id!!, TransferStatus.PENDING)
         if (existing != null) {
@@ -108,6 +113,7 @@ class JamTransferService(
 
         if (request.status == TransferStatus.ACCEPTED) {
             val jam = gameJamRepository.findById(transferRequest.jam.id!!).orElseThrow()
+            ensureRecipientIsNotParticipant(jam.id!!, recipientId)
             jam.organizer.let {
                 val recipient = userRepository.findById(transferRequest.recipient.id!!).orElseThrow()
                 val updatedJam = gameJamRepository.findById(jam.id!!).orElseThrow()
@@ -118,6 +124,19 @@ class JamTransferService(
         }
 
         return toResponse(jamTransferRequestRepository.save(transferRequest))
+    }
+
+    private fun ensureRecipientIsNotParticipant(jamId: Long, recipientId: Long) {
+        if (jamRegistrationRepository.existsActiveRegistrationForUserInJam(jamId, recipientId, ACTIVE_REGISTRATION_STATUSES)) {
+            throw IllegalArgumentException("Recipient cannot be a participant in this jam")
+        }
+    }
+
+    companion object {
+        private val ACTIVE_REGISTRATION_STATUSES = setOf(
+            RegistrationStatus.PENDING,
+            RegistrationStatus.APPROVED
+        )
     }
 
     private fun toResponse(request: JamTransferRequest): JamTransferRequestResponse {

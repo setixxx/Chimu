@@ -312,12 +312,10 @@ fun TeamDetailsScreen(
                                     },
                                     supportingContent = {
                                         Column {
-                                            member.specialization?.let { spec ->
-                                                Text(
-                                                    spec.name,
-                                                    style = MaterialTheme.typography.bodySmall
-                                                )
-                                            }
+                                            Text(
+                                                member.specialization?.name ?: "Специализация не выбрана",
+                                                style = MaterialTheme.typography.bodySmall
+                                            )
                                             Text(
                                                 "Присоединился: ${DateTimeUtils.formatDateTime(member.joinedAt)}",
                                                 style = MaterialTheme.typography.bodySmall,

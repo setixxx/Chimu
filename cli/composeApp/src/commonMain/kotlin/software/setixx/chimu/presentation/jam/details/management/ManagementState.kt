@@ -14,7 +14,12 @@ data class ManagementState(
     val isActionLoading: Boolean = false,
     val isPublished: Boolean = false,
     val errorMessage: String? = null,
-    val successMessage: String? = null
+    val successMessage: String? = null,
+
+    val judgeSearchQuery: String = "",
+    val foundJudge: PublicUserProfile? = null,
+    val isSearchingJudge: Boolean = false,
+    val judgeSearchError: String? = null
 ) {
     val projectsByTeam: Map<String, List<Project>>
         get() = jamProjects.groupBy { it.teamId ?: "" }

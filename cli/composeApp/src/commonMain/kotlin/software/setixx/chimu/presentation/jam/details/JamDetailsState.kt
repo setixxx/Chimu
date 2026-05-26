@@ -1,8 +1,11 @@
 package software.setixx.chimu.presentation.jam.details
 
 import software.setixx.chimu.api.domain.GameJamStatus
+import software.setixx.chimu.api.domain.TransferStatus
 import software.setixx.chimu.api.domain.UserRole
 import software.setixx.chimu.domain.model.GameJamDetails
+import software.setixx.chimu.domain.model.JamTransfer
+import software.setixx.chimu.domain.model.PublicUserProfile
 
 data class JamDetailsState(
     val jamDetails: GameJamDetails? = null,
@@ -11,7 +14,15 @@ data class JamDetailsState(
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
     val isDeleting: Boolean = false,
-    val isDeleted: Boolean = false
+    val isDeleted: Boolean = false,
+
+    val showTransferDialog: Boolean = false,
+    val currentTransfer: JamTransfer? = null,
+    val isTransferActionLoading: Boolean = false,
+    val transferError: String? = null,
+    val transferRecipientQuery: String = "",
+    val transferRecipientFound: PublicUserProfile? = null,
+    val isSearchingRecipient: Boolean = false,
 ) {
     val canCancel: Boolean
         get() = jamDetails?.status in listOf(
@@ -35,6 +46,18 @@ data class JamDetailsState(
         get() = userRole == UserRole.ADMIN ||
                 (userRole == UserRole.ORGANIZER && userId == jamDetails?.organizerId)
 
+    val isPreviousOrganizer: Boolean
+        get() = currentTransfer?.senderId == userId
+
+    val canTransferEnabled: Boolean
+        get() = (isAdminOrOrganizer || isPreviousOrganizer) && jamDetails?.status !in listOf(
+            GameJamStatus.DRAFT,
+            GameJamStatus.COMPLETED
+        )
+
+    val hasPendingTransfer: Boolean
+        get() = currentTransfer?.status == TransferStatus.PENDING
+
     val isParticipant: Boolean
         get() = userRole == UserRole.PARTICIPANT
 
@@ -49,7 +72,7 @@ data class JamDetailsState(
                 tabs.add(JamDetailsTab.Project)
             }
 
-            if (isJudge) {
+            if (isJudge || isAdminOrOrganizer) {
                 tabs.add(JamDetailsTab.Judging)
             }
 

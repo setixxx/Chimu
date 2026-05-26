@@ -106,6 +106,19 @@ class UserRepositoryImpl(
         }
     }
 
+    override suspend fun getUserByNickname(nickname: String): ApiResult<PublicUserProfile> {
+        return try {
+            val token = tokenStorage.getAccessToken()
+                ?: return ApiResult.Error("Ошибка аутентификации")
+            val response = api.getUserByNickname(token, nickname)
+            ApiResult.Success(response.toDomain())
+        } catch (e: Exception) {
+            ApiResult.Error(e.message ?: "Ошибка подключения")
+        } catch (e: IllegalArgumentException) {
+            ApiResult.Error(e.message ?: "Неизвестная ошибка")
+        }
+    }
+
     private fun UserProfileResponse.toDomain(): UserProfile {
         val specialization = specialization?.let {
             Specialization(id = it.id, name = it.name, description = it.description)

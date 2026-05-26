@@ -22,6 +22,7 @@ import software.setixx.chimu.presentation.splash.SplashViewModel
 import software.setixx.chimu.presentation.team.details.TeamDetailsViewModel
 import software.setixx.chimu.presentation.team.create.CreateTeamViewModel
 import software.setixx.chimu.presentation.profile.alien.AlienProfileViewModel
+import software.setixx.chimu.presentation.profile.roleupgrade.RoleUpgradeViewModel
 
 val appModule = module {
     single { KtorClient(get()) }
@@ -213,6 +214,7 @@ val appModule = module {
     factory { UpdateProjectRatingUseCase(get()) }
     factory { GetProjectRatingsUseCases(get()) }
     factory { DeleteProfileUseCase(get()) }
+    factory { GetUserByNicknameUseCase(get()) }
 
     viewModel {
         SplashViewModel(get())
@@ -234,7 +236,10 @@ val appModule = module {
             get(),
             get(),
             get(),
-            get())
+            get(),
+            get(),
+            get()
+        )
     }
     viewModel {
         OwnProfileViewModel(
@@ -280,7 +285,12 @@ val appModule = module {
         get(),
         get(),
         get(),
-        get())
+        get(),
+            get(),
+            get(),
+            get(),
+            get()
+        )
     }
     viewModel {
         OverviewViewModel(
@@ -338,6 +348,7 @@ val appModule = module {
             get(),
             get(),
             get(),
+            get(),
             get()
         )
     }
@@ -350,6 +361,16 @@ val appModule = module {
         AlienProfileViewModel(
             userId = params.get(),
             getUserByIdUseCase = get()
+        )
+    }
+
+    viewModel {
+        RoleUpgradeViewModel(
+            get(),
+            get(),
+            get(),
+            get(),
+            get()
         )
     }
 }

@@ -8,6 +8,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import org.koin.android.ext.koin.androidContext
 import org.koin.compose.KoinApplication
+import org.koin.core.KoinApplication
+import org.koin.dsl.koinConfiguration
 import software.setixx.chimu.di.appModule
 import software.setixx.chimu.di.platformModule
 import software.setixx.chimu.presentation.navigation.AppNavigation
@@ -20,15 +22,18 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             KoinApplication(
-                application = {
-                    androidContext(this@MainActivity)
-                    modules(platformModule(), appModule)
+                configuration = koinConfiguration(
+                    declaration = {
+                        androidContext(this@MainActivity)
+                        modules(platformModule(), appModule)
+                    }
+                ),
+                content = {
+                    ChimuTheme() {
+                        AppNavigation()
+                    }
                 }
-            ) {
-                ChimuTheme(darkTheme = true) {
-                    AppNavigation()
-                }
-            }
+            )
         }
     }
 }

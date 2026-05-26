@@ -20,54 +20,52 @@ fun GameJamsContent(
     onNavigateToCreateJam: () -> Unit = {},
     onNavigateToJamDetails: (String) -> Unit = {}
 ) {
-    if (state.isLoading) {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            LoadingIndicator()
-        }
-        return
-    }
-
-    val canCreateJam = state.user?.role == UserRole.ADMIN || state.user?.role == UserRole.ORGANIZER
-
-    Column(
-        modifier = Modifier.fillMaxSize().padding(24.dp),
-    ) {
-        Text(
-            text = "Все Game Jams",
-            style = MaterialTheme.typography.headlineMedium
-        )
-
-        if (state.activeJams.isEmpty()) {
-            EmptyStateCard(
-                icon = Icons.Default.Event,
-                title = "Нет активных джемов",
-                description = "Джемы появятся здесь, когда начнется регистрация"
-            )
+    Box(modifier = Modifier.fillMaxSize()) {
+        if (state.isLoading) {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                LoadingIndicator()
+            }
         } else {
-            Box(modifier = Modifier.fillMaxSize()) {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize().padding(vertical = 24.dp),
-                    verticalArrangement = Arrangement.spacedBy(24.dp),
-                    contentPadding = PaddingValues(bottom = 80.dp)
-                ) {
-                    items(state.activeJams.size) { index ->
-                        GameJamCard(
-                            jam = state.activeJams[index],
-                            onDetailsClick = onNavigateToJamDetails,
-                        )
+            Column(
+                modifier = Modifier.fillMaxSize().padding(24.dp),
+            ) {
+                Text(
+                    text = "Все джемы",
+                    style = MaterialTheme.typography.headlineMedium
+                )
+
+                if (state.activeJams.isEmpty()) {
+                    EmptyStateCard(
+                        icon = Icons.Default.Event,
+                        title = "Нет активных джемов",
+                        description = "Джемы появятся здесь, когда начнется регистрация"
+                    )
+                } else {
+                    Box(modifier = Modifier.fillMaxSize()) {
+                        LazyColumn(
+                            modifier = Modifier.fillMaxSize().padding(vertical = 24.dp),
+                            verticalArrangement = Arrangement.spacedBy(24.dp),
+                            contentPadding = PaddingValues(bottom = 80.dp)
+                        ) {
+                            items(state.activeJams.size) { index ->
+                                GameJamCard(
+                                    jam = state.activeJams[index],
+                                    onDetailsClick = onNavigateToJamDetails,
+                                )
+                            }
+                        }
                     }
                 }
-
-                if (canCreateJam) {
-                    ExtendedFloatingActionButton(
-                        onClick = onNavigateToCreateJam,
-                        icon = { Icon(Icons.Default.Add, contentDescription = null) },
-                        text = { Text("Создать джем") },
-                        modifier = Modifier
-                            .align(Alignment.BottomEnd)
-                            .padding(24.dp)
-                    )
-                }
+            }
+            if (state.canCreateJam) {
+                ExtendedFloatingActionButton(
+                    onClick = onNavigateToCreateJam,
+                    icon = { Icon(Icons.Default.Add, contentDescription = null) },
+                    text = { Text("Создать джем") },
+                    modifier = Modifier
+                        .padding(24.dp)
+                        .align(Alignment.BottomEnd),
+                )
             }
         }
     }
