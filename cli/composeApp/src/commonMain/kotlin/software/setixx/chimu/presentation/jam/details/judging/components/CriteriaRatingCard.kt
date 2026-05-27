@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -18,9 +19,11 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -40,6 +43,7 @@ import androidx.compose.ui.unit.dp
 import software.setixx.chimu.data.remote.dto.RatingCriteriaResponse
 import software.setixx.chimu.domain.model.MyRating
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun CriteriaRatingCard(
     criterion: RatingCriteriaResponse,
@@ -62,15 +66,11 @@ fun CriteriaRatingCard(
 
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = if (existingRating != null)
-                MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.4f)
-            else
-                MaterialTheme.colorScheme.surface
-        )
+        colors = CardDefaults.cardColors(),
+        shape = MaterialTheme.shapes.extraLarge
     ) {
         Column(
-            modifier = Modifier.padding(16.dp),
+            modifier = Modifier.padding(24.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             Row(
@@ -183,7 +183,8 @@ fun CriteriaRatingCard(
                         label = { Text("Комментарий (необязательно)") },
                         modifier = Modifier.fillMaxWidth(),
                         minLines = 2,
-                        maxLines = 4
+                        maxLines = 4,
+                        shape = MaterialTheme.shapes.largeIncreased
                     )
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -192,7 +193,9 @@ fun CriteriaRatingCard(
                         if (existingRating != null) {
                             OutlinedButton(
                                 onClick = { isEditing = false },
-                                modifier = Modifier.weight(1f)
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .height(ButtonDefaults.MediumContainerHeight),
                             ) {
                                 Text("Отмена")
                             }
@@ -207,15 +210,13 @@ fun CriteriaRatingCard(
                                 }
                                 isEditing = false
                             },
-                            modifier = Modifier.weight(1f),
-                            enabled = !isActionLoading
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(ButtonDefaults.MediumContainerHeight),
+                            enabled = !isActionLoading,
                         ) {
                             if (isActionLoading) {
-                                CircularProgressIndicator(
-                                    modifier = Modifier.size(16.dp),
-                                    strokeWidth = 2.dp,
-                                    color = MaterialTheme.colorScheme.onPrimary
-                                )
+                                LoadingIndicator()
                             } else {
                                 Text(if (existingRating != null) "Обновить" else "Сохранить")
                             }

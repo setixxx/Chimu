@@ -49,8 +49,9 @@ fun ProjectsContent(
                 items(state.userProjects.size) { index ->
                     Card(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable { onNavigateToProject(state.userProjects[index].id, state.user?.role?.name, false) }
+                            .fillMaxWidth(),
+                        onClick = { onNavigateToProject(state.userProjects[index].id, state.user?.role?.name, false) },
+                        shape = MaterialTheme.shapes.extraLarge
                     ){
                         ProjectCard(project = state.userProjects[index])
                     }

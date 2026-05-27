@@ -12,6 +12,7 @@ import software.setixx.chimu.domain.model.UserProfile
 data class MainState(
     val user: UserProfile? = null,
     val activeJams: List<GameJam> = emptyList(),
+    val judgingJams: List<GameJam> = emptyList(),
     val userTeams: List<Team> = emptyList(),
     val userProjects: List<Project> = emptyList(),
     val notifications: List<Notification> = emptyList(),

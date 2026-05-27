@@ -6,6 +6,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.Event
 import androidx.compose.material.icons.outlined.Gamepad
+import androidx.compose.material.icons.outlined.Gavel
 import androidx.compose.material.icons.outlined.Group
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Star
@@ -31,6 +32,7 @@ fun MainScreen(
     onNavigateToJoinTeam: () -> Unit,
     onNavigateToCreateJam: () -> Unit,
     onNavigateToJamDetails: (String) -> Unit,
+    onNavigateToJamJudging: (String) -> Unit,
     onNavigateToProject: (projectId: String, roleStr: String?, isAdminOrOrganizer: Boolean) -> Unit,
     viewModel: MainViewModel = koinViewModel()
 ) {
@@ -75,7 +77,6 @@ fun MainScreen(
             null -> {}
         }
     }
-
     BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
         val isCompactScreen = maxWidth < 600.dp
 
@@ -92,6 +93,7 @@ fun MainScreen(
                 onNavigateToJoinTeam = onNavigateToJoinTeam,
                 onNavigateToCreateJam = onNavigateToCreateJam,
                 onNavigateToJamDetails = onNavigateToJamDetails,
+                onNavigateToJamJudging = onNavigateToJamJudging,
                 showNotifications = showNotifications,
                 onShowNotifications = { showNotifications = it},
                 showUserMenu = showUserMenu,
@@ -117,6 +119,7 @@ fun MainScreen(
                 onNavigateToJoinTeam = onNavigateToJoinTeam,
                 onNavigateToCreateJam = onNavigateToCreateJam,
                 onNavigateToJamDetails = onNavigateToJamDetails,
+                onNavigateToJamJudging = onNavigateToJamJudging,
                 showNotifications = showNotifications,
                 onShowNotifications = { showNotifications = it},
                 showUserMenu = showUserMenu,
@@ -162,5 +165,5 @@ enum class NavigationDestination(
     GAME_JAMS("Джемы", Icons.Filled.Event, Icons.Outlined.Event),
     TEAMS("Мои команды", Icons.Filled.Group, Icons.Outlined.Group),
     PROJECTS("Проекты", Icons.Filled.Gamepad, Icons.Outlined.Gamepad),
-    JUDGING("Оценивание", Icons.Filled.Star, Icons.Outlined.Star)
+    JUDGING("Оценивание", Icons.Filled.Gavel, Icons.Outlined.Gavel)
 }

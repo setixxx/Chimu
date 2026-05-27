@@ -34,7 +34,7 @@ fun TeamCard(team: Team, onClick: () -> Unit) {
         modifier = Modifier
             .width(280.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-        shape = MaterialTheme.shapes.largeIncreased,
+        shape = MaterialTheme.shapes.extraLarge,
         onClick = onClick
     ) {
         Column(modifier = Modifier.padding(16.dp)) {

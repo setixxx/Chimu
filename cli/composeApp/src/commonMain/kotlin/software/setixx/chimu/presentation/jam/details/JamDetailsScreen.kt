@@ -36,6 +36,7 @@ fun JamDetailsScreen(
     onEditJam: (String) -> Unit,
     initialTab: JamDetailsTab? = null,
     onNavigateToProject: (String, String?, Boolean) -> Unit,
+    onNavigateToProjectRating: (String, String) -> Unit,
     viewModel: JamDetailsViewModel = koinViewModel()
 ) {
     val state by viewModel.state.collectAsState()
@@ -194,6 +195,9 @@ fun JamDetailsScreen(
                                         jamId = jamId,
                                         jam = jam,
                                         onNavigateToProject = onNavigateToProject,
+                                        onNavigateToProjectRating = { projectId ->
+                                            onNavigateToProjectRating(jamId, projectId)
+                                        },
                                         paddingValues = paddingValues
                                     )
                                 }

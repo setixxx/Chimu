@@ -20,6 +20,7 @@ import software.setixx.chimu.domain.model.JamTransfer
 import software.setixx.chimu.domain.model.ReviewJamTransfer
 import software.setixx.chimu.domain.usecase.GetAllJamsUseCase
 import software.setixx.chimu.domain.usecase.GetCurrentUserUseCase
+import software.setixx.chimu.domain.usecase.GetJamJudgesUseCase
 import software.setixx.chimu.domain.usecase.GetTransferRequestsUseCase
 import software.setixx.chimu.domain.usecase.GetUserProjectsUseCase
 import software.setixx.chimu.domain.usecase.GetUserTeamsUseCase
@@ -39,7 +40,8 @@ class MainViewModel(
     private val observerUserUseCase: ObserverUserUseCase,
     private val observeJamsUseCase: ObserveJamsUseCase,
     private val getTransferRequestsUseCase: GetTransferRequestsUseCase,
-    private val reviewTransferUseCase: ReviewTransferUseCase
+    private val reviewTransferUseCase: ReviewTransferUseCase,
+    private val getJamJudgesUseCase: GetJamJudgesUseCase
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(MainState())
@@ -73,6 +75,7 @@ class MainViewModel(
         viewModelScope.launch {
             observeJamsUseCase().collectLatest { jams -> 
                 _state.update { it.copy(activeJams = jams) }
+                loadJudgingJams()
             }
         }
     }
@@ -83,6 +86,7 @@ class MainViewModel(
 
             loadUserData()
             loadActiveJams()
+            loadJudgingJams()
             loadUserTeams()
             loadUserProjects()
             loadNotifications()
@@ -113,6 +117,23 @@ class MainViewModel(
                 }
             }
         }
+    }
+
+    private suspend fun loadJudgingJams() {
+        val currentUserId = _state.value.user?.id
+        if (currentUserId == null) {
+            _state.update { it.copy(judgingJams = emptyList()) }
+            return
+        }
+
+        val judgingJams = _state.value.activeJams.filter { jam ->
+            when (val result = getJamJudgesUseCase(jam.id)) {
+                is ApiResult.Success -> result.data.any { judge -> judge.userId == currentUserId }
+                is ApiResult.Error -> false
+            }
+        }
+
+        _state.update { it.copy(judgingJams = judgingJams) }
     }
 
     private suspend fun loadUserTeams() {

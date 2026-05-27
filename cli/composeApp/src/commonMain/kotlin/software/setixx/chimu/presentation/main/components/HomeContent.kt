@@ -1,6 +1,7 @@
 package software.setixx.chimu.presentation.main.components
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,20 +12,24 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Event
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import software.setixx.chimu.presentation.components.EmptyStateCard
 import software.setixx.chimu.presentation.main.MainState
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun HomeContent(
     state: MainState,
@@ -32,6 +37,8 @@ fun HomeContent(
     onNavigateToJamDetails: (String) -> Unit,
     onNavigateToProject: (String, String?, Boolean) -> Unit,
 ) {
+    val teamScrollState = rememberScrollState()
+
     if (state.isLoading) {
         Box(
             modifier = Modifier.fillMaxSize(),
@@ -82,7 +89,7 @@ fun HomeContent(
 
                     item {
                         LazyRow(
-                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
                         ) {
                             items(state.userTeams.size) { index ->
                                 TeamCard(team = state.userTeams[index], onClick = { onNavigateToTeam(state.userTeams[index].id) })
@@ -103,8 +110,9 @@ fun HomeContent(
                     items(state.userProjects.size) { index ->
                         Card(
                             modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable { onNavigateToProject(state.userProjects[index].id, state.user?.role?.name, false) }
+                                .fillMaxWidth(),
+                            shape = MaterialTheme.shapes.extraLarge,
+                            onClick = { onNavigateToProject(state.userProjects[index].id, state.user?.role?.name, false) }
                         ) {
                             ProjectCard(project = state.userProjects[index])
                         }

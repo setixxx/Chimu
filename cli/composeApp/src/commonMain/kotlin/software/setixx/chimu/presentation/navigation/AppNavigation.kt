@@ -12,6 +12,7 @@ import software.setixx.chimu.presentation.auth.register.RegisterScreen
 import software.setixx.chimu.presentation.jam.create.CreateJamScreen
 import software.setixx.chimu.presentation.jam.details.JamDetailsScreen
 import software.setixx.chimu.presentation.jam.details.JamDetailsTab
+import software.setixx.chimu.presentation.jam.details.judging.ProjectRatingScreen
 import software.setixx.chimu.presentation.jam.edit.EditJamScreen
 import software.setixx.chimu.presentation.main.MainScreen
 import software.setixx.chimu.presentation.profile.own.ProfileScreen
@@ -101,6 +102,9 @@ fun AppNavigation(
                 },
                 onNavigateToJamDetails = { jamId ->
                     navController.navigate(Screen.JamDetails(jamId))
+                },
+                onNavigateToJamJudging = { jamId ->
+                    navController.navigate(Screen.JamDetails(jamId, JamDetailsTab.Judging.name))
                 },
                 onNavigateToProject = { projectId, roleStr, isAdmin ->
                    navController.navigate(Screen.ProjectDetails(projectId, roleStr, isAdmin))
@@ -203,6 +207,18 @@ fun AppNavigation(
                 onNavigateToProject = { projectId, roleStr, isAdmin ->
                     navController.navigate(Screen.ProjectDetails(projectId, roleStr, isAdmin))
                 },
+                onNavigateToProjectRating = { jamId, projectId ->
+                    navController.navigate(Screen.ProjectRating(jamId, projectId))
+                }
+            )
+        }
+
+        composable<Screen.ProjectRating> {
+            val args = it.toRoute<Screen.ProjectRating>()
+            ProjectRatingScreen(
+                jamId = args.jamId,
+                projectId = args.projectId,
+                onBack = { navController.popBackStack() }
             )
         }
 

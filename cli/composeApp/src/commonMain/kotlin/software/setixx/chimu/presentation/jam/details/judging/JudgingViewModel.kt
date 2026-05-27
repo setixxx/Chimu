@@ -13,6 +13,7 @@ import software.setixx.chimu.domain.model.Project
 import software.setixx.chimu.domain.model.RateProject
 import software.setixx.chimu.domain.model.UpdateRating
 import software.setixx.chimu.domain.usecase.DeleteProjectRatingUseCase
+import software.setixx.chimu.domain.usecase.GetJamDetailsUseCase
 import software.setixx.chimu.domain.usecase.GetJamProjectsUseCase
 import software.setixx.chimu.domain.usecase.GetJudgeProgressUseCase
 import software.setixx.chimu.domain.usecase.GetMyRatingsUseCase
@@ -27,7 +28,8 @@ class JudgingViewModel(
     private val rateProjectUseCase: RateProjectUseCase,
     private val deleteProjectRatingUseCase: DeleteProjectRatingUseCase,
     private val updateProjectRatingUseCase: UpdateProjectRatingUseCase,
-    private val getUserProjectsUseCase: GetUserProjectsUseCase
+    private val getUserProjectsUseCase: GetUserProjectsUseCase,
+    private val getJamDetailsUseCase: GetJamDetailsUseCase
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(JudgingState())
@@ -85,6 +87,60 @@ class JudgingViewModel(
                 selectedProject = null,
                 myRatings = emptyList()
             )
+        }
+    }
+
+    fun loadProjectRating(jamId: String, projectId: String) {
+        viewModelScope.launch {
+            _state.update {
+                it.copy(
+                    isLoading = true,
+                    selectedProject = null,
+                    jamCriteria = emptyList(),
+                    myRatings = emptyList()
+                )
+            }
+
+            when (val jamResult = getJamDetailsUseCase(jamId)) {
+                is ApiResult.Success -> _state.update { it.copy(jamCriteria = jamResult.data.criteria) }
+                is ApiResult.Error -> {
+                    _state.update {
+                        it.copy(
+                            isLoading = false,
+                            errorMessage = jamResult.message
+                        )
+                    }
+                    return@launch
+                }
+            }
+
+            when (val projectsResult = getJamProjectsUseCase(jamId, ProjectStatus.SUBMITTED)) {
+                is ApiResult.Success -> {
+                    val project = projectsResult.data.find { it.id == projectId }
+                    if (project == null) {
+                        _state.update {
+                            it.copy(
+                                isLoading = false,
+                                errorMessage = "Проект не найден"
+                            )
+                        }
+                    } else {
+                        _state.update {
+                            it.copy(
+                                selectedProject = project,
+                                isLoading = false
+                            )
+                        }
+                        loadMyRatings(projectId)
+                    }
+                }
+                is ApiResult.Error -> _state.update {
+                    it.copy(
+                        isLoading = false,
+                        errorMessage = projectsResult.message
+                    )
+                }
+            }
         }
     }
 

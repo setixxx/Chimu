@@ -95,6 +95,7 @@ fun MobileModalLayout(
     onNavigateToJoinTeam: () -> Unit,
     onNavigateToCreateJam: () -> Unit,
     onNavigateToJamDetails: (String) -> Unit,
+    onNavigateToJamJudging: (String) -> Unit,
     showNotifications: Boolean,
     onShowNotifications: (Boolean) -> Unit,
     showUserMenu: Boolean,
@@ -320,7 +321,7 @@ fun MobileModalLayout(
                     NavigationDestination.GAME_JAMS -> GameJamsContent(state, onNavigateToCreateJam, onNavigateToJamDetails)
                     NavigationDestination.TEAMS -> TeamsContent(state, onNavigateToCreateTeam, onNavigateToJoinTeam, onNavigateToTeam)
                     NavigationDestination.PROJECTS -> ProjectsContent(state, onNavigateToProject)
-                    NavigationDestination.JUDGING -> JudgingContent(state)
+                    NavigationDestination.JUDGING -> JudgingContent(state, onNavigateToJamJudging)
                 }
             }
         }

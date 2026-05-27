@@ -172,14 +172,16 @@ fun ManagementScreen(
                             Text("Макс: ${criteria.maxScore} • Вес: ${criteria.weight}")
                         },
                         itemTrailingContent = { criteria ->
-                            IconButton(
-                                onClick = { viewModel.deleteCriteria(jam.id, criteria.id) }
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Delete,
-                                    contentDescription = "Удалить",
-                                    tint = MaterialTheme.colorScheme.error
-                                )
+                            if (jam.status in editableStates){
+                                IconButton(
+                                    onClick = { viewModel.deleteCriteria(jam.id, criteria.id) }
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Delete,
+                                        contentDescription = "Удалить",
+                                        tint = MaterialTheme.colorScheme.error
+                                    )
+                                }
                             }
                         }
                     )

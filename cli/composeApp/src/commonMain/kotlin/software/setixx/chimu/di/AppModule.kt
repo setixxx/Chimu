@@ -240,6 +240,7 @@ val appModule = module {
             get(),
             get(),
             get(),
+            get(),
             get()
         )
     }
@@ -329,6 +330,7 @@ val appModule = module {
     }
     viewModel {
         JudgingViewModel(
+            get(),
             get(),
             get(),
             get(),
