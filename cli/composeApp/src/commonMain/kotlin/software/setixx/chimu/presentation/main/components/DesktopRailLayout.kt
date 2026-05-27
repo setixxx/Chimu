@@ -89,7 +89,8 @@ fun DesktopRailLayout(
     snackBarHostState: SnackbarHostState,
     onRefresh: () -> Unit,
     onLogoutClick: () -> Unit,
-    onNotificationAction: (Notification) -> Unit
+    onNotificationAction: (Notification) -> Unit,
+    onNavigateToProject: (String, String?, Boolean) -> Unit,
 ) {
     Scaffold(
         topBar = {
@@ -359,10 +360,10 @@ fun DesktopRailLayout(
                 color = MaterialTheme.colorScheme.surfaceContainerLow
             ) {
                 when (selectedDestination) {
-                    NavigationDestination.HOME -> HomeContent(state, onNavigateToTeam, onNavigateToJamDetails)
+                    NavigationDestination.HOME -> HomeContent(state, onNavigateToTeam, onNavigateToJamDetails, onNavigateToProject)
                     NavigationDestination.GAME_JAMS -> GameJamsContent(state, onNavigateToCreateJam, onNavigateToJamDetails)
                     NavigationDestination.TEAMS -> TeamsContent(state, onNavigateToCreateTeam, onNavigateToJoinTeam, onNavigateToTeam)
-                    NavigationDestination.PROJECTS -> ProjectsContent(state)
+                    NavigationDestination.PROJECTS -> ProjectsContent(state, onNavigateToProject)
                     NavigationDestination.JUDGING -> JudgingContent(state)
                 }
             }

@@ -1,13 +1,16 @@
 package software.setixx.chimu.presentation.main.components
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Gamepad
+import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
@@ -20,7 +23,10 @@ import software.setixx.chimu.presentation.components.EmptyStateCard
 import software.setixx.chimu.presentation.main.MainState
 
 @Composable
-fun ProjectsContent(state: MainState) {
+fun ProjectsContent(
+    state: MainState,
+    onNavigateToProject: (String, String?, Boolean) -> Unit,
+) {
     if (state.isLoading) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             LoadingIndicator()
@@ -41,7 +47,13 @@ fun ProjectsContent(state: MainState) {
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 items(state.userProjects.size) { index ->
-                    ProjectCard(project = state.userProjects[index])
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { onNavigateToProject(state.userProjects[index].id, state.user?.role?.name, false) }
+                    ){
+                        ProjectCard(project = state.userProjects[index])
+                    }
                 }
             }
         }

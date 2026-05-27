@@ -63,6 +63,8 @@ import androidx.compose.material3.WideNavigationRailState
 import androidx.compose.material3.WideNavigationRailValue
 import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -103,8 +105,12 @@ fun MobileModalLayout(
     onRefresh: () -> Unit,
     onLogoutClick: () -> Unit,
     onNotificationAction: (Notification) -> Unit,
+    onNavigateToProject: (String, String?, Boolean) -> Unit
 ) {
-    val isExpanded = railState.targetValue == WideNavigationRailValue.Expanded
+    val isExpanded by remember {
+        derivedStateOf { railState.targetValue == WideNavigationRailValue.Expanded }
+    }
+
     Box(modifier = Modifier.fillMaxSize()) {
         Scaffold(
             topBar = {
@@ -310,10 +316,10 @@ fun MobileModalLayout(
                 color = MaterialTheme.colorScheme.surfaceContainerLow
             ) {
                 when (selectedDestination) {
-                    NavigationDestination.HOME -> HomeContent(state, onNavigateToTeam, onNavigateToJamDetails)
+                    NavigationDestination.HOME -> HomeContent(state, onNavigateToTeam, onNavigateToJamDetails, onNavigateToProject)
                     NavigationDestination.GAME_JAMS -> GameJamsContent(state, onNavigateToCreateJam, onNavigateToJamDetails)
                     NavigationDestination.TEAMS -> TeamsContent(state, onNavigateToCreateTeam, onNavigateToJoinTeam, onNavigateToTeam)
-                    NavigationDestination.PROJECTS -> ProjectsContent(state)
+                    NavigationDestination.PROJECTS -> ProjectsContent(state, onNavigateToProject)
                     NavigationDestination.JUDGING -> JudgingContent(state)
                 }
             }

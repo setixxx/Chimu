@@ -35,8 +35,8 @@ class ProjectFileService(
 
     companion object {
         private const val MAX_BUILD_FILES = 5
-        private val ALLOWED_EXTENSIONS = setOf("zip", "rar", "7z")
-        private val ALLOWED_MIME_TYPES = setOf(
+        private val ALLOWED_BUILD_EXTENSIONS = setOf("zip", "rar", "7z")
+        private val ALLOWED_BUILD_MIME_TYPES = setOf(
             "application/zip",
             "application/x-zip-compressed",
             "application/x-zip",
@@ -44,6 +44,25 @@ class ProjectFileService(
             "application/vnd.rar",
             "application/x-7z-compressed",
             "application/octet-stream"
+        )
+
+        private const val MAX_VIDEO_FILES = 3
+        private const val MAX_VIDEO_SIZE = 500L * 1024 * 1024
+        private val ALLOWED_VIDEO_EXTENSIONS = setOf("mp4", "webm", "mov")
+        private val ALLOWED_VIDEO_MIME_TYPES = setOf(
+            "video/mp4",
+            "video/webm",
+            "video/quicktime"
+        )
+
+        // SCREENSHOT
+        private const val MAX_SCREENSHOT_FILES = 10
+        private const val MAX_SCREENSHOT_SIZE = 15L * 1024 * 1024
+        private val ALLOWED_IMAGE_EXTENSIONS = setOf("jpg", "jpeg", "png", "webp")
+        private val ALLOWED_IMAGE_MIME_TYPES = setOf(
+            "image/jpeg",
+            "image/png",
+            "image/webp"
         )
     }
 
@@ -68,11 +87,11 @@ class ProjectFileService(
             )
         }
 
-        if (project.status != ProjectStatus.DRAFT){
+        if (project.status != ProjectStatus.DRAFT) {
             throw IllegalStateException("Files of the submitted project cannot be uploaded")
         }
 
-        validateFile(file)
+        validateBuildFile(file)
 
         val existingCount = projectFileRepository.countByProjectIdAndFileTypeAndDeletedAtIsNull(
             project.id!!, ProjectFileType.BUILD
@@ -110,9 +129,141 @@ class ProjectFileService(
             uploadedBy = uploader
         )
 
-        val saved = projectFileRepository.save(projectFile)
-        return toResponse(saved)
+        return toResponse(projectFileRepository.save(projectFile))
     }
+
+
+    @Transactional
+    fun uploadVideo(
+        projectId: String,
+        userId: Long,
+        file: MultipartFile
+    ): ProjectFileResponse {
+        val project = projectRepository.findByPublicIdAndDeletedAtIsNull(UUID.fromString(projectId))
+            ?: throw IllegalArgumentException("Project not found")
+
+        if (!teamMemberRepository.existsByTeamIdAndUserIdAndDeletedAtIsNull(project.team.id!!, userId)) {
+            throw AccessDeniedException("Only team members can upload project videos")
+        }
+
+        val jam = gameJamRepository.findById(project.gameJam.id!!).orElseThrow()
+        if (jam.status != GameJamStatus.IN_PROGRESS) {
+            throw IllegalStateException(
+                "Files can only be uploaded while the jam is in progress (current status: ${jam.status})"
+            )
+        }
+
+        if (project.status != ProjectStatus.DRAFT) {
+            throw IllegalStateException("Files of the submitted project cannot be uploaded")
+        }
+
+        validateVideoFile(file)
+
+        val existingCount = projectFileRepository.countByProjectIdAndFileTypeAndDeletedAtIsNull(
+            project.id!!, ProjectFileType.VIDEO
+        )
+        if (existingCount >= MAX_VIDEO_FILES) {
+            throw IllegalStateException(
+                "Maximum number of video files ($MAX_VIDEO_FILES) already reached for this project"
+            )
+        }
+
+        val uploader = userRepository.findById(userId).orElseThrow()
+        val sanitizedName = sanitizeFileName(file.originalFilename ?: "video")
+        val filePath = "projects/$projectId/videos/${UUID.randomUUID()}-$sanitizedName"
+
+        try {
+            seaweedFsService.upload(
+                filePath    = filePath,
+                inputStream = file.inputStream,
+                fileSize    = file.size,
+                fileName    = sanitizedName,
+                mimeType    = file.contentType ?: "video/mp4"
+            )
+        } catch (ex: Exception) {
+            log.error("SeaweedFS video upload failed for project {}: {}", projectId, ex.message, ex)
+            throw IllegalStateException("File storage unavailable, please try again later")
+        }
+
+        val projectFile = ProjectFile(
+            project    = project,
+            fileType   = ProjectFileType.VIDEO,
+            fileUrl    = filePath,
+            fileName   = sanitizedName,
+            fileSize   = file.size,
+            mimeType   = file.contentType ?: "video/mp4",
+            uploadedBy = uploader
+        )
+
+        return toResponse(projectFileRepository.save(projectFile))
+    }
+
+
+    @Transactional
+    fun uploadScreenshot(
+        projectId: String,
+        userId: Long,
+        file: MultipartFile
+    ): ProjectFileResponse {
+        val project = projectRepository.findByPublicIdAndDeletedAtIsNull(UUID.fromString(projectId))
+            ?: throw IllegalArgumentException("Project not found")
+
+        if (!teamMemberRepository.existsByTeamIdAndUserIdAndDeletedAtIsNull(project.team.id!!, userId)) {
+            throw AccessDeniedException("Only team members can upload project screenshots")
+        }
+
+        val jam = gameJamRepository.findById(project.gameJam.id!!).orElseThrow()
+        if (jam.status != GameJamStatus.IN_PROGRESS) {
+            throw IllegalStateException(
+                "Files can only be uploaded while the jam is in progress (current status: ${jam.status})"
+            )
+        }
+
+        if (project.status != ProjectStatus.DRAFT) {
+            throw IllegalStateException("Files of the submitted project cannot be uploaded")
+        }
+
+        validateScreenshotFile(file)
+
+        val existingCount = projectFileRepository.countByProjectIdAndFileTypeAndDeletedAtIsNull(
+            project.id!!, ProjectFileType.SCREENSHOT
+        )
+        if (existingCount >= MAX_SCREENSHOT_FILES) {
+            throw IllegalStateException(
+                "Maximum number of screenshots ($MAX_SCREENSHOT_FILES) already reached for this project"
+            )
+        }
+
+        val uploader = userRepository.findById(userId).orElseThrow()
+        val sanitizedName = sanitizeFileName(file.originalFilename ?: "screenshot")
+        val filePath = "projects/$projectId/screenshots/${UUID.randomUUID()}-$sanitizedName"
+
+        try {
+            seaweedFsService.upload(
+                filePath    = filePath,
+                inputStream = file.inputStream,
+                fileSize    = file.size,
+                fileName    = sanitizedName,
+                mimeType    = file.contentType ?: "image/jpeg"
+            )
+        } catch (ex: Exception) {
+            log.error("SeaweedFS screenshot upload failed for project {}: {}", projectId, ex.message, ex)
+            throw IllegalStateException("File storage unavailable, please try again later")
+        }
+
+        val projectFile = ProjectFile(
+            project    = project,
+            fileType   = ProjectFileType.SCREENSHOT,
+            fileUrl    = filePath,
+            fileName   = sanitizedName,
+            fileSize   = file.size,
+            mimeType   = file.contentType ?: "image/jpeg",
+            uploadedBy = uploader
+        )
+
+        return toResponse(projectFileRepository.save(projectFile))
+    }
+
 
     @Transactional(readOnly = true)
     fun listFiles(
@@ -127,6 +278,24 @@ class ProjectFileService(
 
         return projectFileRepository
             .findAllByProjectIdAndDeletedAtIsNull(project.id!!)
+            .map { toResponse(it) }
+    }
+
+    @Transactional(readOnly = true)
+    fun listFilesByType(
+        projectId: String,
+        userId: Long,
+        userRole: UserRole,
+        fileType: ProjectFileType
+    ): List<ProjectFileResponse> {
+        val project = projectRepository.findByPublicIdAndDeletedAtIsNull(UUID.fromString(projectId))
+            ?: throw IllegalArgumentException("Project not found")
+
+        checkReadAccess(project.team.id!!, project.gameJam.id!!, project.gameJam.organizer.id!!, userId, userRole)
+
+        return projectFileRepository
+            .findAllByProjectIdAndDeletedAtIsNull(project.id!!)
+            .filter { it.fileType == fileType }
             .map { toResponse(it) }
     }
 
@@ -156,6 +325,7 @@ class ProjectFileService(
         )
     }
 
+
     @Transactional
     fun deleteFile(
         projectId: String,
@@ -177,9 +347,9 @@ class ProjectFileService(
             ?: throw IllegalArgumentException("File not found")
 
         projectFileRepository.softDeleteById(file.id!!)
-
         seaweedFsService.delete(file.fileUrl)
     }
+
 
     private fun checkReadAccess(
         teamId: Long,
@@ -210,7 +380,7 @@ class ProjectFileService(
         }
     }
 
-    private fun validateFile(file: MultipartFile) {
+    private fun validateBuildFile(file: MultipartFile) {
         if (file.isEmpty) throw IllegalArgumentException("Uploaded file is empty")
 
         val extension = file.originalFilename
@@ -218,19 +388,67 @@ class ProjectFileService(
             ?.lowercase()
             .orEmpty()
 
-        if (extension !in ALLOWED_EXTENSIONS) {
+        if (extension !in ALLOWED_BUILD_EXTENSIONS) {
             throw IllegalArgumentException(
                 "Unsupported file type '.$extension'. Only zip, rar, and 7z archives are allowed"
             )
         }
 
         val mimeType = file.contentType?.lowercase().orEmpty()
-        if (mimeType.isNotEmpty() && mimeType !in ALLOWED_MIME_TYPES) {
+        if (mimeType.isNotEmpty() && mimeType !in ALLOWED_BUILD_MIME_TYPES) {
             throw IllegalArgumentException("Unsupported MIME type '$mimeType' for a build archive")
         }
 
         if (file.size > 1_073_741_824L) {
             throw IllegalArgumentException("File size exceeds the 1 GB limit")
+        }
+    }
+
+    private fun validateVideoFile(file: MultipartFile) {
+        if (file.isEmpty) throw IllegalArgumentException("Uploaded file is empty")
+
+        val extension = file.originalFilename
+            ?.substringAfterLast(".", "")
+            ?.lowercase()
+            .orEmpty()
+
+        if (extension !in ALLOWED_VIDEO_EXTENSIONS) {
+            throw IllegalArgumentException(
+                "Unsupported file type '.$extension'. Only mp4, webm, and mov videos are allowed"
+            )
+        }
+
+        val mimeType = file.contentType?.lowercase().orEmpty()
+        if (mimeType.isNotEmpty() && mimeType !in ALLOWED_VIDEO_MIME_TYPES) {
+            throw IllegalArgumentException("Unsupported MIME type '$mimeType' for a video file")
+        }
+
+        if (file.size > MAX_VIDEO_SIZE) {
+            throw IllegalArgumentException("File size exceeds the 500 MB limit")
+        }
+    }
+
+    private fun validateScreenshotFile(file: MultipartFile) {
+        if (file.isEmpty) throw IllegalArgumentException("Uploaded file is empty")
+
+        val extension = file.originalFilename
+            ?.substringAfterLast(".", "")
+            ?.lowercase()
+            .orEmpty()
+
+        if (extension !in ALLOWED_IMAGE_EXTENSIONS) {
+            throw IllegalArgumentException(
+                "Unsupported file type '.$extension'. Only JPEG, PNG, and WebP images are allowed"
+            )
+        }
+
+        val mimeType = file.contentType?.lowercase().orEmpty()
+        if (mimeType.isNotEmpty() && mimeType !in ALLOWED_IMAGE_MIME_TYPES) {
+            throw IllegalArgumentException("Unsupported MIME type '$mimeType' for a screenshot")
+        }
+
+        if (file.size > MAX_SCREENSHOT_SIZE) {
+            throw IllegalArgumentException("File size exceeds the 15 MB limit")
         }
     }
 

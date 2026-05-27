@@ -38,6 +38,7 @@ fun JamDetailsScreen(
     onBack: () -> Unit,
     onEditJam: (String) -> Unit,
     initialTab: JamDetailsTab? = null,
+    onNavigateToProject: (String, String?, Boolean) -> Unit,
     viewModel: JamDetailsViewModel = koinViewModel()
 ) {
     val state by viewModel.state.collectAsState()
@@ -175,6 +176,7 @@ fun JamDetailsScreen(
                                         jam = jam,
                                         userRole = state.userRole,
                                         userId = state.userId,
+                                        onNavigateToProject = onNavigateToProject,
                                         paddingValues = paddingValues
                                     )
                                 }
@@ -183,6 +185,7 @@ fun JamDetailsScreen(
                                         jamId = jamId,
                                         jam = jam,
                                         userRole = state.userRole,
+                                        onNavigateToProject = onNavigateToProject,
                                         paddingValues = paddingValues
                                     )
                                 }

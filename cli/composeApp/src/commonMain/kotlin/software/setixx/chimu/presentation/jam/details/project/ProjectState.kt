@@ -28,4 +28,8 @@ data class ProjectState(
         val reg = getUserRegistration() ?: return false
         return userTeams.find { it.id == reg.teamId }?.isLeader == true
     }
+
+    // Used when loading a project directly by ID (no registrations available)
+    fun isLeaderOfProject(project: ProjectDetails): Boolean =
+        userTeams.any { it.id == project.teamId && it.isLeader }
 }

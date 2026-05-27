@@ -11,22 +11,22 @@ import software.setixx.chimu.api.domain.ProjectStatus
 import software.setixx.chimu.api.domain.RegistrationStatus
 import software.setixx.chimu.domain.model.ApiResult
 import software.setixx.chimu.domain.model.CreateProject
-import software.setixx.chimu.domain.model.FileUpload
 import software.setixx.chimu.domain.model.ProjectFile
-import software.setixx.chimu.domain.model.UpdateRegistrationStatus
+import software.setixx.chimu.domain.model.UpdateProject
 import software.setixx.chimu.domain.usecase.CreateProjectUseCase
-import software.setixx.chimu.domain.usecase.DeleteProjectUseCase
 import software.setixx.chimu.domain.usecase.DeleteProjectFileUseCase
+import software.setixx.chimu.domain.usecase.DeleteProjectUseCase
 import software.setixx.chimu.domain.usecase.DisqualifyProjectUseCase
-import software.setixx.chimu.domain.usecase.GetJamStatisticsUseCase
 import software.setixx.chimu.domain.usecase.GetJamProjectsUseCase
 import software.setixx.chimu.domain.usecase.GetJamRegistrationsUseCase
+import software.setixx.chimu.domain.usecase.GetJamStatisticsUseCase
 import software.setixx.chimu.domain.usecase.GetProjectFilesUseCase
 import software.setixx.chimu.domain.usecase.GetProjectUseCase
 import software.setixx.chimu.domain.usecase.GetTeamProjectsUseCase
 import software.setixx.chimu.domain.usecase.GetUserTeamsUseCase
 import software.setixx.chimu.domain.usecase.ReturnDraftUseCase
 import software.setixx.chimu.domain.usecase.SubmitProjectUseCase
+import software.setixx.chimu.domain.usecase.UpdateProjectUseCase
 import software.setixx.chimu.domain.usecase.UpdateRegistrationStatusUseCase
 import software.setixx.chimu.domain.usecase.UploadProjectFileUseCase
 
@@ -45,7 +45,8 @@ class ProjectViewModel(
     private val deleteProjectFileUseCase: DeleteProjectFileUseCase,
     private val deleteProjectUseCase: DeleteProjectUseCase,
     private val getJamStatisticsUseCase: GetJamStatisticsUseCase,
-    private val updateRegistrationStatusUseCase: UpdateRegistrationStatusUseCase
+    private val updateRegistrationStatusUseCase: UpdateRegistrationStatusUseCase,
+    private val updateProjectUseCase: UpdateProjectUseCase
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(ProjectState())
@@ -55,36 +56,36 @@ class ProjectViewModel(
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true) }
 
-            when (val teamsResult = getUserTeamsUseCase()){
+            when (val teamsResult = getUserTeamsUseCase()) {
                 is ApiResult.Success -> {
                     _state.update { it.copy(userTeams = teamsResult.data) }
+
+                    val approvedReg = teamsResult.data.firstOrNull()?.let { team ->
+                        when (val regResult = getJamRegistrationsUseCase(jamId)) {
+                            is ApiResult.Success -> {
+                                _state.update { it.copy(registrations = regResult.data) }
+                                regResult.data.find { reg ->
+                                    reg.teamId == team.id && reg.status == RegistrationStatus.APPROVED
+                                }
+                            }
+                            else -> null
+                        }
+                    }
+
+                    approvedReg?.teamId?.let { teamId ->
+                        when (val projectResult = getTeamProjectsUseCase(teamId)) {
+                            is ApiResult.Success -> {
+                                val project = projectResult.data.find { it.jamId == jamId }
+                                project?.let {
+                                    loadProject(it.id)
+                                }
+                            }
+                            else -> Unit
+                        }
+                    }
                 }
                 is ApiResult.Error -> {
                     _state.update { it.copy(errorMessage = teamsResult.message) }
-                }
-            }
-
-            when (val registrationsResult = getJamRegistrationsUseCase(jamId)){
-                is ApiResult.Success -> {
-                    _state.update { it.copy(registrations = registrationsResult.data) }
-                }
-                is ApiResult.Error -> {
-                    _state.update { it.copy(errorMessage = registrationsResult.message) }
-                }
-            }
-
-            val approvedReg = _state.value.getUserRegistration()
-            if (approvedReg != null) {
-                when (val projectsResult = getTeamProjectsUseCase(approvedReg.teamId)){
-                    is ApiResult.Success -> {
-                        val project = projectsResult.data.firstOrNull { it.jamId == jamId }
-                        if (project != null) {
-                            loadProjectDetails(project.id)
-                        }
-                    }
-                    is ApiResult.Error -> {
-                        _state.update { it.copy(errorMessage = projectsResult.message) }
-                    }
                 }
             }
 
@@ -97,7 +98,28 @@ class ProjectViewModel(
         }
     }
 
-    private suspend fun loadProjectDetails(projectId: String) {
+    fun loadProjectById(projectId: String) {
+        viewModelScope.launch {
+            _state.update { it.copy(isLoading = true) }
+
+            when (val teamsResult = getUserTeamsUseCase()) {
+                is ApiResult.Success -> _state.update { it.copy(userTeams = teamsResult.data) }
+                else -> Unit
+            }
+
+            when (val result = getProjectUseCase(projectId)) {
+                is ApiResult.Success -> {
+                    _state.update { it.copy(userProject = result.data, isLoading = false) }
+                    loadProjectFiles(projectId)
+                }
+                is ApiResult.Error -> {
+                    _state.update { it.copy(isLoading = false, errorMessage = result.message) }
+                }
+            }
+        }
+    }
+
+    private suspend fun loadProject(projectId: String) {
         when (val result = getProjectUseCase(projectId)) {
             is ApiResult.Success -> {
                 _state.update { it.copy(userProject = result.data) }
@@ -133,9 +155,7 @@ class ProjectViewModel(
     private suspend fun loadStatistics(jamId: String) {
         when (val result = getJamStatisticsUseCase(jamId)) {
             is ApiResult.Success -> _state.update { it.copy(statistics = result.data) }
-            is ApiResult.Error -> {
-                _state.update { it.copy(errorMessage = result.message) }
-            }
+            is ApiResult.Error -> _state.update { it.copy(errorMessage = result.message) }
         }
     }
 
@@ -144,21 +164,25 @@ class ProjectViewModel(
             _state.update { it.copy(isActionLoading = true) }
             when (val result = createProjectUseCase(jamId, CreateProject(title, description))) {
                 is ApiResult.Success -> {
-                    _state.update {
-                        it.copy(
-                            userProject = result.data,
-                            isActionLoading = false
-                        )
-                    }
+                    _state.update { it.copy(userProject = result.data, isActionLoading = false) }
                     loadProjectFiles(result.data.id)
                 }
                 is ApiResult.Error -> {
-                    _state.update {
-                        it.copy(
-                            isActionLoading = false,
-                            errorMessage = result.message
-                        )
-                    }
+                    _state.update { it.copy(isActionLoading = false, errorMessage = result.message) }
+                }
+            }
+        }
+    }
+
+    fun updateProject(projectId: String, title: String, description: String?, gameUrl: String?) {
+        viewModelScope.launch {
+            _state.update { it.copy(isActionLoading = true) }
+            when (val result = updateProjectUseCase(projectId, UpdateProject(title, description, gameUrl))) {
+                is ApiResult.Success -> {
+                    _state.update { it.copy(userProject = result.data, isActionLoading = false) }
+                }
+                is ApiResult.Error -> {
+                    _state.update { it.copy(isActionLoading = false, errorMessage = result.message) }
                 }
             }
         }
@@ -169,20 +193,10 @@ class ProjectViewModel(
             _state.update { it.copy(isActionLoading = true) }
             when (val result = submitProjectUseCase(projectId)) {
                 is ApiResult.Success -> {
-                    _state.update {
-                        it.copy(
-                            userProject = result.data,
-                            isActionLoading = false
-                        )
-                    }
+                    _state.update { it.copy(userProject = result.data, isActionLoading = false) }
                 }
                 is ApiResult.Error -> {
-                    _state.update {
-                        it.copy(
-                            isActionLoading = false,
-                            errorMessage = result.message
-                        )
-                    }
+                    _state.update { it.copy(isActionLoading = false, errorMessage = result.message) }
                 }
             }
         }
@@ -193,20 +207,10 @@ class ProjectViewModel(
             _state.update { it.copy(isActionLoading = true) }
             when (val result = returnDraftUseCase(projectId)) {
                 is ApiResult.Success -> {
-                    _state.update {
-                        it.copy(
-                            userProject = result.data,
-                            isActionLoading = false
-                        )
-                    }
+                    _state.update { it.copy(userProject = result.data, isActionLoading = false) }
                 }
                 is ApiResult.Error -> {
-                    _state.update {
-                        it.copy(
-                            isActionLoading = false,
-                            errorMessage = result.message
-                        )
-                    }
+                    _state.update { it.copy(isActionLoading = false, errorMessage = result.message) }
                 }
             }
         }
@@ -226,12 +230,7 @@ class ProjectViewModel(
                     }
                 }
                 is ApiResult.Error -> {
-                    _state.update {
-                        it.copy(
-                            isActionLoading = false,
-                            errorMessage = result.message
-                        )
-                    }
+                    _state.update { it.copy(isActionLoading = false, errorMessage = result.message) }
                 }
             }
         }
@@ -246,49 +245,13 @@ class ProjectViewModel(
                     _state.update { it.copy(isActionLoading = false) }
                 }
                 is ApiResult.Error -> {
-                    _state.update {
-                        it.copy(
-                            isActionLoading = false,
-                            errorMessage = result.message
-                        )
-                    }
+                    _state.update { it.copy(isActionLoading = false, errorMessage = result.message) }
                 }
             }
         }
     }
 
-    fun disqualifyTeam(jamId: String, teamId: String) {
-        viewModelScope.launch {
-            _state.update { it.copy(isActionLoading = true) }
-            when (val result = updateRegistrationStatusUseCase(
-                jamId,
-                teamId,
-                UpdateRegistrationStatus(RegistrationStatus.DISQUALIFIED)
-            )) {
-                is ApiResult.Success -> {
-                    _state.update { currentState ->
-                        val updatedRegistrations = currentState.registrations.map {
-                            if (it.teamId == teamId) it.copy(status = RegistrationStatus.DISQUALIFIED) else it
-                        }
-                        currentState.copy(
-                            registrations = updatedRegistrations,
-                            isActionLoading = false
-                        )
-                    }
-                }
-                is ApiResult.Error -> {
-                    _state.update {
-                        it.copy(
-                            isActionLoading = false,
-                            errorMessage = result.message
-                        )
-                    }
-                }
-            }
-        }
-    }
-
-    fun uploadFile(projectId: String, fileUpload: FileUpload) {
+    fun uploadFile(projectId: String, fileUpload: software.setixx.chimu.domain.model.FileUpload) {
         viewModelScope.launch {
             _state.update { it.copy(isActionLoading = true) }
             val fileToUpload = ProjectFile(
@@ -307,12 +270,7 @@ class ProjectViewModel(
                     _state.update { it.copy(isActionLoading = false) }
                 }
                 is ApiResult.Error -> {
-                    _state.update {
-                        it.copy(
-                            isActionLoading = false,
-                            errorMessage = result.message
-                        )
-                    }
+                    _state.update { it.copy(isActionLoading = false, errorMessage = result.message) }
                 }
             }
         }
@@ -327,12 +285,7 @@ class ProjectViewModel(
                     _state.update { it.copy(isActionLoading = false) }
                 }
                 is ApiResult.Error -> {
-                    _state.update {
-                        it.copy(
-                            isActionLoading = false,
-                            errorMessage = result.message
-                        )
-                    }
+                    _state.update { it.copy(isActionLoading = false, errorMessage = result.message) }
                 }
             }
         }

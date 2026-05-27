@@ -40,6 +40,7 @@ fun JudgingScreen(
     jam: GameJamDetails,
     userRole: UserRole?,
     viewModel: JudgingViewModel = koinViewModel(),
+    onNavigateToProject: ((String, String?, Boolean) -> Unit)? = null,
     paddingValues: PaddingValues
 ) {
     val state by viewModel.state.collectAsState()
@@ -91,7 +92,8 @@ fun JudgingScreen(
                     },
                     onDelete = { ratingId, projectId ->
                         viewModel.deleteRating(ratingId, projectId)
-                    }
+                    },
+                    onNavigateToProject = onNavigateToProject
                 )
                 UserRole.PARTICIPANT -> ParticipantJudgingView(
                     userProject = state.userProject
@@ -109,7 +111,8 @@ fun JudgingScreen(
                     },
                     onDelete = { ratingId, projectId ->
                         viewModel.deleteRating(ratingId, projectId)
-                    }
+                    },
+                    onNavigateToProject = onNavigateToProject
                 )
             }
         }

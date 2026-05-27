@@ -6,6 +6,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import software.setixx.chimu.api.domain.UserRole
 import software.setixx.chimu.presentation.auth.login.LoginScreen
 import software.setixx.chimu.presentation.auth.register.RegisterScreen
 import software.setixx.chimu.presentation.jam.create.CreateJamScreen
@@ -19,6 +20,7 @@ import software.setixx.chimu.presentation.team.create.CreateTeamScreen
 import software.setixx.chimu.presentation.team.join.JoinTeamScreen
 import software.setixx.chimu.presentation.team.details.TeamDetailsScreen
 import software.setixx.chimu.presentation.profile.alien.UserProfileScreen
+import software.setixx.chimu.presentation.project.ProjectDetailsScreen
 
 @Composable
 fun AppNavigation(
@@ -99,7 +101,10 @@ fun AppNavigation(
                 },
                 onNavigateToJamDetails = { jamId ->
                     navController.navigate(Screen.JamDetails(jamId))
-                }
+                },
+                onNavigateToProject = { projectId, roleStr, isAdmin ->
+                   navController.navigate(Screen.ProjectDetails(projectId, roleStr, isAdmin))
+                },
             )
         }
 
@@ -194,7 +199,10 @@ fun AppNavigation(
                 onEditJam = { jamId ->
                     navController.navigate(Screen.EditJam(jamId))
                 },
-                initialTab = parsedTab
+                initialTab = parsedTab,
+                onNavigateToProject = { projectId, roleStr, isAdmin ->
+                    navController.navigate(Screen.ProjectDetails(projectId, roleStr, isAdmin))
+                },
             )
         }
 
@@ -208,6 +216,19 @@ fun AppNavigation(
                 onSuccess = {
                     navController.popBackStack()
                 }
+            )
+        }
+
+        composable<Screen.ProjectDetails> {
+            val args = it.toRoute<Screen.ProjectDetails>()
+            val userRole = args.userRole?.let { r ->
+            runCatching { UserRole.valueOf(r) }.getOrNull()
+            }
+            ProjectDetailsScreen(
+                projectId = args.projectId,
+                userRole = userRole,
+                isAdminOrOrganizer = args.isAdminOrOrganizer,
+                onBack = { navController.popBackStack() }
             )
         }
     }

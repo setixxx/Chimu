@@ -34,6 +34,8 @@ fun JamBanner(
     name: String,
     theme: String
 ){
+    val localizedTheme = if (theme == "unknown") "Будет объявлена" else theme
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(
@@ -85,7 +87,7 @@ fun JamBanner(
                     )
                     Spacer(modifier = Modifier.height(12.dp))
                     Text(
-                        text = "Тема: $theme",
+                        text = "Тема: $localizedTheme",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Normal,
                         color = Color.White

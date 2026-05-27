@@ -31,6 +31,7 @@ fun MainScreen(
     onNavigateToJoinTeam: () -> Unit,
     onNavigateToCreateJam: () -> Unit,
     onNavigateToJamDetails: (String) -> Unit,
+    onNavigateToProject: (projectId: String, roleStr: String?, isAdminOrOrganizer: Boolean) -> Unit,
     viewModel: MainViewModel = koinViewModel()
 ) {
     val groupInteractionSource = remember { MutableInteractionSource() }
@@ -100,7 +101,8 @@ fun MainScreen(
                 snackBarHostState = snackBarHostState,
                 onRefresh = { viewModel.refresh() },
                 onLogoutClick = { viewModel.onLogout(onLogout) },
-                onNotificationAction = onNotificationAction
+                onNotificationAction = onNotificationAction,
+                onNavigateToProject = onNavigateToProject,
             )
         } else {
             DesktopRailLayout(
@@ -124,7 +126,8 @@ fun MainScreen(
                 snackBarHostState = snackBarHostState,
                 onRefresh = { viewModel.refresh() },
                 onLogoutClick = { viewModel.onLogout(onLogout) },
-                onNotificationAction = onNotificationAction
+                onNotificationAction = onNotificationAction,
+                onNavigateToProject = onNavigateToProject,
             )
         }
     }

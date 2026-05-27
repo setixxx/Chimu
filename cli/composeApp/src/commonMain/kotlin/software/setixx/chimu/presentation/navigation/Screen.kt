@@ -16,5 +16,10 @@ sealed interface Screen {
     @Serializable @SerialName("edit-jam") data class EditJam(val jamId: String) : Screen
     @Serializable @SerialName("team") data class TeamDetails(val teamId: String) : Screen
     @Serializable @SerialName("user-profile") data class AlienProfile(val userId: String) : Screen
-
+    @Serializable @SerialName("project-details")
+    data class ProjectDetails(
+        val projectId: String,
+        val userRole: String? = null,
+        val isAdminOrOrganizer: Boolean = false
+    ) : Screen
 }

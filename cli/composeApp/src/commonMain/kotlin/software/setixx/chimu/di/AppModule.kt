@@ -215,6 +215,7 @@ val appModule = module {
     factory { GetProjectRatingsUseCases(get()) }
     factory { DeleteProfileUseCase(get()) }
     factory { GetUserByNicknameUseCase(get()) }
+    factory { UpdateProjectUseCase(get()) }
 
     viewModel {
         SplashViewModel(get())
@@ -303,6 +304,7 @@ val appModule = module {
     }
     viewModel {
         ProjectViewModel(
+            get(),
             get(),
             get(),
             get(),

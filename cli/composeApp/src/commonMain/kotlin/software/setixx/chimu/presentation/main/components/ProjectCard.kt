@@ -22,7 +22,8 @@ import software.setixx.chimu.domain.model.Project
 @Composable
 fun ProjectCard(project: Project) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth(),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
