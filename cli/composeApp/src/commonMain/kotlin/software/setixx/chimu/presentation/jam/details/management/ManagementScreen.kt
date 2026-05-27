@@ -68,6 +68,7 @@ fun ManagementScreen(
     }
 
     val editableStates = setOf(
+        GameJamStatus.DRAFT,
         GameJamStatus.ANNOUNCED,
         GameJamStatus.REGISTRATION_OPEN,
         GameJamStatus.REGISTRATION_CLOSED
