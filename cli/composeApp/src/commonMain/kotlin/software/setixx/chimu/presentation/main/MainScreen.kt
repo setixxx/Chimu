@@ -18,6 +18,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import org.koin.compose.viewmodel.koinViewModel
 import software.setixx.chimu.api.domain.UserRole
+import software.setixx.chimu.presentation.main.components.ChangePasswordDialog
 import software.setixx.chimu.presentation.main.components.DesktopRailLayout
 import software.setixx.chimu.presentation.main.components.JamTransferReviewDialog
 import software.setixx.chimu.presentation.main.components.MobileModalLayout
@@ -99,6 +100,7 @@ fun MainScreen(
                 showUserMenu = showUserMenu,
                 onShowUserMenu = { showUserMenu = it},
                 onNavigateToProfile = onNavigateToProfile,
+                onChangePasswordClick = viewModel::openChangePasswordDialog,
                 groupInteractionSource = groupInteractionSource,
                 snackBarHostState = snackBarHostState,
                 onRefresh = { viewModel.refresh() },
@@ -125,6 +127,7 @@ fun MainScreen(
                 showUserMenu = showUserMenu,
                 onShowUserMenu = { showUserMenu = it},
                 onNavigateToProfile = onNavigateToProfile,
+                onChangePasswordClick = viewModel::openChangePasswordDialog,
                 groupInteractionSource = groupInteractionSource,
                 snackBarHostState = snackBarHostState,
                 onRefresh = { viewModel.refresh() },
@@ -145,6 +148,15 @@ fun MainScreen(
         )
     }
 
+    if (state.showChangePasswordDialog) {
+        ChangePasswordDialog(
+            isLoading = state.isChangePasswordLoading,
+            errorMessage = state.changePasswordError,
+            onSubmit = viewModel::changePassword,
+            onDismiss = viewModel::closeChangePasswordDialog
+        )
+    }
+
     LaunchedEffect(state.errorMessage) {
         state.errorMessage?.let { error ->
             snackBarHostState.showSnackbar(
@@ -152,6 +164,16 @@ fun MainScreen(
                 duration = SnackbarDuration.Short
             )
             viewModel.clearError()
+        }
+    }
+
+    LaunchedEffect(state.successMessage) {
+        state.successMessage?.let { message ->
+            snackBarHostState.showSnackbar(
+                message = message,
+                duration = SnackbarDuration.Short
+            )
+            viewModel.clearSuccess()
         }
     }
 }

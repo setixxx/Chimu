@@ -34,6 +34,8 @@ class UserRepositoryImpl(
                 ?: return ApiResult.Error("Ошибка аутентификации")
             val request = ChangePasswordRequest(body.oldPassword, body.newPassword)
             val response = api.changePassword(token, request)
+            tokenStorage.saveAccessToken(response.accessToken)
+            tokenStorage.saveRefreshToken(response.refreshToken)
             ApiResult.Success(response.toDomain())
         } catch (e: Exception) {
             ApiResult.Error(e.message ?: "Ошибка подключения")

@@ -6,6 +6,7 @@ import io.ktor.client.request.delete
 import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.patch
+import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.HttpHeaders
 import software.setixx.chimu.data.remote.dto.ChangePasswordRequest
@@ -19,7 +20,7 @@ class UserApi(private val client: HttpClient) {
         accessToken: String,
         body: ChangePasswordRequest
     ): ChangePasswordResponse {
-        val response = client.patch("/api/users/password") {
+        val response = client.post("/api/users/change-password") {
             header(HttpHeaders.Authorization, "Bearer $accessToken")
             setBody(body)
         }

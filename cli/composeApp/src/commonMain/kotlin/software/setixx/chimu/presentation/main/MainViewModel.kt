@@ -16,8 +16,10 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import software.setixx.chimu.api.domain.TransferStatus
 import software.setixx.chimu.domain.model.ApiResult
+import software.setixx.chimu.domain.model.ChangePassword
 import software.setixx.chimu.domain.model.JamTransfer
 import software.setixx.chimu.domain.model.ReviewJamTransfer
+import software.setixx.chimu.domain.usecase.ChangePasswordUseCase
 import software.setixx.chimu.domain.usecase.GetAllJamsUseCase
 import software.setixx.chimu.domain.usecase.GetCurrentUserUseCase
 import software.setixx.chimu.domain.usecase.GetJamJudgesUseCase
@@ -41,7 +43,8 @@ class MainViewModel(
     private val observeJamsUseCase: ObserveJamsUseCase,
     private val getTransferRequestsUseCase: GetTransferRequestsUseCase,
     private val reviewTransferUseCase: ReviewTransferUseCase,
-    private val getJamJudgesUseCase: GetJamJudgesUseCase
+    private val getJamJudgesUseCase: GetJamJudgesUseCase,
+    private val changePasswordUseCase: ChangePasswordUseCase
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(MainState())
@@ -198,6 +201,57 @@ class MainViewModel(
         _state.update { it.copy(pendingTransferToReview = null, isReviewActionLoading = false) }
     }
 
+    fun openChangePasswordDialog() {
+        _state.update {
+            it.copy(
+                showChangePasswordDialog = true,
+                changePasswordError = null
+            )
+        }
+    }
+
+    fun closeChangePasswordDialog() {
+        _state.update {
+            it.copy(
+                showChangePasswordDialog = false,
+                isChangePasswordLoading = false,
+                changePasswordError = null
+            )
+        }
+    }
+
+    fun changePassword(oldPassword: String, newPassword: String, confirmPassword: String) {
+        val validationError = validatePasswordChange(oldPassword, newPassword, confirmPassword)
+        if (validationError != null) {
+            _state.update { it.copy(changePasswordError = validationError) }
+            return
+        }
+
+        viewModelScope.launch {
+            _state.update { it.copy(isChangePasswordLoading = true, changePasswordError = null) }
+            when (val result = changePasswordUseCase(ChangePassword(oldPassword, newPassword))) {
+                is ApiResult.Success -> {
+                    _state.update {
+                        it.copy(
+                            showChangePasswordDialog = false,
+                            isChangePasswordLoading = false,
+                            changePasswordError = null,
+                            successMessage = "Пароль изменен"
+                        )
+                    }
+                }
+                is ApiResult.Error -> {
+                    _state.update {
+                        it.copy(
+                            isChangePasswordLoading = false,
+                            changePasswordError = result.message
+                        )
+                    }
+                }
+            }
+        }
+    }
+
     fun acceptTransfer(requestId: String) = doReview(requestId, accepted = true)
     fun rejectTransfer(requestId: String) = doReview(requestId, accepted = false)
 
@@ -224,9 +278,7 @@ class MainViewModel(
                     onLogoutSuccess()
                 }
                 is ApiResult.Error -> {
-                    _state.update {
-                        it.copy(errorMessage = "Ошибка при выходе")
-                    }
+                    onLogoutSuccess()
                 }
             }
         }
@@ -236,7 +288,26 @@ class MainViewModel(
         _state.update { it.copy(errorMessage = null) }
     }
 
+    fun clearSuccess() {
+        _state.update { it.copy(successMessage = null) }
+    }
+
     fun refresh() {
         loadAllData()
+    }
+
+    private fun validatePasswordChange(
+        oldPassword: String,
+        newPassword: String,
+        confirmPassword: String
+    ): String? {
+        return when {
+            oldPassword.isBlank() -> "Введите текущий пароль"
+            newPassword.isBlank() -> "Введите новый пароль"
+            newPassword.length < 8 -> "Новый пароль должен содержать минимум 8 символов"
+            newPassword == oldPassword -> "Новый пароль должен отличаться от текущего"
+            newPassword != confirmPassword -> "Пароли не совпадают"
+            else -> null
+        }
     }
 }

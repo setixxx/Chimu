@@ -19,8 +19,12 @@ data class MainState(
     val notificationCount: Int = 0,
     val pendingTransferToReview: JamTransfer? = null,
     val isReviewActionLoading: Boolean = false,
+    val showChangePasswordDialog: Boolean = false,
+    val isChangePasswordLoading: Boolean = false,
+    val changePasswordError: String? = null,
     val isLoading: Boolean = true,
-    val errorMessage: String? = null
+    val errorMessage: String? = null,
+    val successMessage: String? = null
 ){
     val canCreateJam: Boolean
         get() = user?.role == UserRole.ADMIN || user?.role == UserRole.ORGANIZER

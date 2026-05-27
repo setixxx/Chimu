@@ -30,6 +30,7 @@ import chimu.composeapp.generated.resources.sign_up_button
 import chimu.composeapp.generated.resources.sign_up_title
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
+import software.setixx.chimu.presentation.components.PasswordStrengthIndicator
 import kotlin.Float
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -207,31 +208,3 @@ fun RegisterScreen(
     }
 }
 
-@Composable
-fun PasswordStrengthIndicator(strength: PasswordStrength) {
-    val (color, text) = when (strength) {
-        PasswordStrength.WEAK -> Color(0xFFEF5350) to "Слабый пароль"
-        PasswordStrength.MEDIUM -> Color(0xFFFFA726) to "Средний пароль"
-        PasswordStrength.STRONG -> Color(0xFF66BB6A) to "Надежный пароль"
-    }
-
-    Column(modifier = Modifier.fillMaxWidth()) {
-        LinearProgressIndicator(
-            progress = { when (strength) {
-                PasswordStrength.WEAK -> 0.33f
-                PasswordStrength.MEDIUM -> 0.66f
-                PasswordStrength.STRONG -> 1f
-            } },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(4.dp),
-            color = color,
-        )
-        Spacer(modifier = Modifier.height(4.dp))
-        Text(
-            text = text,
-            style = MaterialTheme.typography.bodySmall,
-            color = color
-        )
-    }
-}

@@ -1,5 +1,7 @@
 package software.setixx.chimu.presentation.auth.register
 
+import software.setixx.chimu.presentation.utils.PasswordStrength
+
 data class RegisterState(
     val email: String = "",
     val password: String = "",
@@ -13,7 +15,3 @@ data class RegisterState(
     val confirmPasswordError: String? = null,
     val passwordStrength: PasswordStrength = PasswordStrength.WEAK
 )
-
-enum class PasswordStrength {
-    WEAK, MEDIUM, STRONG
-}

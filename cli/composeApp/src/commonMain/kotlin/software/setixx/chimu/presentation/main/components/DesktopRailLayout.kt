@@ -22,8 +22,8 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.outlined.LockReset
 import androidx.compose.material.icons.outlined.Person
-import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.DropdownMenu
@@ -87,6 +87,7 @@ fun DesktopRailLayout(
     onShowUserMenu: (Boolean) -> Unit,
     groupInteractionSource: MutableInteractionSource,
     onNavigateToProfile: () -> Unit,
+    onChangePasswordClick: () -> Unit,
     snackBarHostState: SnackbarHostState,
     onRefresh: () -> Unit,
     onLogoutClick: () -> Unit,
@@ -236,10 +237,13 @@ fun DesktopRailLayout(
                                     shape = MaterialTheme.shapes.medium
                                 )
                                 DropdownMenuItem(
-                                    text = { Text("Настройки") },
-                                    onClick = { onShowUserMenu(false) },
+                                    text = { Text("Сменить пароль") },
+                                    onClick = {
+                                        onShowUserMenu(false)
+                                        onChangePasswordClick()
+                                    },
                                     leadingIcon = {
-                                        Icon(Icons.Outlined.Settings, contentDescription = null)
+                                        Icon(Icons.Outlined.LockReset, contentDescription = null)
                                     },
                                     shape = MaterialTheme.shapes.medium
                                 )
