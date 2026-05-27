@@ -364,7 +364,7 @@ class ProjectFileService(
 
         val allowed = when (jam.status) {
             GameJamStatus.IN_PROGRESS -> {
-                teamMemberRepository.existsByTeamIdAndUserIdAndDeletedAtIsNull(teamId, userId)
+                teamMemberRepository.existsByTeamIdAndUserIdAndDeletedAtIsNull(teamId, userId) || jamOrganizerId == userId
             }
             GameJamStatus.JUDGING -> {
                 teamMemberRepository.existsByTeamIdAndUserIdAndDeletedAtIsNull(teamId, userId)

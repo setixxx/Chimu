@@ -22,15 +22,16 @@ fun ProjectCard(
     onViewDetails: (() -> Unit)? = null
 ) {
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick),
         colors = CardDefaults.cardColors(
             containerColor = if (hasUnratedCriteria)
                 MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.3f)
             else
                 MaterialTheme.colorScheme.surfaceVariant
-        )
+        ),
+        shape = MaterialTheme.shapes.extraLarge,
+        modifier = Modifier
+            .fillMaxWidth(),
+        onClick = onClick
     ) {
         Row(
             modifier = Modifier.padding(16.dp),
@@ -60,21 +61,6 @@ fun ProjectCard(
                         tint = MaterialTheme.colorScheme.primary
                     )
                 }
-            }
-
-            if (hasUnratedCriteria) {
-                Badge(containerColor = MaterialTheme.colorScheme.error) {
-                    Text("!")
-                }
-                Spacer(modifier = Modifier.width(8.dp))
-            } else {
-                Icon(
-                    Icons.Default.CheckCircle,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(20.dp)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
             }
 
             Icon(

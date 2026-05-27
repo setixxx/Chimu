@@ -1,11 +1,14 @@
 package software.setixx.chimu.presentation.jam.details
 
 import software.setixx.chimu.api.domain.GameJamStatus
+import software.setixx.chimu.api.domain.RegistrationStatus
 import software.setixx.chimu.api.domain.TransferStatus
 import software.setixx.chimu.api.domain.UserRole
 import software.setixx.chimu.domain.model.GameJamDetails
 import software.setixx.chimu.domain.model.JamTransfer
 import software.setixx.chimu.domain.model.PublicUserProfile
+import software.setixx.chimu.domain.model.Registration
+import software.setixx.chimu.domain.model.Team
 
 data class JamDetailsState(
     val jamDetails: GameJamDetails? = null,
@@ -23,6 +26,8 @@ data class JamDetailsState(
     val transferRecipientQuery: String = "",
     val transferRecipientFound: PublicUserProfile? = null,
     val isSearchingRecipient: Boolean = false,
+    val userTeams: List<Team> = emptyList(),
+    val registrations: List<Registration> = emptyList(),
 ) {
     val canCancel: Boolean
         get() = jamDetails?.status in listOf(
@@ -64,15 +69,20 @@ data class JamDetailsState(
     val isJudge: Boolean
         get() = userRole == UserRole.JUDGE
 
+    val hasApprovedRegistration: Boolean
+        get() = registrations.any { reg ->
+            reg.status == RegistrationStatus.APPROVED && userTeams.any { it.id == reg.teamId }
+        }
+
     val availableTabs: List<JamDetailsTab>
         get() {
             val tabs = mutableListOf(JamDetailsTab.Overview)
 
-            if (isParticipant || isAdminOrOrganizer) {
+            if ((isParticipant && hasApprovedRegistration) || isAdminOrOrganizer) {
                 tabs.add(JamDetailsTab.Project)
             }
 
-            if (isJudge || isAdminOrOrganizer) {
+            if (isJudge) {
                 tabs.add(JamDetailsTab.Judging)
             }
 

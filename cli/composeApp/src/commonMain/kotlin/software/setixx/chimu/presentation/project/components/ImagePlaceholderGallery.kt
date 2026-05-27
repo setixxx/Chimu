@@ -49,7 +49,9 @@ fun ImagePlaceholderGallery(
     }
     val baseUrl = remember { getBaseUrl() }
 
-    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -69,10 +71,7 @@ fun ImagePlaceholderGallery(
                 )
             }
             when {
-                isReadOnly -> SuggestionChip(
-                    onClick = {},
-                    label = { Text("Недоступно", style = MaterialTheme.typography.labelSmall) }
-                )
+                isReadOnly -> {}
                 canUpload && screenshotFiles.size < maxCount -> FilledTonalButton(
                     onClick = onUpload,
                     contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
@@ -81,15 +80,7 @@ fun ImagePlaceholderGallery(
                     Spacer(Modifier.width(4.dp))
                     Text("Загрузить", style = MaterialTheme.typography.labelMedium)
                 }
-                !canUpload && !isReadOnly -> FilledTonalButton(
-                    onClick = {},
-                    enabled = false,
-                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
-                ) {
-                    Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(16.dp))
-                    Spacer(Modifier.width(4.dp))
-                    Text("Загрузить", style = MaterialTheme.typography.labelMedium)
-                }
+                !canUpload && !isReadOnly -> {}
             }
         }
 

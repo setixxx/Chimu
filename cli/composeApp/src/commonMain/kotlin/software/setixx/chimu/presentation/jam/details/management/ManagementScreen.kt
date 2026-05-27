@@ -67,6 +67,12 @@ fun ManagementScreen(
         }
     }
 
+    val editableStates = setOf(
+        GameJamStatus.ANNOUNCED,
+        GameJamStatus.REGISTRATION_OPEN,
+        GameJamStatus.REGISTRATION_CLOSED
+    )
+
     LaunchedEffect(jam.id) {
         viewModel.load(jam.id)
     }
@@ -120,19 +126,13 @@ fun ManagementScreen(
                         JamStatisticsCard(statistics = stats)
                     }
 
-                    state.leaderboard?.let { lb ->
-                        if (lb.rankings.isNotEmpty()) {
-                            LeaderboardCard(leaderboard = lb)
-                        }
-                    }
-
                     ManagementListCard(
                         title = "Судьи",
                         titleIcon = Icons.Default.Gavel,
                         items = state.judges,
                         emptyText = "Судьи не назначены.",
-                        buttonText = "Назначить",
-                        buttonIcon = Icons.Default.PersonAdd,
+                        buttonText = if (jam.status in editableStates) "Назначить" else null,
+                        buttonIcon = if (jam.status in editableStates) Icons.Default.PersonAdd else null,
                         onButtonClick = { showAssignJudgeDialog = true },
                         itemHeadline = { judge -> Text(judge.nickname) },
                         itemSupportingContent = { judge ->
@@ -152,12 +152,12 @@ fun ManagementScreen(
                     )
 
                     ManagementListCard(
-                        title = "Критерии\nоценивания",
+                        title = "Критерии оценивания",
                         titleIcon = Icons.AutoMirrored.Filled.Rule,
                         items = state.criteria.sortedBy { it.orderIndex },
                         emptyText = "Критерии не добавлены.",
-                        buttonText = "Добавить",
-                        buttonIcon = Icons.Default.Add,
+                        buttonText = if (jam.status in editableStates) "Добавить" else null,
+                        buttonIcon = if (jam.status in editableStates) Icons.Default.Add else null,
                         onButtonClick = { showAddCriteriaDialog = true },
                         onItemClick = { criteria ->
                             selectedCriteriaId = criteria.id

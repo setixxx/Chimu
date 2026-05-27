@@ -52,6 +52,15 @@ fun OverviewScreen(
         GameJamStatus.IN_PROGRESS
     )
 
+    val cancellableStatuses = setOf(
+        GameJamStatus.REGISTRATION_OPEN,
+        GameJamStatus.REGISTRATION_CLOSED
+    )
+
+    val withdrawnStatuses = setOf(
+        GameJamStatus.IN_PROGRESS
+    )
+
     if (state.isLoading) {
         Box(
             modifier = Modifier
@@ -120,8 +129,13 @@ fun OverviewScreen(
                                         Spacer(modifier = Modifier.width(8.dp))
                                     }
                                     Text(
-                                        if (state.isLeaderOfRegisteredTeam) "Отменить заявку: ${registeredTeam.name}"
-                                        else "Заявка подана: ${registeredTeam.name}"
+                                        if (state.isLeaderOfRegisteredTeam && jam.status in cancellableStatuses) {
+                                            "Отменить заявку: ${registeredTeam.name}"
+                                        } else if (state.isLeaderOfRegisteredTeam && jam.status in withdrawnStatuses){
+                                            "Снять с джема: ${registeredTeam.name}"
+                                        } else {
+                                            "Заявка подана: ${registeredTeam.name}"
+                                        }
                                     )
                                 }
                             }
@@ -147,7 +161,6 @@ fun OverviewScreen(
 
                     JamOverviewSection(
                         jam = jam,
-                        registrations = state.registrations.filter { it.status == RegistrationStatus.APPROVED }
                     )
 
                     TeamCard(

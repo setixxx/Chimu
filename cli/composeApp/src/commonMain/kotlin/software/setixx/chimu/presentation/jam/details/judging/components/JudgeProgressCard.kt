@@ -27,9 +27,8 @@ fun JudgeProgressCard(ratedProjects: Int, totalProjects: Int) {
     val progress = if (totalProjects > 0) ratedProjects.toFloat() / totalProjects else 0f
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer
-        )
+        colors = CardDefaults.cardColors(),
+        shape = MaterialTheme.shapes.extraLarge
     ) {
         Column(
             modifier = Modifier.padding(16.dp),

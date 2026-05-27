@@ -44,7 +44,7 @@ fun JamDetailsScreen(
     var showCancelDialog by remember { mutableStateOf(false) }
     val pagerState = rememberPagerState(
         pageCount = { state.availableTabs.size },
-        initialPage = initialTab?.ordinal ?: JamDetailsTab.Overview.ordinal
+        initialPage = 0
     )
 
     val transferIcon = when {
@@ -66,6 +66,18 @@ fun JamDetailsScreen(
 
     LaunchedEffect(state.isDeleted) {
         if (state.isDeleted) onBack()
+    }
+
+    LaunchedEffect(state.availableTabs, initialTab) {
+        initialTab?.let { tab ->
+            val targetPage = state.availableTabs.indexOf(tab)
+            if (targetPage >= 0 && pagerState.currentPage != targetPage) {
+                pagerState.scrollToPage(targetPage)
+            }
+        }
+        if (pagerState.currentPage >= state.availableTabs.size && state.availableTabs.isNotEmpty()) {
+            pagerState.scrollToPage(state.availableTabs.lastIndex)
+        }
     }
 
     Scaffold(
@@ -181,7 +193,6 @@ fun JamDetailsScreen(
                                     JudgingScreen(
                                         jamId = jamId,
                                         jam = jam,
-                                        userRole = state.userRole,
                                         onNavigateToProject = onNavigateToProject,
                                         paddingValues = paddingValues
                                     )

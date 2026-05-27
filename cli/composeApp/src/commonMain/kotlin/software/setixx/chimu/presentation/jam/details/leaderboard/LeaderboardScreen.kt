@@ -52,7 +52,7 @@ fun LeaderboardScreen(
     Box(modifier = Modifier.fillMaxSize()) {
         if (state.isLoading) {
             LoadingIndicator(modifier = Modifier.align(Alignment.Center))
-        } else if (jam.status != GameJamStatus.COMPLETED){
+        } else if (jam.status != GameJamStatus.COMPLETED && !isAdminOrOrganizer){
             Text(
                 modifier = Modifier
                     .align(Alignment.Center),
@@ -68,13 +68,7 @@ fun LeaderboardScreen(
                     .padding(paddingValues),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                CompletionBanner()
-
-                if (isAdminOrOrganizer) {
-                    state.statistics?.let { stats ->
-                        AdminStatisticsSection(statistics = stats)
-                    }
-                }
+                CompletionBanner(jam.status == GameJamStatus.COMPLETED)
 
                 state.leaderboard?.let { lb ->
                     LeaderboardSection(leaderboard = lb)
@@ -108,12 +102,15 @@ fun LeaderboardScreen(
 }
 
 @Composable
-private fun CompletionBanner() {
+private fun CompletionBanner(
+    isCompleted: Boolean
+) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.primaryContainer
-        )
+        ),
+        shape = MaterialTheme.shapes.extraLarge
     ) {
         Row(
             modifier = Modifier.padding(16.dp),
@@ -128,13 +125,13 @@ private fun CompletionBanner() {
             )
             Column {
                 Text(
-                    "Джем завершён!",
+                    if (isCompleted) "Джем завершён!" else "Джем еще не окончен",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onPrimaryContainer
                 )
                 Text(
-                    "Оценивание окончено — ниже итоговые результаты.",
+                    if (isCompleted) "Оценивание окончено — ниже итоговые результаты." else "Ниже предварительный результаты",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onPrimaryContainer
                 )

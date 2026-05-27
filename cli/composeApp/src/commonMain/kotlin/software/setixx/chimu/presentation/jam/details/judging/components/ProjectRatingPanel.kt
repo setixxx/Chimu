@@ -78,8 +78,6 @@ fun ProjectRatingPanel(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            ProjectInfoCard(project = project)
-
             if (isRatingLoading) {
                 Box(
                     modifier = Modifier.fillMaxWidth().padding(32.dp),

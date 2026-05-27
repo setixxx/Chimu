@@ -17,9 +17,10 @@ import software.setixx.chimu.domain.usecase.CreateTransferUseCase
 import software.setixx.chimu.domain.usecase.DeleteJamUseCase
 import software.setixx.chimu.domain.usecase.GetCurrentUserUseCase
 import software.setixx.chimu.domain.usecase.GetJamDetailsUseCase
+import software.setixx.chimu.domain.usecase.GetJamRegistrationsUseCase
 import software.setixx.chimu.domain.usecase.GetTransferRequestsUseCase
-import software.setixx.chimu.domain.usecase.GetUserByIdUseCase
 import software.setixx.chimu.domain.usecase.GetUserByNicknameUseCase
+import software.setixx.chimu.domain.usecase.GetUserTeamsUseCase
 
 class JamDetailsViewModel(
     private val getJamDetailsUseCase: GetJamDetailsUseCase,
@@ -30,6 +31,8 @@ class JamDetailsViewModel(
     private val createTransferUseCase: CreateTransferUseCase,
     private val cancelTransferUseCase: CancelTransferUseCase,
     private val getUserByNicknameUseCase: GetUserByNicknameUseCase,
+    private val getUserTeamsUseCase: GetUserTeamsUseCase,
+    private val getJamRegistrationsUseCase: GetJamRegistrationsUseCase,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(JamDetailsState())
@@ -63,11 +66,12 @@ class JamDetailsViewModel(
                 is ApiResult.Success -> {
                     _state.update {
                         it.copy(
-                            jamDetails = result.data,
-                            isLoading = false
+                            jamDetails = result.data
                         )
                     }
+                    loadRegistrationState(jamId)
                     loadCurrentTransfer(jamId)
+                    _state.update { it.copy(isLoading = false) }
                 }
                 is ApiResult.Error -> {
                     _state.update {
@@ -78,6 +82,18 @@ class JamDetailsViewModel(
                     }
                 }
             }
+        }
+    }
+
+    private suspend fun loadRegistrationState(jamId: String) {
+        when (val teamsResult = getUserTeamsUseCase()) {
+            is ApiResult.Success -> _state.update { it.copy(userTeams = teamsResult.data) }
+            is ApiResult.Error -> Unit
+        }
+
+        when (val registrationsResult = getJamRegistrationsUseCase(jamId)) {
+            is ApiResult.Success -> _state.update { it.copy(registrations = registrationsResult.data) }
+            is ApiResult.Error -> Unit
         }
     }
 

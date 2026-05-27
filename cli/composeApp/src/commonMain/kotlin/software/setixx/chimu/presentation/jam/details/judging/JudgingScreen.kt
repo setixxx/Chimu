@@ -15,8 +15,10 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import org.koin.compose.viewmodel.koinViewModel
+import software.setixx.chimu.api.domain.GameJamStatus
 import software.setixx.chimu.api.domain.UserRole
 import software.setixx.chimu.data.remote.dto.RatingCriteriaResponse
 import software.setixx.chimu.domain.model.GameJamDetails
@@ -38,7 +40,6 @@ import software.setixx.chimu.presentation.utils.DateTimeUtils
 fun JudgingScreen(
     jamId: String,
     jam: GameJamDetails,
-    userRole: UserRole?,
     viewModel: JudgingViewModel = koinViewModel(),
     onNavigateToProject: ((String, String?, Boolean) -> Unit)? = null,
     paddingValues: PaddingValues
@@ -46,12 +47,8 @@ fun JudgingScreen(
     val state by viewModel.state.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
 
-    LaunchedEffect(jamId, userRole) {
-        when (userRole) {
-            UserRole.JUDGE -> viewModel.loadAsJudge(jamId)
-            UserRole.PARTICIPANT -> viewModel.loadAsParticipant(jamId)
-            else -> viewModel.loadAsJudge(jamId)
-        }
+    LaunchedEffect(jamId) {
+        viewModel.loadAsJudge(jamId)
     }
 
     LaunchedEffect(state.errorMessage) {
@@ -77,44 +74,30 @@ fun JudgingScreen(
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 LoadingIndicator()
             }
+        } else if (jam.status != GameJamStatus.JUDGING){
+            Text(
+                modifier = Modifier
+                    .align(Alignment.Center),
+                text = "Этап судейства еще не начался. Дождитесь начала",
+                textAlign = TextAlign.Center
+            )
         } else {
-            when (userRole) {
-                UserRole.JUDGE -> JudgeView(
-                    state = state,
-                    jamCriteria = jam.criteria,
-                    onSelectProject = { viewModel.selectProject(it) },
-                    onBack = { viewModel.clearSelectedProject() },
-                    onRate = { projectId, criteriaId, score, comment ->
-                        viewModel.rateProject(projectId, criteriaId, score, comment)
-                    },
-                    onUpdate = { ratingId, projectId, score, comment ->
-                        viewModel.updateRating(ratingId, projectId, score, comment)
-                    },
-                    onDelete = { ratingId, projectId ->
-                        viewModel.deleteRating(ratingId, projectId)
-                    },
-                    onNavigateToProject = onNavigateToProject
-                )
-                UserRole.PARTICIPANT -> ParticipantJudgingView(
-                    userProject = state.userProject
-                )
-                else -> JudgeView(
-                    state = state,
-                    jamCriteria = jam.criteria,
-                    onSelectProject = { viewModel.selectProject(it) },
-                    onBack = { viewModel.clearSelectedProject() },
-                    onRate = { projectId, criteriaId, score, comment ->
-                        viewModel.rateProject(projectId, criteriaId, score, comment)
-                    },
-                    onUpdate = { ratingId, projectId, score, comment ->
-                        viewModel.updateRating(ratingId, projectId, score, comment)
-                    },
-                    onDelete = { ratingId, projectId ->
-                        viewModel.deleteRating(ratingId, projectId)
-                    },
-                    onNavigateToProject = onNavigateToProject
-                )
-            }
+            JudgeView(
+                state = state,
+                jamCriteria = jam.criteria,
+                onSelectProject = { viewModel.selectProject(it) },
+                onBack = { viewModel.clearSelectedProject() },
+                onRate = { projectId, criteriaId, score, comment ->
+                    viewModel.rateProject(projectId, criteriaId, score, comment)
+                },
+                onUpdate = { ratingId, projectId, score, comment ->
+                    viewModel.updateRating(ratingId, projectId, score, comment)
+                },
+                onDelete = { ratingId, projectId ->
+                    viewModel.deleteRating(ratingId, projectId)
+                },
+                onNavigateToProject = onNavigateToProject
+            )
         }
 
         SnackbarHost(

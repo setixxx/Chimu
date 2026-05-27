@@ -284,10 +284,12 @@ val appModule = module {
 
     viewModel {
         JamDetailsViewModel(
-        get(),
-        get(),
-        get(),
-        get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
             get(),
             get(),
             get(),
