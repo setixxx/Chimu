@@ -12,22 +12,19 @@ import androidx.compose.material.icons.outlined.Gavel
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Leaderboard
 import androidx.compose.material3.*
-import androidx.compose.material3.FloatingToolbarExitDirection.Companion.Bottom
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.dp
-import kotlinx.serialization.Serializable
 import org.koin.compose.viewmodel.koinViewModel
 import software.setixx.chimu.api.domain.TransferStatus
 import software.setixx.chimu.presentation.jam.details.components.HomeBottomBar
 import software.setixx.chimu.presentation.jam.details.judging.JudgingScreen
 import software.setixx.chimu.presentation.jam.details.leaderboard.LeaderboardScreen
 import software.setixx.chimu.presentation.jam.details.management.ManagementScreen
-import software.setixx.chimu.presentation.jam.details.project.ProgressScreen
+import software.setixx.chimu.presentation.jam.details.project.ProjectScreen
 import software.setixx.chimu.presentation.jam.details.overview.OverviewScreen
 import software.setixx.chimu.presentation.jam.details.transfer.JamTransferDialog
 
@@ -171,7 +168,7 @@ fun JamDetailsScreen(
                                     )
                                 }
                                 JamDetailsTab.Project -> {
-                                    ProgressScreen(
+                                    ProjectScreen(
                                         jamId = jamId,
                                         jam = jam,
                                         userRole = state.userRole,

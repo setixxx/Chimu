@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Download
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -24,7 +25,8 @@ fun ProjectFilesSection(
     canDelete: Boolean,
     isReadOnly: Boolean,
     onUpload: () -> Unit,
-    onDelete: (fileId: String) -> Unit
+    onDelete: (fileId: String) -> Unit,
+    onDownload: (fileId: String) -> Unit
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Row(
@@ -109,17 +111,26 @@ fun ProjectFilesSection(
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         },
-                        trailingContent = if (canDelete) {
-                            {
-                                IconButton(onClick = { onDelete(file.id) }) {
+                        trailingContent = {
+                            Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                                IconButton(onClick = { onDownload(file.id) }) {
                                     Icon(
-                                        Icons.Default.Delete,
-                                        contentDescription = "Удалить",
-                                        tint = MaterialTheme.colorScheme.error
+                                        Icons.Default.Download,
+                                        contentDescription = "Скачать",
+                                        tint = MaterialTheme.colorScheme.primary
                                     )
                                 }
+                                if (canDelete) {
+                                    IconButton(onClick = { onDelete(file.id) }) {
+                                        Icon(
+                                            Icons.Default.Delete,
+                                            contentDescription = "Удалить",
+                                            tint = MaterialTheme.colorScheme.error
+                                        )
+                                    }
+                                }
                             }
-                        } else null
+                        }
                     )
                 }
             }

@@ -7,8 +7,10 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import software.setixx.chimu.api.domain.ProjectFileType
 import software.setixx.chimu.api.domain.ProjectStatus
 import software.setixx.chimu.api.domain.RegistrationStatus
+import software.setixx.chimu.data.downloader.FileDownloader
 import software.setixx.chimu.domain.model.ApiResult
 import software.setixx.chimu.domain.model.CreateProject
 import software.setixx.chimu.domain.model.ProjectFile
@@ -17,6 +19,7 @@ import software.setixx.chimu.domain.usecase.CreateProjectUseCase
 import software.setixx.chimu.domain.usecase.DeleteProjectFileUseCase
 import software.setixx.chimu.domain.usecase.DeleteProjectUseCase
 import software.setixx.chimu.domain.usecase.DisqualifyProjectUseCase
+import software.setixx.chimu.domain.usecase.DownloadProjectFileUseCase
 import software.setixx.chimu.domain.usecase.GetJamProjectsUseCase
 import software.setixx.chimu.domain.usecase.GetJamRegistrationsUseCase
 import software.setixx.chimu.domain.usecase.GetJamStatisticsUseCase
@@ -46,7 +49,9 @@ class ProjectViewModel(
     private val deleteProjectUseCase: DeleteProjectUseCase,
     private val getJamStatisticsUseCase: GetJamStatisticsUseCase,
     private val updateRegistrationStatusUseCase: UpdateRegistrationStatusUseCase,
-    private val updateProjectUseCase: UpdateProjectUseCase
+    private val updateProjectUseCase: UpdateProjectUseCase,
+    private val downloadProjectFileUseCase: DownloadProjectFileUseCase,
+    private val fileDownloader: FileDownloader
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(ProjectState())
@@ -276,12 +281,28 @@ class ProjectViewModel(
         }
     }
 
-    fun deleteFile(projectId: String, fileId: String) {
+    fun deleteFile(projectId: String, fileId: String, fileType: ProjectFileType) {
         viewModelScope.launch {
             _state.update { it.copy(isActionLoading = true) }
-            when (val result = deleteProjectFileUseCase(projectId, fileId)) {
+            when (val result = deleteProjectFileUseCase(projectId, fileId, fileType)) {
                 is ApiResult.Success -> {
                     loadProjectFiles(projectId)
+                    _state.update { it.copy(isActionLoading = false) }
+                }
+                is ApiResult.Error -> {
+                    _state.update { it.copy(isActionLoading = false, errorMessage = result.message) }
+                }
+            }
+        }
+    }
+
+    fun downloadFile(projectId: String, fileId: String, fileType: ProjectFileType, fileName: String, mimeType: String) {
+        viewModelScope.launch {
+            _state.update { it.copy(isActionLoading = true) }
+            when (val result = downloadProjectFileUseCase(projectId, fileId, fileType)) {
+                is ApiResult.Success -> {
+                    runCatching { fileDownloader.save(fileName, result.data, mimeType) }
+                        .onFailure { _state.update { s -> s.copy(errorMessage = "Ошибка сохранения файла") } }
                     _state.update { it.copy(isActionLoading = false) }
                 }
                 is ApiResult.Error -> {

@@ -3,6 +3,7 @@ package software.setixx.chimu.di
 import android.content.Context
 import org.koin.core.module.Module
 import org.koin.dsl.module
+import software.setixx.chimu.data.downloader.FileDownloader
 import software.setixx.chimu.data.local.AndroidTokenStorage
 import software.setixx.chimu.data.local.TokenStorage
 
@@ -11,4 +12,5 @@ actual fun platformModule(): Module = module {
         val context = get<Context>()
         AndroidTokenStorage(context)
     }
+    single { FileDownloader(get<Context>()) }
 }

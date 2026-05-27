@@ -189,6 +189,7 @@ fun ProjectDetailsContent(
                             ) {
                                 Column(modifier = Modifier.padding(16.dp)) {
                                     ImagePlaceholderGallery(
+                                        projectId = project.id,
                                         screenshotFiles = state.projectFiles.filter {
                                             it.fileType == ProjectFileType.SCREENSHOT
                                         },
@@ -196,7 +197,16 @@ fun ProjectDetailsContent(
                                         canDelete = canDeleteFile,
                                         isReadOnly = false,
                                         onUpload = { screenshotPicker() },
-                                        onDelete = { fileId -> viewModel.deleteFile(project.id, fileId) }
+                                        onDelete = { fileId ->
+                                            state.projectFiles.find { it.id == fileId }?.let {
+                                                viewModel.deleteFile(project.id, it.id, it.fileType)
+                                            }
+                                        },
+                                        onDownload = { fileId ->
+                                            state.projectFiles.find { it.id == fileId }?.let {
+                                                viewModel.downloadFile(project.id, it.id, it.fileType, it.fileName, it.mimeType)
+                                            }
+                                        }
                                     )
                                 }
                             }
@@ -218,7 +228,16 @@ fun ProjectDetailsContent(
                                         canDelete = canDeleteFile,
                                         isReadOnly = false,
                                         onUpload = { buildPicker() },
-                                        onDelete = { fileId -> viewModel.deleteFile(project.id, fileId) }
+                                        onDelete = { fileId ->
+                                            state.projectFiles.find { it.id == fileId }?.let {
+                                                viewModel.deleteFile(project.id, it.id, it.fileType)
+                                            }
+                                        },
+                                        onDownload = { fileId ->
+                                            state.projectFiles.find { it.id == fileId }?.let {
+                                                viewModel.downloadFile(project.id, it.id, it.fileType, it.fileName, it.mimeType)
+                                            }
+                                        }
                                     )
                                 }
                             }
@@ -240,7 +259,16 @@ fun ProjectDetailsContent(
                                         canDelete = canDeleteFile,
                                         isReadOnly = false,
                                         onUpload = { videoPicker() },
-                                        onDelete = { fileId -> viewModel.deleteFile(project.id, fileId) }
+                                        onDelete = { fileId ->
+                                            state.projectFiles.find { it.id == fileId }?.let {
+                                                viewModel.deleteFile(project.id, it.id, it.fileType)
+                                            }
+                                        },
+                                        onDownload = { fileId ->
+                                            state.projectFiles.find { it.id == fileId }?.let {
+                                                viewModel.downloadFile(project.id, it.id, it.fileType, it.fileName, it.mimeType)
+                                            }
+                                        }
                                     )
                                 }
                             }

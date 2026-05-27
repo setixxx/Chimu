@@ -8,7 +8,7 @@ import software.setixx.chimu.domain.model.GameJamDetails
 import software.setixx.chimu.presentation.project.ProjectDetailsContent
 
 @Composable
-fun ProgressScreen(
+fun ProjectScreen(
     jamId: String,
     jam: GameJamDetails,
     userRole: UserRole?,

@@ -13,50 +13,55 @@ import io.ktor.http.Headers
 import io.ktor.http.HttpHeaders
 import software.setixx.chimu.data.remote.dto.ProjectFileResponse
 import software.setixx.chimu.domain.model.FileUpload
-import software.setixx.chimu.domain.model.ProjectFile
 
 class ProjectFileApi(private val client: HttpClient) {
-    suspend fun getFiles(
-        projectId: String,
-        accessToken: String
-    ): List<ProjectFileResponse> {
+
+    suspend fun getFiles(projectId: String, accessToken: String): List<ProjectFileResponse> {
         val response = client.get("/api/projects/$projectId/files") {
             header(HttpHeaders.Authorization, "Bearer $accessToken")
         }
-        when (response.status.value) {
-            in 200..299 -> return response.body()
+        return when (response.status.value) {
+            in 200..299 -> response.body()
             else -> throw IllegalArgumentException("Неизвестная ошибка")
         }
     }
 
-    suspend fun uploadFile(
-        projectId: String,
-        accessToken: String,
-        file: FileUpload
-    ): ProjectFileResponse {
+    suspend fun getScreenshots(projectId: String, accessToken: String): List<ProjectFileResponse> {
+        val response = client.get("/api/projects/$projectId/screenshots") {
+            header(HttpHeaders.Authorization, "Bearer $accessToken")
+        }
+        return when (response.status.value) {
+            in 200..299 -> response.body()
+            else -> throw IllegalArgumentException("Неизвестная ошибка")
+        }
+    }
+
+    suspend fun getVideos(projectId: String, accessToken: String): List<ProjectFileResponse> {
+        val response = client.get("/api/projects/$projectId/videos") {
+            header(HttpHeaders.Authorization, "Bearer $accessToken")
+        }
+        return when (response.status.value) {
+            in 200..299 -> response.body()
+            else -> throw IllegalArgumentException("Неизвестная ошибка")
+        }
+    }
+
+    suspend fun uploadFile(projectId: String, accessToken: String, file: FileUpload): ProjectFileResponse {
         val response = client.post("/api/projects/$projectId/files") {
             header(HttpHeaders.Authorization, "Bearer $accessToken")
-            setBody(
-                MultiPartFormDataContent(
-                    formData {
-                        append(
-                            key = "file",
-                            value = file.bytes,
-                            headers = Headers.build {
-                                append(HttpHeaders.ContentType, file.mimeType)
-                                append(
-                                    HttpHeaders.ContentDisposition,
-                                    "filename=\"${file.fileName}\""
-                                )
-                            }
-                        )
-                        append("fileType", file.fileType.name)
+            setBody(MultiPartFormDataContent(formData {
+                append(
+                    key = "file",
+                    value = file.bytes,
+                    headers = Headers.build {
+                        append(HttpHeaders.ContentType, file.mimeType)
+                        append(HttpHeaders.ContentDisposition, "filename=\"${file.fileName}\"")
                     }
                 )
-            )
+            }))
         }
-        when (response.status.value) {
-            in 200..299 -> return response.body()
+        return when (response.status.value) {
+            in 200..299 -> response.body()
             401 -> throw IllegalArgumentException("Ошибка авторизации")
             403 -> throw IllegalArgumentException("Недостаточно прав")
             404 -> throw IllegalArgumentException("Проект не найден")
@@ -65,16 +70,60 @@ class ProjectFileApi(private val client: HttpClient) {
         }
     }
 
-    suspend fun downloadFile(
-        projectId: String,
-        fileId: String,
-        accessToken: String
-    ): ByteArray {
+    suspend fun uploadScreenshot(projectId: String, accessToken: String, file: FileUpload): ProjectFileResponse {
+        val response = client.post("/api/projects/$projectId/screenshots") {
+            header(HttpHeaders.Authorization, "Bearer $accessToken")
+            setBody(MultiPartFormDataContent(formData {
+                append(
+                    key = "file",
+                    value = file.bytes,
+                    headers = Headers.build {
+                        append(HttpHeaders.ContentType, file.mimeType)
+                        append(HttpHeaders.ContentDisposition, "filename=\"${file.fileName}\"")
+                    }
+                )
+            }))
+        }
+        return when (response.status.value) {
+            in 200..299 -> response.body()
+            401 -> throw IllegalArgumentException("Ошибка авторизации")
+            403 -> throw IllegalArgumentException("Недостаточно прав")
+            404 -> throw IllegalArgumentException("Проект не найден")
+            413 -> throw IllegalArgumentException("Файл слишком большой")
+            else -> throw IllegalArgumentException("Неизвестная ошибка")
+        }
+    }
+
+    suspend fun uploadVideo(projectId: String, accessToken: String, file: FileUpload): ProjectFileResponse {
+        val response = client.post("/api/projects/$projectId/videos") {
+            header(HttpHeaders.Authorization, "Bearer $accessToken")
+            setBody(MultiPartFormDataContent(formData {
+                append(
+                    key = "file",
+                    value = file.bytes,
+                    headers = Headers.build {
+                        append(HttpHeaders.ContentType, file.mimeType)
+                        append(HttpHeaders.ContentDisposition, "filename=\"${file.fileName}\"")
+                    }
+                )
+            }))
+        }
+        return when (response.status.value) {
+            in 200..299 -> response.body()
+            401 -> throw IllegalArgumentException("Ошибка авторизации")
+            403 -> throw IllegalArgumentException("Недостаточно прав")
+            404 -> throw IllegalArgumentException("Проект не найден")
+            413 -> throw IllegalArgumentException("Файл слишком большой")
+            else -> throw IllegalArgumentException("Неизвестная ошибка")
+        }
+    }
+
+    suspend fun downloadFile(projectId: String, fileId: String, accessToken: String): ByteArray {
         val response = client.get("/api/projects/$projectId/files/$fileId") {
             header(HttpHeaders.Authorization, "Bearer $accessToken")
         }
-        when (response.status.value) {
-            in 200..299 -> return response.body()
+        return when (response.status.value) {
+            in 200..299 -> response.body()
             401 -> throw IllegalArgumentException("Ошибка авторизации")
             403 -> throw IllegalArgumentException("Недостаточно прав")
             404 -> throw IllegalArgumentException("Файл не найден")
@@ -82,11 +131,33 @@ class ProjectFileApi(private val client: HttpClient) {
         }
     }
 
-    suspend fun deleteFile(
-        projectId: String,
-        fileId: String,
-        accessToken: String
-    ) {
+    suspend fun downloadScreenshot(projectId: String, fileId: String, accessToken: String): ByteArray {
+        val response = client.get("/api/projects/$projectId/screenshots/$fileId") {
+            header(HttpHeaders.Authorization, "Bearer $accessToken")
+        }
+        return when (response.status.value) {
+            in 200..299 -> response.body()
+            401 -> throw IllegalArgumentException("Ошибка авторизации")
+            403 -> throw IllegalArgumentException("Недостаточно прав")
+            404 -> throw IllegalArgumentException("Файл не найден")
+            else -> throw IllegalArgumentException("Неизвестная ошибка")
+        }
+    }
+
+    suspend fun downloadVideo(projectId: String, fileId: String, accessToken: String): ByteArray {
+        val response = client.get("/api/projects/$projectId/videos/$fileId") {
+            header(HttpHeaders.Authorization, "Bearer $accessToken")
+        }
+        return when (response.status.value) {
+            in 200..299 -> response.body()
+            401 -> throw IllegalArgumentException("Ошибка авторизации")
+            403 -> throw IllegalArgumentException("Недостаточно прав")
+            404 -> throw IllegalArgumentException("Файл не найден")
+            else -> throw IllegalArgumentException("Неизвестная ошибка")
+        }
+    }
+
+    suspend fun deleteFile(projectId: String, fileId: String, accessToken: String) {
         val response = client.delete("/api/projects/$projectId/files/$fileId") {
             header(HttpHeaders.Authorization, "Bearer $accessToken")
         }
@@ -99,4 +170,29 @@ class ProjectFileApi(private val client: HttpClient) {
         }
     }
 
+    suspend fun deleteScreenshot(projectId: String, fileId: String, accessToken: String) {
+        val response = client.delete("/api/projects/$projectId/screenshots/$fileId") {
+            header(HttpHeaders.Authorization, "Bearer $accessToken")
+        }
+        when (response.status.value) {
+            in 200..299 -> return
+            401 -> throw IllegalArgumentException("Ошибка авторизации")
+            403 -> throw IllegalArgumentException("Недостаточно прав")
+            404 -> throw IllegalArgumentException("Файл не найден")
+            else -> throw IllegalArgumentException("Неизвестная ошибка")
+        }
+    }
+
+    suspend fun deleteVideo(projectId: String, fileId: String, accessToken: String) {
+        val response = client.delete("/api/projects/$projectId/videos/$fileId") {
+            header(HttpHeaders.Authorization, "Bearer $accessToken")
+        }
+        when (response.status.value) {
+            in 200..299 -> return
+            401 -> throw IllegalArgumentException("Ошибка авторизации")
+            403 -> throw IllegalArgumentException("Недостаточно прав")
+            404 -> throw IllegalArgumentException("Файл не найден")
+            else -> throw IllegalArgumentException("Неизвестная ошибка")
+        }
+    }
 }
