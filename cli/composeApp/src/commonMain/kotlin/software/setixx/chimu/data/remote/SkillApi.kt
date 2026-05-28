@@ -7,6 +7,9 @@ import io.ktor.client.request.header
 import io.ktor.http.HttpHeaders
 import software.setixx.chimu.data.remote.dto.SkillResponse
 
+/**
+ * Класс для получения списка доступных профессиональных навыков.
+ */
 class SkillApi(private val client: HttpClient) {
 
     suspend fun getAllSkills(accessToken: String): List<SkillResponse> {

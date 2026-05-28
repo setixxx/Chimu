@@ -9,6 +9,9 @@ import software.setixx.chimu.data.remote.dto.*
 import software.setixx.chimu.domain.model.*
 import software.setixx.chimu.domain.repository.TeamRepository
 
+/**
+ * Реализация репозитория для управления командами и их участниками.
+ */
 class TeamRepositoryImpl(
     private val api: TeamApi,
     private val tokenStorage: TokenStorage

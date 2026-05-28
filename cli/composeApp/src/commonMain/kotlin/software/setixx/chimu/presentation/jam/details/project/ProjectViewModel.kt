@@ -33,6 +33,10 @@ import software.setixx.chimu.domain.usecase.UpdateProjectUseCase
 import software.setixx.chimu.domain.usecase.UpdateRegistrationStatusUseCase
 import software.setixx.chimu.domain.usecase.UploadProjectFileUseCase
 
+/**
+ * ViewModel для управления проектом в рамках Game Jam.
+ * Обеспечивает создание проекта, загрузку файлов игры и скриншотов, а также отправку на проверку.
+ */
 class ProjectViewModel(
     private val getUserTeamsUseCase: GetUserTeamsUseCase,
     private val getJamRegistrationsUseCase: GetJamRegistrationsUseCase,

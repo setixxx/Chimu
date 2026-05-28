@@ -6,6 +6,9 @@ import software.setixx.chimu.domain.model.ApiResult
 import software.setixx.chimu.domain.model.Specialization
 import software.setixx.chimu.domain.repository.SpecializationRepository
 
+/**
+ * Реализация репозитория для получения списка специализаций.
+ */
 class SpecializationRepositoryImpl(
     private val api: SpecializationApi,
     private val tokenStorage: TokenStorage

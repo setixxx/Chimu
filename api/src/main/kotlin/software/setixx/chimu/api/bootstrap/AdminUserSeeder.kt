@@ -8,6 +8,10 @@ import software.setixx.chimu.api.domain.User
 import software.setixx.chimu.api.domain.UserRole
 import software.setixx.chimu.api.repository.UserRepository
 
+/**
+ * Загрузчик начальных данных для администратора.
+ * Создает учетную запись администратора при первом запуске, если она отсутствует в базе данных.
+ */
 @Component
 class AdminUserSeeder(
     private val userRepository: UserRepository,

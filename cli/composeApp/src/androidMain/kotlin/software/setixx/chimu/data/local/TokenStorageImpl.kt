@@ -10,6 +10,9 @@ import kotlinx.coroutines.withContext
 
 actual fun createTokenStorage(): TokenStorage = AndroidTokenStorageProvider.get()
 
+/**
+ * Провайдер для инициализации и получения экземпляра AndroidTokenStorage.
+ */
 object AndroidTokenStorageProvider {
     private var instance: TokenStorage? = null
 
@@ -24,6 +27,9 @@ object AndroidTokenStorageProvider {
     }
 }
 
+/**
+ * Реализация TokenStorage для Android, использующая EncryptedSharedPreferences для безопасного хранения.
+ */
 class AndroidTokenStorage(context: Context) : TokenStorage {
     private val masterKey = MasterKey.Builder(context)
         .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)

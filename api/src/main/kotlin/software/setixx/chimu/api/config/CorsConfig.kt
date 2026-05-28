@@ -6,6 +6,10 @@ import org.springframework.web.cors.CorsConfiguration
 import org.springframework.web.cors.CorsConfigurationSource
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 
+/**
+ * Конфигурация CORS для управления кросс-доменными запросами.
+ * Определяет разрешенные источники, методы и заголовки для взаимодействия с фронтендом.
+ */
 @Configuration
 class CorsConfig {
 

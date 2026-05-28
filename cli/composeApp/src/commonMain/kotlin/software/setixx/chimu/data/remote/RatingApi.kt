@@ -16,6 +16,9 @@ import software.setixx.chimu.data.remote.dto.RateProjectRequest
 import software.setixx.chimu.data.remote.dto.RatingResponse
 import software.setixx.chimu.data.remote.dto.UpdateRatingRequest
 
+/**
+ * Класс для управления оценками проектов (выставление, получение, обновление и удаление).
+ */
 class RatingApi(
     private val client: HttpClient
 ) {

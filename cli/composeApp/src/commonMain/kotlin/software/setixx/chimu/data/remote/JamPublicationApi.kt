@@ -14,6 +14,9 @@ import io.ktor.http.HttpHeaders
 import software.setixx.chimu.data.remote.dto.GameJamDetailsResponse
 import software.setixx.chimu.domain.model.FileUpload
 
+/**
+ * Класс для управления процессом публикации джема и загрузки баннеров.
+ */
 class JamPublicationApi(private val client: HttpClient) {
 
     suspend fun publishJam(jamId: String, accessToken: String): GameJamDetailsResponse {

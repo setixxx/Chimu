@@ -11,6 +11,10 @@ import kotlinx.coroutines.launch
 import software.setixx.chimu.domain.model.*
 import software.setixx.chimu.domain.usecase.*
 
+/**
+ * ViewModel для детальной информации о команде.
+ * Управляет составом команды, приглашениями, специализациями участников и настройками команды.
+ */
 class TeamDetailsViewModel(
     private val getTeamDetailsUseCase: GetTeamDetailsUseCase,
     private val updateTeamUseCase: UpdateTeamUseCase,

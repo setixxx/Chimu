@@ -21,6 +21,9 @@ import software.setixx.chimu.domain.model.Specialization
 import software.setixx.chimu.domain.model.UserProfile
 import software.setixx.chimu.domain.repository.UserRepository
 
+/**
+ * Реализация репозитория для работы с данными пользователей и профилем.
+ */
 class UserRepositoryImpl(
     private val api: UserApi,
     private val tokenStorage: TokenStorage

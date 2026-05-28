@@ -6,6 +6,10 @@ import org.hibernate.generator.EventType
 import java.time.Instant
 import java.util.UUID
 
+/**
+ * Сущность команды разработчиков.
+ * Хранит информацию о лидере, названии и токене для приглашения новых участников.
+ */
 @Entity
 @Table(name = "teams")
 class Team(

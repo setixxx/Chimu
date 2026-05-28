@@ -14,6 +14,10 @@ import java.security.Key
 import java.util.Date
 import java.util.UUID
 
+/**
+ * Сервис для работы с JWT-токенами.
+ * Отвечает за генерацию, парсинг и валидацию токенов доступа и обновления.
+ */
 @Component
 class TokenService(
     @Value("\${JWT_SECRET}") private val secret: String,

@@ -3,6 +3,10 @@ package software.setixx.chimu.presentation.navigation
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+/**
+ * Определение всех экранов приложения для навигации.
+ * Использует kotlinx.serialization для поддержки типобезопасных маршрутов.
+ */
 sealed interface Screen {
     @Serializable @SerialName("splash") data object Splash : Screen
     @Serializable @SerialName("login") data object Login : Screen

@@ -9,6 +9,10 @@ import software.setixx.chimu.domain.model.Project
 import software.setixx.chimu.domain.model.Team
 import software.setixx.chimu.domain.model.UserProfile
 
+/**
+ * Глобальное состояние основного экрана приложения.
+ * Агрегирует информацию о пользователе, текущих джемах, командах и уведомлениях.
+ */
 data class MainState(
     val user: UserProfile? = null,
     val activeJams: List<GameJam> = emptyList(),
@@ -30,8 +34,16 @@ data class MainState(
         get() = user?.role == UserRole.ADMIN || user?.role == UserRole.ORGANIZER
 }
 
+/**
+ * Типы действий для уведомлений.
+ * Определяет, какие действия доступны пользователю при получении уведомления.
+ */
 enum class NotificationActionType { JAM_TRANSFER_RECEIVED }
 
+/**
+ * Модель уведомления в приложении.
+ * Используется для отображения системных сообщений и предложений пользователю.
+ */
 data class Notification(
     val id: String,
     val message: String,

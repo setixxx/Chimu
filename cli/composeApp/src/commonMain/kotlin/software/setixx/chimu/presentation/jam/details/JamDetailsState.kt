@@ -10,6 +10,10 @@ import software.setixx.chimu.domain.model.PublicUserProfile
 import software.setixx.chimu.domain.model.Registration
 import software.setixx.chimu.domain.model.Team
 
+/**
+ * Состояние экрана деталей Game Jam.
+ * Определяет доступные вкладки и действия в зависимости от роли пользователя.
+ */
 data class JamDetailsState(
     val jamDetails: GameJamDetails? = null,
     val userRole: UserRole? = null,

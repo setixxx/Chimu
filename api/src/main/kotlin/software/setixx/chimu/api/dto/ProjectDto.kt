@@ -5,6 +5,9 @@ import jakarta.validation.constraints.Size
 import software.setixx.chimu.api.domain.ProjectStatus
 import java.time.Instant
 
+/**
+ * Запрос на создание проекта.
+ */
 data class CreateProjectRequest(
     @field:NotBlank(message = "Project title is required")
     @field:Size(min = 3, max = 200, message = "Title must be between 3 and 200 characters")
@@ -16,6 +19,9 @@ data class CreateProjectRequest(
     val gameUrl: String? = null
 )
 
+/**
+ * Запрос на обновление данных проекта.
+ */
 data class UpdateProjectRequest(
     @field:Size(min = 3, max = 200, message = "Title must be between 3 and 200 characters")
     val title: String? = null,
@@ -26,6 +32,9 @@ data class UpdateProjectRequest(
     val gameUrl: String? = null
 )
 
+/**
+ * Базовый ответ с информацией о проекте.
+ */
 data class ProjectResponse(
     val id: String,
     val jamId: String,
@@ -41,6 +50,9 @@ data class ProjectResponse(
     val updatedAt: String
 )
 
+/**
+ * Детальный ответ с информацией о проекте и правами текущего пользователя.
+ */
 data class ProjectDetailsResponse(
     val id: String,
     val jamId: String,

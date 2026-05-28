@@ -32,6 +32,10 @@ import software.setixx.chimu.domain.usecase.ObserveUserTeamsUseCase
 import software.setixx.chimu.domain.usecase.ObserverUserUseCase
 import software.setixx.chimu.domain.usecase.ReviewTransferUseCase
 
+/**
+ * Главная ViewModel приложения.
+ * Координирует загрузку данных пользователя, уведомлений и навигацию между основными разделами.
+ */
 class MainViewModel(
     private val getCurrentUserUseCase: GetCurrentUserUseCase,
     private val logoutUseCase: LogoutUseCase,

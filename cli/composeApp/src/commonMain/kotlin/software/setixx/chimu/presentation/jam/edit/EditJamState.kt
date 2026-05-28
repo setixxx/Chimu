@@ -3,6 +3,10 @@ package software.setixx.chimu.presentation.jam.edit
 import software.setixx.chimu.domain.model.GameJam
 import software.setixx.chimu.domain.model.GameJamDetails
 
+/**
+ * Состояние экрана редактирования Game Jam.
+ * Хранит текущие значения параметров мероприятия для редактирования.
+ */
 data class EditJamState(
     val jam: GameJamDetails? = null,
     val name: String = "",

@@ -5,6 +5,10 @@ import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfi
 import org.springframework.boot.runApplication
 import org.springframework.scheduling.annotation.EnableScheduling
 
+/**
+ * Главный класс приложения Chimu API.
+ * Запускает Spring Boot приложение и включает поддержку планировщика задач.
+ */
 @SpringBootApplication
 @EnableScheduling
 class ChimuApplication

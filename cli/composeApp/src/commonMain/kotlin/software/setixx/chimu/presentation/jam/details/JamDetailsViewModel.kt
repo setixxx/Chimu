@@ -22,6 +22,10 @@ import software.setixx.chimu.domain.usecase.GetTransferRequestsUseCase
 import software.setixx.chimu.domain.usecase.GetUserByNicknameUseCase
 import software.setixx.chimu.domain.usecase.GetUserTeamsUseCase
 
+/**
+ * ViewModel для детальной информации о Game Jam.
+ * Отвечает за загрузку данных джема, управление регистрациями и передачу прав организатора.
+ */
 class JamDetailsViewModel(
     private val getJamDetailsUseCase: GetJamDetailsUseCase,
     private val deleteJamUseCase: DeleteJamUseCase,

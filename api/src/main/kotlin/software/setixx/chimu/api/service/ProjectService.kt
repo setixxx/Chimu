@@ -8,6 +8,10 @@ import software.setixx.chimu.api.repository.*
 import java.time.Instant
 import java.util.UUID
 
+/**
+ * Сервис для управления проектами участников.
+ * Обрабатывает создание, обновление, подачу работ на джем и дисквалификацию проектов.
+ */
 @Service
 class ProjectService(
     private val projectRepository: ProjectRepository,

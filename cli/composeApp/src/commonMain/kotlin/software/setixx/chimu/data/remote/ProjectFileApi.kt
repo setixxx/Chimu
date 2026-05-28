@@ -14,6 +14,9 @@ import io.ktor.http.HttpHeaders
 import software.setixx.chimu.data.remote.dto.ProjectFileResponse
 import software.setixx.chimu.domain.model.FileUpload
 
+/**
+ * Класс для работы с файлами проекта (загрузка, скачивание и удаление файлов, скриншотов и видео).
+ */
 class ProjectFileApi(private val client: HttpClient) {
 
     suspend fun getFiles(projectId: String, accessToken: String): List<ProjectFileResponse> {

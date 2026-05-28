@@ -7,6 +7,10 @@ import java.math.BigDecimal
 import java.time.Instant
 import java.util.UUID
 
+/**
+ * Сущность критерия оценки для Game Jam.
+ * Определяет название, описание и вес критерия в итоговом зачете.
+ */
 @Entity
 @Table(name = "rating_criteria")
 class RatingCriteria(

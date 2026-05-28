@@ -15,6 +15,9 @@ import software.setixx.chimu.data.remote.dto.ProjectDetailsResponse
 import software.setixx.chimu.data.remote.dto.ProjectResponse
 import software.setixx.chimu.data.remote.dto.UpdateProjectRequest
 
+/**
+ * Класс для управления проектами (создание, отправка, публикация, дисквалификация).
+ */
 class ProjectApi(private val client: HttpClient) {
     suspend fun submitProject(
         accessToken: String,

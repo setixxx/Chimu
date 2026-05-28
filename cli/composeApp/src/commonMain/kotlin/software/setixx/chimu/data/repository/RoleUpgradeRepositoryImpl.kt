@@ -11,6 +11,9 @@ import software.setixx.chimu.domain.model.ReviewRoleUpgrade
 import software.setixx.chimu.domain.model.RoleUpgrade
 import software.setixx.chimu.domain.repository.RoleUpgradeRepository
 
+/**
+ * Реализация репозитория для управления заявками на смену роли пользователя.
+ */
 class RoleUpgradeRepositoryImpl(
     private val api: RoleUpgradeApi,
     private val tokenStorage: TokenStorage

@@ -11,6 +11,9 @@ import software.setixx.chimu.domain.model.JamTransfer
 import software.setixx.chimu.domain.model.ReviewJamTransfer
 import software.setixx.chimu.domain.repository.JamTransferRepository
 
+/**
+ * Реализация репозитория передачи прав владения джемом.
+ */
 class JamTransferRepositoryImpl(
     private val api: JamTransferApi,
     private val tokenStorage: TokenStorage

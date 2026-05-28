@@ -8,6 +8,10 @@ import org.hibernate.type.SqlTypes
 import java.time.Instant
 import java.util.UUID
 
+/**
+ * Сущность запроса на передачу прав владения Game Jam.
+ * Позволяет текущему организатору передать управление мероприятием другому пользователю.
+ */
 @Entity
 @Table(name = "jam_transfer_requests")
 class JamTransferRequest(

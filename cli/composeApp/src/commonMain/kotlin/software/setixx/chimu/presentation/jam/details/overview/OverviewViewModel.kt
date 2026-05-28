@@ -15,6 +15,10 @@ import software.setixx.chimu.domain.usecase.GetUserTeamsUseCase
 import software.setixx.chimu.domain.usecase.RegisterTeamUseCase
 import software.setixx.chimu.domain.usecase.WithdrawTeamUseCase
 
+/**
+ * ViewModel для обзорной информации о джеме.
+ * Управляет подачей заявок на участие от команд и просмотром общей информации.
+ */
 class OverviewViewModel(
     private val getJamRegistrationsUseCase: GetJamRegistrationsUseCase,
     private val getUserTeamsUseCase: GetUserTeamsUseCase,

@@ -14,6 +14,9 @@ import software.setixx.chimu.data.remote.dto.RegistrationResponse
 import software.setixx.chimu.data.remote.dto.UpdateRegistrationStatusRequest
 import software.setixx.chimu.domain.model.Registration
 
+/**
+ * Класс для управления регистрацией команд на игровые джемы.
+ */
 class TeamRegistrationsApi(
     private val client: HttpClient
 ) {

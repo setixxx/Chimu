@@ -3,6 +3,10 @@ package software.setixx.chimu.api.domain
 import jakarta.persistence.*
 import java.util.UUID
 
+/**
+ * Сущность навыка (технологии).
+ * Используется для указания компетенций пользователей в их профилях.
+ */
 @Entity
 @Table(name = "skills")
 class Skill(

@@ -11,6 +11,10 @@ import software.setixx.chimu.domain.model.ApiResult
 import software.setixx.chimu.domain.usecase.RegisterUseCase
 import software.setixx.chimu.presentation.utils.PasswordUtils
 
+/**
+ * ViewModel для экрана регистрации.
+ * Управляет созданием нового аккаунта и проверкой надежности пароля.
+ */
 class RegisterViewModel(
     private val registerUseCase: RegisterUseCase
 ) : ViewModel() {

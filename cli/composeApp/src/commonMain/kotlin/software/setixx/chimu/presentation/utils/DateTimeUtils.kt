@@ -5,6 +5,10 @@ import kotlinx.datetime.number
 import kotlinx.datetime.toLocalDateTime
 import kotlin.time.Instant
 
+/**
+ * Утилиты для работы с датой и временем.
+ * Содержит методы для форматирования ISO-строк в человекочитаемый вид.
+ */
 object DateTimeUtils {
     fun formatDateTime(isoString: String?): String {
         if (isoString.isNullOrBlank()) return ""

@@ -9,6 +9,9 @@ import software.setixx.chimu.domain.model.FileUpload
 import software.setixx.chimu.domain.model.ProjectFile
 import software.setixx.chimu.domain.repository.ProjectFileRepository
 
+/**
+ * Реализация репозитория для управления файлами проектов, включая загрузку, скачивание и удаление.
+ */
 class ProjectFileRepositoryImpl(
     private val api: ProjectFileApi,
     private val tokenStorage: TokenStorage

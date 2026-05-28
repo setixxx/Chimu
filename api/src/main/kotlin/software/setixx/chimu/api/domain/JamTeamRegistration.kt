@@ -8,6 +8,10 @@ import org.hibernate.type.SqlTypes
 import java.time.Instant
 import java.util.UUID
 
+/**
+ * Сущность регистрации команды на Game Jam.
+ * Хранит информацию о статусе заявки и пользователе, подавшем её.
+ */
 @Entity
 @Table(name = "jam_team_registrations")
 class JamTeamRegistration(

@@ -7,6 +7,9 @@ import io.ktor.client.request.header
 import io.ktor.http.HttpHeaders
 import software.setixx.chimu.data.remote.dto.SpecializationResponse
 
+/**
+ * Класс для получения списка доступных специализаций.
+ */
 class SpecializationApi(private val client: HttpClient) {
 
     suspend fun getAllSpecializations(accessToken: String): List<SpecializationResponse> {

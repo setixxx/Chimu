@@ -34,6 +34,10 @@ import software.setixx.chimu.domain.usecase.UpdateJamCriteriaUseCase
 import software.setixx.chimu.domain.usecase.UploadJamBannerUseCase
 import software.setixx.chimu.domain.usecase.UpdateRegistrationStatusUseCase
 
+/**
+ * ViewModel для управления Game Jam (для организаторов).
+ * Позволяет назначать судей, управлять критериями оценки и изменять статус регистрации.
+ */
 class ManagementViewModel(
     private val getJamJudgesUseCase: GetJamJudgesUseCase,
     private val assignJudgeUseCase: AssignJudgeUseCase,

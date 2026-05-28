@@ -4,6 +4,10 @@ import jakarta.validation.constraints.*
 import software.setixx.chimu.api.domain.GameJamStatus
 import java.time.Instant
 
+/**
+ * Запрос на создание нового Game Jam.
+ * Содержит все параметры мероприятия, включая сроки регистрации и проведения.
+ */
 data class CreateGameJamRequest(
     @field:NotBlank(message = "Game jam name is required")
     @field:Size(min = 3, max = 200, message = "Name must be between 3 and 200 characters")
@@ -48,6 +52,10 @@ data class CreateGameJamRequest(
     val maxTeamSize: Int = 10
 )
 
+/**
+ * Запрос на обновление существующего Game Jam.
+ * Позволяет изменять любые параметры мероприятия организатором.
+ */
 data class UpdateGameJamRequest(
     @field:Size(min = 3, max = 200, message = "Name must be between 3 and 200 characters")
     val name: String? = null,
@@ -84,6 +92,10 @@ data class UpdateGameJamRequest(
     val maxTeamSize: Int? = null
 )
 
+/**
+ * Базовый ответ с информацией о Game Jam.
+ * Используется в списках для отображения кратких сведений о мероприятии.
+ */
 data class GameJamResponse(
     val id: String,
     val name: String,
@@ -106,6 +118,10 @@ data class GameJamResponse(
     val updatedAt: String
 )
 
+/**
+ * Полный ответ с детальной информацией о Game Jam.
+ * Включает правила, список судей и критерии оценки.
+ */
 data class GameJamDetailsResponse(
     val id: String,
     val name: String,

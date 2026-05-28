@@ -8,6 +8,10 @@ import software.setixx.chimu.domain.model.Registration
 import software.setixx.chimu.domain.model.JamStatistics
 import software.setixx.chimu.domain.model.Team
 
+/**
+ * Состояние вкладки проекта.
+ * Содержит данные о проекте команды пользователя, список файлов и общую статистику проектов джема.
+ */
 data class ProjectState(
     val userProject: ProjectDetails? = null,
     val projectFiles: List<ProjectFile> = emptyList(),

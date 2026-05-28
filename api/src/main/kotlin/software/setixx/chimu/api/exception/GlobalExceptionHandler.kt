@@ -8,6 +8,10 @@ import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
 
+/**
+ * Глобальный обработчик исключений.
+ * Перехватывает ошибки валидации, аутентификации и бизнес-логики для возврата стандартизированных JSON-ответов.
+ */
 @ControllerAdvice
 class GlobalExceptionHandler {
     @ExceptionHandler(RuntimeException::class)

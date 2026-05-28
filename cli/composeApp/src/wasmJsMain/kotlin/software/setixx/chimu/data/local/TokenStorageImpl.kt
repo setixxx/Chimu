@@ -6,6 +6,9 @@ import kotlinx.browser.window
 
 actual fun createTokenStorage(): TokenStorage = WasmJsTokenStorage()
 
+/**
+ * Реализация TokenStorage для Web (Wasm), использующая LocalStorage.
+ */
 class WasmJsTokenStorage : TokenStorage {
     private val localStorage = window.localStorage
 

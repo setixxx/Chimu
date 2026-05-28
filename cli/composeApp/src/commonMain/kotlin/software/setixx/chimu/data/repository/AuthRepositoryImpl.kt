@@ -5,6 +5,9 @@ import software.setixx.chimu.data.remote.AuthApi
 import software.setixx.chimu.domain.model.*
 import software.setixx.chimu.domain.repository.AuthRepository
 
+/**
+ * Реализация репозитория аутентификации, использующая AuthApi и локальное хранилище токенов.
+ */
 class AuthRepositoryImpl(
     private val authApi: AuthApi,
     private val tokenStorage: TokenStorage

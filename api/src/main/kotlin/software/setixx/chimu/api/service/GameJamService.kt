@@ -26,6 +26,10 @@ import java.time.Duration
 import java.time.Instant
 import java.util.UUID
 
+/**
+ * Сервис для управления жизненным циклом Game Jam.
+ * Отвечает за создание, публикацию, обновление и отмену мероприятий, а также валидацию дат.
+ */
 @Service
 class GameJamService(
     private val gameJamRepository: GameJamRepository,

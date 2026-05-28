@@ -10,6 +10,10 @@ import kotlinx.coroutines.launch
 import software.setixx.chimu.domain.model.*
 import software.setixx.chimu.domain.usecase.*
 
+/**
+ * ViewModel для управления собственным профилем пользователя.
+ * Позволяет обновлять личные данные, выбирать специализации и навыки.
+ */
 class OwnProfileViewModel(
     private val getCurrentUserUseCase: GetCurrentUserUseCase,
     private val updateProfileUseCase: UpdateProfileUseCase,

@@ -8,6 +8,9 @@ import io.ktor.http.HttpHeaders
 import software.setixx.chimu.data.remote.dto.JamStatisticsResponse
 import software.setixx.chimu.data.remote.dto.LeaderboardResponse
 
+/**
+ * Класс для получения статистики и таблицы лидеров игрового джема.
+ */
 class LeaderboardApi(
     private val client: HttpClient
 ) {

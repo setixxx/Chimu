@@ -13,6 +13,9 @@ import software.setixx.chimu.data.remote.dto.CreateRoleUpgradeRequest
 import software.setixx.chimu.data.remote.dto.ReviewRoleUpgradeRequest
 import software.setixx.chimu.data.remote.dto.RoleUpgradeResponse
 
+/**
+ * Класс для обработки заявок на повышение роли пользователя.
+ */
 class RoleUpgradeApi(
     private val client: HttpClient
 ) {

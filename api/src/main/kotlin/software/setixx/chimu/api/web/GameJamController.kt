@@ -19,6 +19,10 @@ import software.setixx.chimu.api.repository.UserRepository
 import software.setixx.chimu.api.security.CustomUserDetails
 import software.setixx.chimu.api.service.GameJamService
 
+/**
+ * Контроллер для управления Game Jam.
+ * Предоставляет API для создания, поиска, обновления и публикации мероприятий.
+ */
 @RestController
 @RequestMapping("/api/jams")
 @Tag(name = "Game Jams", description = "Game jam management endpoints")

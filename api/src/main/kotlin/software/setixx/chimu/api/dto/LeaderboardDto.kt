@@ -1,5 +1,8 @@
 package software.setixx.chimu.api.dto
 
+/**
+ * Ответ с полной таблицей лидеров мероприятия.
+ */
 data class LeaderboardResponse(
     val jamId: String,
     val jamName: String,
@@ -45,6 +48,9 @@ data class CriteriaScoreDetail(
     val scores: List<String>
 )
 
+/**
+ * Ответ со статистикой мероприятия (для организаторов).
+ */
 data class JamStatisticsResponse(
     val jamId: String,
     val jamName: String,

@@ -2,6 +2,10 @@ package software.setixx.chimu.presentation.jam.details.management
 
 import software.setixx.chimu.domain.model.*
 
+/**
+ * Состояние экрана управления джемом.
+ * Хранит полные данные о регистрации команд, списки судей и критерии.
+ */
 data class ManagementState(
     val jam: GameJamDetails? = null,
     val judges: List<Judge> = emptyList(),

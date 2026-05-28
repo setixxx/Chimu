@@ -18,6 +18,10 @@ import org.hibernate.type.SqlTypes
 import java.time.Instant
 import java.util.UUID
 
+/**
+ * Сущность файла, связанного с проектом.
+ * Хранит метаданные о загруженных скриншотах, билдах и других материалах игры.
+ */
 @Entity
 @Table(name = "project_files")
 class ProjectFile(

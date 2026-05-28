@@ -11,6 +11,10 @@ import software.setixx.chimu.api.repository.JamTeamRegistrationRepository
 import software.setixx.chimu.api.repository.TeamMemberRepository
 import software.setixx.chimu.api.service.RatingService
 
+/**
+ * Планировщик для автоматического обновления статусов Game Jam.
+ * Переводит мероприятия между стадиями регистрации, проведения, судейства и завершения.
+ */
 @Component
 class JamStatusScheduler(
     private val gameJamRepository: GameJamRepository,

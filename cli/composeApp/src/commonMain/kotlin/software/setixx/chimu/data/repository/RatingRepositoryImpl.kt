@@ -6,6 +6,9 @@ import software.setixx.chimu.data.remote.dto.*
 import software.setixx.chimu.domain.model.*
 import software.setixx.chimu.domain.repository.RatingRepository
 
+/**
+ * Реализация репозитория для управления оценками и прогрессом судейства.
+ */
 class RatingRepositoryImpl(
     private val api: RatingApi,
     private val tokenStorage: TokenStorage

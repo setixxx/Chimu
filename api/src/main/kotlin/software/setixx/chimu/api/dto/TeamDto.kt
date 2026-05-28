@@ -6,6 +6,9 @@ import jakarta.validation.constraints.Pattern
 import jakarta.validation.constraints.Size
 import software.setixx.chimu.api.domain.RegistrationStatus
 
+/**
+ * Запрос на создание новой команды.
+ */
 data class CreateTeamRequest(
     @field:NotBlank(message = "Team name is required")
     @field:Size(min = 3, max = 100, message = "Team name must be between 3 and 100 characters")
@@ -19,6 +22,9 @@ data class CreateTeamRequest(
     val description: String? = null
 )
 
+/**
+ * Запрос на обновление данных команды.
+ */
 data class UpdateTeamRequest(
     @field:Size(min = 3, max = 100, message = "Team name must be between 3 and 100 characters")
     @field:Pattern(
@@ -31,6 +37,9 @@ data class UpdateTeamRequest(
     val description: String? = null
 )
 
+/**
+ * Базовый ответ с информацией о команде.
+ */
 data class TeamResponse(
     val id: String,
     val name: String,
@@ -41,6 +50,9 @@ data class TeamResponse(
     val isLeader: Boolean
 )
 
+/**
+ * Детальный ответ с информацией о команде и её участниках.
+ */
 data class TeamDetailsResponse(
     val id: String,
     val name: String,
@@ -51,6 +63,9 @@ data class TeamDetailsResponse(
     val members: List<TeamMemberResponse>
 )
 
+/**
+ * Ответ с информацией об участнике команды.
+ */
 data class TeamMemberResponse(
     val userId: String,
     val nickname: String,
@@ -60,6 +75,9 @@ data class TeamMemberResponse(
     val isLeader: Boolean
 )
 
+/**
+ * Запрос на обновление специализации участника в команде.
+ */
 data class UpdateMemberSpecializationRequest(
     @field:NotBlank(message = "Specialization is required")
     val specializationId: String

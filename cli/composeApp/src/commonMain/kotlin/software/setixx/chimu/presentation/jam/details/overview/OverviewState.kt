@@ -6,6 +6,10 @@ import software.setixx.chimu.domain.model.GameJamDetails
 import software.setixx.chimu.domain.model.Registration
 import software.setixx.chimu.domain.model.Team
 
+/**
+ * Состояние вкладки обзора Game Jam.
+ * Отслеживает регистрацию пользовательских команд и возможность участия в мероприятии.
+ */
 data class OverviewState(
     val registrations: List<Registration> = emptyList(),
     val userTeams: List<Team> = emptyList(),

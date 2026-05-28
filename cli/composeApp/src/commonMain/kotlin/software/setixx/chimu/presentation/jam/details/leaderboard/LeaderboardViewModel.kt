@@ -11,6 +11,10 @@ import software.setixx.chimu.domain.model.ApiResult
 import software.setixx.chimu.domain.usecase.GetJamStatisticsUseCase
 import software.setixx.chimu.domain.usecase.GetLeaderboardUseCase
 
+/**
+ * ViewModel для таблицы лидеров Game Jam.
+ * Загружает результаты участников и статистику мероприятия после завершения.
+ */
 class LeaderboardViewModel(
     private val getLeaderboardUseCase: GetLeaderboardUseCase,
     private val getJamStatisticsUseCase: GetJamStatisticsUseCase

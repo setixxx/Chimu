@@ -6,6 +6,9 @@ import java.util.prefs.Preferences
 
 actual fun createTokenStorage(): TokenStorage = JvmTokenStorage()
 
+/**
+ * Реализация TokenStorage для JVM, использующая Java Preferences API.
+ */
 class JvmTokenStorage : TokenStorage {
     private val prefs = Preferences.userNodeForPackage(JvmTokenStorage::class.java)
 

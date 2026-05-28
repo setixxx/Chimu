@@ -6,6 +6,10 @@ import org.hibernate.generator.EventType
 import java.time.Instant
 import java.util.UUID
 
+/**
+ * Сущность специализации (роли в команде).
+ * Например: программист, дизайнер, художник, звукорежиссер.
+ */
 @Entity
 @Table(name = "specializations")
 class Specialization(

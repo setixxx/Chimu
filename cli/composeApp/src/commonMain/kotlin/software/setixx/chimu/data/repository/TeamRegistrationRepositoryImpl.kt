@@ -12,6 +12,9 @@ import software.setixx.chimu.domain.model.Registration
 import software.setixx.chimu.domain.model.UpdateRegistrationStatus
 import software.setixx.chimu.domain.repository.TeamRegistrationRepository
 
+/**
+ * Реализация репозитория для управления регистрациями команд на джемы.
+ */
 class TeamRegistrationRepositoryImpl(
     private val api: TeamRegistrationsApi,
     private val tokenStorage: TokenStorage

@@ -5,6 +5,9 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import javax.swing.JFileChooser
 
+/**
+ * Реализация FileDownloader для JVM, использующая JFileChooser для выбора места сохранения.
+ */
 actual class FileDownloader {
     actual suspend fun save(fileName: String, bytes: ByteArray, mimeType: String) {
         withContext(Dispatchers.IO) {

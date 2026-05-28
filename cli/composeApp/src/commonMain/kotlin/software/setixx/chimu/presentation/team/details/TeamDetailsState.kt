@@ -5,6 +5,10 @@ import software.setixx.chimu.domain.model.TeamDetails
 import software.setixx.chimu.domain.model.TeamMember
 import software.setixx.chimu.domain.model.UserProfile
 
+/**
+ * Состояние экрана деталей команды.
+ * Хранит информацию о составе, токенах приглашения и управляет видимостью диалоговых окон.
+ */
 data class TeamDetailsState(
     val user: UserProfile? = null,
     val team: TeamDetails? = null,

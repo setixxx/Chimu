@@ -22,6 +22,10 @@ import software.setixx.chimu.api.repository.UserRepository
 import software.setixx.chimu.api.security.AuthenticationService
 import java.util.UUID
 
+/**
+ * Сервис для управления пользователями и их профилями.
+ * Обрабатывает обновление личных данных, смену пароля и удаление аккаунтов.
+ */
 @Service
 class UserService(
     private val userRepository: UserRepository,

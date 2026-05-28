@@ -21,6 +21,10 @@ import software.setixx.chimu.domain.usecase.GetUserProjectsUseCase
 import software.setixx.chimu.domain.usecase.RateProjectUseCase
 import software.setixx.chimu.domain.usecase.UpdateProjectRatingUseCase
 
+/**
+ * ViewModel для процесса судейства проектов.
+ * Управляет оценками жюри, прогрессом проверки проектов и просмотром оценок участников.
+ */
 class JudgingViewModel(
     private val getJamProjectsUseCase: GetJamProjectsUseCase,
     private val getJudgeProgressUseCase: GetJudgeProgressUseCase,

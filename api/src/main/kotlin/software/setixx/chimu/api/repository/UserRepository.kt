@@ -7,6 +7,10 @@ import org.springframework.data.repository.query.Param
 import software.setixx.chimu.api.domain.User
 import java.util.UUID
 
+/**
+ * Репозиторий для работы с пользователями.
+ * Предоставляет методы поиска по email, никнейму и публичному ID, а также мягкое удаление.
+ */
 interface UserRepository : JpaRepository<User, Long> {
     fun findByPublicIdAndDeletedAtIsNull(publicId: UUID): User?
     fun findByEmailAndDeletedAtIsNull(email: String): User?

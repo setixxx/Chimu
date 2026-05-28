@@ -6,6 +6,10 @@ import jakarta.validation.constraints.Size
 import software.setixx.chimu.api.domain.Skill
 import software.setixx.chimu.api.domain.UserRole
 
+/**
+ * Запрос на обновление профиля пользователя.
+ * Позволяет изменить имя, фамилию, никнейм, био и другие личные данные.
+ */
 data class UpdateProfileRequest(
     @field:Size(min = 1, max = 100, message = "First name must be between 1 and 100 characters")
     val firstName: String? = null,
@@ -43,6 +47,9 @@ data class UpdateProfileRequest(
     val skillIds: List<String>? = null
 )
 
+/**
+ * Ответ с полными данными профиля текущего пользователя.
+ */
 data class UserProfileResponse(
     val id: String,
     val email: String,
@@ -59,6 +66,9 @@ data class UserProfileResponse(
     val telegramUrl: String?,
 )
 
+/**
+ * Ответ с публичными данными профиля другого пользователя.
+ */
 data class PublicUserProfileResponse(
     val id: String,
     val nickname: String,
@@ -75,6 +85,9 @@ data class PublicUserProfileResponse(
     val telegramUrl: String? = null,
 )
 
+/**
+ * Запрос на смену пароля пользователя.
+ */
 data class ChangePasswordRequest(
     @field:NotBlank(message = "Old password is required")
     val oldPassword: String,
@@ -88,6 +101,9 @@ data class ChangePasswordRequest(
     val newPassword: String
 )
 
+/**
+ * Ответ после успешной смены пароля.
+ */
 data class ChangePasswordResponse(
     val message: String,
     val accessToken: String,

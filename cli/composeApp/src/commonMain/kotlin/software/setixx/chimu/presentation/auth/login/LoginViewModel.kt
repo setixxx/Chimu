@@ -11,6 +11,10 @@ import software.setixx.chimu.domain.model.ApiResult
 import software.setixx.chimu.domain.usecase.GetSavedEmailUseCase
 import software.setixx.chimu.domain.usecase.LoginUseCase
 
+/**
+ * ViewModel для экрана входа в систему.
+ * Управляет процессом аутентификации и валидацией данных пользователя.
+ */
 class LoginViewModel(
     private val loginUseCase: LoginUseCase,
     private val getSavedEmailUseCase: GetSavedEmailUseCase

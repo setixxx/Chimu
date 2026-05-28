@@ -15,6 +15,9 @@ import software.setixx.chimu.data.remote.dto.PublicUserProfileResponse
 import software.setixx.chimu.data.remote.dto.UpdateProfileRequest
 import software.setixx.chimu.data.remote.dto.UserProfileResponse
 
+/**
+ * Класс для взаимодействия с API пользователей (профиль, смена пароля, поиск).
+ */
 class UserApi(private val client: HttpClient) {
     suspend fun changePassword(
         accessToken: String,

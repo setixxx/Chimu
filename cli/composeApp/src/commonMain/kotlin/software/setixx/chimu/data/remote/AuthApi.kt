@@ -14,6 +14,9 @@ import software.setixx.chimu.data.remote.dto.RegisterRequest
 import software.setixx.chimu.data.remote.dto.RegisterResponse
 import software.setixx.chimu.data.remote.dto.TokenResponse
 
+/**
+ * Класс для выполнения сетевых запросов, связанных с аутентификацией и регистрацией.
+ */
 class AuthApi(private val client: HttpClient) {
 
     suspend fun login(email: String, password: String): LoginResponse {

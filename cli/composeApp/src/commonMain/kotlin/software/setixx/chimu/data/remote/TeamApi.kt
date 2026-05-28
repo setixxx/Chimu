@@ -6,6 +6,9 @@ import io.ktor.client.request.*
 import io.ktor.http.HttpHeaders
 import software.setixx.chimu.data.remote.dto.*
 
+/**
+ * Класс для управления командами (создание, вступление, выход, управление участниками).
+ */
 class TeamApi(private val client: HttpClient) {
 
     suspend fun getUserTeams(accessToken: String): List<TeamResponse> {

@@ -21,6 +21,9 @@ import kotlin.io.encoding.ExperimentalEncodingApi
 """)
 private external fun jsSaveBase64(base64: String, fileName: String, mimeType: String)
 
+/**
+ * Реализация FileDownloader для Web (Wasm), использующая JavaScript для инициации скачивания.
+ */
 actual class FileDownloader {
     @OptIn(ExperimentalWasmJsInterop::class, ExperimentalEncodingApi::class)
     actual suspend fun save(fileName: String, bytes: ByteArray, mimeType: String) {

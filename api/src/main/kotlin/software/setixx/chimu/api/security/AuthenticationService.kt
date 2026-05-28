@@ -18,6 +18,10 @@ import software.setixx.chimu.api.service.RefreshTokenService
 import java.time.Instant
 import java.util.Date
 
+/**
+ * Сервис аутентификации.
+ * Координирует процесс входа, выпуска и обновления токенов, а также смену пароля.
+ */
 @Service
 class AuthenticationService(
     private val authManager: AuthenticationManager,

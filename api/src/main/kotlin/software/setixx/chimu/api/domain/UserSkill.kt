@@ -9,6 +9,10 @@ import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
 
+/**
+ * Связующая сущность для навыков пользователя.
+ * Реализует связь "многие-ко-многим" между пользователями и доступными навыками.
+ */
 @Entity
 @Table(name = "user_skills")
 class UserSkill(

@@ -22,6 +22,10 @@ import software.setixx.chimu.api.repository.UserRepository
 import java.security.SecureRandom
 import java.util.*
 
+/**
+ * Сервис для управления командами.
+ * Обеспечивает создание команд, управление участниками, генерацию токенов приглашения и вступление в команду.
+ */
 @Service
 class TeamService(
     private val teamRepository: TeamRepository,

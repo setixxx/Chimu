@@ -10,6 +10,10 @@ import kotlinx.coroutines.launch
 import software.setixx.chimu.domain.model.ApiResult
 import software.setixx.chimu.domain.usecase.GetUserByIdUseCase
 
+/**
+ * ViewModel для просмотра профиля другого пользователя.
+ * Загружает публичную информацию о пользователе по его идентификатору.
+ */
 class AlienProfileViewModel(
     private val userId: String,
     private val getUserByIdUseCase: GetUserByIdUseCase

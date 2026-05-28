@@ -15,6 +15,10 @@ import software.setixx.chimu.domain.usecase.GetJamDetailsUseCase
 import software.setixx.chimu.domain.usecase.UpdateJamUseCase
 import software.setixx.chimu.domain.usecase.UploadJamBannerUseCase
 
+/**
+ * ViewModel для редактирования существующего Game Jam.
+ * Позволяет организаторам изменять сроки проведения, правила и другие параметры мероприятия.
+ */
 class EditJamViewModel(
     private val getJamDetailsUseCase: GetJamDetailsUseCase,
     private val updateJamUseCase: UpdateJamUseCase

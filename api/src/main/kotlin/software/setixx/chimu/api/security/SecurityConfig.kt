@@ -12,6 +12,10 @@ import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.DefaultSecurityFilterChain
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 
+/**
+ * Конфигурация безопасности приложения.
+ * Настраивает правила доступа к эндпоинтам API, фильтры аутентификации и кодирование паролей.
+ */
 @Configuration
 class SecurityConfig(
     private val userDetailsService: JwtUserDetailsService,

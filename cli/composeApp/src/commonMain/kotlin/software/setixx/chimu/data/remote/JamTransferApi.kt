@@ -13,6 +13,9 @@ import software.setixx.chimu.data.remote.dto.CreateJamTransferRequest
 import software.setixx.chimu.data.remote.dto.JamTransferResponse
 import software.setixx.chimu.data.remote.dto.ReviewJamTransferRequest
 
+/**
+ * Класс для обработки запросов на передачу прав владения игровым джемом.
+ */
 class JamTransferApi(
     private val client: HttpClient
 ) {

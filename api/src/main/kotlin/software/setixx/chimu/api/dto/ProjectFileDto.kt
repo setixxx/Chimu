@@ -3,6 +3,9 @@ package software.setixx.chimu.api.dto
 import software.setixx.chimu.api.domain.ProjectFileType
 
 
+/**
+ * Ответ с информацией о файле проекта.
+ */
 data class ProjectFileResponse(
     val id: String,
     val fileName: String,

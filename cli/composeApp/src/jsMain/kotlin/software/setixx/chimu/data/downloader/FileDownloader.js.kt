@@ -8,6 +8,9 @@ import org.w3c.files.Blob
 import org.w3c.files.BlobPropertyBag
 import kotlin.collections.forEachIndexed
 
+/**
+ * Реализация FileDownloader для Web (JS), использующая Blob и HTMLAnchorElement для скачивания.
+ */
 actual class FileDownloader {
     actual suspend fun save(fileName: String, bytes: ByteArray, mimeType: String) {
         val uint8 = Uint8Array(bytes.size)

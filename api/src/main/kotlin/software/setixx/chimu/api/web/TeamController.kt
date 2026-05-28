@@ -20,6 +20,10 @@ import software.setixx.chimu.api.repository.UserRepository
 import software.setixx.chimu.api.security.CustomUserDetails
 import software.setixx.chimu.api.service.TeamService
 
+/**
+ * Контроллер для управления командами.
+ * Обрабатывает создание команд, вступление по токену, управление участниками и настройками.
+ */
 @RestController
 @RequestMapping("/api/teams")
 @Tag(name = "Teams", description = "Team management endpoints")

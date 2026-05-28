@@ -5,6 +5,9 @@ import kotlinx.coroutines.withContext
 
 actual fun createTokenStorage(): TokenStorage = JsTokenStorage()
 
+/**
+ * Реализация TokenStorage для Web (JS), использующая LocalStorage.
+ */
 class JsTokenStorage : TokenStorage {
     private val localStorage = kotlinx.browser.window.localStorage
 

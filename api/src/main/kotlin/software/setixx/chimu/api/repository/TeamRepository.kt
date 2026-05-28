@@ -7,6 +7,10 @@ import org.springframework.data.repository.query.Param
 import software.setixx.chimu.api.domain.Team
 import java.util.UUID
 
+/**
+ * Репозиторий для работы с командами.
+ * Предоставляет доступ к данным команд по токену приглашения, лидеру или участникам.
+ */
 interface TeamRepository : JpaRepository<Team, Long> {
     fun findByPublicIdAndDeletedAtIsNull(publicId: UUID): Team?
     fun findByInviteTokenAndDeletedAtIsNull(inviteToken: String): Team?

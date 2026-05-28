@@ -4,11 +4,17 @@ import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
 import software.setixx.chimu.api.domain.RegistrationStatus
 
+/**
+ * Запрос на регистрацию команды на мероприятие.
+ */
 data class RegisterTeamRequest(
     @field:NotBlank(message = "Team ID is required")
     val teamId: String
 )
 
+/**
+ * Ответ с информацией о регистрации команды на джем.
+ */
 data class RegistrationResponse(
     val id: String,
     val jamId: String,
@@ -22,6 +28,9 @@ data class RegistrationResponse(
     val updatedAt: String
 )
 
+/**
+ * Запрос на изменение статуса регистрации команды (для организаторов).
+ */
 data class UpdateRegistrationStatusRequest(
     @field:NotNull(message = "Status is required")
     val status: RegistrationStatus

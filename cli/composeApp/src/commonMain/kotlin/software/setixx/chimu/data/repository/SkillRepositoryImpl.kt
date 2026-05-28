@@ -6,6 +6,9 @@ import software.setixx.chimu.domain.model.ApiResult
 import software.setixx.chimu.domain.model.Skill
 import software.setixx.chimu.domain.repository.SkillRepository
 
+/**
+ * Реализация репозитория для получения списка навыков.
+ */
 class SkillRepositoryImpl(
     private val api: SkillApi,
     private val tokenStorage: TokenStorage

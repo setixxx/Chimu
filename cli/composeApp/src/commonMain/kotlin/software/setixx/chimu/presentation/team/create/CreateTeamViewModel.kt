@@ -12,6 +12,10 @@ import software.setixx.chimu.domain.model.CreateTeam
 import software.setixx.chimu.domain.usecase.CreateTeamUseCase
 import software.setixx.chimu.domain.usecase.GetUserTeamsUseCase
 
+/**
+ * ViewModel для создания новой команды.
+ * Обрабатывает ввод названия и описания команды, а также валидацию данных.
+ */
 class CreateTeamViewModel(
     private val createTeamUseCase: CreateTeamUseCase,
     private val getUserTeamsUseCase: GetUserTeamsUseCase

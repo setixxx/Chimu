@@ -282,6 +282,10 @@ fun JamDetailsScreen(
     }
 }
 
+/**
+ * Вкладки экрана деталей Game Jam.
+ * Содержит информацию для отображения иконок и названий разделов.
+ */
 enum class JamDetailsTab(val label: String, val filledIcon: ImageVector, val outlinedIcon: ImageVector) {
     Overview("Overview", Icons.Filled.Home, Icons.Outlined.Home),
     Project("Project", Icons.Filled.Gamepad, Icons.Outlined.Gamepad),

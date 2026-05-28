@@ -6,6 +6,9 @@ import software.setixx.chimu.data.remote.dto.*
 import software.setixx.chimu.domain.model.*
 import software.setixx.chimu.domain.repository.LeaderboardRepository
 
+/**
+ * Реализация репозитория для получения статистики и результатов игрового джема.
+ */
 class LeaderboardRepositoryImpl(
     private val api: LeaderboardApi,
     private val tokenStorage: TokenStorage

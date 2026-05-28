@@ -17,6 +17,9 @@ import software.setixx.chimu.data.remote.dto.RefreshTokenRequest
 import software.setixx.chimu.data.remote.dto.TokenResponse
 import software.setixx.chimu.data.util.getBaseUrl
 
+/**
+ * Класс для настройки и создания HTTP-клиента Ktor с поддержкой обновления токенов.
+ */
 class KtorClient(
     private val tokenStorage: TokenStorage,
 ) {

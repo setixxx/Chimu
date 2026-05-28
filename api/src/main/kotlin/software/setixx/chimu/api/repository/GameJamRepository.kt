@@ -9,6 +9,10 @@ import software.setixx.chimu.api.domain.GameJamStatus
 import java.time.Instant
 import java.util.UUID
 
+/**
+ * Репозиторий для работы с Game Jam.
+ * Содержит запросы для поиска активных, предстоящих и требующих обновления статуса мероприятий.
+ */
 interface GameJamRepository : JpaRepository<GameJam, Long> {
     fun findByPublicIdAndDeletedAtIsNull(publicId: UUID): GameJam?
     fun findAllByDeletedAtIsNull(): List<GameJam>

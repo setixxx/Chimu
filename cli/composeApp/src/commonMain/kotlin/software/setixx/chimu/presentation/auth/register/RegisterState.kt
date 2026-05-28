@@ -2,6 +2,10 @@ package software.setixx.chimu.presentation.auth.register
 
 import software.setixx.chimu.presentation.utils.PasswordStrength
 
+/**
+ * Состояние пользовательского интерфейса экрана регистрации.
+ * Хранит данные для создания профиля и информацию о сложности пароля.
+ */
 data class RegisterState(
     val email: String = "",
     val password: String = "",

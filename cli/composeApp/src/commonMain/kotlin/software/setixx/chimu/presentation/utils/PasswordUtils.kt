@@ -1,9 +1,16 @@
 package software.setixx.chimu.presentation.utils
 
+/**
+ * Перечисление уровней сложности пароля.
+ */
 enum class PasswordStrength {
     WEAK, MEDIUM, STRONG
 }
 
+/**
+ * Утилиты для проверки безопасности пароля.
+ * Рассчитывает сложность пароля на основе длины и используемых символов.
+ */
 object PasswordUtils {
     fun calculatePasswordStrength(password: String): PasswordStrength {
         if (password.length < 8) return PasswordStrength.WEAK

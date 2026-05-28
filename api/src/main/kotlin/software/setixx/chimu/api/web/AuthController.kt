@@ -18,6 +18,10 @@ import software.setixx.chimu.api.dto.RefreshTokenResponse
 import software.setixx.chimu.api.security.AuthenticationService
 import software.setixx.chimu.api.service.RegistrationService
 
+/**
+ * Контроллер для аутентификации и регистрации.
+ * Обрабатывает вход в систему, регистрацию новых пользователей, обновление токенов и выход.
+ */
 @RestController
 @RequestMapping("/api/auth")
 @Tag(name = "Authentication", description = "Authentication and registration endpoints")

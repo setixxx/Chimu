@@ -9,6 +9,10 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import software.setixx.chimu.domain.usecase.CheckAuthStatusUseCase
 
+/**
+ * ViewModel для стартового экрана (Splash Screen).
+ * Проверяет состояние авторизации пользователя при запуске приложения.
+ */
 class SplashViewModel(
     private val checkAuthStatusUseCase: CheckAuthStatusUseCase
 ) : ViewModel() {

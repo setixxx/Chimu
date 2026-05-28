@@ -10,6 +10,9 @@ import software.setixx.chimu.domain.model.FileUpload
 import software.setixx.chimu.domain.model.GameJamDetails
 import software.setixx.chimu.domain.repository.JamPublicationRepository
 
+/**
+ * Реализация репозитория публикации джемов, отвечающая за публикацию и управление баннерами.
+ */
 class JamPublicationRepositoryImpl(
     private val api: JamPublicationApi,
     private val tokenStorage: TokenStorage

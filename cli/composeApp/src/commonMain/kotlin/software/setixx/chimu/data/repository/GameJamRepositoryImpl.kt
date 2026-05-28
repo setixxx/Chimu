@@ -14,6 +14,9 @@ import software.setixx.chimu.data.util.getBaseUrl
 import software.setixx.chimu.domain.model.*
 import software.setixx.chimu.domain.repository.GameJamRepository
 
+/**
+ * Реализация репозитория игровых джемов, обеспечивающая доступ к данным через API и хранение состояния.
+ */
 class GameJamRepositoryImpl(
     private val api: GameJamApi,
     private val tokenStorage: TokenStorage

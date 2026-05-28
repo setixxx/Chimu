@@ -6,6 +6,9 @@ import platform.Foundation.NSUserDefaults
 
 actual fun createTokenStorage(): TokenStorage = IosTokenStorage()
 
+/**
+ * Реализация TokenStorage для iOS, использующая NSUserDefaults.
+ */
 class IosTokenStorage : TokenStorage {
     private val userDefaults = NSUserDefaults.standardUserDefaults
 

@@ -4,6 +4,10 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.web.filter.CommonsRequestLoggingFilter
 
+/**
+ * Конфигурация логирования входящих HTTP-запросов.
+ * Настраивает фильтр для записи данных о запросах, заголовках и полезной нагрузке.
+ */
 @Configuration
 class RequestLoggingConfig {
 

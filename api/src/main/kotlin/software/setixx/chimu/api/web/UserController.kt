@@ -20,6 +20,10 @@ import software.setixx.chimu.api.security.CustomUserDetails
 import software.setixx.chimu.api.service.UserService
 import java.util.UUID
 
+/**
+ * Контроллер для работы с профилями пользователей.
+ * Позволяет получать информацию о пользователях, обновлять свой профиль и менять пароль.
+ */
 @RestController
 @RequestMapping("/api/users")
 @Tag(name = "Users", description = "User profile management endpoints")

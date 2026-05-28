@@ -9,6 +9,9 @@ import software.setixx.chimu.domain.model.AssignJudge
 import software.setixx.chimu.domain.model.Judge
 import software.setixx.chimu.domain.repository.JudgeRepository
 
+/**
+ * Реализация репозитория для управления судьями игрового джема.
+ */
 class JudgeRepositoryImpl(
     private val api: JudgeApi,
     private val tokenStorage: TokenStorage

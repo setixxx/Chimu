@@ -13,6 +13,9 @@ import software.setixx.chimu.data.remote.dto.CreateRatingCriteriaRequest
 import software.setixx.chimu.data.remote.dto.RatingCriteriaResponse
 import software.setixx.chimu.data.remote.dto.UpdateRatingCriteriaRequest
 
+/**
+ * Класс для управления критериями оценивания игрового джема.
+ */
 class RatingCriteriaApi(
     private val client: HttpClient
 ) {

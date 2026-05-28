@@ -5,6 +5,10 @@ import software.setixx.chimu.domain.model.MyRating
 import software.setixx.chimu.domain.model.Project
 import software.setixx.chimu.data.remote.dto.RatingCriteriaResponse
 
+/**
+ * Состояние экрана судейства.
+ * Содержит список проектов для оценки, прогресс жюри и детали выбранного проекта.
+ */
 data class JudgingState(
     val projects: List<Project> = emptyList(),
     val judgeProgress: JudgeProgress? = null,

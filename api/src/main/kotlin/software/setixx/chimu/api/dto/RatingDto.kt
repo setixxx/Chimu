@@ -3,6 +3,9 @@ package software.setixx.chimu.api.dto
 import jakarta.validation.constraints.*
 import java.math.BigDecimal
 
+/**
+ * Запрос на оценку проекта по критерию.
+ */
 data class RateProjectRequest(
     @field:NotNull(message = "Criteria ID is required")
     val criteriaId: String,
@@ -15,6 +18,9 @@ data class RateProjectRequest(
     val comment: String? = null
 )
 
+/**
+ * Запрос на изменение существующей оценки.
+ */
 data class UpdateRatingRequest(
     @field:NotNull(message = "Score is required")
     @field:DecimalMin(value = "0.0", message = "Score must be at least 0")
@@ -24,6 +30,9 @@ data class UpdateRatingRequest(
     val comment: String? = null
 )
 
+/**
+ * Ответ с информацией об оценке.
+ */
 data class RatingResponse(
     val id: String,
     val projectId: String,
@@ -38,6 +47,9 @@ data class RatingResponse(
     val updatedAt: String
 )
 
+/**
+ * Ответ с информацией об оценке текущего судьи.
+ */
 data class MyRatingResponse(
     val id: String,
     val criteriaId: String,
@@ -48,6 +60,9 @@ data class MyRatingResponse(
     val updatedAt: String
 )
 
+/**
+ * Сводка оценок проекта по всем критериям.
+ */
 data class ProjectRatingSummaryResponse(
     val projectId: String,
     val criteriaRatings: List<CriteriaRatingSummary>
@@ -68,6 +83,9 @@ data class JudgeRating(
     val comment: String?
 )
 
+/**
+ * Ответ с прогрессом судейства для жюри.
+ */
 data class JudgeProgressResponse(
     val jamId: String,
     val jamName: String,

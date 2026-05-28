@@ -2,6 +2,10 @@ package software.setixx.chimu.presentation.jam.create
 
 import software.setixx.chimu.api.domain.UserRole
 
+/**
+ * Состояние экрана создания Game Jam.
+ * Хранит временные данные полей ввода и ошибки валидации.
+ */
 data class CreateJamState(
     val name: String = "",
     val description: String = "",

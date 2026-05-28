@@ -15,6 +15,9 @@ import software.setixx.chimu.data.remote.dto.GameJamResponse
 import software.setixx.chimu.data.remote.dto.UpdateGameJamRequest
 import software.setixx.chimu.domain.model.ApiResult
 
+/**
+ * Класс для взаимодействия с API игровых джемов (создание, получение списка, управление фазами).
+ */
 class GameJamApi(private val client: HttpClient) {
 
     suspend fun getAllJams(accessToken: String): List<GameJamResponse> {

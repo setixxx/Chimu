@@ -8,6 +8,10 @@ import org.hibernate.type.SqlTypes
 import java.time.Instant
 import java.util.UUID
 
+/**
+ * Сущность пользователя системы.
+ * Хранит учетные данные, информацию профиля, роль и связи с командами и навыками.
+ */
 @Entity
 @Table(name = "users")
 class User(

@@ -13,6 +13,10 @@ import software.setixx.chimu.domain.model.CreateGameJam
 import software.setixx.chimu.domain.usecase.CreateJamUseCase
 import software.setixx.chimu.domain.usecase.GetCurrentUserUseCase
 
+/**
+ * ViewModel для создания нового Game Jam.
+ * Обрабатывает ввод параметров мероприятия и проверяет права пользователя на создание.
+ */
 class CreateJamViewModel(
     private val createJamUseCase: CreateJamUseCase,
     private val getCurrentUserUseCase: GetCurrentUserUseCase

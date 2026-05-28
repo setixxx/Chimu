@@ -7,6 +7,10 @@ import java.math.BigDecimal
 import java.time.Instant
 import java.util.UUID
 
+/**
+ * Сущность оценки проекта судьей по определенному критерию.
+ * Содержит числовой балл и необязательный текстовый комментарий жюри.
+ */
 @Entity
 @Table(name = "ratings")
 class Rating(

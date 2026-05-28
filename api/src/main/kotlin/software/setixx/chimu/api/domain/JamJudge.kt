@@ -5,6 +5,10 @@ import org.hibernate.annotations.Generated
 import org.hibernate.generator.EventType
 import java.time.Instant
 
+/**
+ * Связующая сущность для назначения судей на Game Jam.
+ * Хранит информацию о том, кто и когда назначил пользователя судьей мероприятия.
+ */
 @Entity
 @Table(name = "jam_judges")
 class JamJudge(

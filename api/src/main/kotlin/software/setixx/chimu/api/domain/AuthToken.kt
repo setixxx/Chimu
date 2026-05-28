@@ -5,6 +5,10 @@ import org.hibernate.generator.EventType;
 import jakarta.persistence.*
 import java.time.Instant
 
+/**
+ * Сущность токена аутентификации.
+ * Используется для хранения хешей Refresh-токенов и отслеживания сессий пользователей.
+ */
 @Entity
 @Table(name = "auth_tokens")
 class AuthToken(

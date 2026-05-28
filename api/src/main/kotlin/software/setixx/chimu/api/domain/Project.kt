@@ -8,6 +8,10 @@ import org.hibernate.type.SqlTypes
 import java.time.Instant
 import java.util.UUID
 
+/**
+ * Сущность проекта, представленного на Game Jam.
+ * Содержит описание игры, ссылки на билд и текущий статус участия.
+ */
 @Entity
 @Table(name = "projects")
 class Project(

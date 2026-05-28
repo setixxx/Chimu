@@ -11,6 +11,9 @@ import software.setixx.chimu.domain.model.RatingCriteria
 import software.setixx.chimu.domain.model.UpdateRatingCriteria
 import software.setixx.chimu.domain.repository.RatingCriteriaRepository
 
+/**
+ * Реализация репозитория для управления критериями оценивания джема.
+ */
 class RatingCriteriaRepositoryImpl(
     private val api: RatingCriteriaApi,
     private val tokenStorage: TokenStorage

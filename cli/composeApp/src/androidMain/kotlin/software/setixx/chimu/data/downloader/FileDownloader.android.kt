@@ -9,6 +9,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
 
+/**
+ * Реализация FileDownloader для Android, сохраняющая файлы в папку загрузок.
+ */
 actual class FileDownloader(private val context: Context) {
     actual suspend fun save(fileName: String, bytes: ByteArray, mimeType: String) {
         withContext(Dispatchers.IO) {

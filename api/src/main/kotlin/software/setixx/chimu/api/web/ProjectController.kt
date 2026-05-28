@@ -16,6 +16,10 @@ import software.setixx.chimu.api.repository.UserRepository
 import software.setixx.chimu.api.security.CustomUserDetails
 import software.setixx.chimu.api.service.ProjectService
 
+/**
+ * Контроллер для работы с проектами участников.
+ * Управляет созданием проектов, их подачей на джем, получением списков и дисквалификацией.
+ */
 @RestController
 @RequestMapping("/api")
 @Tag(name = "Projects", description = "Project management for game jams")

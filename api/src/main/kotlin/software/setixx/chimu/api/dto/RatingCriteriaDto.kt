@@ -7,6 +7,9 @@ import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Size
 
+/**
+ * Ответ с информацией о критерии оценки.
+ */
 data class CriteriaResponse(
     val id: String,
     val name: String,
@@ -16,6 +19,9 @@ data class CriteriaResponse(
     val orderIndex: Int
 )
 
+/**
+ * Запрос на создание критерия оценки для джема.
+ */
 data class CreateCriteriaRequest(
     @field:NotBlank(message = "Criteria name is required")
     @field:Size(min = 2, max = 100, message = "Name must be between 2 and 100 characters")
@@ -36,6 +42,9 @@ data class CreateCriteriaRequest(
     val orderIndex: Int = 0
 )
 
+/**
+ * Запрос на обновление критерия оценки.
+ */
 data class UpdateCriteriaRequest(
     @field:Size(min = 2, max = 100, message = "Name must be between 2 and 100 characters")
     val name: String? = null,

@@ -5,6 +5,10 @@ import software.setixx.chimu.domain.model.Skill
 import software.setixx.chimu.domain.model.Specialization
 import software.setixx.chimu.domain.model.UserProfile
 
+/**
+ * Состояние экрана собственного профиля.
+ * Хранит текущие и редактируемые данные пользователя, а также списки доступных навыков.
+ */
 data class OwnProfileState(
     val user: UserProfile? = null,
     val nickname: String = "",

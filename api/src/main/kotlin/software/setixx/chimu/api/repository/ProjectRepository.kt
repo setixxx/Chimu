@@ -8,6 +8,10 @@ import software.setixx.chimu.api.domain.Project
 import software.setixx.chimu.api.domain.ProjectStatus
 import java.util.UUID
 
+/**
+ * Репозиторий для работы с проектами.
+ * Управляет поиском проектов по командам, джемам и пользователям, а также подсчетом поданных работ.
+ */
 interface ProjectRepository : JpaRepository<Project, Long> {
     fun findByPublicIdAndDeletedAtIsNull(publicId: UUID): Project?
     fun findByTeamIdAndGameJamIdAndDeletedAtIsNull(teamId: Long, jamId: Long): Project?

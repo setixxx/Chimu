@@ -18,6 +18,10 @@ import org.hibernate.type.SqlTypes
 import java.time.Instant
 import java.util.UUID
 
+/**
+ * Сущность запроса на повышение роли пользователя.
+ * Хранит сообщение пользователя админу и результат рассмотрения заявки.
+ */
 @Entity
 @Table(name = "role_upgrade_requests")
 class RoleUpgradeRequest(

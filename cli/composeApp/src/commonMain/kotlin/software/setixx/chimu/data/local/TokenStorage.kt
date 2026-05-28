@@ -1,5 +1,8 @@
 package software.setixx.chimu.data.local
 
+/**
+ * Интерфейс для локального хранения токенов аутентификации и данных пользователя.
+ */
 interface TokenStorage {
     suspend fun saveAccessToken(token: String)
     suspend fun getAccessToken(): String?

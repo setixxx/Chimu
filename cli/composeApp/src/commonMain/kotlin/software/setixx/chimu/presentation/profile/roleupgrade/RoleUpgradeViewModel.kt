@@ -18,6 +18,10 @@ import software.setixx.chimu.domain.usecase.GetAllRoleUpgradesUseCase
 import software.setixx.chimu.domain.usecase.GetUserRoleUpgradesUseCase
 import software.setixx.chimu.domain.usecase.ReviewRoleUpgradeUseCase
 
+/**
+ * ViewModel для управления запросами на изменение роли пользователя.
+ * Обрабатывает создание заявок пользователями и их рассмотрение администраторами.
+ */
 class RoleUpgradeViewModel(
     private val getUserRoleUpgradesUseCase: GetUserRoleUpgradesUseCase,
     private val createRoleUpgradeUseCase: CreateRoleUpgradeUseCase,

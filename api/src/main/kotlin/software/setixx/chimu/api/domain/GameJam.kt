@@ -8,6 +8,10 @@ import org.hibernate.type.SqlTypes
 import java.time.Instant
 import java.util.UUID
 
+/**
+ * Сущность Game Jam (игрового хакатона).
+ * Содержит основную информацию о мероприятии, сроки проведения и правила.
+ */
 @Entity
 @Table(name = "game_jams")
 class GameJam(

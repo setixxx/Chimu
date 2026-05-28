@@ -11,6 +11,9 @@ import io.ktor.http.HttpHeaders
 import software.setixx.chimu.data.remote.dto.AssignJudgeRequest
 import software.setixx.chimu.data.remote.dto.JudgeResponse
 
+/**
+ * Класс для управления составом судей игрового джема.
+ */
 class JudgeApi(
     private val client: HttpClient
 ) {

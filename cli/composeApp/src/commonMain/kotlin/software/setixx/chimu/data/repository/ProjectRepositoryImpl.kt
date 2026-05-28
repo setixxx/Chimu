@@ -17,6 +17,9 @@ import software.setixx.chimu.domain.model.ProjectDetails
 import software.setixx.chimu.domain.model.UpdateProject
 import software.setixx.chimu.domain.repository.ProjectRepository
 
+/**
+ * Реализация репозитория для управления жизненным циклом проектов игрового джема.
+ */
 class ProjectRepositoryImpl(
     private val api: ProjectApi,
     private val tokenStorage: TokenStorage

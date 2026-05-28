@@ -5,6 +5,10 @@ import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import software.setixx.chimu.api.service.RefreshTokenService
 
+/**
+ * Планировщик для очистки истекших токенов.
+ * Регулярно удаляет устаревшие Refresh-токены из базы данных для поддержания её чистоты.
+ */
 @Component
 class TokenCleanupScheduler(
     private val refreshTokenService: RefreshTokenService

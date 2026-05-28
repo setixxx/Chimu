@@ -5,6 +5,10 @@ import org.hibernate.annotations.Generated
 import org.hibernate.generator.EventType
 import java.time.Instant
 
+/**
+ * Сущность участника команды.
+ * Связывает пользователя с командой и указывает его специализацию в её рамках.
+ */
 @Entity
 @Table(name = "team_members")
 class TeamMember(
