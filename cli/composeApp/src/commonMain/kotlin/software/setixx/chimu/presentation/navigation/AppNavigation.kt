@@ -209,6 +209,12 @@ fun AppNavigation(
                 },
                 onNavigateToProjectRating = { jamId, projectId ->
                     navController.navigate(Screen.ProjectRating(jamId, projectId))
+                },
+                onNavigateToAlienProfile = { userId ->
+                    navController.navigate(Screen.AlienProfile(userId))
+                },
+                onNavigateToOwnProfile = {
+                    navController.navigate(Screen.OwnProfile)
                 }
             )
         }

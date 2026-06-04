@@ -20,6 +20,7 @@ data class ManagementState(
     val errorMessage: String? = null,
     val successMessage: String? = null,
 
+
     val judgeSearchQuery: String = "",
     val foundJudge: PublicUserProfile? = null,
     val isSearchingJudge: Boolean = false,

@@ -44,7 +44,8 @@ fun HomeBottomBar(
             expanded = true,
             colors = FloatingToolbarDefaults.standardFloatingToolbarColors(
                 toolbarContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh
-            )
+            ),
+            expandedShadowElevation = 2.dp
         ) {
             tabs.forEachIndexed { index, tab ->
                 val isSelected = pagerState.currentPage == index

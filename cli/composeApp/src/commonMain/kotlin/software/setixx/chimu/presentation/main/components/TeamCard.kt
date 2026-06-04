@@ -29,10 +29,13 @@ import software.setixx.chimu.domain.model.Team
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun TeamCard(team: Team, onClick: () -> Unit) {
+fun TeamCard(
+    modifier: Modifier,
+    team: Team,
+    onClick: () -> Unit
+) {
     Card(
-        modifier = Modifier
-            .width(280.dp),
+        modifier = modifier,
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         shape = MaterialTheme.shapes.extraLarge,
         onClick = onClick

@@ -36,7 +36,14 @@ interface ProjectRepository : JpaRepository<Project, Long> {
     """)
     fun findSubmittedProjectsByJamId(@Param("jamId") jamId: Long): List<Project>
 
-    @Query("SELECT p FROM Project p JOIN TeamMember tm ON p.team.id = tm.team.id WHERE tm.user.id = :userId AND p.deletedAt IS NULL AND tm.deletedAt IS NULL")
+    @Query("""
+    SELECT DISTINCT p FROM Project p 
+    JOIN TeamMember tm ON p.team.id = tm.team.id 
+    WHERE tm.user.id = :userId 
+    AND p.deletedAt IS NULL
+    AND tm.joinedAt <= p.createdAt
+    AND (tm.deletedAt IS NULL OR tm.deletedAt > p.createdAt)
+    """)
     fun findAllByUserId(@Param("userId") userId: Long): List<Project>
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)

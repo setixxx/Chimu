@@ -30,7 +30,7 @@ fun GameJamCard(
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.secondaryContainer
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         onClick = { onDetailsClick(jam.id) },
     ) {
         Row(

@@ -338,6 +338,7 @@ class ManagementViewModel(
                         }
                         it.copy(
                             criteria = updated,
+                            successMessage = "Критерий обновлен",
                             isActionLoading = false
                         )
                     }
@@ -362,6 +363,7 @@ class ManagementViewModel(
                     _state.update {
                         it.copy(
                             criteria = it.criteria.filter { criteria -> criteria.id != criteriaId },
+                            successMessage = "Критерий удален",
                             isActionLoading = false
                         )
                     }

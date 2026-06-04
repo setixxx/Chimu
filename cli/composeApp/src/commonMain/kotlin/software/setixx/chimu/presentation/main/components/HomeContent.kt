@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.rememberScrollState
@@ -92,7 +93,11 @@ fun HomeContent(
                             horizontalArrangement = Arrangement.spacedBy(12.dp),
                         ) {
                             items(state.userTeams.size) { index ->
-                                TeamCard(team = state.userTeams[index], onClick = { onNavigateToTeam(state.userTeams[index].id) })
+                                TeamCard(
+                                    modifier = Modifier.width(280.dp),
+                                    team = state.userTeams[index],
+                                    onClick = { onNavigateToTeam(state.userTeams[index].id) }
+                                )
                             }
                         }
                     }
@@ -107,14 +112,19 @@ fun HomeContent(
                         )
                     }
 
-                    items(state.userProjects.size) { index ->
-                        Card(
-                            modifier = Modifier
-                                .fillMaxWidth(),
-                            shape = MaterialTheme.shapes.extraLarge,
-                            onClick = { onNavigateToProject(state.userProjects[index].id, state.user?.role?.name, false) }
+                    item {
+                        LazyRow(
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
                         ) {
-                            ProjectCard(project = state.userProjects[index])
+                            items(state.userProjects.size) { index ->
+                                ProjectCard(
+                                    modifier = Modifier.width(280.dp),
+                                    project = state.userProjects[index],
+                                    onClick = { onNavigateToProject(state.userProjects[index].id,
+                                        state.user?.role?.name, false)
+                                    }
+                                )
+                            }
                         }
                     }
                 }

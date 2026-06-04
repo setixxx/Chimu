@@ -21,7 +21,7 @@ data class ProjectState(
     val registrations: List<Registration> = emptyList(),
     val isLoading: Boolean = false,
     val isActionLoading: Boolean = false,
-    val errorMessage: String? = null
+    val errorMessage: String? = null,
 ) {
     fun getUserRegistration(): Registration? =
         registrations.find { reg ->

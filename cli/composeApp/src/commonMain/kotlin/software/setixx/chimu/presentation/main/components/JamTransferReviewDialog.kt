@@ -11,6 +11,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import software.setixx.chimu.domain.model.JamTransfer
+import software.setixx.chimu.presentation.utils.DateTimeUtils
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -23,11 +24,15 @@ fun JamTransferReviewDialog(
 ) {
     BasicAlertDialog(onDismissRequest = onDismiss) {
         Surface(
-            shape = MaterialTheme.shapes.extraLarge,
+            color = MaterialTheme.colorScheme.surface,
             tonalElevation = 6.dp,
+            shape = MaterialTheme.shapes.extraLarge,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Column(modifier = Modifier.padding(24.dp)) {
+            Column(
+                modifier = Modifier.padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
                 Icon(
                     imageVector = Icons.Default.SwapHoriz,
                     contentDescription = null,
@@ -45,8 +50,8 @@ fun JamTransferReviewDialog(
                 Spacer(Modifier.height(16.dp))
 
                 Card(
+                    colors = CardDefaults.cardColors(MaterialTheme.colorScheme.surfaceContainerHigh),
                     modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
                     shape = MaterialTheme.shapes.largeIncreased,
                 ) {
                     Row(
@@ -62,31 +67,25 @@ fun JamTransferReviewDialog(
                             LabeledRow(label = "От", value = transfer.senderNickname)
                         }
                         Row {
-                            FilledTonalIconButton(
+                            IconButton(
                                 onClick = onReject,
-                                enabled = !isLoading,
-                                colors = IconButtonColors(
-                                    containerColor = MaterialTheme.colorScheme.errorContainer,
-                                    contentColor = MaterialTheme.colorScheme.error,
-                                    disabledContentColor = MaterialTheme.colorScheme.onError,
-                                    disabledContainerColor = MaterialTheme.colorScheme.onErrorContainer
-                                ),
-                                shape = IconButtonDefaults.mediumSquareShape
+                                enabled = !isLoading
                             ) {
-                                Icon(Icons.Default.Close, null, modifier = Modifier.size(16.dp))
+                                Icon(
+                                    Icons.Default.Close,
+                                    null,
+                                    tint = MaterialTheme.colorScheme.error
+                                )
                             }
-                            FilledTonalIconButton(
+                            IconButton(
                                 onClick = onAccept,
                                 enabled = !isLoading,
-                                colors = IconButtonColors(
-                                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                                    contentColor = MaterialTheme.colorScheme.primary,
-                                    disabledContentColor = MaterialTheme.colorScheme.primaryFixed,
-                                    disabledContainerColor = MaterialTheme.colorScheme.primaryFixedDim
-                                ),
-                                shape = IconButtonDefaults.mediumSquareShape
                             ) {
-                                Icon(Icons.Default.Check, null, modifier = Modifier.size(16.dp))
+                                Icon(
+                                    Icons.Default.Check,
+                                    null,
+                                    tint = MaterialTheme.colorScheme.primary
+                                )
                             }
                         }
                     }
@@ -99,6 +98,26 @@ fun JamTransferReviewDialog(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center
                 )
+
+                Spacer(Modifier.height(16.dp))
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Text(
+                        text = "Заявка актинва до ",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        textAlign = TextAlign.Center
+                    )
+                    Text(
+                        text = DateTimeUtils.formatDateTime(transfer.expiresAt),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.primary,
+                        textAlign = TextAlign.Center
+                    )
+
+                }
                 Spacer(Modifier.height(24.dp))
 
                 if (isLoading) {

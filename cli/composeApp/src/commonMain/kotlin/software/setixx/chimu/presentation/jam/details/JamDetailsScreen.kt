@@ -37,6 +37,8 @@ fun JamDetailsScreen(
     initialTab: JamDetailsTab? = null,
     onNavigateToProject: (String, String?, Boolean) -> Unit,
     onNavigateToProjectRating: (String, String) -> Unit,
+    onNavigateToAlienProfile: (String) -> Unit,
+    onNavigateToOwnProfile: () -> Unit,
     viewModel: JamDetailsViewModel = koinViewModel()
 ) {
     val state by viewModel.state.collectAsState()
@@ -177,7 +179,11 @@ fun JamDetailsScreen(
                                         jamId = jamId,
                                         jam = jam,
                                         userRole = state.userRole,
-                                        userId = state.userId
+                                        userId = state.userId,
+                                        onNavigateToOwnProfile = onNavigateToOwnProfile,
+                                        onNavigateToAlienProfile = { userId ->
+                                            onNavigateToAlienProfile(userId)
+                                        }
                                     )
                                 }
                                 JamDetailsTab.Project -> {
@@ -204,7 +210,10 @@ fun JamDetailsScreen(
                                 JamDetailsTab.Management -> {
                                     ManagementScreen(
                                         jam = jam,
-                                        paddingValues = paddingValues
+                                        paddingValues = paddingValues,
+                                        onNavigateToAlienProfile = { judge ->
+                                            onNavigateToAlienProfile(judge)
+                                        }
                                     )
                                 }
                                 JamDetailsTab.AccessDenied -> {

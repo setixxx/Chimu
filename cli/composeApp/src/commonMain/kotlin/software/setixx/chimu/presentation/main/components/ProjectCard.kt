@@ -19,14 +19,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import software.setixx.chimu.domain.model.Project
+import software.setixx.chimu.presentation.jam.details.judging.components.ProjectStatusBadge
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun ProjectCard(project: Project) {
+fun ProjectCard(
+    modifier: Modifier,
+    project: Project,
+    onClick: () -> Unit) {
     Card(
-        modifier = Modifier
-            .fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        modifier = modifier,
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        shape = MaterialTheme.shapes.extraLarge,
+        onClick = onClick
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(
@@ -42,7 +47,7 @@ fun ProjectCard(project: Project) {
                     modifier = Modifier.weight(1f)
                 )
                 Spacer(modifier = Modifier.width(8.dp))
-                ProjectStatusChip(status = project.status)
+                ProjectStatusBadge(status = project.status.name)
             }
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -52,6 +57,7 @@ fun ProjectCard(project: Project) {
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
+            Spacer(modifier = Modifier.height(8.dp))
 
             project.teamName?.let { teamName ->
                 Text(

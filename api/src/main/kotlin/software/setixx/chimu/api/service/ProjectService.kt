@@ -17,6 +17,7 @@ class ProjectService(
     private val projectRepository: ProjectRepository,
     private val gameJamRepository: GameJamRepository,
     private val teamRepository: TeamRepository,
+    private val teamMemberRepository: TeamMemberRepository,
     private val registrationRepository: JamTeamRegistrationRepository,
     private val userRepository: UserRepository,
     private val jamJudgeRepository: JamJudgeRepository
@@ -265,7 +266,15 @@ class ProjectService(
                 if (user.id == null) return false
                 val team = project.team.id?.let { teamRepository.findById(it).orElse(null) }
                 val isJudge = jamJudgeRepository.existsByGameJamIdAndJudgeIdAndDeletedAtIsNull(jam.id!!, user.id!!)
-                team != null && (team.leader.id == user.id || jam.organizer.id == user.id || user.role == UserRole.ADMIN || isJudge)
+                val wasTeamMember = team?.id != null && project.createdAt != null &&
+                        teamMemberRepository.wasUserMemberAtTime(team.id!!, user.id!!, project.createdAt!!)
+                team != null && (
+                        team.leader.id == user.id ||
+                                wasTeamMember ||
+                                jam.organizer.id == user.id ||
+                                user.role == UserRole.ADMIN ||
+                                isJudge
+                        )
             }
             ProjectStatus.DISQUALIFIED -> jam.organizer.id == user.id || user.role == UserRole.ADMIN
         }

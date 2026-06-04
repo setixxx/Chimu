@@ -19,7 +19,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import coil3.compose.AsyncImage
 import coil3.compose.LocalPlatformContext
 import coil3.compose.SubcomposeAsyncImage
 import coil3.network.NetworkHeaders
@@ -48,6 +47,23 @@ fun ImagePlaceholderGallery(
         value = tokenStorage.getAccessToken()
     }
     val baseUrl = remember { getBaseUrl() }
+
+    var selectedFile by remember { mutableStateOf<ProjectFile?>(null) }
+
+    selectedFile?.let { file ->
+        FullScreenImageViewer(
+            imageUrl = "$baseUrl/api/projects/$projectId/screenshots/${file.id}",
+            fileName = file.fileName,
+            token = token,
+            canDelete = canDelete,
+            onDismiss = { selectedFile = null },
+            onDownload = { onDownload(file.id) },
+            onDelete = {
+                onDelete(file.id)
+                selectedFile = null
+            }
+        )
+    }
 
     Column(
         verticalArrangement = Arrangement.spacedBy(10.dp)
@@ -80,6 +96,7 @@ fun ImagePlaceholderGallery(
                     Spacer(Modifier.width(4.dp))
                     Text("Загрузить", style = MaterialTheme.typography.labelMedium)
                 }
+
                 !canUpload && !isReadOnly -> {}
             }
         }
@@ -95,6 +112,7 @@ fun ImagePlaceholderGallery(
                     imageUrl = imageUrl,
                     token = token,
                     canDelete = canDelete,
+                    onPreview = { selectedFile = file },
                     onDelete = { onDelete(file.id) },
                     onDownload = { onDownload(file.id) }
                 )
@@ -105,13 +123,13 @@ fun ImagePlaceholderGallery(
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun FilledPlaceholderTile(
     fileName: String,
     imageUrl: String,
     token: String?,
     canDelete: Boolean,
+    onPreview: () -> Unit,
     onDelete: () -> Unit,
     onDownload: () -> Unit
 ) {
@@ -119,6 +137,7 @@ private fun FilledPlaceholderTile(
 
     Box(modifier = Modifier.size(100.dp)) {
         Surface(
+            onClick = onPreview,
             modifier = Modifier.fillMaxSize(),
             shape = MaterialTheme.shapes.medium,
             color = MaterialTheme.colorScheme.surfaceContainerHigh,
@@ -197,34 +216,6 @@ private fun FilledPlaceholderTile(
                         textAlign = TextAlign.Center
                     )
                 }
-            }
-        }
-
-        FilledIconButton(
-            onClick = onDownload,
-            modifier = Modifier
-                .size(22.dp)
-                .align(Alignment.BottomEnd),
-            colors = IconButtonDefaults.filledIconButtonColors(
-                containerColor = MaterialTheme.colorScheme.primaryContainer,
-                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
-            )
-        ) {
-            Icon(Icons.Default.Download, contentDescription = null, modifier = Modifier.size(12.dp))
-        }
-
-        if (canDelete) {
-            FilledIconButton(
-                onClick = onDelete,
-                modifier = Modifier
-                    .size(22.dp)
-                    .align(Alignment.TopEnd),
-                colors = IconButtonDefaults.filledIconButtonColors(
-                    containerColor = MaterialTheme.colorScheme.errorContainer,
-                    contentColor = MaterialTheme.colorScheme.onErrorContainer
-                )
-            ) {
-                Icon(Icons.Default.Close, contentDescription = null, modifier = Modifier.size(12.dp))
             }
         }
     }

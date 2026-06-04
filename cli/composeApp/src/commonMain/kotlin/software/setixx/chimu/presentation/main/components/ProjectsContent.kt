@@ -47,14 +47,11 @@ fun ProjectsContent(
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 items(state.userProjects.size) { index ->
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth(),
+                    ProjectCard(
+                        modifier = Modifier.fillMaxWidth(),
+                        project = state.userProjects[index],
                         onClick = { onNavigateToProject(state.userProjects[index].id, state.user?.role?.name, false) },
-                        shape = MaterialTheme.shapes.extraLarge
-                    ){
-                        ProjectCard(project = state.userProjects[index])
-                    }
+                    )
                 }
             }
         }

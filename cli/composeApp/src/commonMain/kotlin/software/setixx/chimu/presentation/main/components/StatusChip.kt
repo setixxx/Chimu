@@ -20,14 +20,14 @@ import software.setixx.chimu.api.domain.GameJamStatus
 @Composable
 fun StatusChip(status: GameJamStatus) {
     val (text, color) = when (status) {
-        GameJamStatus.DRAFT -> "Черновик" to MaterialTheme.colorScheme.tertiary
-        GameJamStatus.ANNOUNCED -> "Аннонсирован" to MaterialTheme.colorScheme.primary
-        GameJamStatus.REGISTRATION_OPEN -> "Регистрация" to MaterialTheme.colorScheme.tertiary
-        GameJamStatus.IN_PROGRESS -> "В процессе" to MaterialTheme.colorScheme.surface
-        GameJamStatus.JUDGING -> "Оценивание" to MaterialTheme.colorScheme.secondary
-        GameJamStatus.COMPLETED -> "Завершен" to MaterialTheme.colorScheme.surfaceVariant
-        GameJamStatus.CANCELLED -> "Отменен" to MaterialTheme.colorScheme.error
-        else -> status.name to MaterialTheme.colorScheme.surfaceVariant
+        GameJamStatus.DRAFT -> "Черновик" to MaterialTheme.colorScheme.surfaceVariant
+        GameJamStatus.ANNOUNCED -> "Аннонсирован" to MaterialTheme.colorScheme.primaryContainer
+        GameJamStatus.REGISTRATION_OPEN -> "Регистрация" to MaterialTheme.colorScheme.onPrimaryFixedVariant
+        GameJamStatus.REGISTRATION_CLOSED -> "Подготовка" to MaterialTheme.colorScheme.onPrimaryFixedVariant
+        GameJamStatus.IN_PROGRESS -> "В процессе" to MaterialTheme.colorScheme.primaryContainer
+        GameJamStatus.JUDGING -> "Оценивание" to MaterialTheme.colorScheme.onTertiaryFixedVariant
+        GameJamStatus.COMPLETED -> "Завершен" to MaterialTheme.colorScheme.tertiaryContainer
+        GameJamStatus.CANCELLED -> "Отменен" to MaterialTheme.colorScheme.errorContainer
     }
 
     Row(

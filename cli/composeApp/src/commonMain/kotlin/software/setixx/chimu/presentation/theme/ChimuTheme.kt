@@ -102,11 +102,19 @@ private val LightColorScheme = lightColorScheme(
 )
 
 @Composable
+expect fun getDynamicColorScheme(darkTheme: Boolean): ColorScheme?
+
+@Composable
 fun ChimuTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
+    dynamicColor: Boolean = true,
     content: @Composable () -> Unit
 ) {
-    val colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme
+    val colorScheme = if (dynamicColor) {
+        getDynamicColorScheme(darkTheme) ?: if (darkTheme) DarkColorScheme else LightColorScheme
+    } else {
+        if (darkTheme) DarkColorScheme else LightColorScheme
+    }
 
     MaterialTheme(
         colorScheme = colorScheme,

@@ -35,6 +35,9 @@ import software.setixx.chimu.presentation.utils.DateTimeUtils
 @Composable
 fun JamOverviewSection(
     jam: GameJamDetails,
+    userId: String,
+    onNavigateToAlienProfile: (String) -> Unit,
+    onNavigateToOwnProfile: () -> Unit,
 ) {
     Column(
         modifier = Modifier
@@ -117,6 +120,13 @@ fun JamOverviewSection(
             items = jam.judges,
             emptyText = "Судьи не назначены.",
             onButtonClick = { },
+            onItemClick = { judge ->
+                if (judge.userId != userId){
+                    onNavigateToAlienProfile(judge.userId)
+                } else {
+                    onNavigateToOwnProfile()
+                }
+            },
             itemHeadline = { judge -> Text(judge.nickname) },
             itemSupportingContent = { judge ->
                 Text("Назначен: ${DateTimeUtils.formatDateTime(judge.assignedAt)}")

@@ -24,10 +24,11 @@ import software.setixx.chimu.api.domain.RegistrationStatus
 import software.setixx.chimu.data.picker.rememberFilePicker
 import software.setixx.chimu.domain.model.CreateRatingCriteria
 import software.setixx.chimu.domain.model.GameJamDetails
+import software.setixx.chimu.domain.model.Judge
+import software.setixx.chimu.domain.model.RatingCriteria
 import software.setixx.chimu.domain.model.UpdateRatingCriteria
 import software.setixx.chimu.presentation.jam.details.management.components.BannerCard
 import software.setixx.chimu.presentation.jam.details.management.components.JamStatisticsCard
-import software.setixx.chimu.presentation.jam.details.management.components.LeaderboardCard
 import software.setixx.chimu.presentation.jam.details.management.components.ManagementListCard
 import software.setixx.chimu.presentation.jam.details.management.components.TeamCard
 import software.setixx.chimu.presentation.jam.details.transfer.DialogActions
@@ -41,12 +42,17 @@ import software.setixx.chimu.presentation.utils.DateTimeUtils
 fun ManagementScreen(
     jam: GameJamDetails,
     viewModel: ManagementViewModel = koinViewModel(),
-    paddingValues: PaddingValues
+    paddingValues: PaddingValues,
+    onNavigateToAlienProfile: (String) -> Unit
 ) {
     val state by viewModel.state.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
     val scrollState = rememberScrollState()
 
+    var showUnassignJudgeDialog by remember { mutableStateOf(false) }
+    var selectedJudge by remember { mutableStateOf<Judge?>(null) }
+    var showDeleteCriteriaDialog by remember { mutableStateOf(false) }
+    var selectedCriteria by remember { mutableStateOf<RatingCriteria?>(null) }
     var showAssignJudgeDialog by remember { mutableStateOf(false) }
     var showAddCriteriaDialog by remember { mutableStateOf(false) }
     var showUpdateCriteriaDialog by remember { mutableStateOf(false) }
@@ -139,9 +145,15 @@ fun ManagementScreen(
                         itemSupportingContent = { judge ->
                             Text("Назначен: ${DateTimeUtils.formatDateTime(judge.assignedAt)}")
                         },
+                        onItemClick = { judge ->
+                            onNavigateToAlienProfile(judge.userId)
+                        },
                         itemTrailingContent = { judge ->
                             IconButton(
-                                onClick = { viewModel.unassignJudge(jam.id, judge.userId) }
+                                onClick = {
+                                    selectedJudge = judge
+                                    showUnassignJudgeDialog = true
+                                }
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.PersonRemove,
@@ -175,7 +187,10 @@ fun ManagementScreen(
                         itemTrailingContent = { criteria ->
                             if (jam.status in editableStates){
                                 IconButton(
-                                    onClick = { viewModel.deleteCriteria(jam.id, criteria.id) }
+                                    onClick = {
+                                        selectedCriteria = criteria
+                                        showDeleteCriteriaDialog = true
+                                    }
                                 ) {
                                     Icon(
                                         imageVector = Icons.Default.Delete,
@@ -247,6 +262,65 @@ fun ManagementScreen(
             }
         )
     }
+
+    if (showUnassignJudgeDialog) {
+        AlertDialog(
+            onDismissRequest = { showUnassignJudgeDialog = false },
+            icon = {
+                Icon(
+                    imageVector = Icons.Default.PersonRemove,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.error
+                )
+            },
+            title = { Text("Снять судью с судейства?") },
+            text = { Text("Cудья ${selectedJudge?.nickname} будет отстранен от судейства.") },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        selectedJudge?.let { viewModel.unassignJudge(jam.id, it.userId) }
+                        showUnassignJudgeDialog = false
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.error
+                    )
+                ) { Text("Снять") }
+            },
+            dismissButton = {
+                TextButton(onClick = { showUnassignJudgeDialog = false }) { Text("Отмена") }
+            }
+        )
+    }
+
+    if (showDeleteCriteriaDialog) {
+        AlertDialog(
+            onDismissRequest = { showDeleteCriteriaDialog = false },
+            icon = {
+                Icon(
+                    imageVector = Icons.Default.Delete,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.error
+                )
+            },
+            title = { Text("Удалить критерий оценивания?") },
+            text = { Text("Критерий «${selectedCriteria?.name}» будет безвозратно удален.") },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        selectedCriteria?.let { viewModel.deleteCriteria(jam.id, it.id)}
+                        showDeleteCriteriaDialog = false
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.error
+                    )
+                ) { Text("Удалить") }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteCriteriaDialog = false }) { Text("Отмена") }
+            }
+        )
+    }
+
 
     if (showAddCriteriaDialog) {
         AlertDialog(

@@ -25,6 +25,8 @@ fun OverviewScreen(
     jam: GameJamDetails,
     userRole: UserRole?,
     userId: String?,
+    onNavigateToAlienProfile: (String) -> Unit,
+    onNavigateToOwnProfile: () -> Unit,
     viewModel: OverviewViewModel = koinViewModel()
 ) {
     val state by viewModel.state.collectAsState()
@@ -159,9 +161,16 @@ fun OverviewScreen(
                         }
                     }
 
-                    JamOverviewSection(
-                        jam = jam,
-                    )
+                    userId?.let {
+                        JamOverviewSection(
+                            jam = jam,
+                            userId = it,
+                            onNavigateToOwnProfile = onNavigateToOwnProfile,
+                            onNavigateToAlienProfile = { userId ->
+                                onNavigateToAlienProfile(userId)
+                            }
+                        )
+                    }
 
                     TeamCard(
                         registrations = state.registrations,

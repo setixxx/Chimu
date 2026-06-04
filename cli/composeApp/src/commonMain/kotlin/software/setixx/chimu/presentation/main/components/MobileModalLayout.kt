@@ -147,47 +147,54 @@ fun MobileModalLayout(
                                 }
                             }
 
-                            DropdownMenu(
+                            DropdownMenuPopup(
                                 expanded = showNotifications,
                                 onDismissRequest = { onShowNotifications(false) }
                             ) {
-                                Text(
-                                    text = "Уведомления",
-                                    style = MaterialTheme.typography.titleMedium,
-                                    modifier = Modifier.padding(16.dp)
-                                )
-
-                                if (state.notifications.isEmpty()) {
-                                    DropdownMenuItem(
-                                        text = { Text("Нет новых уведомлений") },
-                                        onClick = { },
-                                        enabled = false
+                                DropdownMenuGroup(
+                                    shapes = MenuDefaults.groupShapes(MaterialTheme.shapes.medium),
+                                    interactionSource = groupInteractionSource,
+                                ) {
+                                    Text(
+                                        text = "Уведомления",
+                                        style = MaterialTheme.typography.titleMedium,
+                                        modifier = Modifier.padding(16.dp)
                                     )
-                                } else {
-                                    state.notifications.forEach { notification ->
-                                        DropdownMenuItem(
-                                            text = { Text(notification.message) },
-                                            onClick = {
-                                                onShowNotifications(false)
-                                                onNotificationAction(notification)
-                                            },
-                                            leadingIcon = {
-                                                Icon(
-                                                    notification.icon,
-                                                    contentDescription = null,
-                                                    tint = if (notification.actionType != null)
-                                                        MaterialTheme.colorScheme.primary
-                                                    else
-                                                        LocalContentColor.current
-                                                )
-                                            },
-                                            trailingIcon = if (notification.actionType != null) {
-                                                { Icon(Icons.Default.ChevronRight, contentDescription = null) }
-                                            } else null
-                                        )
 
-                                        if (notification != state.notifications.last()) {
-                                            HorizontalDivider()
+                                    if (state.notifications.isEmpty()) {
+                                        DropdownMenuItem(
+                                            text = { Text("Нет новых уведомлений") },
+                                            onClick = { },
+                                            enabled = false
+                                        )
+                                    } else {
+                                        state.notifications.forEach { notification ->
+                                            DropdownMenuItem(
+                                                text = { Text(notification.message) },
+                                                onClick = {
+                                                    onShowNotifications(false)
+                                                    onNotificationAction(notification)
+                                                },
+                                                leadingIcon = {
+                                                    Icon(
+                                                        notification.icon,
+                                                        contentDescription = null,
+                                                        tint = if (notification.actionType != null)
+                                                            MaterialTheme.colorScheme.primary
+                                                        else
+                                                            LocalContentColor.current
+                                                    )
+                                                },
+                                                trailingIcon = if (notification.actionType != null) {
+                                                    { Icon(Icons.Default.ChevronRight, contentDescription = null) }
+                                                } else null,
+                                                shape = MaterialTheme.shapes.medium
+                                            )
+
+                                            if (notification != state.notifications.last()) {
+                                                HorizontalDivider()
+                                            }
+                                            Spacer(Modifier.height(MenuDefaults.GroupSpacing))
                                         }
                                     }
                                 }
@@ -221,10 +228,8 @@ fun MobileModalLayout(
                                 expanded = showUserMenu,
                                 onDismissRequest = { onShowUserMenu(false) }
                             ) {
-                                val groupCount = 3
-
                                 DropdownMenuGroup(
-                                    shapes = MenuDefaults.groupShape(index = 0, count = groupCount),
+                                    shapes = MenuDefaults.groupShapes(MaterialTheme.shapes.medium),
                                     interactionSource = groupInteractionSource,
                                 ) {
                                     state.user?.let { user ->
@@ -246,15 +251,6 @@ fun MobileModalLayout(
                                             )
                                         }
                                     }
-                                }
-                                Spacer(Modifier.height(MenuDefaults.GroupSpacing))
-
-                                DropdownMenuGroup(
-                                    modifier = Modifier
-                                        .padding(vertical = 4.dp),
-                                    shapes = MenuDefaults.groupShape(index = 1, count = groupCount),
-                                    interactionSource = groupInteractionSource,
-                                ) {
                                     DropdownMenuItem(
                                         onClick = {
                                             onShowUserMenu(false)
@@ -277,15 +273,6 @@ fun MobileModalLayout(
                                         },
                                         shape = MaterialTheme.shapes.medium
                                     )
-                                }
-                                Spacer(Modifier.height(MenuDefaults.GroupSpacing))
-
-                                DropdownMenuGroup(
-                                    modifier = Modifier
-                                        .padding(vertical = 4.dp),
-                                    shapes = MenuDefaults.groupShape(index = 2, count = groupCount),
-                                    interactionSource = groupInteractionSource,
-                                ) {
                                     DropdownMenuItem(
                                         text = {
                                             Text("Выйти", color = MaterialTheme.colorScheme.error)
@@ -303,13 +290,13 @@ fun MobileModalLayout(
                                         },
                                         shape = MaterialTheme.shapes.medium
                                     )
+                                    Spacer(Modifier.height(MenuDefaults.GroupSpacing))
                                 }
                             }
                         }
                         Spacer(modifier = Modifier.width(8.dp))
-                    },
-
-                    )
+                    }
+                )
             },
             snackbarHost = { SnackbarHost(snackBarHostState) }
         ){ paddingValues ->
