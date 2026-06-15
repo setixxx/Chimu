@@ -1,5 +1,6 @@
 package software.setixx.chimu.presentation.profile.own
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -10,6 +11,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import org.koin.compose.viewmodel.koinViewModel
@@ -21,6 +24,7 @@ import software.setixx.chimu.presentation.profile.components.ProfileSkillsView
 import software.setixx.chimu.presentation.profile.roleupgrade.RoleUpgradeDialog
 import software.setixx.chimu.presentation.profile.roleupgrade.RoleUpgradeViewModel
 import software.setixx.chimu.presentation.utils.DateTimeUtils
+import kotlin.collections.forEachIndexed
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -139,7 +143,7 @@ fun ProfileScreen(
                         modifier = Modifier.padding(16.dp),
                         verticalArrangement = Arrangement.spacedBy(ListItemDefaults.SegmentedGap)
                     ) {
-                        val totalFields = 8
+                        val totalFields = 7
 
                         EditableProfileField(
                             value = state.nickname,
@@ -206,38 +210,65 @@ fun ProfileScreen(
                                     trailingIcon = {
                                         ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedSpec)
                                     },
-                                    modifier = Modifier.menuAnchor(),
+                                    modifier = Modifier.menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable, true),
                                     itemIndex = 4,
                                     listCount = totalFields
                                 )
 
                                 ExposedDropdownMenu(
                                     expanded = expandedSpec,
-                                    onDismissRequest = { expandedSpec = false }
+                                    onDismissRequest = { expandedSpec = false },
+                                    shape = MenuDefaults.groupShape(0, 1).shape,
+                                    modifier = Modifier.padding(horizontal = 4.dp)
                                 ) {
                                     DropdownMenuItem(
                                         text = { Text("Не выбрано") },
                                         onClick = {
                                             viewModel.updateSpecialization(null)
                                             expandedSpec = false
-                                        }
+                                        },
+                                        shape = MenuDefaults.itemShape(0, state.availableSpecializations.size + 1).shape
                                     )
-                                    state.availableSpecializations.forEach { spec ->
+                                    state.availableSpecializations.forEachIndexed { index, specialization ->
+                                        val itemShape = MenuDefaults.itemShape(
+                                            index = if (index == 0) 1 else index,
+                                            count = state.availableSpecializations.size
+                                        )
+
                                         DropdownMenuItem(
                                             text = {
                                                 Column {
-                                                    Text(spec.name)
-                                                    spec.description?.let {
+                                                    Text(specialization.name)
+                                                    specialization.description?.let {
                                                         Text(
                                                             it,
                                                             style = MaterialTheme.typography.bodySmall,
-                                                            color = MaterialTheme.colorScheme.onSurfaceVariant
                                                         )
                                                     }
                                                 }
                                             },
+                                            modifier = if (state.selectedSpecialization == specialization) {
+                                                Modifier
+                                                    .padding(horizontal = 4.dp)
+                                                    .clip(MaterialTheme.shapes.largeIncreased)
+                                                    .background(MaterialTheme.colorScheme.primary)
+                                            } else {
+                                                Modifier
+                                            },
+                                            leadingIcon = if (state.selectedSpecialization == specialization) {
+                                                { Icon(imageVector = Icons.Default.Check, contentDescription = "Selected") }
+                                            } else null,
+                                            colors = if (state.selectedSpecialization == specialization) {
+                                                MenuDefaults.itemColors(
+                                                    textColor = MaterialTheme.colorScheme.onPrimary,
+                                                    leadingIconColor = MaterialTheme.colorScheme.onPrimary
+                                                )
+                                            } else {
+                                                MenuDefaults.itemColors()
+                                            },
+                                            shape = itemShape.shape,
                                             onClick = {
-                                                viewModel.updateSpecialization(spec)
+                                                viewModel.updateSpecialization(specialization)
                                                 expandedSpec = false
                                             }
                                         )
@@ -270,21 +301,6 @@ fun ProfileScreen(
                             listCount = totalFields
                         )
 
-                        EditableProfileField(
-                            value = state.telegramUsername,
-                            onValueChange = { viewModel.updateTelegramUsername(it) },
-                            label = "Telegram",
-                            leadingIcon = Icons.Default.Send,
-                            isEditing = state.isEditing,
-                            enabled = !state.isSaving,
-                            isError = state.telegramError != null,
-                            supportingText = state.telegramError,
-                            placeholder = "username",
-                            prefix = { Text("@") },
-                            itemIndex = 6,
-                            listCount = totalFields
-                        )
-
                         if (state.isEditing) {
                             Spacer(modifier = Modifier.height(8.dp))
                             SkillsSelector(
@@ -296,7 +312,7 @@ fun ProfileScreen(
                         } else {
                             ProfileSkillsView(
                                 skills = state.selectedSkills.map { it.name },
-                                itemIndex = 7,
+                                itemIndex = 6,
                                 listCount = totalFields
                             )
                         }

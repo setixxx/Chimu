@@ -20,7 +20,9 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import org.koin.compose.viewmodel.koinViewModel
 import software.setixx.chimu.api.domain.TransferStatus
+import software.setixx.chimu.api.domain.UserRole
 import software.setixx.chimu.presentation.jam.details.components.HomeBottomBar
+import software.setixx.chimu.presentation.jam.details.forcestatus.ForceStatusDialog
 import software.setixx.chimu.presentation.jam.details.judging.JudgingScreen
 import software.setixx.chimu.presentation.jam.details.leaderboard.LeaderboardScreen
 import software.setixx.chimu.presentation.jam.details.management.ManagementScreen
@@ -95,11 +97,14 @@ fun JamDetailsScreen(
                 },
                 actions = {
                     if (state.canEdit){
-                        FilledTonalIconButton(onClick = { onEditJam(jamId) }) {
+                        FilledTonalIconButton(
+                            onClick = { onEditJam(jamId) },
+                            enabled = state.canEdit
+                        ) {
                             Icon(Icons.Default.Edit, "Редактировать")
                         }
                     }
-                    if (state.isAdminOrOrganizer || state.isPreviousOrganizer) {
+                    if (state.canTransferJam) {
                         FilledTonalIconButton(
                             onClick = { viewModel.openTransferDialog() },
                             enabled = state.canTransferEnabled
@@ -107,8 +112,26 @@ fun JamDetailsScreen(
                             Icon(transferIcon, contentDescription = "Передача джема")
                         }
                     }
+                    if (state.isAdmin){
+                        FilledTonalIconButton(
+                            onClick = { viewModel.openForceStatusDialog() },
+                        ) {
+                            Icon(
+                                Icons.Default.DoubleArrow,
+                                "Сменить статус джема",
+                            )
+                        }
+                    }
                     if (state.canDelete) {
-                        FilledTonalIconButton(onClick = { showDeleteDialog = true }) {
+                        FilledTonalIconButton(
+                            onClick = { showDeleteDialog = true },
+                            colors = IconButtonColors(
+                                containerColor = MaterialTheme.colorScheme.errorContainer,
+                                contentColor = MaterialTheme.colorScheme.error,
+                                disabledContainerColor = MaterialTheme.colorScheme.errorContainer,
+                                disabledContentColor = MaterialTheme.colorScheme.errorContainer
+                            ),
+                        ) {
                             Icon(
                                 Icons.Default.Delete,
                                 "Удалить",
@@ -124,7 +147,8 @@ fun JamDetailsScreen(
                                 contentColor = MaterialTheme.colorScheme.error,
                                 disabledContainerColor = MaterialTheme.colorScheme.errorContainer,
                                 disabledContentColor = MaterialTheme.colorScheme.errorContainer
-                            )
+                            ),
+                            enabled = state.canCancel
                         ) {
                             Icon(
                                 Icons.Default.Cancel,
@@ -235,6 +259,15 @@ fun JamDetailsScreen(
         }
     }
 
+    if (state.showForceStatusDialog){
+        ForceStatusDialog(
+            state = state,
+            onDismiss = { viewModel.closeForceStatusDialog() },
+            onSubmit = { viewModel.forceJamStatus(jamId, it) },
+            onStatusSelected = { viewModel.onForceStatusSelected(it) }
+        )
+    }
+
     if (state.showTransferDialog) {
         JamTransferDialog(
             state = state,
@@ -270,7 +303,7 @@ fun JamDetailsScreen(
 
     if (showCancelDialog) {
         AlertDialog(
-            onDismissRequest = { showDeleteDialog = false },
+            onDismissRequest = { showCancelDialog = false },
             title = { Text("Отменить джем?") },
             text = { Text("Джем будет безвозратно отменен.") },
             confirmButton = {
@@ -285,7 +318,7 @@ fun JamDetailsScreen(
                 ) { Text("Отменить") }
             },
             dismissButton = {
-                TextButton(onClick = { showDeleteDialog = false }) { Text("Отмена") }
+                TextButton(onClick = { showCancelDialog = false }) { Text("Отмена") }
             }
         )
     }

@@ -85,7 +85,7 @@ fun UserProfileScreen(
                                 modifier = Modifier.padding(16.dp),
                                 verticalArrangement = Arrangement.spacedBy(ListItemDefaults.SegmentedGap)
                             ) {
-                                val totalFields = 7
+                                val totalFields = 6
 
                                 EditableProfileField(
                                     value = profile.firstName ?: "",
@@ -139,21 +139,9 @@ fun UserProfileScreen(
                                     listCount = totalFields
                                 )
 
-                                EditableProfileField(
-                                    value = profile.telegramUrl ?: "",
-                                    onValueChange = {},
-                                    label = "Telegram",
-                                    leadingIcon = Icons.Default.Send,
-                                    isEditing = false,
-                                    placeholder = "username",
-                                    prefix = { Text("@") },
-                                    itemIndex = 5,
-                                    listCount = totalFields
-                                )
-
                                 ProfileSkillsView(
                                     skills = profile.skills,
-                                    itemIndex = 6,
+                                    itemIndex = 5,
                                     listCount = totalFields
                                 )
                             }

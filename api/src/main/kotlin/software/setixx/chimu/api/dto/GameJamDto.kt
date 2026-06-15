@@ -147,3 +147,8 @@ data class GameJamDetailsResponse(
     val registeredTeamsCount: Int,
     val submittedProjectsCount: Int
 )
+
+data class ForceStatusRequest(
+    @field:NotNull(message = "Status is required")
+    val status: GameJamStatus
+)

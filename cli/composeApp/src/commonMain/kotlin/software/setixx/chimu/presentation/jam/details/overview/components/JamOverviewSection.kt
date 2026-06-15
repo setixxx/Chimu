@@ -28,7 +28,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import software.setixx.chimu.domain.model.GameJamDetails
 import software.setixx.chimu.presentation.components.InfoRow
-import software.setixx.chimu.presentation.jam.details.management.components.ManagementListCard
 import software.setixx.chimu.presentation.utils.DateTimeUtils
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)

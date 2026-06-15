@@ -29,7 +29,7 @@ import software.setixx.chimu.domain.model.RatingCriteria
 import software.setixx.chimu.domain.model.UpdateRatingCriteria
 import software.setixx.chimu.presentation.jam.details.management.components.BannerCard
 import software.setixx.chimu.presentation.jam.details.management.components.JamStatisticsCard
-import software.setixx.chimu.presentation.jam.details.management.components.ManagementListCard
+import software.setixx.chimu.presentation.jam.details.overview.components.ManagementListCard
 import software.setixx.chimu.presentation.jam.details.management.components.TeamCard
 import software.setixx.chimu.presentation.jam.details.transfer.DialogActions
 import software.setixx.chimu.presentation.jam.details.transfer.DialogIcon

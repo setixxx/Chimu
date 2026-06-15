@@ -2,12 +2,12 @@ package software.setixx.chimu.presentation.jam.details
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import software.setixx.chimu.api.domain.GameJamStatus
 import software.setixx.chimu.api.domain.TransferStatus
 import software.setixx.chimu.domain.model.ApiResult
 import software.setixx.chimu.domain.model.CreateJamTransfer
@@ -15,6 +15,7 @@ import software.setixx.chimu.domain.usecase.CancelJamUseCase
 import software.setixx.chimu.domain.usecase.CancelTransferUseCase
 import software.setixx.chimu.domain.usecase.CreateTransferUseCase
 import software.setixx.chimu.domain.usecase.DeleteJamUseCase
+import software.setixx.chimu.domain.usecase.ForceJamStatusUseCase
 import software.setixx.chimu.domain.usecase.GetCurrentUserUseCase
 import software.setixx.chimu.domain.usecase.GetJamDetailsUseCase
 import software.setixx.chimu.domain.usecase.GetJamRegistrationsUseCase
@@ -37,6 +38,7 @@ class JamDetailsViewModel(
     private val getUserByNicknameUseCase: GetUserByNicknameUseCase,
     private val getUserTeamsUseCase: GetUserTeamsUseCase,
     private val getJamRegistrationsUseCase: GetJamRegistrationsUseCase,
+    private val forceJamStatusUseCase: ForceJamStatusUseCase
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(JamDetailsState())
@@ -113,6 +115,54 @@ class JamDetailsViewModel(
         }
     }
 
+    fun openForceStatusDialog(){
+        _state.update {
+            it.copy(
+                showForceStatusDialog = true,
+                selectedForceStatus = null,
+                forceStatusError = null
+            )
+        }
+    }
+
+    fun closeForceStatusDialog(){
+        _state.update {
+            it.copy(
+                showForceStatusDialog = false,
+                selectedForceStatus = null,
+                forceStatusError = null
+            )
+        }
+    }
+
+    fun forceJamStatus(jamId: String, targetStatus: GameJamStatus){
+        viewModelScope.launch {
+            _state.update { it.copy(isForceStatusActionIsLoading = true, forceStatusError = null) }
+            when (val result = forceJamStatusUseCase(jamId, targetStatus)){
+                is ApiResult.Success -> {
+                    _state.update {
+                        it.copy(
+                            showForceStatusDialog = false,
+                            selectedForceStatus = null,
+                            isForceStatusActionIsLoading = false,
+                            forceStatusError = null
+                        )
+                    }
+                    loadJamDetails(jamId)
+                }
+                is ApiResult.Error -> {
+                    _state.update {
+                        it.copy(
+                            forceStatusError = result.message,
+                            isForceStatusActionIsLoading = false
+                        )
+                    }
+                }
+            }
+        }
+
+    }
+
     fun openTransferDialog() {
         _state.update {
             it.copy(
@@ -133,6 +183,10 @@ class JamDetailsViewModel(
                 transferRecipientFound = null
             )
         }
+    }
+
+    fun onForceStatusSelected(status: GameJamStatus) {
+        _state.update { it.copy(selectedForceStatus = status) }
     }
 
     fun onTransferRecipientQueryChange(query: String) {
@@ -233,15 +287,15 @@ class JamDetailsViewModel(
 
     fun cancelJam(jamId: String) {
         viewModelScope.launch {
-            _state.update { it.copy(isDeleting = true) }
+            _state.update { it.copy(isCancelling = true) }
             when (val result = cancelJamUseCase(jamId)) {
                 is ApiResult.Success -> {
-                    _state.update { it.copy(isDeleting = false, isDeleted = true) }
+                    _state.update { it.copy(isCancelling = false, isCancelled = true) }
                 }
                 is ApiResult.Error -> {
                     _state.update {
                         it.copy(
-                            isDeleting = false,
+                            isCancelling = false,
                             errorMessage = result.message
                         )
                     }

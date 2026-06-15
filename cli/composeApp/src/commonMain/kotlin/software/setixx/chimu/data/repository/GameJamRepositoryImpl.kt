@@ -7,6 +7,7 @@ import software.setixx.chimu.api.domain.GameJamStatus
 import software.setixx.chimu.data.local.TokenStorage
 import software.setixx.chimu.data.remote.GameJamApi
 import software.setixx.chimu.data.remote.dto.CreateGameJamRequest
+import software.setixx.chimu.data.remote.dto.ForceJamStatusRequest
 import software.setixx.chimu.data.remote.dto.GameJamDetailsResponse
 import software.setixx.chimu.data.remote.dto.GameJamResponse
 import software.setixx.chimu.data.remote.dto.UpdateGameJamRequest
@@ -21,8 +22,11 @@ class GameJamRepositoryImpl(
     private val api: GameJamApi,
     private val tokenStorage: TokenStorage
 ) : GameJamRepository {
-    private val _jams = MutableStateFlow<List<GameJam>>(emptyList())
-    override val jams: Flow<List<GameJam>> = _jams.asStateFlow()
+    private val _allJams = MutableStateFlow<List<GameJam>>(emptyList())
+    override val allJams: Flow<List<GameJam>> = _allJams.asStateFlow()
+
+    private val _selectedJam = MutableStateFlow<GameJamDetails?>(null)
+    override val selectedJam: Flow<GameJamDetails?> = _selectedJam.asStateFlow()
 
     override suspend fun getAllJams(): ApiResult<List<GameJam>> {
         return try {
@@ -30,8 +34,21 @@ class GameJamRepositoryImpl(
                 ?: return ApiResult.Error("Ошибка аутентификации")
 
             val response = api.getAllJams(token)
-            _jams.value = response.map { it.toDomain() }
+            _allJams.value = response.map { it.toDomain() }
             ApiResult.Success(response.map { it.toDomain() })
+        } catch (e: Exception) {
+            ApiResult.Error(e.message ?: "Ошибка подключения к серверу")
+        }
+    }
+
+    override suspend fun getJamDetails(gameJamId: String): ApiResult<GameJamDetails> {
+        return try {
+            val token = tokenStorage.getAccessToken()
+                ?: return ApiResult.Error("Ошибка аутентификации")
+
+            val response = api.getJamDetails(gameJamId, token)
+            _selectedJam.value = response.toDomain()
+            ApiResult.Success(response.toDomain())
         } catch (e: Exception) {
             ApiResult.Error(e.message ?: "Ошибка подключения к серверу")
         }
@@ -71,20 +88,9 @@ class GameJamRepositoryImpl(
                 ?: return ApiResult.Error("Ошибка аутентификации")
             val response = api.cancelJam(gameJamId, token)
             getAllJams()
+            getJamDetails(gameJamId)
             ApiResult.Success(response.toDomain())
         } catch (e: Exception){
-            ApiResult.Error(e.message ?: "Ошибка подключения к серверу")
-        }
-    }
-
-    override suspend fun getJamDetails(gameJamId: String): ApiResult<GameJamDetails> {
-        return try {
-            val token = tokenStorage.getAccessToken()
-                ?: return ApiResult.Error("Ошибка аутентификации")
-
-            val response = api.getJamDetails(gameJamId, token)
-            ApiResult.Success(response.toDomain())
-        } catch (e: Exception) {
             ApiResult.Error(e.message ?: "Ошибка подключения к серверу")
         }
     }
@@ -129,6 +135,25 @@ class GameJamRepositoryImpl(
             getAllJams()
             ApiResult.Success(response.toDomain())
         } catch (e: Exception) {
+            ApiResult.Error(e.message ?: "Ошибка подключения к серверу")
+        }
+    }
+
+    override suspend fun forceJamStatus(
+        jamId: String,
+        targetStatus: GameJamStatus
+    ): ApiResult<GameJamDetails> {
+        return try {
+            val token = tokenStorage.getAccessToken()
+                ?: return ApiResult.Error("Ошибка аутентификации")
+
+            val request = ForceJamStatusRequest(status = targetStatus)
+
+            val response = api.forceJamStatus(jamId, request, token)
+            getAllJams()
+            getJamDetails(jamId)
+            ApiResult.Success(response.toDomain())
+        } catch (e: Exception){
             ApiResult.Error(e.message ?: "Ошибка подключения к серверу")
         }
     }

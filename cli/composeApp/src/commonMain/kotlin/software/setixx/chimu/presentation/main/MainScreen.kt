@@ -53,7 +53,8 @@ fun MainScreen(
             UserRole.ORGANIZER -> listOf(
                 NavigationDestination.HOME,
                 NavigationDestination.GAME_JAMS,
-                NavigationDestination.TEAMS
+                NavigationDestination.TEAMS,
+                NavigationDestination.PROJECTS
             )
             UserRole.JUDGE -> listOf(
                 NavigationDestination.HOME,

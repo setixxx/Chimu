@@ -9,11 +9,15 @@ import io.ktor.client.request.patch
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.HttpHeaders
+import io.ktor.http.headers
+import software.setixx.chimu.api.domain.GameJamStatus
 import software.setixx.chimu.data.remote.dto.CreateGameJamRequest
+import software.setixx.chimu.data.remote.dto.ForceJamStatusRequest
 import software.setixx.chimu.data.remote.dto.GameJamDetailsResponse
 import software.setixx.chimu.data.remote.dto.GameJamResponse
 import software.setixx.chimu.data.remote.dto.UpdateGameJamRequest
 import software.setixx.chimu.domain.model.ApiResult
+import software.setixx.chimu.domain.usecase.ForceJamStatusUseCase
 
 /**
  * Класс для взаимодействия с API игровых джемов (создание, получение списка, управление фазами).
@@ -96,5 +100,20 @@ class GameJamApi(private val client: HttpClient) {
             404 -> throw IllegalArgumentException("Игра не найдена")
             else -> throw IllegalArgumentException("Неизвестная ошибка")
         }
+    }
+
+    suspend fun forceJamStatus(jamId: String, body: ForceJamStatusRequest, accessToken: String): GameJamDetailsResponse{
+        val response = client.post("/api/admin/jams/$jamId/force-status") {
+            header(HttpHeaders.Authorization, "Bearer $accessToken")
+            setBody(body)
+        }
+        when (response.status.value){
+            in 200..299 -> return response.body()
+            401 -> throw IllegalArgumentException("Ошибка авторизации")
+            403 -> throw IllegalArgumentException("Недостаточно прав")
+            404 -> throw IllegalArgumentException("Игра не найдена")
+            else -> throw IllegalArgumentException("Неизвестная ошибка")
+        }
+
     }
 }

@@ -1,6 +1,5 @@
-package software.setixx.chimu.presentation.main.components
+package software.setixx.chimu.presentation.main.project
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,11 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Gamepad
-import androidx.compose.material3.Card
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.LoadingIndicator
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -50,7 +45,13 @@ fun ProjectsContent(
                     ProjectCard(
                         modifier = Modifier.fillMaxWidth(),
                         project = state.userProjects[index],
-                        onClick = { onNavigateToProject(state.userProjects[index].id, state.user?.role?.name, false) },
+                        onClick = {
+                            onNavigateToProject(
+                                state.userProjects[index].id,
+                                state.user?.role?.name,
+                                false
+                            )
+                        },
                     )
                 }
             }

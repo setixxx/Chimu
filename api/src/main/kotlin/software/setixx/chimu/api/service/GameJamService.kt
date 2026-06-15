@@ -38,6 +38,7 @@ class GameJamService(
     private val jamJudgeRepository: JamJudgeRepository,
     private val registrationRepository: JamTeamRegistrationRepository,
     private val projectRepository: ProjectRepository,
+    private val jamSchedulerService: JamSchedulerService
 ) {
     companion object {
         private val CANCELLABLE_STATUSES = setOf(
@@ -93,6 +94,7 @@ class GameJamService(
         )
 
         val saved = gameJamRepository.save(gameJam)
+        jamSchedulerService.scheduleTransitions(saved)
         return toDetailsResponse(saved, organizer)
     }
 
@@ -196,6 +198,7 @@ class GameJamService(
 
         try {
             gameJamRepository.save(jam)
+            jamSchedulerService.scheduleTransitions(jam)
         } catch (e: OptimisticLockException) {
             throw IllegalStateException("Game jam was modified by another user. Please refresh and try again.")
         }
@@ -217,6 +220,7 @@ class GameJamService(
         }
 
         gameJamRepository.softDeleteById(jam.id!!)
+        jamSchedulerService.cancelExisting(jamId)
     }
 
     @Transactional
@@ -233,6 +237,7 @@ class GameJamService(
 
         jam.status = GameJamStatus.CANCELLED
         gameJamRepository.save(jam)
+        jamSchedulerService.cancelExisting(jamId)
 
         val organizer = userRepository.findById(jam.organizer.id!!).orElseThrow()
         return toDetailsResponse(jam, organizer)
@@ -272,6 +277,7 @@ class GameJamService(
 
         jam.status = GameJamStatus.ANNOUNCED
         gameJamRepository.save(jam)
+        jamSchedulerService.scheduleTransitions(jam)
 
         val organizer = userRepository.findById(jam.organizer.id!!).orElseThrow()
         return toDetailsResponse(jam, organizer)
@@ -348,7 +354,6 @@ class GameJamService(
             throw IllegalArgumentException("Invalid status transition from $current to $new")
         }
     }
-
     private fun toResponse(
         jam: GameJam,
         organizer: User,
@@ -379,7 +384,7 @@ class GameJamService(
         )
     }
 
-    private fun toDetailsResponse(
+    fun toDetailsResponse(
         jam: GameJam,
         organizer: User,
         currentUserId: Long? = organizer.id,

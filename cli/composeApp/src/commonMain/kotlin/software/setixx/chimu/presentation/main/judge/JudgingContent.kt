@@ -1,4 +1,4 @@
-package software.setixx.chimu.presentation.main.components
+package software.setixx.chimu.presentation.main.judge
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import software.setixx.chimu.presentation.components.EmptyStateCard
 import software.setixx.chimu.presentation.main.MainState
+import software.setixx.chimu.presentation.main.jam.GameJamCard
 
 @Composable
 fun JudgingContent(

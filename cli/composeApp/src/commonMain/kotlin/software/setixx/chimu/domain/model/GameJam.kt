@@ -1,5 +1,6 @@
 package software.setixx.chimu.domain.model
 
+import chimu.composeapp.generated.resources.Res
 import software.setixx.chimu.api.domain.GameJamStatus
 import software.setixx.chimu.data.remote.dto.JudgeResponse
 import software.setixx.chimu.data.remote.dto.RatingCriteriaResponse

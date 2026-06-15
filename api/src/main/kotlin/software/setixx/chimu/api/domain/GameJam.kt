@@ -1,6 +1,7 @@
 package software.setixx.chimu.api.domain
 
 import jakarta.persistence.*
+import jakarta.validation.constraints.NotNull
 import org.hibernate.annotations.Generated
 import org.hibernate.annotations.JdbcTypeCode
 import org.hibernate.generator.EventType

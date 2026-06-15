@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import software.setixx.chimu.domain.model.ApiResult
@@ -12,6 +13,7 @@ import software.setixx.chimu.domain.model.RegisterTeam
 import software.setixx.chimu.domain.usecase.GetJamRegistrationsUseCase
 import software.setixx.chimu.domain.usecase.GetTeamDetailsUseCase
 import software.setixx.chimu.domain.usecase.GetUserTeamsUseCase
+import software.setixx.chimu.domain.usecase.ObserveJamsUseCase
 import software.setixx.chimu.domain.usecase.RegisterTeamUseCase
 import software.setixx.chimu.domain.usecase.WithdrawTeamUseCase
 
@@ -24,11 +26,12 @@ class OverviewViewModel(
     private val getUserTeamsUseCase: GetUserTeamsUseCase,
     private val registerTeamUseCase: RegisterTeamUseCase,
     private val withdrawTeamUseCase: WithdrawTeamUseCase,
-    private val getTeamDetailsUseCase: GetTeamDetailsUseCase
+    private val getTeamDetailsUseCase: GetTeamDetailsUseCase,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(OverviewState())
     val state: StateFlow<OverviewState> = _state.asStateFlow()
+
 
     fun load(jamId: String) {
         viewModelScope.launch {

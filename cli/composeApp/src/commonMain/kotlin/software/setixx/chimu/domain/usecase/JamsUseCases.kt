@@ -1,14 +1,22 @@
 package software.setixx.chimu.domain.usecase
 
+import software.setixx.chimu.api.domain.GameJamStatus
+import software.setixx.chimu.domain.model.ApiResult
 import software.setixx.chimu.domain.model.CreateGameJam
-import software.setixx.chimu.domain.model.GameJam
+import software.setixx.chimu.domain.model.GameJamDetails
 import software.setixx.chimu.domain.model.UpdateGameJam
 import software.setixx.chimu.domain.repository.GameJamRepository
 
 class ObserveJamsUseCase(
     private val repository: GameJamRepository
 ){
-    operator fun invoke() = repository.jams
+    operator fun invoke() = repository.allJams
+}
+
+class ObserveSelectedJamUseCase(
+    private val repository: GameJamRepository
+){
+    operator fun invoke() = repository.selectedJam
 }
 
 class GetAllJamsUseCase(
@@ -45,4 +53,12 @@ class UpdateJamUseCase(
     private val repository: GameJamRepository
 ) {
     suspend operator fun invoke(gameJamId: String, data: UpdateGameJam) = repository.updateJam(gameJamId, data)
+}
+
+class ForceJamStatusUseCase(
+    private val repository: GameJamRepository
+){
+    suspend operator fun invoke(jamId: String, targetStatus: GameJamStatus): ApiResult<GameJamDetails>{
+        return repository.forceJamStatus(jamId, targetStatus)
+    }
 }

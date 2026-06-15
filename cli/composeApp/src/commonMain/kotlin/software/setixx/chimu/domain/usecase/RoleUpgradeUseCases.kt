@@ -1,5 +1,6 @@
 package software.setixx.chimu.domain.usecase
 
+import software.setixx.chimu.api.domain.GameJamStatus
 import software.setixx.chimu.domain.model.ApiResult
 import software.setixx.chimu.domain.model.CreateRoleUpgrade
 import software.setixx.chimu.domain.model.ReviewRoleUpgrade

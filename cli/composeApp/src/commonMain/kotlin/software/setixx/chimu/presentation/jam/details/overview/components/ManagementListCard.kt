@@ -1,16 +1,13 @@
-package software.setixx.chimu.presentation.jam.details.management.components
+package software.setixx.chimu.presentation.jam.details.overview.components
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -43,6 +40,7 @@ fun <T> ManagementListCard(
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
+                        .weight(1f)
                         .clip(RoundedCornerShape(8.dp))
                         .padding(end = 8.dp, top = 4.dp, bottom = 4.dp, start = 8.dp)
                 ) {

@@ -16,7 +16,7 @@ import org.koin.compose.viewmodel.koinViewModel
 import software.setixx.chimu.api.domain.UserRole
 import software.setixx.chimu.domain.model.GameJamDetails
 import software.setixx.chimu.domain.model.Project
-import software.setixx.chimu.presentation.jam.details.management.components.ManagementListCard
+import software.setixx.chimu.presentation.jam.details.overview.components.ManagementListCard
 import software.setixx.chimu.presentation.project.components.ProjectDetailsContent
 import software.setixx.chimu.presentation.project.components.ProjectEditDialog
 

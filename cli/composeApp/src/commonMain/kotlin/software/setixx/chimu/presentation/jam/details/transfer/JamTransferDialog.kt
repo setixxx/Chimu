@@ -100,7 +100,8 @@ fun CreateContent(
         Text(
             text = "Введите никнейм пользователя, которому хотите передать права организатора.",
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center
         )
         Spacer(Modifier.height(20.dp))
 

@@ -12,12 +12,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import org.koin.compose.viewmodel.koinViewModel
 import software.setixx.chimu.api.domain.GameJamStatus
-import software.setixx.chimu.api.domain.RegistrationStatus
 import software.setixx.chimu.api.domain.UserRole
 import software.setixx.chimu.domain.model.GameJamDetails
 import software.setixx.chimu.presentation.jam.details.management.components.TeamCard
 import software.setixx.chimu.presentation.jam.details.overview.components.JamOverviewSection
-import software.setixx.chimu.presentation.main.components.JamBanner
+import software.setixx.chimu.presentation.main.jam.JamBanner
 
 @Composable
 fun OverviewScreen(

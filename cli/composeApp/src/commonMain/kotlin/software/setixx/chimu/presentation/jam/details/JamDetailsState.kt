@@ -22,6 +22,8 @@ data class JamDetailsState(
     val errorMessage: String? = null,
     val isDeleting: Boolean = false,
     val isDeleted: Boolean = false,
+    val isCancelled: Boolean = false,
+    val isCancelling: Boolean = false,
 
     val showTransferDialog: Boolean = false,
     val currentTransfer: JamTransfer? = null,
@@ -32,7 +34,14 @@ data class JamDetailsState(
     val isSearchingRecipient: Boolean = false,
     val userTeams: List<Team> = emptyList(),
     val registrations: List<Registration> = emptyList(),
-) {
+
+    val showForceStatusDialog: Boolean = false,
+    val selectedForceStatus: GameJamStatus? = null,
+    val isForceStatusActionIsLoading: Boolean = false,
+    val forceStatusError: String? = null,
+
+
+    ) {
     val canCancel: Boolean
         get() = jamDetails?.status in listOf(
             GameJamStatus.ANNOUNCED,
@@ -72,6 +81,28 @@ data class JamDetailsState(
 
     val isJudge: Boolean
         get() = userRole == UserRole.JUDGE
+
+    val isAdmin: Boolean
+        get() = userRole == UserRole.ADMIN
+
+    val canTransferJam: Boolean
+        get() = (isAdminOrOrganizer || isPreviousOrganizer) &&
+                jamDetails?.status !in setOf(
+                    GameJamStatus.DRAFT,
+                    GameJamStatus.CANCELLED,
+                    GameJamStatus.COMPLETED
+                )
+
+    val availableForceStatuses: List<GameJamStatus>
+        get() = listOf(
+            GameJamStatus.DRAFT,
+            GameJamStatus.ANNOUNCED,
+            GameJamStatus.REGISTRATION_OPEN,
+            GameJamStatus.REGISTRATION_CLOSED,
+            GameJamStatus.IN_PROGRESS,
+            GameJamStatus.JUDGING,
+            GameJamStatus.COMPLETED
+        )
 
     val hasApprovedRegistration: Boolean
         get() = registrations.any { reg ->

@@ -140,6 +140,7 @@ val appModule = module {
         )
     }
 
+    factory { ObserveSelectedJamUseCase(get()) }
     factory { ObserveUserTeamsUseCase(get()) }
     factory { ObserverUserUseCase(get()) }
     factory { ObserveJamsUseCase(get()) }
@@ -217,6 +218,7 @@ val appModule = module {
     factory { GetUserByNicknameUseCase(get()) }
     factory { UpdateProjectUseCase(get()) }
     factory { ChangePasswordUseCase(get()) }
+    factory { ForceJamStatusUseCase(get()) }
     single { DownloadProjectFileUseCase(get()) }
 
     viewModel {
@@ -287,6 +289,7 @@ val appModule = module {
 
     viewModel {
         JamDetailsViewModel(
+            get(),
             get(),
             get(),
             get(),

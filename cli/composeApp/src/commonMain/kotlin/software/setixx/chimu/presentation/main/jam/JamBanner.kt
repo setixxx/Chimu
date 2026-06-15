@@ -1,4 +1,4 @@
-package software.setixx.chimu.presentation.main.components
+package software.setixx.chimu.presentation.main.jam
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box

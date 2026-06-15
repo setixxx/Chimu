@@ -1,6 +1,7 @@
 package software.setixx.chimu.data.remote.dto
 
 import kotlinx.serialization.Serializable
+import software.setixx.chimu.api.domain.GameJamStatus
 
 @Serializable
 data class GameJamResponse(
@@ -82,4 +83,9 @@ data class UpdateGameJamRequest(
     val judgingEnd: String? = null,
     val minTeamSize: Int? = null,
     val maxTeamSize: Int? = null
+)
+
+@Serializable
+data class ForceJamStatusRequest(
+    val status: GameJamStatus
 )

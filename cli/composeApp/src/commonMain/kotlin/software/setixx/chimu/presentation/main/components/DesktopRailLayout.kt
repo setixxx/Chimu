@@ -26,7 +26,6 @@ import androidx.compose.material.icons.outlined.LockReset
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
-import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuGroup
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.DropdownMenuPopup
@@ -65,6 +64,11 @@ import kotlinx.coroutines.launch
 import software.setixx.chimu.presentation.main.MainState
 import software.setixx.chimu.presentation.main.NavigationDestination
 import software.setixx.chimu.presentation.main.Notification
+import software.setixx.chimu.presentation.main.home.HomeContent
+import software.setixx.chimu.presentation.main.jam.GameJamsContent
+import software.setixx.chimu.presentation.main.judge.JudgingContent
+import software.setixx.chimu.presentation.main.project.ProjectsContent
+import software.setixx.chimu.presentation.main.team.TeamsContent
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -354,9 +358,23 @@ fun DesktopRailLayout(
                 color = MaterialTheme.colorScheme.surfaceContainerLow
             ) {
                 when (selectedDestination) {
-                    NavigationDestination.HOME -> HomeContent(state, onNavigateToTeam, onNavigateToJamDetails, onNavigateToProject)
-                    NavigationDestination.GAME_JAMS -> GameJamsContent(state, onNavigateToCreateJam, onNavigateToJamDetails)
-                    NavigationDestination.TEAMS -> TeamsContent(state, onNavigateToCreateTeam, onNavigateToJoinTeam, onNavigateToTeam)
+                    NavigationDestination.HOME -> HomeContent(
+                        state,
+                        onNavigateToTeam,
+                        onNavigateToJamDetails,
+                        onNavigateToProject
+                    )
+                    NavigationDestination.GAME_JAMS -> GameJamsContent(
+                        state,
+                        onNavigateToCreateJam,
+                        onNavigateToJamDetails
+                    )
+                    NavigationDestination.TEAMS -> TeamsContent(
+                        state,
+                        onNavigateToCreateTeam,
+                        onNavigateToJoinTeam,
+                        onNavigateToTeam
+                    )
                     NavigationDestination.PROJECTS -> ProjectsContent(state, onNavigateToProject)
                     NavigationDestination.JUDGING -> JudgingContent(state, onNavigateToJamJudging)
                 }

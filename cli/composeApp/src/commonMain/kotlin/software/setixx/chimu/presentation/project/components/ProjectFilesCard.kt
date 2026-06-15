@@ -16,7 +16,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import software.setixx.chimu.domain.model.ProjectFile
-import software.setixx.chimu.presentation.jam.details.management.components.ManagementListCard
+import software.setixx.chimu.presentation.jam.details.overview.components.ManagementListCard
 import software.setixx.chimu.presentation.project.formatFileSize
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
