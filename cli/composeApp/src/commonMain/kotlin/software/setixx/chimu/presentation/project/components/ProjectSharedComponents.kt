@@ -10,6 +10,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import chimu.composeapp.generated.resources.*
+import org.jetbrains.compose.resources.stringResource
 import software.setixx.chimu.domain.model.ProjectDetails
 import software.setixx.chimu.presentation.jam.details.judging.components.ProjectStatusBadge
 
@@ -59,7 +61,7 @@ fun ProjectHeaderCard(
                     ProjectStatusBadge(status = project.status)
                     if (canEdit) {
                         FilledTonalIconButton(onClick = onEdit) {
-                            Icon(Icons.Default.Edit, contentDescription = "Редактировать")
+                            Icon(Icons.Default.Edit, contentDescription = stringResource(Res.string.edit))
                         }
                     }
                 }
@@ -115,14 +117,14 @@ fun ProjectEditDialog(
                 OutlinedTextField(
                     value = projectTitle,
                     onValueChange = onTitleChange,
-                    label = { Text("Название") },
+                    label = { Text(stringResource(Res.string.project_name_label)) },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true
                 )
                 OutlinedTextField(
                     value = projectDescription,
                     onValueChange = onDescriptionChange,
-                    label = { Text("Описание") },
+                    label = { Text(stringResource(Res.string.project_description_label)) },
                     modifier = Modifier.fillMaxWidth(),
                     minLines = 2,
                     maxLines = 4
@@ -130,7 +132,7 @@ fun ProjectEditDialog(
                 OutlinedTextField(
                     value = projectGameUrl,
                     onValueChange = onGameUrlChange,
-                    label = { Text("Ссылка на игру (необязательно)") },
+                    label = { Text(stringResource(Res.string.project_game_url_label)) },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
                     leadingIcon = { Icon(Icons.Default.Link, contentDescription = null) }
@@ -141,10 +143,10 @@ fun ProjectEditDialog(
             Button(
                 onClick = onConfirm,
                 enabled = projectTitle.isNotBlank()
-            ) { Text("Сохранить") }
+            ) { Text(stringResource(Res.string.save)) }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Отмена") }
+            TextButton(onClick = onDismiss) { Text(stringResource(Res.string.cancel)) }
         }
     )
 }

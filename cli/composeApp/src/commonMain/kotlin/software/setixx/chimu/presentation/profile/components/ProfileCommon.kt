@@ -14,6 +14,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
+import chimu.composeapp.generated.resources.*
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun ProfileHeader(
@@ -81,7 +83,7 @@ fun ProfileSkillsView(
             index = itemIndex,
             count = listCount
         ),
-        content = { Text("Навыки") },
+        content = { Text(stringResource(Res.string.profile_skills_title)) },
         supportingContent = {
             if (expanded && !isEmpty) {
                 Column(modifier = Modifier.padding(top = 8.dp).animateContentSize()) {
@@ -97,13 +99,13 @@ fun ProfileSkillsView(
                 }
             } else {
                 Text(
-                    text = if (isEmpty) "Не указано" else "Выбрано: ${skills.size}",
+                    text = if (isEmpty) stringResource(Res.string.profile_not_specified) else stringResource(Res.string.profile_selected_count_format, skills.size),
                     color = if (isEmpty) MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
                     else MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         },
-        leadingContent = { Icon(Icons.Default.Star, contentDescription = "Навыки") },
+        leadingContent = { Icon(Icons.Default.Star, contentDescription = stringResource(Res.string.profile_skills_title)) },
         trailingContent = {
             if (!isEmpty) {
                 Icon(

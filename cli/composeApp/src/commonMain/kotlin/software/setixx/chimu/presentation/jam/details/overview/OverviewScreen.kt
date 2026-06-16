@@ -10,6 +10,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import chimu.composeapp.generated.resources.*
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import software.setixx.chimu.api.domain.GameJamStatus
 import software.setixx.chimu.api.domain.UserRole
@@ -99,7 +101,7 @@ fun OverviewScreen(
                                     modifier = Modifier.fillMaxWidth(),
                                     enabled = false
                                 ) {
-                                    Text("Вы организатор джема")
+                                    Text(stringResource(Res.string.jam_details_organizer_badge))
                                 }
                             }
 
@@ -109,7 +111,7 @@ fun OverviewScreen(
                                     modifier = Modifier.fillMaxWidth(),
                                     enabled = false
                                 ) {
-                                    Text("Вы судья джема")
+                                    Text(stringResource(Res.string.jam_details_judge_badge))
                                 }
                             }
 
@@ -131,11 +133,11 @@ fun OverviewScreen(
                                     }
                                     Text(
                                         if (state.isLeaderOfRegisteredTeam && jam.status in cancellableStatuses) {
-                                            "Отменить заявку: ${registeredTeam.name}"
+                                            stringResource(Res.string.jam_details_withdraw_team, registeredTeam.name)
                                         } else if (state.isLeaderOfRegisteredTeam && jam.status in withdrawnStatuses){
-                                            "Снять с джема: ${registeredTeam.name}"
+                                            stringResource(Res.string.jam_details_withdraw_team_progress, registeredTeam.name)
                                         } else {
-                                            "Заявка подана: ${registeredTeam.name}"
+                                            stringResource(Res.string.jam_details_registered_team, registeredTeam.name)
                                         }
                                     )
                                 }
@@ -154,7 +156,7 @@ fun OverviewScreen(
                                         )
                                         Spacer(modifier = Modifier.width(8.dp))
                                     }
-                                    Text("Подать заявку на участие")
+                                    Text(stringResource(Res.string.jam_details_register_button))
                                 }
                             }
                         }
@@ -192,7 +194,7 @@ fun OverviewScreen(
     if (showRegisterDialog) {
         AlertDialog(
             onDismissRequest = { showRegisterDialog = false },
-            title = { Text("Выберите команду") },
+            title = { Text(stringResource(Res.string.jam_details_choose_team_title)) },
             text = {
                 Column {
                     state.userTeams.forEach { team ->
@@ -201,8 +203,8 @@ fun OverviewScreen(
                             headlineContent = { Text(team.name) },
                             supportingContent = {
                                 Text(
-                                    if (isRegistered) "Уже зарегистрирована"
-                                    else "${team.memberCount} участников"
+                                    if (isRegistered) stringResource(Res.string.jam_details_team_already_registered)
+                                    else stringResource(Res.string.team_card_members_count, team.memberCount)
                                 )
                             },
                             trailingContent = {
@@ -214,7 +216,7 @@ fun OverviewScreen(
                                         },
                                         enabled = !state.isActionLoading
                                     ) {
-                                        Text("Выбрать")
+                                        Text(stringResource(Res.string.choose))
                                     }
                                 }
                             }
@@ -224,7 +226,7 @@ fun OverviewScreen(
             },
             confirmButton = {},
             dismissButton = {
-                TextButton(onClick = { showRegisterDialog = false }) { Text("Отмена") }
+                TextButton(onClick = { showRegisterDialog = false }) { Text(stringResource(Res.string.cancel)) }
             }
         )
     }

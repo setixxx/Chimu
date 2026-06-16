@@ -40,6 +40,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import chimu.composeapp.generated.resources.*
+import org.jetbrains.compose.resources.stringResource
 import software.setixx.chimu.data.remote.dto.RatingCriteriaResponse
 import software.setixx.chimu.domain.model.MyRating
 
@@ -94,12 +96,12 @@ fun CriteriaRatingCard(
                 }
                 Column(horizontalAlignment = Alignment.End) {
                     Text(
-                        "Макс: ${criterion.maxScore}",
+                        stringResource(Res.string.judging_max_score, criterion.maxScore),
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Text(
-                        "Вес: ${criterion.weight}",
+                        stringResource(Res.string.judging_weight, criterion.weight.toString()),
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -123,7 +125,7 @@ fun CriteriaRatingCard(
                         )
                         Spacer(modifier = Modifier.width(6.dp))
                         Text(
-                            "${existingRating.score} / ${criterion.maxScore}",
+                            stringResource(Res.string.score_format, existingRating.score.substringBefore('.'), criterion.maxScore),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.primary
@@ -137,12 +139,12 @@ fun CriteriaRatingCard(
                                 isEditing = true
                             }
                         ) {
-                            Icon(Icons.Default.Edit, "Изменить")
+                            Icon(Icons.Default.Edit, stringResource(Res.string.judging_edit_rating_desc))
                         }
                         IconButton(onClick = { showDeleteConfirm = true }) {
                             Icon(
                                 Icons.Default.Delete,
-                                "Удалить",
+                                stringResource(Res.string.judging_delete_rating_desc),
                                 tint = MaterialTheme.colorScheme.error
                             )
                         }
@@ -150,7 +152,7 @@ fun CriteriaRatingCard(
                 }
                 existingRating.comment?.let { c ->
                     Text(
-                        "Комментарий: $c",
+                        stringResource(Res.string.judging_comment_label, c),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -162,9 +164,9 @@ fun CriteriaRatingCard(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text("Оценка", style = MaterialTheme.typography.labelMedium)
+                        Text(stringResource(Res.string.judging_score_label), style = MaterialTheme.typography.labelMedium)
                         Text(
-                            "${sliderValue.toInt()} / ${criterion.maxScore}",
+                            stringResource(Res.string.score_format, sliderValue.toInt().toString(), criterion.maxScore.toString()),
                             style = MaterialTheme.typography.titleSmall,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.primary
@@ -180,7 +182,7 @@ fun CriteriaRatingCard(
                     OutlinedTextField(
                         value = comment,
                         onValueChange = { comment = it },
-                        label = { Text("Комментарий (необязательно)") },
+                        label = { Text(stringResource(Res.string.comment_optional)) },
                         modifier = Modifier.fillMaxWidth(),
                         minLines = 2,
                         maxLines = 4,
@@ -197,7 +199,7 @@ fun CriteriaRatingCard(
                                     .weight(1f)
                                     .height(ButtonDefaults.MediumContainerHeight),
                             ) {
-                                Text("Отмена")
+                                Text(stringResource(Res.string.cancel))
                             }
                         }
                         Button(
@@ -218,7 +220,7 @@ fun CriteriaRatingCard(
                             if (isActionLoading) {
                                 LoadingIndicator()
                             } else {
-                                Text(if (existingRating != null) "Обновить" else "Сохранить")
+                                Text(if (existingRating != null) stringResource(Res.string.judging_update_button) else stringResource(Res.string.save))
                             }
                         }
                     }
@@ -230,8 +232,8 @@ fun CriteriaRatingCard(
     if (showDeleteConfirm) {
         AlertDialog(
             onDismissRequest = { showDeleteConfirm = false },
-            title = { Text("Удалить оценку?") },
-            text = { Text("Оценка по критерию «${criterion.name}» будет удалена.") },
+            title = { Text(stringResource(Res.string.judging_delete_rating_title)) },
+            text = { Text(stringResource(Res.string.judging_delete_rating_message, criterion.name)) },
             confirmButton = {
                 Button(
                     onClick = {
@@ -241,10 +243,10 @@ fun CriteriaRatingCard(
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.error
                     )
-                ) { Text("Удалить") }
+                ) { Text(stringResource(Res.string.delete)) }
             },
             dismissButton = {
-                TextButton(onClick = { showDeleteConfirm = false }) { Text("Отмена") }
+                TextButton(onClick = { showDeleteConfirm = false }) { Text(stringResource(Res.string.cancel)) }
             }
         )
     }

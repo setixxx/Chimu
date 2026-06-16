@@ -40,9 +40,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
+import chimu.composeapp.generated.resources.*
+import org.jetbrains.compose.resources.stringResource
 import software.setixx.chimu.api.domain.RegistrationStatus
+import software.setixx.chimu.api.domain.RegistrationStatus.APPROVED
+import software.setixx.chimu.api.domain.RegistrationStatus.CANCELLED
+import software.setixx.chimu.api.domain.RegistrationStatus.DISQUALIFIED
+import software.setixx.chimu.api.domain.RegistrationStatus.PENDING
+import software.setixx.chimu.api.domain.RegistrationStatus.REJECTED
+import software.setixx.chimu.api.domain.RegistrationStatus.WITHDRAWN
 import software.setixx.chimu.domain.model.Registration
-import software.setixx.chimu.presentation.components.localizeStatus
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -82,12 +89,12 @@ fun TeamCard(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "Заявки на участие (${registrations.size})",
+                        text = stringResource(Res.string.list_title_with_count, stringResource(Res.string.management_registrations_title), registrations.size),
                         style = MaterialTheme.typography.titleMedium,
                     )
                     Icon(
                         imageVector = if (isJudgesExpanded) Icons.Outlined.ExpandLess else Icons.Outlined.ExpandMore,
-                        contentDescription = "Развернуть список заявок",
+                        contentDescription = stringResource(Res.string.management_registrations_expand_desc),
                         modifier = Modifier.padding(start = 4.dp)
                     )
                 }
@@ -104,7 +111,7 @@ fun TeamCard(
                 ) {
                     if (registrations.isEmpty()) {
                         Text(
-                            text = "Заявки еще не поданы",
+                            text = stringResource(Res.string.management_registrations_empty),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.padding(vertical = 8.dp)
@@ -121,7 +128,7 @@ fun TeamCard(
                                 else ListItemDefaults.segmentedShapes(index = index, registrations.size),
                                 content = { Text(reg.teamName) },
                                 supportingContent = {
-                                    Text("Зарегистрировал: ${reg.registeredByNickname}")
+                                    Text(stringResource(Res.string.management_registered_by, reg.registeredByNickname))
                                 },
                                 trailingContent = {
                                     Row(
@@ -132,7 +139,7 @@ fun TeamCard(
                                             shape = MaterialTheme.shapes.small
                                         ) {
                                             Text(
-                                                localizeStatus(reg.status),
+                                                reg.status.localize(),
                                                 style = MaterialTheme.typography.labelSmall,
                                                 modifier = Modifier.padding(horizontal = 6.dp, vertical = 3.dp)
                                             )
@@ -146,7 +153,7 @@ fun TeamCard(
                                                     ) {
                                                         Icon(
                                                             imageVector = Icons.Default.Check,
-                                                            contentDescription = "Одобрить",
+                                                            contentDescription = stringResource(Res.string.management_approve_desc),
                                                             tint = MaterialTheme.colorScheme.primary
                                                         )
                                                     }
@@ -155,7 +162,7 @@ fun TeamCard(
                                                     ) {
                                                         Icon(
                                                             imageVector = Icons.Default.Close,
-                                                            contentDescription = "Отклонить",
+                                                            contentDescription = stringResource(Res.string.management_reject_desc),
                                                             tint = MaterialTheme.colorScheme.error
                                                         )
                                                     }
@@ -166,7 +173,7 @@ fun TeamCard(
                                                     ) {
                                                         Icon(
                                                             imageVector = Icons.Default.Block,
-                                                            contentDescription = "Дисквалифицировать",
+                                                            contentDescription = stringResource(Res.string.management_disqualify_desc),
                                                             tint = MaterialTheme.colorScheme.error
                                                         )
                                                     }
@@ -184,6 +191,19 @@ fun TeamCard(
         }
     }
 }
+
+@Composable
+private fun RegistrationStatus.localize(): String {
+    return when (this) {
+        CANCELLED -> stringResource(Res.string.registration_status_cancelled)
+        WITHDRAWN -> stringResource(Res.string.registration_status_withdrawn)
+        APPROVED -> stringResource(Res.string.registration_status_approved)
+        REJECTED -> stringResource(Res.string.registration_status_rejected)
+        PENDING -> stringResource(Res.string.registration_status_pending)
+        DISQUALIFIED -> stringResource(Res.string.registration_status_disqualified)
+    }
+}
+
 
 @Composable
 private fun registrationStatusColor(status: RegistrationStatus) = when (status) {

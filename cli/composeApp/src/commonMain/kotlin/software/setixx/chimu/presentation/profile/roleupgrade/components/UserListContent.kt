@@ -32,6 +32,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import chimu.composeapp.generated.resources.*
+import org.jetbrains.compose.resources.stringResource
 import software.setixx.chimu.presentation.profile.roleupgrade.RoleUpgradeState
 import software.setixx.chimu.presentation.profile.roleupgrade.RoleUpgradeViewModel
 
@@ -68,11 +70,11 @@ fun UserListContent(
             }
             Column {
                 Text(
-                    "Повышение роли",
+                    stringResource(Res.string.role_upgrade_title),
                     style = MaterialTheme.typography.titleLarge
                 )
                 Text(
-                    "Ваши заявки",
+                    stringResource(Res.string.role_upgrade_my_requests),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -92,7 +94,7 @@ fun UserListContent(
                     modifier = Modifier.size(ButtonDefaults.IconSize)
                 )
                 Spacer(modifier = Modifier.width(ButtonDefaults.IconSpacing))
-                Text("Подать заявку")
+                Text(stringResource(Res.string.role_upgrade_submit_button))
             }
         }
 
@@ -124,7 +126,7 @@ fun UserListContent(
                         )
                         Spacer(modifier = Modifier.height(6.dp))
                         Text(
-                            "Заявок пока нет",
+                            stringResource(Res.string.role_upgrade_no_requests),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -164,7 +166,7 @@ fun UserListContent(
                         tint = MaterialTheme.colorScheme.onTertiaryContainer
                     )
                     Text(
-                        "Новую заявку можно подать после рассмотрения текущей",
+                        stringResource(Res.string.role_upgrade_limit_desc),
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onTertiaryContainer
                     )
@@ -177,7 +179,7 @@ fun UserListContent(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.End
         ) {
-            TextButton(onClick = onDismiss) { Text("Закрыть") }
+            TextButton(onClick = onDismiss) { Text(stringResource(Res.string.close)) }
         }
     }
 }

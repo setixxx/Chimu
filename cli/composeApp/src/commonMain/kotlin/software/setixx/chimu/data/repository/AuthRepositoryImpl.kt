@@ -2,6 +2,7 @@ package software.setixx.chimu.data.repository
 
 import software.setixx.chimu.data.local.TokenStorage
 import software.setixx.chimu.data.remote.AuthApi
+import software.setixx.chimu.data.remote.UserApi
 import software.setixx.chimu.domain.model.*
 import software.setixx.chimu.domain.repository.AuthRepository
 
@@ -10,6 +11,7 @@ import software.setixx.chimu.domain.repository.AuthRepository
  */
 class AuthRepositoryImpl(
     private val authApi: AuthApi,
+    private val userApi: UserApi,
     private val tokenStorage: TokenStorage
 ) : AuthRepository {
 
@@ -88,8 +90,9 @@ class AuthRepositoryImpl(
     }
 
     override suspend fun isLoggedIn(): Boolean {
-        return tokenStorage.getAccessToken() != null &&
-                tokenStorage.getRefreshToken() != null
+        val accessToken = tokenStorage.getAccessToken() ?: return false
+        val refreshToken = tokenStorage.getRefreshToken() ?: return false
+        return runCatching { userApi.getCurrentUser(accessToken) }.isSuccess
     }
 
     override suspend fun getSavedEmail(): String? {

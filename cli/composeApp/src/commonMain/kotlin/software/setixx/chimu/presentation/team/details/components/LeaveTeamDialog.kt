@@ -8,6 +8,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import chimu.composeapp.generated.resources.*
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun LeaveTeamDialog(
@@ -17,16 +19,16 @@ fun LeaveTeamDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         icon = { Icon(Icons.Default.ExitToApp, null) },
-        title = { Text("Покинуть команду") },
-        text = { Text("Вы уверены, что хотите покинуть эту команду?") },
+        title = { Text(stringResource(Res.string.team_leave_title)) },
+        text = { Text(stringResource(Res.string.team_leave_message)) },
         confirmButton = {
             TextButton(onClick = onConfirm) {
-                Text("Покинуть", color = MaterialTheme.colorScheme.error)
+                Text(stringResource(Res.string.team_leave_button), color = MaterialTheme.colorScheme.error)
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Отмена")
+                Text(stringResource(Res.string.cancel))
             }
         }
     )

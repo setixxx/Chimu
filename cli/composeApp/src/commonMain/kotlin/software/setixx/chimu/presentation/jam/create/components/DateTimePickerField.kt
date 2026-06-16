@@ -9,6 +9,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import chimu.composeapp.generated.resources.*
+import org.jetbrains.compose.resources.stringResource
 import kotlinx.datetime.*
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.number
@@ -60,9 +62,9 @@ fun DateTimePickerField(
                     onValueChange = {},
                     readOnly = true,
                     modifier = Modifier.fillMaxWidth(),
-                    label = { Text("Дата") },
+                    label = { Text(stringResource(Res.string.date)) },
                     trailingIcon = {
-                        Icon(Icons.Default.CalendarToday, contentDescription = "Выбрать дату")
+                        Icon(Icons.Default.CalendarToday, contentDescription = stringResource(Res.string.choose_date))
                     },
                     shape = MaterialTheme.shapes.largeIncreased
                 )
@@ -79,9 +81,9 @@ fun DateTimePickerField(
                     onValueChange = {},
                     readOnly = true,
                     modifier = Modifier.fillMaxWidth(),
-                    label = { Text("Время") },
+                    label = { Text(stringResource(Res.string.time)) },
                     trailingIcon = {
-                        Icon(Icons.Default.Schedule, contentDescription = "Выбрать время")
+                        Icon(Icons.Default.Schedule, contentDescription = stringResource(Res.string.choose_time))
                     },
                     shape = MaterialTheme.shapes.largeIncreased
                 )
@@ -112,12 +114,12 @@ fun DateTimePickerField(
                     }
                     showDatePicker = false
                 }) {
-                    Text("OK")
+                    Text(stringResource(Res.string.ok))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showDatePicker = false }) {
-                    Text("Отмена")
+                    Text(stringResource(Res.string.cancel))
                 }
             }
         ) {
@@ -140,12 +142,12 @@ fun DateTimePickerField(
                     onValueChange(newDateTime.toInstant(TimeZone.currentSystemDefault()).toString())
                     showTimePicker = false
                 }) {
-                    Text("OK")
+                    Text(stringResource(Res.string.ok))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showTimePicker = false }) {
-                    Text("Отмена")
+                    Text(stringResource(Res.string.cancel))
                 }
             },
             text = {

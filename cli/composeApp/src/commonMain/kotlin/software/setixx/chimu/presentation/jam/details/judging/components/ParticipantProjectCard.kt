@@ -24,6 +24,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import chimu.composeapp.generated.resources.*
+import org.jetbrains.compose.resources.stringResource
 import software.setixx.chimu.domain.model.Project
 import software.setixx.chimu.presentation.utils.DateTimeUtils
 
@@ -45,7 +47,7 @@ fun ParticipantProjectCard(project: Project) {
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.weight(1f)
                 )
-                ProjectStatusBadge(status = project.status.name)
+                ProjectStatusBadge(status = project.status)
             }
 
             project.teamName?.let { team ->
@@ -102,7 +104,7 @@ fun ParticipantProjectCard(project: Project) {
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
-                        "Подан: ${DateTimeUtils.formatDateTime(date)}",
+                        stringResource(Res.string.project_submitted_at, DateTimeUtils.formatDateTime(date)),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -125,7 +127,7 @@ fun ParticipantProjectCard(project: Project) {
                         tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Text(
-                        "Проект заблокирован на время оценивания",
+                        stringResource(Res.string.project_locked_judging),
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )

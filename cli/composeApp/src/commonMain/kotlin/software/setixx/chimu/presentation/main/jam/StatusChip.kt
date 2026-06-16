@@ -8,19 +8,21 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import chimu.composeapp.generated.resources.*
+import org.jetbrains.compose.resources.stringResource
 import software.setixx.chimu.api.domain.GameJamStatus
 
 @Composable
 fun StatusChip(status: GameJamStatus) {
     val (text, color) = when (status) {
-        GameJamStatus.DRAFT -> "Черновик" to MaterialTheme.colorScheme.surface
-        GameJamStatus.ANNOUNCED -> "Аннонсирован" to MaterialTheme.colorScheme.primary
-        GameJamStatus.REGISTRATION_OPEN -> "Регистрация" to MaterialTheme.colorScheme.secondary
-        GameJamStatus.REGISTRATION_CLOSED -> "Подготовка" to MaterialTheme.colorScheme.secondary
-        GameJamStatus.IN_PROGRESS -> "В процессе" to MaterialTheme.colorScheme.inversePrimary
-        GameJamStatus.JUDGING -> "Оценивание" to MaterialTheme.colorScheme.tertiary
-        GameJamStatus.COMPLETED -> "Завершен" to MaterialTheme.colorScheme.surfaceContainerHighest
-        GameJamStatus.CANCELLED -> "Отменен" to MaterialTheme.colorScheme.error
+        GameJamStatus.DRAFT -> stringResource(Res.string.status_draft) to MaterialTheme.colorScheme.surface
+        GameJamStatus.ANNOUNCED -> stringResource(Res.string.status_announced) to MaterialTheme.colorScheme.primary
+        GameJamStatus.REGISTRATION_OPEN -> stringResource(Res.string.status_registration_open) to MaterialTheme.colorScheme.secondary
+        GameJamStatus.REGISTRATION_CLOSED -> stringResource(Res.string.status_registration_closed) to MaterialTheme.colorScheme.secondary
+        GameJamStatus.IN_PROGRESS -> stringResource(Res.string.status_in_progress) to MaterialTheme.colorScheme.inversePrimary
+        GameJamStatus.JUDGING -> stringResource(Res.string.status_judging) to MaterialTheme.colorScheme.tertiary
+        GameJamStatus.COMPLETED -> stringResource(Res.string.status_completed) to MaterialTheme.colorScheme.surfaceContainerHighest
+        GameJamStatus.CANCELLED -> stringResource(Res.string.status_cancelled) to MaterialTheme.colorScheme.error
     }
 
     Surface(

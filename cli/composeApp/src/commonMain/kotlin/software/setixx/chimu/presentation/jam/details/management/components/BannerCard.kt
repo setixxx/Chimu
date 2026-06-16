@@ -26,6 +26,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import chimu.composeapp.generated.resources.*
+import org.jetbrains.compose.resources.stringResource
 import coil3.compose.AsyncImage
 import coil3.compose.LocalPlatformContext
 import coil3.request.ImageRequest
@@ -36,7 +38,8 @@ import coil3.request.crossfade
 fun BannerCard(
     bannerUrl: String?,
     onOpenBannerPicker: () -> Unit,
-    onDeleteBanner: () -> Unit
+    onDeleteBanner: () -> Unit,
+    isEditable: Boolean
 ){
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -61,10 +64,10 @@ fun BannerCard(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Column {
-                        Text("Баннер джема", style = MaterialTheme.typography.titleMedium)
+                        Text(stringResource(Res.string.jam_card_banner_desc), style = MaterialTheme.typography.titleMedium)
                         Text(
-                            if (bannerUrl != null) "Баннер загружен."
-                            else "Баннер не загружен.",
+                            if (bannerUrl != null) stringResource(Res.string.management_banner_loaded)
+                            else stringResource(Res.string.management_banner_not_loaded),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -78,7 +81,7 @@ fun BannerCard(
                             .data(bannerUrl)
                             .crossfade(true)
                             .build(),
-                        contentDescription = "Баннер джема",
+                        contentDescription = stringResource(Res.string.jam_card_banner_desc),
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(180.dp)
@@ -87,22 +90,24 @@ fun BannerCard(
                     )
                 }
 
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    OutlinedButton(onClick = onOpenBannerPicker) {
-                        Icon(Icons.Default.Upload, null, modifier = Modifier.size(18.dp))
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text(if (bannerUrl != null) "Заменить" else "Загрузить")
-                    }
-                    if (bannerUrl != null) {
-                        OutlinedButton(
-                            onClick = onDeleteBanner,
-                            colors = ButtonDefaults.outlinedButtonColors(
-                                contentColor = MaterialTheme.colorScheme.error
-                            )
-                        ) {
-                            Icon(Icons.Default.Delete, null, modifier = Modifier.size(18.dp))
+                if (isEditable){
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        OutlinedButton(onClick = onOpenBannerPicker) {
+                            Icon(Icons.Default.Upload, null, modifier = Modifier.size(18.dp))
                             Spacer(modifier = Modifier.width(6.dp))
-                            Text("Удалить")
+                            Text(if (bannerUrl != null) stringResource(Res.string.management_banner_replace) else stringResource(Res.string.management_banner_upload))
+                        }
+                        if (bannerUrl != null) {
+                            OutlinedButton(
+                                onClick = onDeleteBanner,
+                                colors = ButtonDefaults.outlinedButtonColors(
+                                    contentColor = MaterialTheme.colorScheme.error
+                                )
+                            ) {
+                                Icon(Icons.Default.Delete, null, modifier = Modifier.size(18.dp))
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text(stringResource(Res.string.delete))
+                            }
                         }
                     }
                 }

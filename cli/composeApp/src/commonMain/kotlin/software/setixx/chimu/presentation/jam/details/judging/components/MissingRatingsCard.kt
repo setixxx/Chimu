@@ -16,6 +16,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import chimu.composeapp.generated.resources.*
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun MissingRatingsCard(missingCount: Int) {
@@ -38,7 +40,8 @@ fun MissingRatingsCard(missingCount: Int) {
                 modifier = Modifier.size(18.dp)
             )
             Text(
-                "$missingCount ${if (missingCount == 1) "проект требует" else "проекта требуют"} ваших оценок",
+                if (missingCount == 1) stringResource(Res.string.judging_missing_ratings_single)
+                else stringResource(Res.string.judging_missing_ratings_multi, missingCount),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onErrorContainer
             )

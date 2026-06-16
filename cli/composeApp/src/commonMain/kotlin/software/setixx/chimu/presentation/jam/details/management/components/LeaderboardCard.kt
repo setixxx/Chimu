@@ -20,6 +20,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import chimu.composeapp.generated.resources.*
+import org.jetbrains.compose.resources.stringResource
 import software.setixx.chimu.domain.model.Leaderboard
 
 @Composable
@@ -38,13 +40,17 @@ fun LeaderboardCard(leaderboard: Leaderboard) {
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    "Таблица лидеров",
+                    stringResource(Res.string.leaderboard_title),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
                 Spacer(modifier = Modifier.weight(1f))
                 Text(
-                    "${leaderboard.qualifiedProjects} / ${leaderboard.totalProjects} оценено",
+                    stringResource(
+                        Res.string.management_leaderboard_rated_count,
+                        leaderboard.qualifiedProjects,
+                        leaderboard.totalProjects
+                    ),
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -63,7 +69,7 @@ fun LeaderboardCard(leaderboard: Leaderboard) {
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        "#${ranking.rank}",
+                        stringResource(Res.string.rank_format, ranking.rank),
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = if (isTop3) FontWeight.Bold else FontWeight.Normal,
                         color = rankColor,
@@ -97,7 +103,7 @@ fun LeaderboardCard(leaderboard: Leaderboard) {
 
             if (leaderboard.rankings.size > 10) {
                 Text(
-                    "...и ещё ${leaderboard.rankings.size - 10} проектов",
+                    stringResource(Res.string.management_leaderboard_more_projects, leaderboard.rankings.size - 10),
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )

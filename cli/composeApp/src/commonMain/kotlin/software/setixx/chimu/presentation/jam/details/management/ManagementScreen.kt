@@ -18,6 +18,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import chimu.composeapp.generated.resources.*
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import software.setixx.chimu.api.domain.GameJamStatus
 import software.setixx.chimu.api.domain.RegistrationStatus
@@ -126,7 +128,8 @@ fun ManagementScreen(
                     BannerCard(
                         bannerUrl = bannerUrl,
                         onOpenBannerPicker = bannerPicker,
-                        onDeleteBanner = { state.jam?.id?.let { viewModel.deleteBanner(it) } }
+                        onDeleteBanner = { state.jam?.id?.let { viewModel.deleteBanner(it) } },
+                        isEditable = jam.status in editableStates
                     )
 
                     state.statistics?.let { stats ->
@@ -134,42 +137,44 @@ fun ManagementScreen(
                     }
 
                     ManagementListCard(
-                        title = "Судьи",
+                        title = stringResource(Res.string.management_judges_title),
                         titleIcon = Icons.Default.Gavel,
                         items = state.judges,
-                        emptyText = "Судьи не назначены.",
-                        buttonText = if (jam.status in editableStates) "Назначить" else null,
+                        emptyText = stringResource(Res.string.management_judges_empty),
+                        buttonText = if (jam.status in editableStates) stringResource(Res.string.management_assign_judge_button) else null,
                         buttonIcon = if (jam.status in editableStates) Icons.Default.PersonAdd else null,
                         onButtonClick = { showAssignJudgeDialog = true },
                         itemHeadline = { judge -> Text(judge.nickname) },
                         itemSupportingContent = { judge ->
-                            Text("Назначен: ${DateTimeUtils.formatDateTime(judge.assignedAt)}")
+                            Text(stringResource(Res.string.jam_details_judge_assigned_at, DateTimeUtils.formatDateTime(judge.assignedAt)))
                         },
                         onItemClick = { judge ->
                             onNavigateToAlienProfile(judge.userId)
                         },
                         itemTrailingContent = { judge ->
-                            IconButton(
-                                onClick = {
-                                    selectedJudge = judge
-                                    showUnassignJudgeDialog = true
+                            if (jam.status in editableStates){
+                                IconButton(
+                                    onClick = {
+                                        selectedJudge = judge
+                                        showUnassignJudgeDialog = true
+                                    }
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.PersonRemove,
+                                        contentDescription = stringResource(Res.string.management_unassign_judge_desc),
+                                        tint = MaterialTheme.colorScheme.error
+                                    )
                                 }
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.PersonRemove,
-                                    contentDescription = "Снять",
-                                    tint = MaterialTheme.colorScheme.error
-                                )
                             }
                         }
                     )
 
                     ManagementListCard(
-                        title = "Критерии оценивания",
+                        title = stringResource(Res.string.jam_details_criteria_title),
                         titleIcon = Icons.AutoMirrored.Filled.Rule,
                         items = state.criteria.sortedBy { it.orderIndex },
-                        emptyText = "Критерии не добавлены.",
-                        buttonText = if (jam.status in editableStates) "Добавить" else null,
+                        emptyText = stringResource(Res.string.jam_details_criteria_empty),
+                        buttonText = if (jam.status in editableStates) stringResource(Res.string.management_add_button) else null,
                         buttonIcon = if (jam.status in editableStates) Icons.Default.Add else null,
                         onButtonClick = { showAddCriteriaDialog = true },
                         onItemClick = { criteria ->
@@ -182,7 +187,13 @@ fun ManagementScreen(
                         },
                         itemHeadline = { criteria -> Text(criteria.name) },
                         itemSupportingContent = { criteria ->
-                            Text("Макс: ${criteria.maxScore} • Вес: ${criteria.weight}")
+                            Text(
+                                stringResource(
+                                    Res.string.max_score_and_weight_format,
+                                    stringResource(Res.string.judging_max_score, criteria.maxScore),
+                                    stringResource(Res.string.judging_weight, criteria.weight)
+                                )
+                            )
                         },
                         itemTrailingContent = { criteria ->
                             if (jam.status in editableStates){
@@ -194,7 +205,7 @@ fun ManagementScreen(
                                 ) {
                                     Icon(
                                         imageVector = Icons.Default.Delete,
-                                        contentDescription = "Удалить",
+                                        contentDescription = stringResource(Res.string.delete),
                                         tint = MaterialTheme.colorScheme.error
                                     )
                                 }
@@ -213,7 +224,7 @@ fun ManagementScreen(
                         onDisqualify = { teamId ->
                             viewModel.updateRegistrationStatus(jam.id, teamId, RegistrationStatus.DISQUALIFIED)
                         },
-                        isActionsVisible = true
+                        isActionsVisible = jam.status in editableStates
                     )
 
                     if (isDraft) {
@@ -231,7 +242,7 @@ fun ManagementScreen(
                                         color = MaterialTheme.colorScheme.onPrimary
                                     )
                                 } else {
-                                    Text("Опубликовать джем")
+                                    Text(stringResource(Res.string.management_publish_jam_button))
                                 }
                             }
                         }
@@ -273,8 +284,8 @@ fun ManagementScreen(
                     tint = MaterialTheme.colorScheme.error
                 )
             },
-            title = { Text("Снять судью с судейства?") },
-            text = { Text("Cудья ${selectedJudge?.nickname} будет отстранен от судейства.") },
+            title = { Text(stringResource(Res.string.management_unassign_judge_title)) },
+            text = { Text(stringResource(Res.string.management_unassign_judge_message, selectedJudge?.nickname ?: "")) },
             confirmButton = {
                 Button(
                     onClick = {
@@ -284,10 +295,10 @@ fun ManagementScreen(
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.error
                     )
-                ) { Text("Снять") }
+                ) { Text(stringResource(Res.string.management_unassign_judge_confirm)) }
             },
             dismissButton = {
-                TextButton(onClick = { showUnassignJudgeDialog = false }) { Text("Отмена") }
+                TextButton(onClick = { showUnassignJudgeDialog = false }) { Text(stringResource(Res.string.cancel)) }
             }
         )
     }
@@ -302,8 +313,8 @@ fun ManagementScreen(
                     tint = MaterialTheme.colorScheme.error
                 )
             },
-            title = { Text("Удалить критерий оценивания?") },
-            text = { Text("Критерий «${selectedCriteria?.name}» будет безвозратно удален.") },
+            title = { Text(stringResource(Res.string.management_delete_criteria_title)) },
+            text = { Text(stringResource(Res.string.management_delete_criteria_message, selectedCriteria?.name ?: "")) },
             confirmButton = {
                 Button(
                     onClick = {
@@ -313,10 +324,10 @@ fun ManagementScreen(
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.error
                     )
-                ) { Text("Удалить") }
+                ) { Text(stringResource(Res.string.delete)) }
             },
             dismissButton = {
-                TextButton(onClick = { showDeleteCriteriaDialog = false }) { Text("Отмена") }
+                TextButton(onClick = { showDeleteCriteriaDialog = false }) { Text(stringResource(Res.string.cancel)) }
             }
         )
     }
@@ -325,34 +336,34 @@ fun ManagementScreen(
     if (showAddCriteriaDialog) {
         AlertDialog(
             onDismissRequest = { showAddCriteriaDialog = false },
-            title = { Text("Новый критерий") },
+            title = { Text(stringResource(Res.string.management_new_criteria_title)) },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     OutlinedTextField(
                         value = criteriaName,
                         onValueChange = { criteriaName = it },
-                        label = { Text("Название") },
+                        label = { Text(stringResource(Res.string.name)) },
                         modifier = Modifier.fillMaxWidth(),
                         shape = MaterialTheme.shapes.largeIncreased
                     )
                     OutlinedTextField(
                         value = criteriaDesc,
                         onValueChange = { criteriaDesc = it },
-                        label = { Text("Описание") },
+                        label = { Text(stringResource(Res.string.description)) },
                         modifier = Modifier.fillMaxWidth(),
                         shape = MaterialTheme.shapes.largeIncreased
                     )
                     OutlinedTextField(
                         value = criteriaMaxScore,
                         onValueChange = { criteriaMaxScore = it },
-                        label = { Text("Макс. балл") },
+                        label = { Text(stringResource(Res.string.management_max_score_label)) },
                         modifier = Modifier.fillMaxWidth(),
                         shape = MaterialTheme.shapes.largeIncreased
                     )
                     OutlinedTextField(
                         value = criteriaWeight,
                         onValueChange = { criteriaWeight = it },
-                        label = { Text("Вес") },
+                        label = { Text(stringResource(Res.string.management_weight_label)) },
                         modifier = Modifier.fillMaxWidth(),
                         shape = MaterialTheme.shapes.largeIncreased
                     )
@@ -375,10 +386,10 @@ fun ManagementScreen(
                     criteriaMaxScore = "10"
                     criteriaWeight = "1.0"
                     showAddCriteriaDialog = false
-                }) { Text("Добавить") }
+                }) { Text(stringResource(Res.string.management_add_button)) }
             },
             dismissButton = {
-                TextButton(onClick = { showAddCriteriaDialog = false }) { Text("Отмена") }
+                TextButton(onClick = { showAddCriteriaDialog = false }) { Text(stringResource(Res.string.cancel)) }
             }
         )
     }
@@ -389,34 +400,34 @@ fun ManagementScreen(
                 showUpdateCriteriaDialog = false
                 selectedCriteriaId = null
             },
-            title = { Text("Редактировать критерий") },
+            title = { Text(stringResource(Res.string.management_edit_criteria_title)) },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     OutlinedTextField(
                         value = criteriaName,
                         onValueChange = { criteriaName = it },
-                        label = { Text("Название") },
+                        label = { Text(stringResource(Res.string.name)) },
                         modifier = Modifier.fillMaxWidth(),
                         shape = MaterialTheme.shapes.largeIncreased
                     )
                     OutlinedTextField(
                         value = criteriaDesc,
                         onValueChange = { criteriaDesc = it },
-                        label = { Text("Описание") },
+                        label = { Text(stringResource(Res.string.description)) },
                         modifier = Modifier.fillMaxWidth(),
                         shape = MaterialTheme.shapes.largeIncreased
                     )
                     OutlinedTextField(
                         value = criteriaMaxScore,
                         onValueChange = { criteriaMaxScore = it },
-                        label = { Text("Макс. балл") },
+                        label = { Text(stringResource(Res.string.management_max_score_label)) },
                         modifier = Modifier.fillMaxWidth(),
                         shape = MaterialTheme.shapes.largeIncreased
                     )
                     OutlinedTextField(
                         value = criteriaWeight,
                         onValueChange = { criteriaWeight = it },
-                        label = { Text("Вес") },
+                        label = { Text(stringResource(Res.string.management_weight_label)) },
                         modifier = Modifier.fillMaxWidth(),
                         shape = MaterialTheme.shapes.largeIncreased
                     )
@@ -443,13 +454,13 @@ fun ManagementScreen(
                     criteriaDesc = ""
                     criteriaMaxScore = "10"
                     criteriaWeight = "1.0"
-                }) { Text("Сохранить") }
+                }) { Text(stringResource(Res.string.save)) }
             },
             dismissButton = {
                 TextButton(onClick = {
                     showUpdateCriteriaDialog = false
                     selectedCriteriaId = null
-                }) { Text("Отмена") }
+                }) { Text(stringResource(Res.string.cancel)) }
             }
         )
     }
@@ -476,10 +487,10 @@ private fun AssignJudgeDialog(
             ) {
                 DialogIcon(Icons.Default.PersonAdd, MaterialTheme.colorScheme.secondary)
                 Spacer(Modifier.height(12.dp))
-                DialogTitle("Назначить судью")
+                DialogTitle(stringResource(Res.string.management_assign_judge_title))
                 Spacer(Modifier.height(8.dp))
                 Text(
-                    text = "Введите никнейм пользователя, которого хотите назначить судьей.",
+                    text = stringResource(Res.string.management_assign_judge_message),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center
@@ -489,7 +500,7 @@ private fun AssignJudgeDialog(
                 OutlinedTextField(
                     value = state.judgeSearchQuery,
                     onValueChange = onQueryChange,
-                    label = { Text("Никнейм пользователя") },
+                    label = { Text(stringResource(Res.string.management_nickname_label)) },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
                     trailingIcon = {
@@ -500,7 +511,7 @@ private fun AssignJudgeDialog(
                                 onClick = onSearch,
                                 enabled = state.judgeSearchQuery.isNotBlank()
                             ) {
-                                Icon(Icons.Default.Search, "Найти")
+                                Icon(Icons.Default.Search, stringResource(Res.string.management_search_desc))
                             }
                         }
                     },
@@ -519,7 +530,7 @@ private fun AssignJudgeDialog(
                 Spacer(Modifier.height(24.dp))
                 DialogActions(
                     onDismiss = onDismiss,
-                    confirmText = "Назначить",
+                    confirmText = stringResource(Res.string.management_assign_judge_button),
                     confirmEnabled = state.foundJudge != null && !state.isActionLoading,
                     isLoading = state.isActionLoading,
                     onConfirm = onConfirm

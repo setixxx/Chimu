@@ -12,10 +12,13 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import chimu.composeapp.generated.resources.*
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import software.setixx.chimu.api.domain.UserRole
 import software.setixx.chimu.domain.model.GameJamDetails
 import software.setixx.chimu.domain.model.Project
+import software.setixx.chimu.presentation.jam.details.judging.components.getProjectStatusString
 import software.setixx.chimu.presentation.jam.details.overview.components.ManagementListCard
 import software.setixx.chimu.presentation.project.components.ProjectDetailsContent
 import software.setixx.chimu.presentation.project.components.ProjectEditDialog
@@ -125,7 +128,7 @@ fun ProjectScreen(
 
     if (showCreateDialog) {
         ProjectEditDialog(
-            title = "Создание проекта",
+            title = stringResource(Res.string.project_create_title),
             projectTitle = dialogTitle,
             projectDescription = dialogDescription,
             projectGameUrl = dialogGameUrl,
@@ -161,12 +164,12 @@ private fun CreateProjectCard(
             modifier = Modifier.padding(20.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Text("Проект", style = MaterialTheme.typography.titleLarge)
+            Text(stringResource(Res.string.project_label), style = MaterialTheme.typography.titleLarge)
             Text(
                 text = if (isLeader)
-                    "Проект ещё не создан. Создайте его, чтобы начать работу."
+                    stringResource(Res.string.project_create_desc_leader)
                 else
-                    "Проект ещё не создан. Обратитесь к лидеру команды.",
+                    stringResource(Res.string.project_create_desc_member),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -177,7 +180,7 @@ private fun CreateProjectCard(
                 ) {
                     Icon(Icons.Default.Add, contentDescription = null)
                     Spacer(Modifier.width(8.dp))
-                    Text("Создать проект")
+                    Text(stringResource(Res.string.project_create_button))
                 }
             }
         }
@@ -192,16 +195,16 @@ private fun AdminProjectListSection(
     onNavigateToProject: (String, String?, Boolean) -> Unit
 ) {
     ManagementListCard(
-        title = "Проекты участников",
+        title = stringResource(Res.string.project_participants_list_title),
         titleIcon = Icons.Default.Gamepad,
         items = projects,
-        emptyText = "Проекты ещё не созданы",
+        emptyText = stringResource(Res.string.project_list_empty),
         onButtonClick = {},
         onItemClick = { onNavigateToProject(it.id, userRole?.name, true) },
         itemHeadline = { Text(it.title) },
         itemSupportingContent = {
             Text(
-                "Команда: ${it.teamName ?: "—"}  •  ${it.status.name}",
+                stringResource(Res.string.project_team_and_status, it.teamName ?: stringResource(Res.string.empty_dash), getProjectStatusString(it.status)),
                 style = MaterialTheme.typography.bodySmall
             )
         },

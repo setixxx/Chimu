@@ -14,6 +14,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import chimu.composeapp.generated.resources.*
+import org.jetbrains.compose.resources.stringResource
 import software.setixx.chimu.presentation.components.EmptyStateCard
 import software.setixx.chimu.presentation.main.MainState
 
@@ -33,8 +35,8 @@ fun ProjectsContent(
         if (state.userProjects.isEmpty()) {
             EmptyStateCard(
                 icon = Icons.Default.Gamepad,
-                title = "У вас пока нет проектов",
-                description = "Зарегистрируйтесь на джем и создайте проект"
+                title = stringResource(Res.string.projects_empty_title),
+                description = stringResource(Res.string.projects_empty_desc)
             )
         } else {
             LazyColumn(

@@ -23,6 +23,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import chimu.composeapp.generated.resources.*
+import org.jetbrains.compose.resources.stringResource
 import software.setixx.chimu.domain.model.Project
 
 @Composable
@@ -55,13 +57,13 @@ fun ParticipantJudgingView(userProject: Project?) {
                 )
                 Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     Text(
-                        "Этап оценивания",
+                        stringResource(Res.string.judging_stage_title),
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onTertiaryContainer
                     )
                     Text(
-                        "Сейчас проходит этап оценивания. Судьи изучают и оценивают работы участников. Дождитесь завершения этапа — результаты будут объявлены после его окончания.",
+                        stringResource(Res.string.judging_stage_desc),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onTertiaryContainer
                     )
@@ -70,7 +72,7 @@ fun ParticipantJudgingView(userProject: Project?) {
         }
 
         Text(
-            "Ваш проект",
+            stringResource(Res.string.your_project_title),
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold
         )
@@ -94,7 +96,7 @@ fun ParticipantJudgingView(userProject: Project?) {
                             tint = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Text(
-                            "Проект не найден",
+                            stringResource(Res.string.project_not_found),
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )

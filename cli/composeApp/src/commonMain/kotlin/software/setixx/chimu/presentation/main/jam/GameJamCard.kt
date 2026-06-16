@@ -11,6 +11,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import chimu.composeapp.generated.resources.*
+import org.jetbrains.compose.resources.stringResource
 import coil3.compose.AsyncImage
 import coil3.compose.LocalPlatformContext
 import coil3.request.ImageRequest
@@ -44,7 +46,7 @@ fun GameJamCard(
                         .data(jam.bannerUrl)
                         .crossfade(true)
                         .build(),
-                    contentDescription = "Баннер джема",
+                    contentDescription = stringResource(Res.string.jam_card_banner_desc),
                     modifier = Modifier
                         .size(120.dp)
                         .clip(MaterialTheme.shapes.medium),
@@ -65,7 +67,7 @@ fun GameJamCard(
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = "Тема: ${jam.theme}",
+                    text = stringResource(Res.string.jam_card_theme_label, jam.theme),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 2,
@@ -83,7 +85,7 @@ fun GameJamCard(
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
-                        text = "${jam.registeredTeamsCount} команд",
+                        text = stringResource(Res.string.jam_card_teams_count, jam.registeredTeamsCount),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )

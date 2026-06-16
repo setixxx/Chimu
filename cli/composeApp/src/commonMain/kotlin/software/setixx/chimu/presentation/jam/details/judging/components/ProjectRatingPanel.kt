@@ -26,6 +26,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import chimu.composeapp.generated.resources.*
+import org.jetbrains.compose.resources.stringResource
 import software.setixx.chimu.data.remote.dto.RatingCriteriaResponse
 import software.setixx.chimu.domain.model.MyRating
 import software.setixx.chimu.domain.model.Project
@@ -37,7 +39,6 @@ fun ProjectRatingPanel(
     myRatings: List<MyRating>,
     isRatingLoading: Boolean,
     isActionLoading: Boolean,
-    onBack: () -> Unit,
     onRate: (projectId: String, criteriaId: String, score: Int, comment: String?) -> Unit,
     onUpdate: (ratingId: String, projectId: String, score: Int, comment: String?) -> Unit,
     onDelete: (ratingId: String, projectId: String) -> Unit
@@ -47,30 +48,6 @@ fun ProjectRatingPanel(
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 8.dp, vertical = 8.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            IconButton(onClick = onBack) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, "Назад")
-            }
-            Column(modifier = Modifier.padding(start = 8.dp)) {
-                Text(
-                    project.title,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
-                )
-                project.teamName?.let {
-                    Text(
-                        it,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            }
-        }
         Column(
             modifier = Modifier
                 .widthIn(max = 1500.dp)
@@ -95,14 +72,14 @@ fun ProjectRatingPanel(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        "Оценки по критериям",
+                        stringResource(Res.string.judging_criteria_ratings_title),
                         style = MaterialTheme.typography.titleMedium,
                     )
                 }
 
                 if (criteria.isEmpty()) {
                     Text(
-                        "Критерии оценивания не заданы",
+                        stringResource(Res.string.judging_criteria_empty),
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 } else {

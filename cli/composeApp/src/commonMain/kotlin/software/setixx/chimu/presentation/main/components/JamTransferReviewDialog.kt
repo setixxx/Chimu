@@ -10,6 +10,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import chimu.composeapp.generated.resources.*
+import org.jetbrains.compose.resources.stringResource
 import software.setixx.chimu.domain.model.JamTransfer
 import software.setixx.chimu.presentation.utils.DateTimeUtils
 
@@ -43,7 +45,7 @@ fun JamTransferReviewDialog(
                 )
                 Spacer(Modifier.height(12.dp))
                 Text(
-                    text = "Передача прав на джем",
+                    text = stringResource(Res.string.transfer_review_title),
                     style = MaterialTheme.typography.headlineSmall,
                     modifier = Modifier.align(Alignment.CenterHorizontally)
                 )
@@ -63,8 +65,8 @@ fun JamTransferReviewDialog(
                         Column(
                             verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            LabeledRow(label = "Джем", value = transfer.jamName)
-                            LabeledRow(label = "От", value = transfer.senderNickname)
+                            LabeledRow(label = stringResource(Res.string.transfer_review_jam_label), value = transfer.jamName)
+                            LabeledRow(label = stringResource(Res.string.transfer_review_sender_label), value = transfer.senderNickname)
                         }
                         Row {
                             IconButton(
@@ -93,7 +95,7 @@ fun JamTransferReviewDialog(
 
                 Spacer(Modifier.height(16.dp))
                 Text(
-                    text = "Вам предлагают стать организатором этого джема. При принятии все права управления перейдут к вам.",
+                    text = stringResource(Res.string.transfer_review_desc),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center
@@ -105,7 +107,7 @@ fun JamTransferReviewDialog(
                     horizontalArrangement = Arrangement.Center
                 ) {
                     Text(
-                        text = "Заявка актинва до ",
+                        text = stringResource(Res.string.transfer_review_expires_at),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         textAlign = TextAlign.Center
@@ -130,7 +132,7 @@ fun JamTransferReviewDialog(
                     modifier = Modifier
                         .padding(top = 4.dp)
                         .align(Alignment.End)
-                ) { Text("Закрыть") }
+                ) { Text(stringResource(Res.string.close)) }
             }
         }
     }

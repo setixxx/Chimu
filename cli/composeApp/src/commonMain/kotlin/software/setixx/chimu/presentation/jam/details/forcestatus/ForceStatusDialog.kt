@@ -32,11 +32,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import chimu.composeapp.generated.resources.*
+import org.jetbrains.compose.resources.stringResource
 import software.setixx.chimu.api.domain.GameJamStatus
 import software.setixx.chimu.presentation.jam.details.JamDetailsState
 import software.setixx.chimu.presentation.jam.details.transfer.DialogActions
 import software.setixx.chimu.presentation.jam.details.transfer.DialogIcon
 import software.setixx.chimu.presentation.jam.details.transfer.DialogTitle
+import software.setixx.chimu.presentation.jam.details.judging.components.getGameJamStatusString
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -60,27 +63,27 @@ fun ForceStatusDialog(
             ) {
                 DialogIcon(Icons.Default.DoubleArrow, MaterialTheme.colorScheme.secondary)
                 Spacer(Modifier.height(12.dp))
-                DialogTitle("Смена статуса джема")
+                DialogTitle(stringResource(Res.string.force_status_title))
                 Spacer(Modifier.height(8.dp))
                 Text(
-                    text = "Укажите желаемый статус джема.",
+                    text = stringResource(Res.string.force_status_desc),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center
                 )
                 Text(
-                    text = "Автоматическое обновление статусов выбранного джема будет отключено!",
+                    text = stringResource(Res.string.force_status_warning),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.primary,
                     textAlign = TextAlign.Center
                 )
-
+                Spacer(Modifier.height(12.dp))
                 ExposedDropdownMenuBox(
                     expanded = isStatusesExpanded,
                     onExpandedChange = { isStatusesExpanded = !isStatusesExpanded }
                 ) {
                     OutlinedTextField(
-                        value = state.selectedForceStatus?.name ?: "Не выбрано",
+                        value = state.selectedForceStatus?.let { getGameJamStatusString(it) } ?: stringResource(Res.string.profile_not_selected),
                         onValueChange = {},
                         enabled = !state.isForceStatusActionIsLoading,
                         trailingIcon = {
@@ -90,6 +93,7 @@ fun ForceStatusDialog(
                             .fillMaxWidth()
                             .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable, true),
                         isError = false,
+                        readOnly = true,
                         shape = MaterialTheme.shapes.largeIncreased
                     )
 
@@ -108,7 +112,7 @@ fun ForceStatusDialog(
                             DropdownMenuItem(
                                 text = {
                                     Column {
-                                        Text(status.name)
+                                        Text(getGameJamStatusString(status))
                                     }
                                 },
                                 modifier = if (state.selectedForceStatus == status) {
@@ -120,7 +124,7 @@ fun ForceStatusDialog(
                                     Modifier
                                 },
                                 leadingIcon = if (state.selectedForceStatus == status) {
-                                    { Icon(imageVector = Icons.Default.Check, contentDescription = "Selected") }
+                                    { Icon(imageVector = Icons.Default.Check, contentDescription = stringResource(Res.string.profile_selected)) }
                                 } else null,
                                 colors = if (state.selectedForceStatus == status) {
                                     MenuDefaults.itemColors(
@@ -143,7 +147,7 @@ fun ForceStatusDialog(
                 Spacer(Modifier.height(20.dp))
                 DialogActions(
                     onDismiss = onDismiss,
-                    confirmText = "Сменить статус",
+                    confirmText = stringResource(Res.string.force_status_button),
                     confirmEnabled = state.selectedForceStatus != null && !state.isTransferActionLoading,
                     isLoading = state.isForceStatusActionIsLoading,
                     onConfirm = { state.selectedForceStatus?.let { onSubmit(it) } }

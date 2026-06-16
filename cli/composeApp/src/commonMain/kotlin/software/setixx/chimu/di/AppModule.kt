@@ -47,6 +47,7 @@ val appModule = module {
     single<AuthRepository> {
         AuthRepositoryImpl(
             get(),
+            get(),
             get()
         )
     }

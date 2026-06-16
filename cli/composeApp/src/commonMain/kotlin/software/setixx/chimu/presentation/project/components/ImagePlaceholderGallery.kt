@@ -24,6 +24,8 @@ import coil3.compose.SubcomposeAsyncImage
 import coil3.network.NetworkHeaders
 import coil3.network.httpHeaders
 import coil3.request.ImageRequest
+import chimu.composeapp.generated.resources.*
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import software.setixx.chimu.data.local.TokenStorage
 import software.setixx.chimu.data.util.getBaseUrl
@@ -82,7 +84,7 @@ fun ImagePlaceholderGallery(
                 )
                 Spacer(Modifier.width(8.dp))
                 Text(
-                    "Скриншоты (${screenshotFiles.size}/$maxCount)",
+                    stringResource(Res.string.project_screenshots_title_format, screenshotFiles.size, maxCount),
                     style = MaterialTheme.typography.titleSmall
                 )
             }
@@ -94,7 +96,7 @@ fun ImagePlaceholderGallery(
                 ) {
                     Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(16.dp))
                     Spacer(Modifier.width(4.dp))
-                    Text("Загрузить", style = MaterialTheme.typography.labelMedium)
+                    Text(stringResource(Res.string.project_upload_button), style = MaterialTheme.typography.labelMedium)
                 }
 
                 !canUpload && !isReadOnly -> {}

@@ -26,6 +26,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import chimu.composeapp.generated.resources.*
+import org.jetbrains.compose.resources.stringResource
 import software.setixx.chimu.presentation.components.PasswordStrengthIndicator
 import software.setixx.chimu.presentation.utils.PasswordUtils
 
@@ -51,13 +53,13 @@ fun ChangePasswordDialog(
                 onDismiss()
             }
         },
-        title = { Text("Смена пароля") },
+        title = { Text(stringResource(Res.string.main_change_password_title)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 PasswordField(
                     value = oldPassword,
                     onValueChange = { oldPassword = it },
-                    label = "Текущий пароль",
+                    label = stringResource(Res.string.main_current_password_label),
                     passwordsVisible = passwordsVisible,
                     onToggleVisibility = { passwordsVisible = !passwordsVisible },
                     enabled = !isLoading
@@ -65,7 +67,7 @@ fun ChangePasswordDialog(
                 PasswordField(
                     value = newPassword,
                     onValueChange = { newPassword = it },
-                    label = "Новый пароль",
+                    label = stringResource(Res.string.main_new_password_label),
                     passwordsVisible = passwordsVisible,
                     onToggleVisibility = { passwordsVisible = !passwordsVisible },
                     enabled = !isLoading
@@ -76,7 +78,7 @@ fun ChangePasswordDialog(
                 PasswordField(
                     value = confirmPassword,
                     onValueChange = { confirmPassword = it },
-                    label = "Повторите новый пароль",
+                    label = stringResource(Res.string.main_confirm_new_password_label),
                     passwordsVisible = passwordsVisible,
                     onToggleVisibility = { passwordsVisible = !passwordsVisible },
                     enabled = !isLoading
@@ -103,7 +105,7 @@ fun ChangePasswordDialog(
                         strokeWidth = 2.dp
                     )
                 } else {
-                    Text("Сменить")
+                    Text(stringResource(Res.string.main_change_button))
                 }
             }
         },
@@ -112,7 +114,7 @@ fun ChangePasswordDialog(
                 onClick = onDismiss,
                 enabled = !isLoading
             ) {
-                Text("Отмена")
+                Text(stringResource(Res.string.cancel))
             }
         }
     )
@@ -146,9 +148,9 @@ private fun PasswordField(
                         Icons.Filled.Visibility
                     },
                     contentDescription = if (passwordsVisible) {
-                        "Скрыть пароль"
+                        stringResource(Res.string.hide_password_hint)
                     } else {
-                        "Показать пароль"
+                        stringResource(Res.string.show_password_hint)
                     }
                 )
             }

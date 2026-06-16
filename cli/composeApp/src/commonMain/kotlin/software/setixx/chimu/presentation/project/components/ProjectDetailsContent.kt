@@ -37,6 +37,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import chimu.composeapp.generated.resources.*
+import org.jetbrains.compose.resources.stringResource
 import software.setixx.chimu.api.domain.ProjectFileType
 import software.setixx.chimu.api.domain.ProjectStatus
 import software.setixx.chimu.api.domain.UserRole
@@ -61,8 +63,8 @@ fun ProjectDetailsContent(
     val scrollState = rememberScrollState()
     val isParticipant = userRole == UserRole.PARTICIPANT
     val isJudge = userRole == UserRole.JUDGE
-    val isDraft = project.status == ProjectStatus.DRAFT.name
-    val isSubmitted = project.status == ProjectStatus.SUBMITTED.name
+    val isDraft = project.status == ProjectStatus.DRAFT
+    val isSubmitted = project.status == ProjectStatus.SUBMITTED
     val canEdit = isParticipant && isLeader && isDraft && project.canEdit
     val canUpload = isParticipant && isDraft && project.canEdit
     val canDeleteFile = isParticipant && isLeader && isDraft && project.canEdit
@@ -130,7 +132,7 @@ fun ProjectDetailsContent(
         }
 
         ProjectFilesCard(
-            title = "Сборки",
+            title = stringResource(Res.string.project_builds_title),
             icon = Icons.Default.Build,
             files = projectFiles.filter { it.fileType == ProjectFileType.BUILD },
             canUpload = canUpload,
@@ -150,7 +152,7 @@ fun ProjectDetailsContent(
         )
 
         ProjectFilesCard(
-            title = "Видео",
+            title = stringResource(Res.string.project_videos_title),
             icon = Icons.Default.VideoLibrary,
             files = projectFiles.filter { it.fileType == ProjectFileType.VIDEO },
             canUpload = canUpload,
@@ -192,7 +194,7 @@ fun ProjectDetailsContent(
                                 tint = MaterialTheme.colorScheme.onTertiaryContainer
                             )
                             Text(
-                                "Проект отправлен на оценивание",
+                                stringResource(Res.string.project_submitted_message),
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onTertiaryContainer
                             )
@@ -204,7 +206,7 @@ fun ProjectDetailsContent(
                             .fillMaxWidth()
                             .height(ButtonDefaults.MediumContainerHeight),
                         enabled = !isActionLoading
-                    ) { Text("Отменить отправку") }
+                    ) { Text(stringResource(Res.string.project_cancel_submission)) }
                 } else if (isDraft) {
                     if (project.canSubmit) {
                         Button(
@@ -213,7 +215,7 @@ fun ProjectDetailsContent(
                                 .fillMaxWidth()
                                 .height(ButtonDefaults.MediumContainerHeight),
                             enabled = !isActionLoading
-                        ) { Text("Отправить проект") }
+                        ) { Text(stringResource(Res.string.project_submit_button)) }
                     }
                     if (project.canDelete) {
                         OutlinedButton(
@@ -232,7 +234,7 @@ fun ProjectDetailsContent(
                         ) {
                             Icon(Icons.Default.Delete, contentDescription = null)
                             Spacer(Modifier.width(8.dp))
-                            Text("Удалить проект")
+                            Text(stringResource(Res.string.project_delete_button))
                         }
                     }
                 }
@@ -244,7 +246,7 @@ fun ProjectDetailsContent(
 
     if (showEditDialog) {
         ProjectEditDialog(
-            title = "Редактировать проект",
+            title = stringResource(Res.string.project_edit_title),
             projectTitle = dialogTitle,
             projectDescription = dialogDescription,
             projectGameUrl = dialogGameUrl,
@@ -274,8 +276,8 @@ fun ProjectDetailsContent(
                     tint = MaterialTheme.colorScheme.error
                 )
             },
-            title = { Text("Удалить проект?") },
-            text = { Text("Это действие необратимо. Все файлы проекта будут удалены.") },
+            title = { Text(stringResource(Res.string.project_delete_confirm_title)) },
+            text = { Text(stringResource(Res.string.project_delete_confirm_message)) },
             confirmButton = {
                 Button(
                     onClick = {
@@ -286,10 +288,10 @@ fun ProjectDetailsContent(
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.error
                     )
-                ) { Text("Удалить") }
+                ) { Text(stringResource(Res.string.delete)) }
             },
             dismissButton = {
-                TextButton(onClick = { showDeleteConfirm = false }) { Text("Отмена") }
+                TextButton(onClick = { showDeleteConfirm = false }) { Text(stringResource(Res.string.cancel)) }
             }
         )
     }

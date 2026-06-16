@@ -53,6 +53,8 @@ import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import chimu.composeapp.generated.resources.*
+import org.jetbrains.compose.resources.stringResource
 import software.setixx.chimu.api.domain.RoleRequestStatus
 import software.setixx.chimu.presentation.profile.roleupgrade.AdminFilter
 import software.setixx.chimu.presentation.profile.roleupgrade.RoleUpgradeState
@@ -91,12 +93,12 @@ fun AdminContent(
             }
             Column {
                 Text(
-                    "Заявки на повышение",
+                    stringResource(Res.string.role_upgrade_requests_title),
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.SemiBold
                 )
                 Text(
-                    "${state.requests.count { it.status == RoleRequestStatus.PENDING }} на рассмотрении",
+                    stringResource(Res.string.role_upgrade_pending_count, state.requests.count { it.status == RoleRequestStatus.PENDING }),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -104,8 +106,8 @@ fun AdminContent(
         }
 
         val options = listOf(
-            "На рассмотрении" to AdminFilter.PENDING,
-            "Все" to AdminFilter.ALL
+            stringResource(Res.string.role_upgrade_filter_pending) to AdminFilter.PENDING,
+            stringResource(Res.string.role_upgrade_filter_all) to AdminFilter.ALL
         )
 
         BoxWithConstraints {
@@ -193,8 +195,8 @@ fun AdminContent(
                                 )
                                 Spacer(modifier = Modifier.height(6.dp))
                                 Text(
-                                    if (state.adminFilter == AdminFilter.PENDING) "Нет заявок на рассмотрении"
-                                    else "Заявок нет",
+                                    if (state.adminFilter == AdminFilter.PENDING) stringResource(Res.string.role_upgrade_empty_pending)
+                                    else stringResource(Res.string.role_upgrade_empty_all),
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -221,7 +223,7 @@ fun AdminContent(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.End
         ) {
-            TextButton(onClick = onDismiss) { Text("Закрыть") }
+            TextButton(onClick = onDismiss) { Text(stringResource(Res.string.close)) }
         }
     }
 }

@@ -26,7 +26,7 @@ data class ProjectDetails(
     val title: String,
     val description: String?,
     val gameUrl: String?,
-    val status: String,
+    val status: ProjectStatus,
     val submittedAt: String?,
     val createdAt: String,
     val updatedAt: String,

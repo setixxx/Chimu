@@ -10,6 +10,7 @@ import software.setixx.chimu.api.dto.GameJamDetailsResponse
 import software.setixx.chimu.api.repository.GameJamRepository
 import software.setixx.chimu.api.repository.JamTeamRegistrationRepository
 import software.setixx.chimu.api.repository.TeamMemberRepository
+import software.setixx.chimu.api.repository.UserRepository
 import java.util.UUID
 
 @Service
@@ -19,7 +20,8 @@ class AdminJamService(
     private val teamMemberRepository: TeamMemberRepository,
     private val ratingService: RatingService,
     private val jamSchedulerService: JamSchedulerService,
-    private val gameJamService: GameJamService
+    private val gameJamService: GameJamService,
+    private val userRepository: UserRepository
 ) {
     private val log = LoggerFactory.getLogger(AdminJamService::class.java)
 
@@ -64,8 +66,9 @@ class AdminJamService(
         jam.status = targetStatus
         gameJamRepository.save(jam)
         jamSchedulerService.cancelExisting(jamId)
+        val organizer = userRepository.findById(jam.organizer.id!!).orElseThrow()
         log.warn("ADMIN force-transition complete: jam $jamId is now $targetStatus")
 
-        return gameJamService.toDetailsResponse(jam, jam.organizer, user.id, user.role)
+        return gameJamService.toDetailsResponse(jam, organizer, user.id, user.role)
     }
 }

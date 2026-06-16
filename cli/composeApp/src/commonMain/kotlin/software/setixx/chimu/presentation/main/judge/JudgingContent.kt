@@ -16,6 +16,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import chimu.composeapp.generated.resources.*
+import org.jetbrains.compose.resources.stringResource
 import software.setixx.chimu.presentation.components.EmptyStateCard
 import software.setixx.chimu.presentation.main.MainState
 import software.setixx.chimu.presentation.main.jam.GameJamCard
@@ -34,15 +36,15 @@ fun JudgingContent(
             modifier = Modifier.fillMaxSize().padding(24.dp),
         ) {
             Text(
-                text = "Оценивание",
+                text = stringResource(Res.string.judging_title),
                 style = MaterialTheme.typography.headlineMedium
             )
 
             if (state.judgingJams.isEmpty()) {
                 EmptyStateCard(
                     icon = Icons.Filled.Gavel,
-                    title = "Нет джемов для оценивания",
-                    description = "Вы пока не назначены судьей ни на один джем"
+                    title = stringResource(Res.string.judging_empty_title),
+                    description = stringResource(Res.string.judging_empty_desc)
                 )
             } else {
                 LazyColumn(

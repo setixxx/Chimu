@@ -6,6 +6,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
+import chimu.composeapp.generated.resources.*
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import software.setixx.chimu.api.domain.GameJamStatus
 import software.setixx.chimu.domain.model.GameJamDetails
@@ -54,7 +56,7 @@ fun JudgingScreen(
             Text(
                 modifier = Modifier
                     .align(Alignment.Center),
-                text = "Этап судейства еще не начался. Дождитесь начала",
+                text = stringResource(Res.string.judging_not_started),
                 textAlign = TextAlign.Center
             )
         } else {

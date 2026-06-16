@@ -14,6 +14,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import chimu.composeapp.generated.resources.*
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun ProjectNotFoundContent() {
@@ -29,7 +31,7 @@ fun ProjectNotFoundContent() {
                 tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Text(
-                "Проект не найден",
+                stringResource(Res.string.project_not_found),
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )

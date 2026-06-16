@@ -199,7 +199,7 @@ class ProjectRepositoryImpl(
             title = title,
             description = description,
             gameUrl = gameUrl,
-            status = status,
+            status = ProjectStatus.valueOf(status),
             submittedAt = submittedAt,
             createdAt = createdAt,
             updatedAt = updatedAt,

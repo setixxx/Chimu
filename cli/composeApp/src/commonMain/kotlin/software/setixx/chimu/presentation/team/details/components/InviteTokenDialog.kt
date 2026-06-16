@@ -27,6 +27,8 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import chimu.composeapp.generated.resources.*
+import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -40,12 +42,12 @@ fun InviteTokenDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         icon = { Icon(Icons.Default.Share, null) },
-        title = { Text("Токен приглашения") },
+        title = { Text(stringResource(Res.string.team_invite_title)) },
         text = {
             Column(
                 verticalArrangement = Arrangement.spacedBy(16.dp)) {
                 Text(
-                    "Поделитесь этим токеном с другими, чтобы они могли присоединиться к вашей команде:",
+                    stringResource(Res.string.team_invite_message),
                     textAlign = TextAlign.Center
                 )
 
@@ -70,7 +72,7 @@ fun InviteTokenDialog(
                                     clipboardManager.setText(AnnotatedString(token))
                                 }
                             ) {
-                                Icon(Icons.Default.ContentCopy, "Копировать")
+                                Icon(Icons.Default.ContentCopy, stringResource(Res.string.team_copy_token))
                             }
                         }
                     }
@@ -81,14 +83,14 @@ fun InviteTokenDialog(
                     ) {
                         Icon(Icons.Default.Refresh, null, modifier = Modifier.size(18.dp))
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Обновить токен")
+                        Text(stringResource(Res.string.team_update_token))
                     }
                 }
             }
         },
         confirmButton = {
             TextButton(onClick = onDismiss) {
-                Text("Закрыть")
+                Text(stringResource(Res.string.close))
             }
         }
     )

@@ -18,6 +18,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
+import chimu.composeapp.generated.resources.*
+import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import software.setixx.chimu.api.domain.TransferStatus
 import software.setixx.chimu.api.domain.UserRole
@@ -92,7 +95,7 @@ fun JamDetailsScreen(
                 title = { },
                 navigationIcon = {
                     FilledTonalIconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Назад")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(Res.string.back))
                     }
                 },
                 actions = {
@@ -101,7 +104,7 @@ fun JamDetailsScreen(
                             onClick = { onEditJam(jamId) },
                             enabled = state.canEdit
                         ) {
-                            Icon(Icons.Default.Edit, "Редактировать")
+                            Icon(Icons.Default.Edit, stringResource(Res.string.edit))
                         }
                     }
                     if (state.canTransferJam) {
@@ -109,16 +112,16 @@ fun JamDetailsScreen(
                             onClick = { viewModel.openTransferDialog() },
                             enabled = state.canTransferEnabled
                         ) {
-                            Icon(transferIcon, contentDescription = "Передача джема")
+                            Icon(transferIcon, contentDescription = stringResource(Res.string.jam_details_transfer_desc))
                         }
                     }
-                    if (state.isAdmin){
+                    if (state.canForceJamStatus){
                         FilledTonalIconButton(
                             onClick = { viewModel.openForceStatusDialog() },
                         ) {
                             Icon(
                                 Icons.Default.DoubleArrow,
-                                "Сменить статус джема",
+                                stringResource(Res.string.jam_details_change_status_desc),
                             )
                         }
                     }
@@ -134,7 +137,7 @@ fun JamDetailsScreen(
                         ) {
                             Icon(
                                 Icons.Default.Delete,
-                                "Удалить",
+                                stringResource(Res.string.delete),
                                 tint = MaterialTheme.colorScheme.error
                             )
                         }
@@ -152,7 +155,7 @@ fun JamDetailsScreen(
                         ) {
                             Icon(
                                 Icons.Default.Cancel,
-                                "Отменить",
+                                stringResource(Res.string.cancel),
                                 tint = MaterialTheme.colorScheme.error
                             )
                         }
@@ -282,8 +285,8 @@ fun JamDetailsScreen(
     if (showDeleteDialog) {
         AlertDialog(
             onDismissRequest = { showDeleteDialog = false },
-            title = { Text("Удалить джем?") },
-            text = { Text("Все данные, включая регистрации и проекты, будут безвозвратно удалены.") },
+            title = { Text(stringResource(Res.string.jam_details_delete_title)) },
+            text = { Text(stringResource(Res.string.jam_details_delete_message)) },
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -293,10 +296,10 @@ fun JamDetailsScreen(
                     colors = ButtonDefaults.textButtonColors(
                         contentColor = MaterialTheme.colorScheme.error
                     )
-                ) { Text("Удалить") }
+                ) { Text(stringResource(Res.string.delete)) }
             },
             dismissButton = {
-                TextButton(onClick = { showDeleteDialog = false }) { Text("Отмена") }
+                TextButton(onClick = { showDeleteDialog = false }) { Text(stringResource(Res.string.cancel)) }
             }
         )
     }
@@ -304,8 +307,8 @@ fun JamDetailsScreen(
     if (showCancelDialog) {
         AlertDialog(
             onDismissRequest = { showCancelDialog = false },
-            title = { Text("Отменить джем?") },
-            text = { Text("Джем будет безвозратно отменен.") },
+            title = { Text(stringResource(Res.string.jam_details_cancel_title)) },
+            text = { Text(stringResource(Res.string.jam_details_cancel_message)) },
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -315,10 +318,10 @@ fun JamDetailsScreen(
                     colors = ButtonDefaults.textButtonColors(
                         contentColor = MaterialTheme.colorScheme.error
                     )
-                ) { Text("Отменить") }
+                ) { Text(stringResource(Res.string.cancel)) }
             },
             dismissButton = {
-                TextButton(onClick = { showCancelDialog = false }) { Text("Отмена") }
+                TextButton(onClick = { showCancelDialog = false }) { Text(stringResource(Res.string.cancel)) }
             }
         )
     }
@@ -328,13 +331,13 @@ fun JamDetailsScreen(
  * Вкладки экрана деталей Game Jam.
  * Содержит информацию для отображения иконок и названий разделов.
  */
-enum class JamDetailsTab(val label: String, val filledIcon: ImageVector, val outlinedIcon: ImageVector) {
-    Overview("Overview", Icons.Filled.Home, Icons.Outlined.Home),
-    Project("Project", Icons.Filled.Gamepad, Icons.Outlined.Gamepad),
-    Judging("Judging", Icons.Filled.Gavel, Icons.Outlined.Gavel),
-    Leaderboard("Leaderboard", Icons.Filled.Leaderboard, Icons.Outlined.Leaderboard),
-    Management("Management", Icons.Filled.AdminPanelSettings, Icons.Outlined.AdminPanelSettings),
-    AccessDenied("AccessDenied", Icons.Filled.Block, Icons.Filled.Block)
+enum class JamDetailsTab(val labelRes: StringResource, val filledIcon: ImageVector, val outlinedIcon: ImageVector) {
+    Overview(Res.string.jam_details_tab_overview, Icons.Filled.Home, Icons.Outlined.Home),
+    Project(Res.string.jam_details_tab_project, Icons.Filled.Gamepad, Icons.Outlined.Gamepad),
+    Judging(Res.string.jam_details_tab_judging, Icons.Filled.Gavel, Icons.Outlined.Gavel),
+    Leaderboard(Res.string.jam_details_tab_leaderboard, Icons.Filled.Leaderboard, Icons.Outlined.Leaderboard),
+    Management(Res.string.jam_details_tab_management, Icons.Filled.AdminPanelSettings, Icons.Outlined.AdminPanelSettings),
+    AccessDenied(Res.string.jam_details_tab_access_denied, Icons.Filled.Block, Icons.Filled.Block)
 }
 
 @Composable
@@ -344,7 +347,7 @@ private fun AccessDeniedContent() {
         contentAlignment = Alignment.Center
     ) {
         Text(
-            text = "У вас нет доступа к этому разделу джема",
+            text = stringResource(Res.string.jam_details_access_denied),
             style = MaterialTheme.typography.titleMedium
         )
     }

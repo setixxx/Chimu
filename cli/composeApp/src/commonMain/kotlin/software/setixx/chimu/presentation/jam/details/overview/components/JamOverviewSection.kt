@@ -26,6 +26,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import chimu.composeapp.generated.resources.*
+import org.jetbrains.compose.resources.stringResource
 import software.setixx.chimu.domain.model.GameJamDetails
 import software.setixx.chimu.presentation.components.InfoRow
 import software.setixx.chimu.presentation.utils.DateTimeUtils
@@ -63,7 +65,7 @@ fun JamOverviewSection(
                         modifier = Modifier.size(20.dp)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Описание", style = MaterialTheme.typography.titleLarge)
+                    Text(stringResource(Res.string.description), style = MaterialTheme.typography.titleLarge)
                 }
                 Text(jam.description)
                 HorizontalDivider()
@@ -79,7 +81,7 @@ fun JamOverviewSection(
                         modifier = Modifier.size(20.dp)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Правила", style = MaterialTheme.typography.titleLarge)
+                    Text(stringResource(Res.string.rules), style = MaterialTheme.typography.titleLarge)
                 }
                 Text(jam.rules)
             }
@@ -94,30 +96,42 @@ fun JamOverviewSection(
                 modifier = Modifier.padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Text("Даты", style = MaterialTheme.typography.titleMedium)
+                Text(stringResource(Res.string.dates), style = MaterialTheme.typography.titleMedium)
                 InfoRow(
                     icon = Icons.Default.AppRegistration,
-                    label = "Регистрация",
-                    value = "${DateTimeUtils.formatDateTime(jam.registrationStart)} - ${DateTimeUtils.formatDateTime(jam.registrationEnd)}"
+                    label = stringResource(Res.string.registration),
+                    value = stringResource(
+                        Res.string.date_range_format,
+                        DateTimeUtils.formatDateTime(jam.registrationStart),
+                        DateTimeUtils.formatDateTime(jam.registrationEnd)
+                    )
                 )
                 InfoRow(
                     icon = Icons.Default.PlayArrow,
-                    label = "Джем",
-                    value = "${DateTimeUtils.formatDateTime(jam.jamStart)} - ${DateTimeUtils.formatDateTime(jam.jamEnd)}",
+                    label = stringResource(Res.string.jam),
+                    value = stringResource(
+                        Res.string.date_range_format,
+                        DateTimeUtils.formatDateTime(jam.jamStart),
+                        DateTimeUtils.formatDateTime(jam.jamEnd)
+                    ),
                 )
                 InfoRow(
                     icon = Icons.Default.Star,
-                    label = "Оценивание",
-                    value = "${DateTimeUtils.formatDateTime(jam.judgingStart)} - ${DateTimeUtils.formatDateTime(jam.judgingEnd)}"
+                    label = stringResource(Res.string.judging),
+                    value = stringResource(
+                        Res.string.date_range_format,
+                        DateTimeUtils.formatDateTime(jam.judgingStart),
+                        DateTimeUtils.formatDateTime(jam.judgingEnd)
+                    )
                 )
             }
         }
 
         ManagementListCard(
-            title = "Судьи",
+            title = stringResource(Res.string.jam_details_judges_title),
             titleIcon = Icons.Default.Gavel,
             items = jam.judges,
-            emptyText = "Судьи не назначены.",
+            emptyText = stringResource(Res.string.jam_details_judges_empty),
             onButtonClick = { },
             onItemClick = { judge ->
                 if (judge.userId != userId){
@@ -128,19 +142,25 @@ fun JamOverviewSection(
             },
             itemHeadline = { judge -> Text(judge.nickname) },
             itemSupportingContent = { judge ->
-                Text("Назначен: ${DateTimeUtils.formatDateTime(judge.assignedAt)}")
+                Text(stringResource(Res.string.jam_details_judge_assigned_at, DateTimeUtils.formatDateTime(judge.assignedAt)))
             }
         )
 
         ManagementListCard(
-            title = "Критерии оценивания",
+            title = stringResource(Res.string.jam_details_criteria_title),
             titleIcon = Icons.AutoMirrored.Filled.Rule,
             items = jam.criteria.sortedBy { it.orderIndex },
-            emptyText = "Критерии не добавлены.",
+            emptyText = stringResource(Res.string.jam_details_criteria_empty),
             onButtonClick = {  },
             itemHeadline = { criteria -> Text(criteria.name) },
             itemSupportingContent = { criteria ->
-                Text("Макс: ${criteria.maxScore} • Вес: ${criteria.weight}")
+                Text(
+                    stringResource(
+                        Res.string.max_score_and_weight_format,
+                        stringResource(Res.string.judging_max_score, criteria.maxScore),
+                        stringResource(Res.string.judging_weight, criteria.weight.toString())
+                    )
+                )
             }
         )
     }

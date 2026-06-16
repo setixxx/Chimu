@@ -16,6 +16,9 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
+import chimu.composeapp.generated.resources.*
+import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import software.setixx.chimu.api.domain.UserRole
 import software.setixx.chimu.presentation.main.components.ChangePasswordDialog
@@ -180,13 +183,13 @@ fun MainScreen(
 }
 
 enum class NavigationDestination(
-    val title: String,
+    val titleRes: StringResource,
     val selectedIcon: ImageVector,
     val unselectedIcon: ImageVector
 ) {
-    HOME("Главная", Icons.Filled.Home, Icons.Outlined.Home),
-    GAME_JAMS("Джемы", Icons.Filled.Event, Icons.Outlined.Event),
-    TEAMS("Мои команды", Icons.Filled.Group, Icons.Outlined.Group),
-    PROJECTS("Проекты", Icons.Filled.Gamepad, Icons.Outlined.Gamepad),
-    JUDGING("Оценивание", Icons.Filled.Gavel, Icons.Outlined.Gavel)
+    HOME(Res.string.nav_home, Icons.Filled.Home, Icons.Outlined.Home),
+    GAME_JAMS(Res.string.nav_jams, Icons.Filled.Event, Icons.Outlined.Event),
+    TEAMS(Res.string.nav_teams, Icons.Filled.Group, Icons.Outlined.Group),
+    PROJECTS(Res.string.nav_projects, Icons.Filled.Gamepad, Icons.Outlined.Gamepad),
+    JUDGING(Res.string.nav_judging, Icons.Filled.Gavel, Icons.Outlined.Gavel)
 }

@@ -21,6 +21,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
+import chimu.composeapp.generated.resources.*
+import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.stringResource
 import kotlinx.coroutines.launch
 import software.setixx.chimu.presentation.jam.details.JamDetailsTab
 
@@ -54,7 +57,7 @@ fun HomeBottomBar(
                     selected = isSelected,
                     outlinedIcon = tab.outlinedIcon,
                     filledIcon = tab.filledIcon,
-                    label = tab.label,
+                    labelRes = tab.labelRes,
                     onClick = {
                         scope.launch {
                             pagerState.animateScrollToPage(index)
@@ -72,8 +75,9 @@ private fun ToolbarTab(
     onClick: () -> Unit,
     outlinedIcon: ImageVector,
     filledIcon: ImageVector,
-    label: String
+    labelRes: StringResource
 ) {
+    val label = stringResource(labelRes)
     val backgroundColor = when {
         selected -> MaterialTheme.colorScheme.secondaryContainer
         else -> Color.Transparent

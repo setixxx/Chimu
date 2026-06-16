@@ -8,6 +8,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import chimu.composeapp.generated.resources.*
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import software.setixx.chimu.presentation.team.details.TeamDetailsViewModel
 
@@ -31,10 +33,10 @@ fun JoinTeamScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Присоединиться к команде") },
+                title = { Text(stringResource(Res.string.team_join_title)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, "Назад")
+                        Icon(Icons.Default.ArrowBack, stringResource(Res.string.back))
                     }
                 }
             )
@@ -54,14 +56,14 @@ fun JoinTeamScreen(
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     Text(
-                        "Введите токен приглашения",
+                        stringResource(Res.string.team_join_token_hint),
                         style = MaterialTheme.typography.titleMedium
                     )
 
                     OutlinedTextField(
                         value = state.inviteToken,
                         onValueChange = { viewModel.updateInviteToken(it) },
-                        label = { Text("Токен приглашения") },
+                        label = { Text(stringResource(Res.string.team_invite_title)) },
                         enabled = !state.isLoading,
                         modifier = Modifier.fillMaxWidth(),
                         leadingIcon = { Icon(Icons.Default.Key, null) },
@@ -90,24 +92,24 @@ fun JoinTeamScreen(
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            "Как это работает",
+                            stringResource(Res.string.team_how_it_works),
                             style = MaterialTheme.typography.titleSmall,
                             color = MaterialTheme.colorScheme.onSecondaryContainer
                         )
                     }
 
                     Text(
-                        "• Получите токен приглашения от лидера команды",
+                        stringResource(Res.string.team_join_step_1),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSecondaryContainer
                     )
                     Text(
-                        "• Введите токен в поле выше",
+                        stringResource(Res.string.team_join_step_2),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSecondaryContainer
                     )
                     Text(
-                        "• Нажмите кнопку присоединиться",
+                        stringResource(Res.string.team_join_step_3),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSecondaryContainer
                     )
@@ -127,7 +129,7 @@ fun JoinTeamScreen(
                     LoadingIndicator()
                     Spacer(modifier = Modifier.width(8.dp))
                 } else {
-                    Text("Присоединиться")
+                    Text(stringResource(Res.string.teams_join))
                 }
             }
         }

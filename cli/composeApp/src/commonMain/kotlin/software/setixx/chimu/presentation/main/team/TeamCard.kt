@@ -23,6 +23,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import chimu.composeapp.generated.resources.*
+import org.jetbrains.compose.resources.stringResource
 import software.setixx.chimu.domain.model.Team
 
 
@@ -55,7 +57,7 @@ fun TeamCard(
                 if (team.isLeader) {
                     Icon(
                         Icons.Default.Star,
-                        "Лидер",
+                        stringResource(Res.string.team_card_leader_desc),
                         modifier = Modifier.size(20.dp),
                         tint = MaterialTheme.colorScheme.primary
                     )
@@ -84,7 +86,7 @@ fun TeamCard(
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(
-                    text = "${team.memberCount} участников",
+                    text = stringResource(Res.string.team_card_members_count, team.memberCount),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )

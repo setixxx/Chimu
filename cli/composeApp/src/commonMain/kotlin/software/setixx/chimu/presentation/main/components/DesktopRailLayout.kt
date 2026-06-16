@@ -59,6 +59,8 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import chimu.composeapp.generated.resources.*
+import org.jetbrains.compose.resources.stringResource
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import software.setixx.chimu.presentation.main.MainState
@@ -101,10 +103,10 @@ fun DesktopRailLayout(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(selectedDestination.title) },
+                title = { Text(stringResource(selectedDestination.titleRes)) },
                 actions = {
                     IconButton(onClick = onRefresh) {
-                        Icon(Icons.Default.Refresh, "Обновить")
+                        Icon(Icons.Default.Refresh, stringResource(Res.string.main_refresh_desc))
                     }
 
                     Box {
@@ -118,7 +120,7 @@ fun DesktopRailLayout(
                             }
                         ) {
                             IconButton(onClick = { onShowNotifications(true) }) {
-                                Icon(Icons.Default.Notifications, "Уведомления")
+                                Icon(Icons.Default.Notifications, stringResource(Res.string.main_notifications_desc))
                             }
                         }
 
@@ -131,14 +133,14 @@ fun DesktopRailLayout(
                                 interactionSource = groupInteractionSource,
                             ) {
                                 Text(
-                                    text = "Уведомления",
+                                    text = stringResource(Res.string.main_notifications_title),
                                     style = MaterialTheme.typography.titleMedium,
                                     modifier = Modifier.padding(16.dp)
                                 )
 
                                 if (state.notifications.isEmpty()) {
                                     DropdownMenuItem(
-                                        text = { Text("Нет новых уведомлений") },
+                                        text = { Text(stringResource(Res.string.main_notifications_empty)) },
                                         onClick = { },
                                         enabled = false
                                     )
@@ -189,7 +191,7 @@ fun DesktopRailLayout(
                                 Box(contentAlignment = Alignment.Center) {
                                     Icon(
                                         Icons.Default.Person,
-                                        "Профиль",
+                                        stringResource(Res.string.main_profile_desc),
                                         tint = MaterialTheme.colorScheme.onPrimaryContainer
                                     )
                                 }
@@ -230,14 +232,14 @@ fun DesktopRailLayout(
                                         onShowUserMenu(false)
                                         onNavigateToProfile()
                                     },
-                                    text = { Text("Профиль") },
+                                    text = { Text(stringResource(Res.string.main_profile_button)) },
                                     leadingIcon = {
                                         Icon(Icons.Outlined.Person, contentDescription = null)
                                     },
                                     shape = MaterialTheme.shapes.medium
                                 )
                                 DropdownMenuItem(
-                                    text = { Text("Сменить пароль") },
+                                    text = { Text(stringResource(Res.string.main_change_password_button)) },
                                     onClick = {
                                         onShowUserMenu(false)
                                         onChangePasswordClick()
@@ -249,7 +251,7 @@ fun DesktopRailLayout(
                                 )
                                 DropdownMenuItem(
                                     text = {
-                                        Text("Выйти", color = MaterialTheme.colorScheme.error)
+                                        Text(stringResource(Res.string.main_logout_button), color = MaterialTheme.colorScheme.error)
                                     },
                                     onClick = {
                                         onShowUserMenu(false)
@@ -282,10 +284,13 @@ fun DesktopRailLayout(
             horizontalArrangement = Arrangement.Center
         ) {
             val headerDescription = if (railState.targetValue == WideNavigationRailValue.Expanded) {
-                "Свернуть меню"
+                stringResource(Res.string.main_menu_collapse_desc)
             } else {
-                "Развернуть меню"
+                stringResource(Res.string.main_menu_expand_desc)
             }
+
+            val expandedStr = stringResource(Res.string.main_nav_expanded)
+            val collapsedStr = stringResource(Res.string.main_nav_collapsed)
 
             WideNavigationRail(
                 state = railState,
@@ -303,9 +308,9 @@ fun DesktopRailLayout(
                                 Modifier.padding(start = 24.dp).semantics {
                                     stateDescription =
                                         if (railState.currentValue == WideNavigationRailValue.Expanded) {
-                                            "Expanded"
+                                            expandedStr
                                         } else {
-                                            "Collapsed"
+                                            collapsedStr
                                         }
                                 },
                             onClick = {
@@ -337,15 +342,15 @@ fun DesktopRailLayout(
                             if (selected){
                                 Icon(
                                     destination.selectedIcon,
-                                    destination.title
+                                    stringResource(destination.titleRes)
                                 )
                             } else {
                                 Icon(destination.unselectedIcon,
-                                    destination.title)
+                                    stringResource(destination.titleRes))
                             }
                         },
                         label = {
-                            Text(destination.title, textAlign = TextAlign.Center)
+                            Text(stringResource(destination.titleRes), textAlign = TextAlign.Center)
                         }
                     )
                 }

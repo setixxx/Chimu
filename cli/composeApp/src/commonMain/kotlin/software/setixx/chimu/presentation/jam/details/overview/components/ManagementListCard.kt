@@ -10,6 +10,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 
+import chimu.composeapp.generated.resources.*
+import org.jetbrains.compose.resources.stringResource
+
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun <T> ManagementListCard(
@@ -54,7 +57,7 @@ fun <T> ManagementListCard(
                         Spacer(modifier = Modifier.width(8.dp))
                     }
                     Text(
-                        text = "$title (${items.size})",
+                        text = stringResource(Res.string.list_title_with_count, title, items.size),
                         style = MaterialTheme.typography.titleMedium,
                     )
                 }

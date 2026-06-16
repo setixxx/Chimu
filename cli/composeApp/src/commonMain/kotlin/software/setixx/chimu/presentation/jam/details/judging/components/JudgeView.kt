@@ -11,6 +11,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import chimu.composeapp.generated.resources.*
+import org.jetbrains.compose.resources.stringResource
 import software.setixx.chimu.api.domain.UserRole
 import software.setixx.chimu.domain.model.Project
 import software.setixx.chimu.presentation.jam.details.judging.JudgingState
@@ -44,7 +46,7 @@ fun JudgeView(
         }
 
         Text(
-            text = "Проекты для оценки (${state.projects.size})",
+            text = stringResource(Res.string.judging_projects_to_rate, state.projects.size),
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold
         )
@@ -66,7 +68,7 @@ fun JudgeView(
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            "Нет проектов для оценки",
+                            stringResource(Res.string.judging_no_projects),
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )

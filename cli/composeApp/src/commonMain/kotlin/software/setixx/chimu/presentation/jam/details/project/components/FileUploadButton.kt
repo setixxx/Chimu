@@ -13,6 +13,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
+import chimu.composeapp.generated.resources.*
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun FileUploadButton(
@@ -40,7 +42,7 @@ fun FileUploadButton(
         }
         Text(label, style = MaterialTheme.typography.labelSmall)
         Text(
-            "$currentCount/$maxCount",
+            stringResource(Res.string.score_format, currentCount.toString(), maxCount.toString()),
             style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.outline
         )

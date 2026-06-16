@@ -15,6 +15,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import chimu.composeapp.generated.resources.*
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 import software.setixx.chimu.presentation.team.details.components.DeleteTeamDialog
@@ -98,25 +100,25 @@ fun TeamDetailsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(state.team?.name ?: "Команда") },
+                title = { Text(state.team?.name ?: stringResource(Res.string.team_title_default)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, "Назад")
+                        Icon(Icons.Default.ArrowBack, stringResource(Res.string.back))
                     }
                 },
                 actions = {
                     if (state.isCurrentUserLeader() && !state.isEditing) {
                         IconButton(onClick = { viewModel.showInviteDialog() }) {
-                            Icon(Icons.Default.Share, "Пригласить")
+                            Icon(Icons.Default.Share, stringResource(Res.string.team_invite_desc))
                         }
                         IconButton(onClick = { viewModel.toggleEditMode() }) {
-                            Icon(Icons.Default.Edit, "Редактировать")
+                            Icon(Icons.Default.Edit, stringResource(Res.string.edit))
                         }
                     }
 
                     if (state.isEditing) {
                         TextButton(onClick = { viewModel.toggleEditMode() }) {
-                            Text("Отмена")
+                            Text(stringResource(Res.string.cancel))
                         }
                         TextButton(
                             onClick = { viewModel.saveTeam() },
@@ -127,7 +129,7 @@ fun TeamDetailsScreen(
                                     modifier = Modifier.size(24.dp),
                                 )
                             } else {
-                                Text("Сохранить")
+                                Text(stringResource(Res.string.save))
                             }
                         }
                     }
@@ -136,7 +138,7 @@ fun TeamDetailsScreen(
                         IconButton(onClick = { viewModel.showDeleteDialog() }) {
                             Icon(
                                 Icons.Default.Delete,
-                                "Удалить команду",
+                                stringResource(Res.string.team_delete_desc),
                                 tint = MaterialTheme.colorScheme.error
                             )
                         }
@@ -144,7 +146,7 @@ fun TeamDetailsScreen(
                         IconButton(onClick = { viewModel.showLeaveDialog() }) {
                             Icon(
                                 Icons.AutoMirrored.Filled.ExitToApp,
-                                "Покинуть команду",
+                                stringResource(Res.string.team_leave_desc),
                                 tint = MaterialTheme.colorScheme.error
                             )
                         }
@@ -182,7 +184,7 @@ fun TeamDetailsScreen(
                                 verticalArrangement = Arrangement.spacedBy(16.dp)
                             ) {
                                 Text(
-                                    "Информация о команде",
+                                    stringResource(Res.string.team_info_title),
                                     style = MaterialTheme.typography.titleMedium
                                 )
 
@@ -190,7 +192,7 @@ fun TeamDetailsScreen(
                                     OutlinedTextField(
                                         value = state.editName,
                                         onValueChange = { viewModel.updateName(it) },
-                                        label = { Text("Название *") },
+                                        label = { Text(stringResource(Res.string.team_name_required_label)) },
                                         enabled = !state.isSaving,
                                         modifier = Modifier.fillMaxWidth(),
                                         isError = state.nameError != null,
@@ -206,7 +208,7 @@ fun TeamDetailsScreen(
                                     OutlinedTextField(
                                         value = state.editDescription,
                                         onValueChange = { viewModel.updateDescription(it) },
-                                        label = { Text("Описание") },
+                                        label = { Text(stringResource(Res.string.description)) },
                                         enabled = !state.isSaving,
                                         modifier = Modifier.fillMaxWidth(),
                                         minLines = 3,
@@ -216,27 +218,27 @@ fun TeamDetailsScreen(
                                 } else {
                                     InfoRow(
                                         icon = Icons.Default.Group,
-                                        label = "Название",
+                                        label = stringResource(Res.string.name),
                                         value = team.name
                                     )
 
                                     team.description?.let { desc ->
                                         InfoRow(
                                             icon = Icons.Default.Description,
-                                            label = "Описание",
+                                            label = stringResource(Res.string.description),
                                             value = desc
                                         )
                                     }
 
                                     InfoRow(
                                         icon = Icons.Default.Event,
-                                        label = "Создана",
+                                        label = stringResource(Res.string.team_created_label),
                                         value = DateTimeUtils.formatDateTime(team.createdAt)
                                     )
 
                                     InfoRow(
                                         icon = Icons.Default.Person,
-                                        label = "Участников",
+                                        label = stringResource(Res.string.team_members_count_label),
                                         value = "${team.members.size}"
                                     )
                                 }
@@ -253,7 +255,7 @@ fun TeamDetailsScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                "Участники",
+                                stringResource(Res.string.team_members_title),
                                 style = MaterialTheme.typography.titleMedium
                             )
 
@@ -270,7 +272,7 @@ fun TeamDetailsScreen(
                                         modifier = Modifier.size(18.dp)
                                     )
                                     Spacer(modifier = Modifier.width(4.dp))
-                                    Text("Моя специализация")
+                                    Text(stringResource(Res.string.team_my_specialization))
                                 }
                             }
                         }
@@ -303,7 +305,7 @@ fun TeamDetailsScreen(
                                                 Spacer(modifier = Modifier.width(8.dp))
                                                 Icon(
                                                     Icons.Default.Star,
-                                                    "Лидер",
+                                                    stringResource(Res.string.team_leader_label),
                                                     modifier = Modifier.size(16.dp),
                                                     tint = MaterialTheme.colorScheme.primary
                                                 )
@@ -313,11 +315,11 @@ fun TeamDetailsScreen(
                                     supportingContent = {
                                         Column {
                                             Text(
-                                                member.specialization?.name ?: "Специализация не выбрана",
+                                                member.specialization?.name ?: stringResource(Res.string.team_no_specialization),
                                                 style = MaterialTheme.typography.bodySmall
                                             )
                                             Text(
-                                                "Присоединился: ${DateTimeUtils.formatDateTime(member.joinedAt)}",
+                                                stringResource(Res.string.team_member_joined_at, DateTimeUtils.formatDateTime(member.joinedAt)),
                                                 style = MaterialTheme.typography.bodySmall,
                                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                                             )
@@ -345,7 +347,7 @@ fun TeamDetailsScreen(
                                             IconButton(onClick = { viewModel.showKickDialog(member) }) {
                                                 Icon(
                                                     Icons.Default.PersonRemove,
-                                                    "Исключить",
+                                                    stringResource(Res.string.team_kick_desc),
                                                     tint = MaterialTheme.colorScheme.error
                                                 )
                                             }

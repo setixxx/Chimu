@@ -11,6 +11,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import chimu.composeapp.generated.resources.*
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
@@ -40,10 +42,10 @@ fun CreateTeamScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Создать команду") },
+                title = { Text(stringResource(Res.string.team_create_title)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, "Назад")
+                        Icon(Icons.Default.ArrowBack, stringResource(Res.string.back))
                     }
                 }
             )
@@ -63,14 +65,14 @@ fun CreateTeamScreen(
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     Text(
-                        "Основная информация",
+                        stringResource(Res.string.team_section_basic_info),
                         style = MaterialTheme.typography.titleMedium
                     )
 
                     OutlinedTextField(
                         value = state.name,
                         onValueChange = { viewModel.updateName(it) },
-                        label = { Text("Название команды *") },
+                        label = { Text(stringResource(Res.string.team_name_required_label)) },
                         enabled = !state.isCreating,
                         modifier = Modifier.fillMaxWidth(),
                         isError = state.nameError != null,
@@ -86,7 +88,7 @@ fun CreateTeamScreen(
                     OutlinedTextField(
                         value = state.description,
                         onValueChange = { viewModel.updateDescription(it) },
-                        label = { Text("Описание") },
+                        label = { Text(stringResource(Res.string.description)) },
                         enabled = !state.isCreating,
                         modifier = Modifier.fillMaxWidth(),
                         minLines = 3,
@@ -116,29 +118,29 @@ fun CreateTeamScreen(
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            "Важная информация",
+                            stringResource(Res.string.team_important_info),
                             style = MaterialTheme.typography.titleSmall,
                             color = MaterialTheme.colorScheme.onSecondaryContainer
                         )
                     }
 
                     Text(
-                        "• Вы автоматически станете лидером команды",
+                        stringResource(Res.string.team_create_hint_leader),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSecondaryContainer
                     )
                     Text(
-                        "• Вы можете создать до 10 команд",
+                        stringResource(Res.string.team_create_hint_limit),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSecondaryContainer
                     )
                     Text(
-                        "• Название должно быть уникальным",
+                        stringResource(Res.string.team_create_hint_unique),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSecondaryContainer
                     )
                     Text(
-                        "• После создания вы получите токен приглашения",
+                        stringResource(Res.string.team_create_hint_token),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSecondaryContainer
                     )
@@ -157,7 +159,7 @@ fun CreateTeamScreen(
                 if (state.isCreating) {
                     LoadingIndicator()
                 } else {
-                    Text("Создать команду")
+                    Text(stringResource(Res.string.team_create_title))
                 }
             }
         }

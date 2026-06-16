@@ -18,6 +18,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import chimu.composeapp.generated.resources.*
+import org.jetbrains.compose.resources.stringResource
 import coil3.compose.LocalPlatformContext
 import coil3.compose.SubcomposeAsyncImage
 import coil3.network.NetworkHeaders
@@ -111,7 +113,7 @@ fun FullScreenImageViewer(
             ) {
                 Icon(
                     imageVector = Icons.Default.Close,
-                    contentDescription = "Закрыть"
+                    contentDescription = stringResource(Res.string.close)
                 )
             }
 
@@ -132,7 +134,7 @@ fun FullScreenImageViewer(
                         modifier = Modifier.size(ButtonDefaults.IconSize)
                     )
                     Spacer(Modifier.width(ButtonDefaults.IconSpacing))
-                    Text("Скачать")
+                    Text(stringResource(Res.string.project_download_desc))
                 }
 
                 if (canDelete) {
@@ -149,7 +151,7 @@ fun FullScreenImageViewer(
                             modifier = Modifier.size(ButtonDefaults.IconSize)
                         )
                         Spacer(Modifier.width(ButtonDefaults.IconSpacing))
-                        Text("Удалить")
+                        Text(stringResource(Res.string.delete))
                     }
                 }
             }
@@ -166,8 +168,8 @@ fun FullScreenImageViewer(
                     tint = MaterialTheme.colorScheme.error
                 )
             },
-            title = { Text("Удалить скриншот?") },
-            text = { Text("Скриншот «$fileName» будет безвозвратно удалён.") },
+            title = { Text(stringResource(Res.string.project_screenshot_delete_title)) },
+            text = { Text(stringResource(Res.string.project_screenshot_delete_message, fileName)) },
             confirmButton = {
                 Button(
                     onClick = {
@@ -177,10 +179,10 @@ fun FullScreenImageViewer(
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.error
                     )
-                ) { Text("Удалить") }
+                ) { Text(stringResource(Res.string.delete)) }
             },
             dismissButton = {
-                TextButton(onClick = { showDeleteConfirm = false }) { Text("Отмена") }
+                TextButton(onClick = { showDeleteConfirm = false }) { Text(stringResource(Res.string.cancel)) }
             }
         )
     }

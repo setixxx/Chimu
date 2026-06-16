@@ -39,6 +39,8 @@ import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import chimu.composeapp.generated.resources.*
+import org.jetbrains.compose.resources.stringResource
 import software.setixx.chimu.api.domain.UserRole
 import software.setixx.chimu.presentation.profile.roleupgrade.RoleUpgradeState
 import software.setixx.chimu.presentation.profile.roleupgrade.RoleUpgradeViewModel
@@ -63,25 +65,25 @@ fun CreateRequestContent(
                 onClick = { viewModel.hideCreateForm() },
                 enabled = !state.isSubmitting
             ) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, "Назад")
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(Res.string.back))
             }
             Text(
-                "Новая заявка",
+                stringResource(Res.string.role_upgrade_new_request),
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.SemiBold
             )
         }
 
         Text(
-            "Желаемая роль",
+            stringResource(Res.string.role_upgrade_desired_role),
             style = MaterialTheme.typography.labelLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(bottom = 8.dp)
         )
 
         val availableRoles = listOf(
-            "Организатор" to UserRole.ORGANIZER,
-            "Судья" to UserRole.JUDGE
+            stringResource(Res.string.role_upgrade_organizer) to UserRole.ORGANIZER,
+            stringResource(Res.string.role_upgrade_judge) to UserRole.JUDGE
         )
 
 
@@ -143,8 +145,8 @@ fun CreateRequestContent(
         OutlinedTextField(
             value = state.userMessage,
             onValueChange = { viewModel.updateUserMessage(it) },
-            label = { Text("Причина (необязательно)") },
-            placeholder = { Text("Расскажите, почему вы хотите получить эту роль...") },
+            label = { Text(stringResource(Res.string.role_upgrade_reason_label)) },
+            placeholder = { Text(stringResource(Res.string.role_upgrade_reason_placeholder)) },
             modifier = Modifier.fillMaxWidth(),
             minLines = 3,
             maxLines = 5,
@@ -163,7 +165,7 @@ fun CreateRequestContent(
                 onClick = { viewModel.hideCreateForm() },
                 enabled = !state.isSubmitting
             ) {
-                Text("Отмена")
+                Text(stringResource(Res.string.cancel))
             }
             Button(
                 onClick = { viewModel.submitRequest() },
@@ -182,7 +184,7 @@ fun CreateRequestContent(
                         modifier = Modifier.size(ButtonDefaults.IconSize)
                     )
                     Spacer(modifier = Modifier.width(ButtonDefaults.IconSpacing))
-                    Text("Отправить")
+                    Text(stringResource(Res.string.role_upgrade_send_button))
                 }
             }
         }

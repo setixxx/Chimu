@@ -20,6 +20,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import chimu.composeapp.generated.resources.*
+import org.jetbrains.compose.resources.stringResource
 import software.setixx.chimu.domain.model.Project
 import software.setixx.chimu.presentation.utils.DateTimeUtils
 
@@ -60,7 +62,7 @@ fun ProjectInfoCard(project: Project) {
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
-                        "Подан: ${DateTimeUtils.formatDateTime(date)}",
+                        stringResource(Res.string.project_submitted_at, DateTimeUtils.formatDateTime(date)),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )

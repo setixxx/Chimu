@@ -13,6 +13,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import chimu.composeapp.generated.resources.*
+import org.jetbrains.compose.resources.stringResource
 import software.setixx.chimu.api.domain.UserRole
 import software.setixx.chimu.presentation.profile.roleupgrade.components.AdminContent
 import software.setixx.chimu.presentation.profile.roleupgrade.components.CreateRequestContent
@@ -92,8 +94,9 @@ fun RoleUpgradeDialog(
     }
 }
 
+@Composable
 fun String.toRoleDisplayName(): String = when (this) {
-    "ORGANIZER" -> "Организатор"
-    "JUDGE" -> "Судья"
+    "ORGANIZER" -> stringResource(Res.string.role_upgrade_organizer)
+    "JUDGE" -> stringResource(Res.string.role_upgrade_judge)
     else -> this
 }

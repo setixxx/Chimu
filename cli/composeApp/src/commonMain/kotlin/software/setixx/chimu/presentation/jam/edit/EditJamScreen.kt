@@ -13,6 +13,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import chimu.composeapp.generated.resources.*
+import org.jetbrains.compose.resources.stringResource
 import coil3.compose.AsyncImage
 import coil3.compose.LocalPlatformContext
 import coil3.request.ImageRequest
@@ -55,10 +57,10 @@ fun EditJamScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Редактировать джем") },
+                title = { Text(stringResource(Res.string.jam_edit_title)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, "Назад")
+                        Icon(Icons.Default.ArrowBack, stringResource(Res.string.back))
                     }
                 }
             )
@@ -80,11 +82,11 @@ fun EditJamScreen(
                 verticalArrangement = Arrangement.spacedBy(24.dp)
             ) {
 
-                JamSection(title = "Основная информация") {
+                JamSection(title = stringResource(Res.string.jam_section_basic_info)) {
                     OutlinedTextField(
                         value = state.name,
                         onValueChange = { viewModel.onNameChange(it) },
-                        label = { Text("Название *") },
+                        label = { Text(stringResource(Res.string.jam_name_label)) },
                         modifier = Modifier.fillMaxWidth(),
                         isError = state.nameError != null,
                         supportingText = state.nameError?.let { { Text(it) } }
@@ -93,7 +95,7 @@ fun EditJamScreen(
                     OutlinedTextField(
                         value = state.description,
                         onValueChange = { viewModel.onDescriptionChange(it) },
-                        label = { Text("Описание") },
+                        label = { Text(stringResource(Res.string.description)) },
                         modifier = Modifier.fillMaxWidth(),
                         minLines = 3
                     )
@@ -101,53 +103,53 @@ fun EditJamScreen(
                     OutlinedTextField(
                         value = state.theme,
                         onValueChange = { viewModel.onThemeChange(it) },
-                        label = { Text("Тема") },
+                        label = { Text(stringResource(Res.string.jam)) },
                         modifier = Modifier.fillMaxWidth()
                     )
 
                     OutlinedTextField(
                         value = state.rules,
                         onValueChange = { viewModel.onRulesChange(it) },
-                        label = { Text("Правила") },
+                        label = { Text(stringResource(Res.string.rules)) },
                         modifier = Modifier.fillMaxWidth(),
                         minLines = 3
                     )
                 }
 
-                JamSection(title = "Даты проведения") {
+                JamSection(title = stringResource(Res.string.jam_section_dates)) {
                     DateTimePickerField(
-                        label = "Начало регистрации",
+                        label = stringResource(Res.string.jam_date_reg_start),
                         value = state.registrationStart,
                         onValueChange = { viewModel.onRegistrationStartChange(it) }
                     )
                     DateTimePickerField(
-                        label = "Конец регистрации",
+                        label = stringResource(Res.string.jam_date_reg_end),
                         value = state.registrationEnd,
                         onValueChange = { viewModel.onRegistrationEndChange(it) }
                     )
                     DateTimePickerField(
-                        label = "Начало джема",
+                        label = stringResource(Res.string.jam_date_jam_start),
                         value = state.jamStart,
                         onValueChange = { viewModel.onJamStartChange(it) }
                     )
                     DateTimePickerField(
-                        label = "Конец джема",
+                        label = stringResource(Res.string.jam_date_jam_end),
                         value = state.jamEnd,
                         onValueChange = { viewModel.onJamEndChange(it) }
                     )
                     DateTimePickerField(
-                        label = "Начало оценивания",
+                        label = stringResource(Res.string.jam_date_judging_start),
                         value = state.judgingStart,
                         onValueChange = { viewModel.onJudgingStartChange(it) }
                     )
                     DateTimePickerField(
-                        label = "Конец оценивания",
+                        label = stringResource(Res.string.jam_date_judging_end),
                         value = state.judgingEnd,
                         onValueChange = { viewModel.onJudgingEndChange(it) }
                     )
                 }
 
-                JamSection(title = "Настройки команд") {
+                JamSection(title = stringResource(Res.string.jam_section_teams)) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(16.dp)
@@ -155,13 +157,13 @@ fun EditJamScreen(
                         OutlinedTextField(
                             value = state.minTeamSize,
                             onValueChange = { viewModel.onMinTeamSizeChange(it) },
-                            label = { Text("Мин.") },
+                            label = { Text(stringResource(Res.string.jam_min_size_label)) },
                             modifier = Modifier.weight(1f)
                         )
                         OutlinedTextField(
                             value = state.maxTeamSize,
                             onValueChange = { viewModel.onMaxTeamSizeChange(it) },
-                            label = { Text("Макс.") },
+                            label = { Text(stringResource(Res.string.jam_max_size_label)) },
                             modifier = Modifier.weight(1f)
                         )
                     }
@@ -175,7 +177,7 @@ fun EditJamScreen(
                     if (state.isUpdating) {
                         CircularProgressIndicator(modifier = Modifier.size(24.dp))
                     } else {
-                        Text("Сохранить изменения")
+                        Text(stringResource(Res.string.jam_save_changes_button))
                     }
                 }
                 

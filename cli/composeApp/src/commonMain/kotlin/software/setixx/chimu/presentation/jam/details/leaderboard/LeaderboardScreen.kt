@@ -17,6 +17,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import chimu.composeapp.generated.resources.*
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import software.setixx.chimu.api.domain.GameJamStatus
 import software.setixx.chimu.domain.model.CriteriaScoreDetail
@@ -56,7 +58,7 @@ fun LeaderboardScreen(
             Text(
                 modifier = Modifier
                     .align(Alignment.Center),
-                text = "Джем еще не окончен. Дождитесь окончания",
+                text = stringResource(Res.string.leaderboard_not_finished),
                 textAlign = TextAlign.Center
             )
         } else {
@@ -82,7 +84,7 @@ fun LeaderboardScreen(
                                 contentAlignment = Alignment.Center
                             ) {
                                 Text(
-                                    "Таблица лидеров ещё не сформирована",
+                                    stringResource(Res.string.leaderboard_not_formed),
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
@@ -125,13 +127,13 @@ private fun CompletionBanner(
             )
             Column {
                 Text(
-                    if (isCompleted) "Джем завершён!" else "Джем еще не окончен",
+                    if (isCompleted) stringResource(Res.string.leaderboard_jam_completed) else stringResource(Res.string.leaderboard_jam_not_completed),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onPrimaryContainer
                 )
                 Text(
-                    if (isCompleted) "Оценивание окончено — ниже итоговые результаты." else "Ниже предварительный результаты",
+                    if (isCompleted) stringResource(Res.string.leaderboard_results_final) else stringResource(Res.string.leaderboard_results_preliminary),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onPrimaryContainer
                 )
@@ -157,19 +159,19 @@ private fun LeaderboardSection(leaderboard: Leaderboard) {
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    "Таблица лидеров",
+                    stringResource(Res.string.leaderboard_title),
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold
                 )
             }
             Column(horizontalAlignment = Alignment.End) {
                 Text(
-                    "${leaderboard.qualifiedProjects} / ${leaderboard.totalProjects} проектов",
+                    stringResource(Res.string.leaderboard_projects_count, leaderboard.qualifiedProjects, leaderboard.totalProjects),
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Text(
-                    "${leaderboard.totalJudges} судей",
+                    stringResource(Res.string.leaderboard_judges_count, leaderboard.totalJudges),
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -185,7 +187,7 @@ private fun LeaderboardSection(leaderboard: Leaderboard) {
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        "Нет оценённых проектов",
+                        stringResource(Res.string.leaderboard_no_rated_projects),
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
@@ -244,7 +246,7 @@ private fun RankingCard(ranking: ProjectRanking) {
                         )
                     } else {
                         Text(
-                            "#${ranking.rank}",
+                            stringResource(Res.string.rank_format, ranking.rank),
                             style = MaterialTheme.typography.titleSmall,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -281,7 +283,7 @@ private fun RankingCard(ranking: ProjectRanking) {
                             MaterialTheme.colorScheme.outline
                         Icon(icon, null, modifier = Modifier.size(12.dp), tint = tint)
                         Text(
-                            "${ranking.score.judgesRated}/${ranking.score.totalJudges} судей",
+                            stringResource(Res.string.leaderboard_projects_count, ranking.score.judgesRated, ranking.score.totalJudges),
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -297,7 +299,7 @@ private fun RankingCard(ranking: ProjectRanking) {
                             ?: MaterialTheme.colorScheme.primary
                     )
                     Text(
-                        "баллов",
+                        stringResource(Res.string.leaderboard_points_label),
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -350,7 +352,7 @@ private fun RankingCard(ranking: ProjectRanking) {
 
                     if (ranking.score.breakdown.isNotEmpty()) {
                         Text(
-                            "Оценки по критериям",
+                            stringResource(Res.string.judging_criteria_ratings_title),
                             style = MaterialTheme.typography.labelMedium,
                             fontWeight = FontWeight.SemiBold
                         )
@@ -361,7 +363,7 @@ private fun RankingCard(ranking: ProjectRanking) {
 
                     ranking.project.submittedAt?.let { date ->
                         Text(
-                            "Подан: ${DateTimeUtils.formatDateTime(date)}",
+                            stringResource(Res.string.leaderboard_submitted_at, DateTimeUtils.formatDateTime(date)),
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -397,7 +399,7 @@ private fun CriteriaBreakdownRow(detail: CriteriaScoreDetail) {
                     shape = MaterialTheme.shapes.extraSmall
                 ) {
                     Text(
-                        "×${detail.weight}",
+                        stringResource(Res.string.leaderboard_weight_label, detail.weight),
                         style = MaterialTheme.typography.labelSmall,
                         modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp),
                         color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -407,13 +409,13 @@ private fun CriteriaBreakdownRow(detail: CriteriaScoreDetail) {
             Spacer(modifier = Modifier.width(8.dp))
             Column(horizontalAlignment = Alignment.End) {
                 Text(
-                    "${detail.averageScore} / ${detail.maxScore}",
+                    stringResource(Res.string.score_format, detail.averageScore, detail.maxScore),
                     style = MaterialTheme.typography.labelMedium,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary
                 )
                 Text(
-                    "взвеш.: ${detail.weightedScore}",
+                    stringResource(Res.string.leaderboard_weighted_score_label, detail.weightedScore),
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -425,7 +427,7 @@ private fun CriteriaBreakdownRow(detail: CriteriaScoreDetail) {
         )
         if (detail.scores.isNotEmpty()) {
             Text(
-                "Оценки судей: ${detail.scores.joinToString(", ")}",
+                stringResource(Res.string.leaderboard_judges_scores_label, detail.scores.joinToString(stringResource(Res.string.list_separator))),
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -449,7 +451,7 @@ private fun AdminStatisticsSection(statistics: JamStatistics) {
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    "Статистика джема",
+                    stringResource(Res.string.leaderboard_stats_title),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
@@ -459,17 +461,17 @@ private fun AdminStatisticsSection(statistics: JamStatistics) {
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                StatBadge("Проектов", statistics.totalProjects.toString())
-                StatBadge("Подано", statistics.submittedProjects.toString())
-                StatBadge("Дисквал.", statistics.disqualifiedProjects.toString(),
+                StatBadge(stringResource(Res.string.leaderboard_stat_projects), statistics.totalProjects.toString())
+                StatBadge(stringResource(Res.string.leaderboard_stat_submitted), statistics.submittedProjects.toString())
+                StatBadge(stringResource(Res.string.leaderboard_stat_disqualified), statistics.disqualifiedProjects.toString(),
                     isWarning = statistics.disqualifiedProjects > 0)
-                StatBadge("Судей", statistics.totalJudges.toString())
+                StatBadge(stringResource(Res.string.leaderboard_stat_judges), statistics.totalJudges.toString())
             }
 
             if (statistics.averageScoresPerCriteria.isNotEmpty()) {
                 HorizontalDivider()
                 Text(
-                    "Средние оценки по критериям",
+                    stringResource(Res.string.leaderboard_average_scores_title),
                     style = MaterialTheme.typography.labelLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -483,7 +485,7 @@ private fun AdminStatisticsSection(statistics: JamStatistics) {
                         ) {
                             Text(crit.criteriaName, style = MaterialTheme.typography.bodySmall)
                             Text(
-                                "${crit.averageScore} / ${crit.maxScore}",
+                                stringResource(Res.string.score_format, crit.averageScore, crit.maxScore),
                                 style = MaterialTheme.typography.labelMedium,
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.primary
@@ -500,7 +502,7 @@ private fun AdminStatisticsSection(statistics: JamStatistics) {
             if (statistics.judgeCompletionRate.isNotEmpty()) {
                 HorizontalDivider()
                 Text(
-                    "Завершённость судей",
+                    stringResource(Res.string.leaderboard_judge_completion_title),
                     style = MaterialTheme.typography.labelLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -516,7 +518,7 @@ private fun AdminStatisticsSection(statistics: JamStatistics) {
                                 style = MaterialTheme.typography.bodySmall
                             )
                             Text(
-                                "${judge.ratedProjects}/${judge.totalProjects} проектов",
+                                stringResource(Res.string.leaderboard_projects_count, judge.ratedProjects, judge.totalProjects),
                                 style = MaterialTheme.typography.labelSmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -530,7 +532,7 @@ private fun AdminStatisticsSection(statistics: JamStatistics) {
                             shape = MaterialTheme.shapes.small
                         ) {
                             Text(
-                                "${judge.completionPercentage}%",
+                                stringResource(Res.string.percentage_format, judge.completionPercentage),
                                 style = MaterialTheme.typography.labelMedium,
                                 fontWeight = FontWeight.Bold,
                                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)

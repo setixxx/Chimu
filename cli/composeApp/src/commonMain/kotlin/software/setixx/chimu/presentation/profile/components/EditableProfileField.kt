@@ -5,6 +5,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import chimu.composeapp.generated.resources.*
+import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -59,7 +61,7 @@ fun EditableProfileField(
             content = { Text(label) },
             supportingContent = {
                 Text(
-                    text = value.ifBlank { "Не указано" },
+                    text = value.ifBlank { stringResource(Res.string.profile_not_specified) },
                     color = if (value.isBlank()) MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
                     else MaterialTheme.colorScheme.onSurfaceVariant
                 )

@@ -9,6 +9,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import chimu.composeapp.generated.resources.*
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import software.setixx.chimu.api.domain.ProjectStatus
 import software.setixx.chimu.api.domain.UserRole
@@ -38,18 +40,18 @@ fun ProjectDetailsScreen(
     }
 
     val project = state.userProject
-    val isDisqualified = project?.status == ProjectStatus.DISQUALIFIED.name
+    val isDisqualified = project?.status == ProjectStatus.DISQUALIFIED
     var showDisqualifyConfirm by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(project?.title ?: "Проект") },
+                title = { Text(project?.title ?: stringResource(Res.string.project_label)) },
                 navigationIcon = {
                     FilledTonalIconButton(
                         onClick = onBack
                     ) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Назад")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(Res.string.back))
                     }
                 },
                 actions = {
@@ -115,9 +117,9 @@ fun ProjectDetailsScreen(
                     tint = MaterialTheme.colorScheme.error
                 )
             },
-            title = { Text("Дисквалифицировать проект?") },
+            title = { Text(stringResource(Res.string.project_disqualify_title)) },
             text = {
-                Text("Проект будет дисквалифицирован и исключён из оценивания. Это действие необратимо.")
+                Text(stringResource(Res.string.project_disqualify_message))
             },
             confirmButton = {
                 Button(
@@ -128,20 +130,19 @@ fun ProjectDetailsScreen(
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.error
                     )
-                ) { Text("Дисквалифицировать") }
+                ) { Text(stringResource(Res.string.project_disqualify_button)) }
             },
             dismissButton = {
-                TextButton(onClick = { showDisqualifyConfirm = false }) { Text("Отмена") }
+                TextButton(onClick = { showDisqualifyConfirm = false }) { Text(stringResource(Res.string.cancel)) }
             }
         )
     }
 }
 
-
-
+@Composable
 fun formatFileSize(bytes: Long): String = when {
-    bytes < 1024L -> "$bytes Б"
-    bytes < 1_048_576L -> "${bytes / 1024} КБ"
-    bytes < 1_073_741_824L -> "${bytes / 1_048_576} МБ"
-    else -> "${bytes / 1_073_741_824} ГБ"
+    bytes < 1024L -> stringResource(Res.string.file_size_b, bytes)
+    bytes < 1_048_576L -> stringResource(Res.string.file_size_kb, bytes / 1024)
+    bytes < 1_073_741_824L -> stringResource(Res.string.file_size_mb, bytes / 1_048_576)
+    else -> stringResource(Res.string.file_size_gb, bytes / 1_073_741_824)
 }

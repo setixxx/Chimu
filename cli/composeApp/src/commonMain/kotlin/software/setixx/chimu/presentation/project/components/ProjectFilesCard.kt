@@ -15,6 +15,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import chimu.composeapp.generated.resources.*
+import org.jetbrains.compose.resources.stringResource
 import software.setixx.chimu.domain.model.ProjectFile
 import software.setixx.chimu.presentation.jam.details.overview.components.ManagementListCard
 import software.setixx.chimu.presentation.project.formatFileSize
@@ -36,8 +38,8 @@ fun ProjectFilesCard(
         title = title,
         titleIcon = icon,
         items = files,
-        emptyText = "Файлы не загружены",
-        buttonText = if (canUpload && files.size < 5 && !isReadOnly) "Загрузить" else null,
+        emptyText = stringResource(Res.string.project_files_empty),
+        buttonText = if (canUpload && files.size < 5 && !isReadOnly) stringResource(Res.string.project_upload_button) else null,
         buttonIcon = if (canUpload && files.size < 5 && !isReadOnly) Icons.Default.Add else null,
         onButtonClick = onUpload,
         onItemClick = { onDownload(it.id) },
@@ -60,7 +62,7 @@ fun ProjectFilesCard(
                 IconButton(onClick = { onDownload(it.id) }) {
                     Icon(
                         Icons.Default.Download,
-                        contentDescription = "Скачать",
+                        contentDescription = stringResource(Res.string.project_download_desc),
                         tint = MaterialTheme.colorScheme.primary
                     )
                 }
@@ -68,7 +70,7 @@ fun ProjectFilesCard(
                     IconButton(onClick = { onDelete(it.id) }) {
                         Icon(
                             Icons.Default.Delete,
-                            contentDescription = "Удалить",
+                            contentDescription = stringResource(Res.string.project_delete_desc),
                             tint = MaterialTheme.colorScheme.error
                         )
                     }

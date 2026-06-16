@@ -14,6 +14,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.unit.dp
+import chimu.composeapp.generated.resources.*
+import org.jetbrains.compose.resources.stringResource
 
 /**
  * Expandable list item with animated chevron.
@@ -55,7 +57,7 @@ fun SegmentedListItemWithExpansion(
                     trailingContent?.invoke()
                     Icon(
                         Icons.Default.ExpandMore,
-                        contentDescription = if (expanded) "Свернуть" else "Развернуть",
+                        contentDescription = if (expanded) stringResource(Res.string.collapse) else stringResource(Res.string.expand),
                         modifier = Modifier
                             .size(24.dp)
                             .rotate(rotation),

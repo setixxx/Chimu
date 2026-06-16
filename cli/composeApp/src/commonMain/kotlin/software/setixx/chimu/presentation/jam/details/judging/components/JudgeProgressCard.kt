@@ -21,6 +21,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import chimu.composeapp.generated.resources.*
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun JudgeProgressCard(ratedProjects: Int, totalProjects: Int) {
@@ -48,13 +50,13 @@ fun JudgeProgressCard(ratedProjects: Int, totalProjects: Int) {
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        "Мой прогресс",
+                        stringResource(Res.string.judging_my_progress),
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.Bold
                     )
                 }
                 Text(
-                    "$ratedProjects / $totalProjects",
+                    stringResource(Res.string.score_format, ratedProjects.toString(), totalProjects.toString()),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary
@@ -66,9 +68,9 @@ fun JudgeProgressCard(ratedProjects: Int, totalProjects: Int) {
             )
             Text(
                 if (ratedProjects == totalProjects && totalProjects > 0)
-                    "Все проекты оценены ✓"
+                    stringResource(Res.string.judging_all_projects_rated)
                 else
-                    "Осталось оценить: ${totalProjects - ratedProjects}",
+                    stringResource(Res.string.judging_remaining_to_rate, totalProjects - ratedProjects),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onPrimaryContainer
             )

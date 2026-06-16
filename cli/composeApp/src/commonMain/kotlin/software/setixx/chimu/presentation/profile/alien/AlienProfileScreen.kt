@@ -12,6 +12,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import chimu.composeapp.generated.resources.*
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 import software.setixx.chimu.presentation.profile.components.EditableProfileField
@@ -40,10 +42,10 @@ fun UserProfileScreen(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
-                title = { Text("Профиль") },
+                title = { Text(stringResource(Res.string.profile_title)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, "Назад")
+                        Icon(Icons.Default.ArrowBack, stringResource(Res.string.back))
                     }
                 }
             )
@@ -76,7 +78,7 @@ fun UserProfileScreen(
                         if (profile.isDeleted) {
                             Spacer(modifier = Modifier.height(32.dp))
                             Text(
-                                text = "Аккаунт удалён",
+                                text = stringResource(Res.string.profile_account_deleted),
                                 style = MaterialTheme.typography.titleLarge,
                                 color = MaterialTheme.colorScheme.primary
                             )
@@ -90,7 +92,7 @@ fun UserProfileScreen(
                                 EditableProfileField(
                                     value = profile.firstName ?: "",
                                     onValueChange = {},
-                                    label = "Имя",
+                                    label = stringResource(Res.string.profile_first_name_label),
                                     leadingIcon = Icons.Default.Person,
                                     isEditing = false,
                                     itemIndex = 0,
@@ -100,7 +102,7 @@ fun UserProfileScreen(
                                 EditableProfileField(
                                     value = profile.lastName ?: "",
                                     onValueChange = {},
-                                    label = "Фамилия",
+                                    label = stringResource(Res.string.profile_last_name_label),
                                     leadingIcon = Icons.Default.Person,
                                     isEditing = false,
                                     itemIndex = 1,
@@ -110,7 +112,7 @@ fun UserProfileScreen(
                                 EditableProfileField(
                                     value = profile.bio ?: "",
                                     onValueChange = {},
-                                    label = "О себе",
+                                    label = stringResource(Res.string.profile_bio_label),
                                     leadingIcon = Icons.Default.Info,
                                     isEditing = false,
                                     minLines = 3,
@@ -121,7 +123,7 @@ fun UserProfileScreen(
                                 EditableProfileField(
                                     value = profile.specialization?.name ?: "",
                                     onValueChange = {},
-                                    label = "Специализация",
+                                    label = stringResource(Res.string.profile_specialization_label),
                                     leadingIcon = Icons.Default.Work,
                                     isEditing = false,
                                     itemIndex = 3,
@@ -131,7 +133,7 @@ fun UserProfileScreen(
                                 EditableProfileField(
                                     value = profile.githubUrl ?: "",
                                     onValueChange = {},
-                                    label = "GitHub",
+                                    label = stringResource(Res.string.profile_github_label),
                                     leadingIcon = Icons.Default.Code,
                                     isEditing = false,
                                     placeholder = "https://github.com/username",
@@ -149,7 +151,7 @@ fun UserProfileScreen(
 
                         profile.createdAt?.let {
                             Text(
-                                text = "Зарегистрирован: ${DateTimeUtils.formatDateTime(it)}",
+                                text = stringResource(Res.string.profile_registered_at, DateTimeUtils.formatDateTime(it)),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 textAlign = TextAlign.Center
@@ -158,7 +160,7 @@ fun UserProfileScreen(
                     }
                 } ?: run {
                     Text(
-                        text = state.errorMessage ?: "Не удалось загрузить профиль",
+                        text = state.errorMessage ?: stringResource(Res.string.profile_load_error),
                         color = MaterialTheme.colorScheme.error,
                         modifier = Modifier.padding(24.dp)
                     )

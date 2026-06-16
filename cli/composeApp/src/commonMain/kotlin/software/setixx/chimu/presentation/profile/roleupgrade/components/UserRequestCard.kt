@@ -23,6 +23,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import chimu.composeapp.generated.resources.*
+import org.jetbrains.compose.resources.stringResource
 import software.setixx.chimu.api.domain.RoleRequestStatus
 import software.setixx.chimu.domain.model.RoleUpgrade
 import software.setixx.chimu.presentation.profile.roleupgrade.RoleUpgradeViewModel
@@ -121,7 +123,7 @@ fun UserRequestCard(
                             contentColor = MaterialTheme.colorScheme.error
                         )
                     ) {
-                        Text("Отменить")
+                        Text(stringResource(Res.string.role_upgrade_cancel))
                     }
                 }
             }

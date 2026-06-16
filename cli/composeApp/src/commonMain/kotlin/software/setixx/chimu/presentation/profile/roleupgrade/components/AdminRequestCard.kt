@@ -31,6 +31,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import chimu.composeapp.generated.resources.*
+import org.jetbrains.compose.resources.stringResource
 import software.setixx.chimu.api.domain.RoleRequestStatus
 import software.setixx.chimu.domain.model.RoleUpgrade
 import software.setixx.chimu.presentation.profile.roleupgrade.RoleUpgradeState
@@ -128,7 +130,7 @@ fun AdminRequestCard(
                 )
                 if (isPending && !isExpanded) {
                     Text(
-                        "Нажмите для рассмотрения",
+                        stringResource(Res.string.role_upgrade_review_hint),
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.primary
                     )
@@ -141,8 +143,8 @@ fun AdminRequestCard(
                 OutlinedTextField(
                     value = state.adminMessage,
                     onValueChange = { viewModel.updateAdminMessage(it) },
-                    label = { Text("Комментарий (необязательно)") },
-                    placeholder = { Text("Поясните решение...") },
+                    label = { Text(stringResource(Res.string.role_upgrade_comment_label)) },
+                    placeholder = { Text(stringResource(Res.string.role_upgrade_comment_placeholder)) },
                     modifier = Modifier.fillMaxWidth(),
                     minLines = 2,
                     maxLines = 3,
@@ -175,7 +177,7 @@ fun AdminRequestCard(
                                 modifier = Modifier.size(ButtonDefaults.IconSize)
                             )
                             Spacer(modifier = Modifier.width(ButtonDefaults.IconSpacing))
-                            Text("Отклонить")
+                            Text(stringResource(Res.string.role_upgrade_reject))
                         }
                     }
                     Button(
@@ -195,7 +197,7 @@ fun AdminRequestCard(
                                 modifier = Modifier.size(ButtonDefaults.IconSize)
                             )
                             Spacer(modifier = Modifier.width(ButtonDefaults.IconSpacing))
-                            Text("Одобрить")
+                            Text(stringResource(Res.string.role_upgrade_approve))
                         }
                     }
                 }

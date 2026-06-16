@@ -12,6 +12,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import chimu.composeapp.generated.resources.*
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import software.setixx.chimu.api.domain.UserRole
 import software.setixx.chimu.presentation.jam.create.components.DateTimePickerField
@@ -45,10 +47,10 @@ fun CreateJamScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Создать Game Jam") },
+                title = { Text(stringResource(Res.string.jam_create_title)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, "Назад")
+                        Icon(Icons.Default.ArrowBack, stringResource(Res.string.back))
                     }
                 }
             )
@@ -62,7 +64,7 @@ fun CreateJamScreen(
                     .padding(paddingValues),
                 contentAlignment = androidx.compose.ui.Alignment.Center
             ) {
-                Text("У вас нет прав для создания Game Jam", style = MaterialTheme.typography.titleLarge)
+                Text(stringResource(Res.string.jam_create_no_permission), style = MaterialTheme.typography.titleLarge)
             }
         } else {
             Column(
@@ -73,11 +75,11 @@ fun CreateJamScreen(
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(24.dp)
             ) {
-                JamSection(title = "Основная информация") {
+                JamSection(title = stringResource(Res.string.jam_section_basic_info)) {
                     OutlinedTextField(
                         value = state.name,
                         onValueChange = { viewModel.onNameChange(it) },
-                        label = { Text("Название *") },
+                        label = { Text(stringResource(Res.string.jam_name_label)) },
                         modifier = Modifier.fillMaxWidth(),
                         isError = state.nameError != null,
                         supportingText = state.nameError?.let { { Text(it) } },
@@ -92,7 +94,7 @@ fun CreateJamScreen(
                     OutlinedTextField(
                         value = state.description,
                         onValueChange = { viewModel.onDescriptionChange(it) },
-                        label = { Text("Описание *") },
+                        label = { Text(stringResource(Res.string.jam_description_label)) },
                         modifier = Modifier.fillMaxWidth(),
                         minLines = 3,
                         keyboardOptions = KeyboardOptions(
@@ -105,7 +107,7 @@ fun CreateJamScreen(
                     OutlinedTextField(
                         value = state.theme,
                         onValueChange = { viewModel.onThemeChange(it) },
-                        label = { Text("Тема *") },
+                        label = { Text(stringResource(Res.string.jam_theme_label)) },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(
@@ -118,7 +120,7 @@ fun CreateJamScreen(
                     OutlinedTextField(
                         value = state.rules,
                         onValueChange = { viewModel.onRulesChange(it) },
-                        label = { Text("Правила *") },
+                        label = { Text(stringResource(Res.string.jam_rules_label)) },
                         modifier = Modifier.fillMaxWidth(),
                         minLines = 3,
                         keyboardOptions = KeyboardOptions(
@@ -129,7 +131,7 @@ fun CreateJamScreen(
                     )
                 }
 
-                JamSection(title = "Даты проведения") {
+                JamSection(title = stringResource(Res.string.jam_section_dates)) {
                     if (state.dateError != null) {
                         Text(
                             text = state.dateError!!,
@@ -139,43 +141,43 @@ fun CreateJamScreen(
                     }
 
                     DateTimePickerField(
-                        label = "Начало регистрации *",
+                        label = stringResource(Res.string.jam_date_reg_start),
                         value = state.registrationStart,
                         onValueChange = { viewModel.onRegistrationStartChange(it) }
                     )
 
                     DateTimePickerField(
-                        label = "Конец регистрации *",
+                        label = stringResource(Res.string.jam_date_reg_end),
                         value = state.registrationEnd,
                         onValueChange = { viewModel.onRegistrationEndChange(it) }
                     )
 
                     DateTimePickerField(
-                        label = "Начало джема *",
+                        label = stringResource(Res.string.jam_date_jam_start),
                         value = state.jamStart,
                         onValueChange = { viewModel.onJamStartChange(it) }
                     )
 
                     DateTimePickerField(
-                        label = "Конец джема *",
+                        label = stringResource(Res.string.jam_date_jam_end),
                         value = state.jamEnd,
                         onValueChange = { viewModel.onJamEndChange(it) }
                     )
 
                     DateTimePickerField(
-                        label = "Начало оценивания *",
+                        label = stringResource(Res.string.jam_date_judging_start),
                         value = state.judgingStart,
                         onValueChange = { viewModel.onJudgingStartChange(it) }
                     )
 
                     DateTimePickerField(
-                        label = "Конец оценивания *",
+                        label = stringResource(Res.string.jam_date_judging_end),
                         value = state.judgingEnd,
                         onValueChange = { viewModel.onJudgingEndChange(it) }
                     )
                 }
 
-                JamSection(title = "Настройки команд") {
+                JamSection(title = stringResource(Res.string.jam_section_teams)) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(16.dp)
@@ -183,7 +185,7 @@ fun CreateJamScreen(
                         OutlinedTextField(
                             value = state.minTeamSize,
                             onValueChange = { viewModel.onMinTeamSizeChange(it) },
-                            label = { Text("Мин. участников") },
+                            label = { Text(stringResource(Res.string.jam_min_team_size)) },
                             modifier = Modifier.weight(1f),
                             isError = state.teamSizeError != null,
                             singleLine = true,
@@ -197,7 +199,7 @@ fun CreateJamScreen(
                         OutlinedTextField(
                             value = state.maxTeamSize,
                             onValueChange = { viewModel.onMaxTeamSizeChange(it) },
-                            label = { Text("Макс. участников") },
+                            label = { Text(stringResource(Res.string.jam_max_team_size)) },
                             modifier = Modifier.weight(1f),
                             isError = state.teamSizeError != null,
                             singleLine = true,
@@ -230,7 +232,7 @@ fun CreateJamScreen(
                             color = MaterialTheme.colorScheme.onPrimary
                         )
                     } else {
-                        Text("Создать джем")
+                        Text(stringResource(Res.string.jam_create_button))
                     }
                 }
                 

@@ -23,6 +23,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import chimu.composeapp.generated.resources.*
+import org.jetbrains.compose.resources.stringResource
 import software.setixx.chimu.domain.model.Specialization
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
@@ -37,11 +39,11 @@ fun SpecializationDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         icon = { Icon(Icons.Default.Work, null) },
-        title = { Text("Выбрать специализацию") },
+        title = { Text(stringResource(Res.string.team_specialization_title)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(
-                    "Выберите вашу роль в команде:",
+                    stringResource(Res.string.team_specialization_message),
                     style = MaterialTheme.typography.bodyMedium
                 )
 
@@ -52,7 +54,7 @@ fun SpecializationDialog(
                     onExpandedChange = { expanded = it }
                 ) {
                     OutlinedTextField(
-                        value = selectedSpecialization?.name ?: "Не выбрано",
+                        value = selectedSpecialization?.name ?: stringResource(Res.string.profile_not_selected),
                         onValueChange = {},
                         readOnly = true,
                         trailingIcon = {
@@ -69,7 +71,7 @@ fun SpecializationDialog(
                         onDismissRequest = { expanded = false }
                     ) {
                         DropdownMenuItem(
-                            text = { Text("Не выбрано") },
+                            text = { Text(stringResource(Res.string.profile_not_selected)) },
                             onClick = {
                                 onSpecializationChange(null)
                                 expanded = false
@@ -102,12 +104,12 @@ fun SpecializationDialog(
         },
         confirmButton = {
             TextButton(onClick = onConfirm) {
-                Text("Сохранить")
+                Text(stringResource(Res.string.save))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Отмена")
+                Text(stringResource(Res.string.cancel))
             }
         }
     )

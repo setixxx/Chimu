@@ -20,6 +20,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import chimu.composeapp.generated.resources.*
+import org.jetbrains.compose.resources.stringResource
 import software.setixx.chimu.api.domain.TransferStatus
 import software.setixx.chimu.domain.model.JamTransfer
 import software.setixx.chimu.domain.model.PublicUserProfile
@@ -95,10 +97,10 @@ fun CreateContent(
     ) {
         DialogIcon(Icons.Default.SwapHoriz, MaterialTheme.colorScheme.secondary)
         Spacer(Modifier.height(12.dp))
-        DialogTitle("Передать джем")
+        DialogTitle(stringResource(Res.string.transfer_title))
         Spacer(Modifier.height(8.dp))
         Text(
-            text = "Введите никнейм пользователя, которому хотите передать права организатора.",
+            text = stringResource(Res.string.transfer_description),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center
@@ -108,7 +110,7 @@ fun CreateContent(
         OutlinedTextField(
             value = state.transferRecipientQuery,
             onValueChange = onQueryChange,
-            label = { Text("Никнейм пользователя") },
+            label = { Text(stringResource(Res.string.management_nickname_label)) },
             singleLine = true,
             modifier = Modifier.fillMaxWidth(),
             trailingIcon = {
@@ -119,7 +121,7 @@ fun CreateContent(
                         onClick = onSearch,
                         enabled = state.transferRecipientQuery.isNotBlank()
                     ) {
-                        Icon(Icons.Default.Search, "Найти")
+                        Icon(Icons.Default.Search, stringResource(Res.string.management_search_desc))
                     }
                 }
             },
@@ -138,7 +140,7 @@ fun CreateContent(
         Spacer(Modifier.height(24.dp))
         DialogActions(
             onDismiss = onDismiss,
-            confirmText = "Отправить заявку",
+            confirmText = stringResource(Res.string.transfer_submit_button),
             confirmEnabled = state.transferRecipientFound != null && !state.isTransferActionLoading,
             isLoading = state.isTransferActionLoading,
             onConfirm = onCreate
@@ -167,7 +169,7 @@ fun RecipientCard(user: PublicUserProfile) {
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onSecondaryContainer
                 )
-                val fullName = listOfNotNull(user.firstName, user.lastName).joinToString(" ")
+                val fullName = listOfNotNull(user.firstName, user.lastName).joinToString(stringResource(Res.string.list_separator_space))
                 if (fullName.isNotBlank()) {
                     Text(
                         text = fullName,
@@ -195,15 +197,15 @@ private fun PendingContent(
     ) {
         DialogIcon(Icons.Default.HourglassTop, MaterialTheme.colorScheme.tertiary)
         Spacer(Modifier.height(12.dp))
-        DialogTitle("Заявка отправлена")
+        DialogTitle(stringResource(Res.string.transfer_sent_title))
         Spacer(Modifier.height(16.dp))
 
-        InfoRow("Получатель", transfer.recipientNickname)
+        InfoRow(stringResource(Res.string.transfer_recipient_title), transfer.recipientNickname)
         Spacer(Modifier.height(8.dp))
         HorizontalDivider()
         Spacer(Modifier.height(8.dp))
         Text(
-            text = "Заявка ожидает принятия. Если получатель примет её — права организатора перейдут к нему.",
+            text = stringResource(Res.string.transfer_sent_desc),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center
@@ -215,7 +217,7 @@ private fun PendingContent(
             horizontalArrangement = Arrangement.End,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            TextButton(onClick = onDismiss) { Text("Закрыть") }
+            TextButton(onClick = onDismiss) { Text(stringResource(Res.string.close)) }
             Spacer(Modifier.width(8.dp))
             FilledTonalButton(
                 onClick = onCancel,
@@ -230,7 +232,7 @@ private fun PendingContent(
                 } else {
                     Icon(Icons.Default.Cancel, null, modifier = Modifier.size(18.dp))
                     Spacer(Modifier.width(6.dp))
-                    Text("Отозвать")
+                    Text(stringResource(Res.string.transfer_revoke_button))
                 }
             }
         }
@@ -251,18 +253,18 @@ private fun DoneContent(transfer: JamTransfer, onDismiss: () -> Unit, isOrganize
         else -> MaterialTheme.colorScheme.onSurfaceVariant
     }
     val title = when (transfer.status) {
-        TransferStatus.ACCEPTED -> if (isOrganizer) "Джем получен" else "Джем передан"
-        TransferStatus.REJECTED -> "Заявка отклонена"
-        else -> "Заявка отменена"
+        TransferStatus.ACCEPTED -> if (isOrganizer) stringResource(Res.string.transfer_status_received) else stringResource(Res.string.transfer_status_transferred)
+        TransferStatus.REJECTED -> stringResource(Res.string.transfer_status_rejected)
+        else -> stringResource(Res.string.transfer_status_cancelled)
     }
     val body = when (transfer.status) {
         TransferStatus.ACCEPTED -> if (isOrganizer){
-            "Джем получен от ${transfer.recipientNickname}. Права переданы."
+            stringResource(Res.string.transfer_msg_received, transfer.recipientNickname)
         } else {
-            "${transfer.recipientNickname} принял заявку. Права переданы."
+            stringResource(Res.string.transfer_msg_accepted, transfer.recipientNickname)
         }
-        TransferStatus.REJECTED -> "${transfer.recipientNickname} отклонил заявку."
-        else -> "Заявка на передачу была отменена."
+        TransferStatus.REJECTED -> stringResource(Res.string.transfer_msg_rejected, transfer.recipientNickname)
+        else -> stringResource(Res.string.transfer_msg_cancelled)
     }
 
     Column(
@@ -276,7 +278,7 @@ private fun DoneContent(transfer: JamTransfer, onDismiss: () -> Unit, isOrganize
         Text(text = body, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
         Spacer(Modifier.height(24.dp))
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-            TextButton(onClick = onDismiss) { Text("Закрыть") }
+            TextButton(onClick = onDismiss) { Text(stringResource(Res.string.close)) }
         }
     }
 }
@@ -305,7 +307,7 @@ fun ColumnScope.DialogTitle(text: String) {
 fun InfoRow(label: String, value: String) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         Text(
-            "$label:",
+            stringResource(Res.string.label_value_separator, label),
             style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -332,7 +334,7 @@ fun DialogActions(
         horizontalArrangement = Arrangement.End,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        TextButton(onClick = onDismiss) { Text("Отмена") }
+        TextButton(onClick = onDismiss) { Text(stringResource(Res.string.cancel)) }
         Spacer(Modifier.width(8.dp))
         Button(onClick = onConfirm, enabled = confirmEnabled) {
             if (isLoading) {

@@ -80,7 +80,8 @@ data class JamDetailsState(
         get() = userRole == UserRole.PARTICIPANT
 
     val isJudge: Boolean
-        get() = userRole == UserRole.JUDGE
+        get() = userRole == UserRole.JUDGE ||
+                jamDetails?.judges?.any { it.userId == userId } == true
 
     val isAdmin: Boolean
         get() = userRole == UserRole.ADMIN
@@ -92,6 +93,14 @@ data class JamDetailsState(
                     GameJamStatus.CANCELLED,
                     GameJamStatus.COMPLETED
                 )
+
+    val canForceJamStatus: Boolean
+        get() = isAdmin && jamDetails?.status in setOf(
+            GameJamStatus.DRAFT,
+            GameJamStatus.ANNOUNCED,
+            GameJamStatus.REGISTRATION_OPEN,
+            GameJamStatus.REGISTRATION_CLOSED
+        )
 
     val availableForceStatuses: List<GameJamStatus>
         get() = listOf(

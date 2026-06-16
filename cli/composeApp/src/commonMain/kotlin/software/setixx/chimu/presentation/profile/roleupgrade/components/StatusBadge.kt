@@ -8,31 +8,33 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import chimu.composeapp.generated.resources.*
+import org.jetbrains.compose.resources.stringResource
 import software.setixx.chimu.api.domain.RoleRequestStatus
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun StatusBadge(status: RoleRequestStatus) {
-    val (containerColor, contentColor, label) = when (status) {
+    val (containerColor, contentColor, labelRes) = when (status) {
         RoleRequestStatus.PENDING -> Triple(
             MaterialTheme.colorScheme.tertiaryContainer,
             MaterialTheme.colorScheme.onTertiaryContainer,
-            "На рассмотрении"
+            Res.string.role_upgrade_filter_pending
         )
         RoleRequestStatus.APPROVED -> Triple(
             MaterialTheme.colorScheme.primaryContainer,
             MaterialTheme.colorScheme.onPrimaryContainer,
-            "Одобрена"
+            Res.string.registration_status_approved
         )
         RoleRequestStatus.REJECTED -> Triple(
             MaterialTheme.colorScheme.errorContainer,
             MaterialTheme.colorScheme.onErrorContainer,
-            "Отклонена"
+            Res.string.registration_status_rejected
         )
         RoleRequestStatus.CANCELLED -> Triple(
             MaterialTheme.colorScheme.surfaceContainerHighest,
             MaterialTheme.colorScheme.onSurfaceVariant,
-            "Отменена"
+            Res.string.role_upgrade_cancel
         )
     }
 
@@ -41,7 +43,7 @@ fun StatusBadge(status: RoleRequestStatus) {
         color = containerColor
     ) {
         Text(
-            text = label,
+            text = stringResource(labelRes),
             modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
             style = MaterialTheme.typography.labelSmall,
             color = contentColor

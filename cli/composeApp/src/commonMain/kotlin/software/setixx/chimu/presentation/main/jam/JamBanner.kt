@@ -21,6 +21,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import chimu.composeapp.generated.resources.*
+import org.jetbrains.compose.resources.stringResource
 import coil3.compose.AsyncImage
 import coil3.compose.LocalPlatformContext
 import coil3.request.ImageRequest
@@ -34,7 +36,7 @@ fun JamBanner(
     name: String,
     theme: String
 ){
-    val localizedTheme = if (theme == "unknown") "Будет объявлена" else theme
+    val localizedTheme = if (theme == "unknown") stringResource(Res.string.jam_theme_unknown) else theme
 
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -54,7 +56,7 @@ fun JamBanner(
                         .data(bannerUrl)
                         .crossfade(true)
                         .build(),
-                    contentDescription = "Баннер джема",
+                    contentDescription = stringResource(Res.string.jam_card_banner_desc),
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(280.dp),
@@ -87,7 +89,7 @@ fun JamBanner(
                     )
                     Spacer(modifier = Modifier.height(12.dp))
                     Text(
-                        text = "Тема: $localizedTheme",
+                        text = stringResource(Res.string.jam_card_theme_label, localizedTheme),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Normal,
                         color = Color.White
@@ -100,7 +102,7 @@ fun JamBanner(
             ){
                 Text(
                     modifier = Modifier.align(Alignment.Center),
-                    text = "Баннер еще не загружен"
+                    text = stringResource(Res.string.jam_banner_empty)
                 )
             }
         }

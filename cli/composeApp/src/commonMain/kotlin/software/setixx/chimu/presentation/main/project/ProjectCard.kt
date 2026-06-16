@@ -18,6 +18,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import chimu.composeapp.generated.resources.Res
+import chimu.composeapp.generated.resources.project_jam_label
+import chimu.composeapp.generated.resources.project_team_label
+import org.jetbrains.compose.resources.stringResource
 import software.setixx.chimu.domain.model.Project
 import software.setixx.chimu.presentation.jam.details.judging.components.ProjectStatusBadge
 
@@ -47,13 +51,13 @@ fun ProjectCard(
                     modifier = Modifier.weight(1f)
                 )
                 Spacer(modifier = Modifier.width(8.dp))
-                ProjectStatusBadge(status = project.status.name)
+                ProjectStatusBadge(status = project.status)
             }
 
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "Джем: ${project.jamName}",
+                text = stringResource(Res.string.project_jam_label, project.jamName),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -61,7 +65,7 @@ fun ProjectCard(
 
             project.teamName?.let { teamName ->
                 Text(
-                    text = "Команда: $teamName",
+                    text = stringResource(Res.string.project_team_label, teamName),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )

@@ -22,6 +22,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import chimu.composeapp.generated.resources.*
+import org.jetbrains.compose.resources.stringResource
 import software.setixx.chimu.domain.model.JamStatistics
 
 @Composable
@@ -43,7 +45,7 @@ fun JamStatisticsCard(statistics: JamStatistics) {
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    "Статистика джема",
+                    stringResource(Res.string.leaderboard_stats_title),
                     style = MaterialTheme.typography.titleMedium,
                 )
             }
@@ -52,20 +54,20 @@ fun JamStatisticsCard(statistics: JamStatistics) {
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                StatChip(label = "Проектов", value = statistics.totalProjects.toString())
-                StatChip(label = "Подано", value = statistics.submittedProjects.toString())
+                StatChip(label = stringResource(Res.string.leaderboard_stat_projects), value = statistics.totalProjects.toString())
+                StatChip(label = stringResource(Res.string.leaderboard_stat_submitted), value = statistics.submittedProjects.toString())
                 StatChip(
-                    label = "Дисквалиф.",
+                    label = stringResource(Res.string.leaderboard_stat_disqualified),
                     value = statistics.disqualifiedProjects.toString(),
                     isWarning = statistics.disqualifiedProjects > 0
                 )
-                StatChip(label = "Судей", value = statistics.totalJudges.toString())
+                StatChip(label = stringResource(Res.string.leaderboard_stat_judges), value = statistics.totalJudges.toString())
             }
 
             if (statistics.averageScoresPerCriteria.isNotEmpty()) {
                 HorizontalDivider()
                 Text(
-                    "Средние оценки",
+                    stringResource(Res.string.leaderboard_average_scores_title),
                     style = MaterialTheme.typography.labelLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -83,7 +85,7 @@ fun JamStatisticsCard(statistics: JamStatistics) {
                                 style = MaterialTheme.typography.bodySmall
                             )
                             Text(
-                                "${criteria.averageScore} / ${criteria.maxScore}",
+                                stringResource(Res.string.score_format, criteria.averageScore, criteria.maxScore),
                                 style = MaterialTheme.typography.labelSmall,
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.primary
@@ -100,7 +102,7 @@ fun JamStatisticsCard(statistics: JamStatistics) {
             if (statistics.judgeCompletionRate.isNotEmpty()) {
                 HorizontalDivider()
                 Text(
-                    "Прогресс судей",
+                    stringResource(Res.string.leaderboard_judge_completion_title),
                     style = MaterialTheme.typography.labelLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -113,7 +115,7 @@ fun JamStatisticsCard(statistics: JamStatistics) {
                         Column(modifier = Modifier.weight(1f)) {
                             Text(judge.judgeNickname, style = MaterialTheme.typography.bodySmall)
                             Text(
-                                "${judge.ratedProjects}/${judge.totalProjects} проектов",
+                                stringResource(Res.string.leaderboard_projects_count, judge.ratedProjects, judge.totalProjects),
                                 style = MaterialTheme.typography.labelSmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -127,7 +129,7 @@ fun JamStatisticsCard(statistics: JamStatistics) {
                             shape = MaterialTheme.shapes.small
                         ) {
                             Text(
-                                "${judge.completionPercentage}%",
+                                stringResource(Res.string.percentage_format, judge.completionPercentage),
                                 style = MaterialTheme.typography.labelMedium,
                                 fontWeight = FontWeight.Bold,
                                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)

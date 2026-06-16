@@ -12,6 +12,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import chimu.composeapp.generated.resources.*
+import org.jetbrains.compose.resources.stringResource
 import software.setixx.chimu.domain.model.Project
 
 @Composable
@@ -24,7 +26,7 @@ fun ProjectCard(
     Card(
         colors = CardDefaults.cardColors(
             containerColor = if (hasUnratedCriteria)
-                MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.3f)
+                MaterialTheme.colorScheme.errorContainer
             else
                 MaterialTheme.colorScheme.surfaceVariant
         ),
@@ -46,7 +48,7 @@ fun ProjectCard(
                 project.teamName?.let {
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        "Команда: $it",
+                        stringResource(Res.string.project_team_label, it),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -57,7 +59,7 @@ fun ProjectCard(
                 IconButton(onClick = onViewDetails) {
                     Icon(
                         Icons.Default.Info,
-                        contentDescription = "Подробнее о проекте",
+                        contentDescription = stringResource(Res.string.project_details_desc),
                         tint = MaterialTheme.colorScheme.primary
                     )
                 }

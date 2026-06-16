@@ -29,6 +29,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import chimu.composeapp.generated.resources.*
+import org.jetbrains.compose.resources.stringResource
 import software.setixx.chimu.presentation.components.EmptyStateCard
 import software.setixx.chimu.presentation.main.MainState
 
@@ -52,8 +54,8 @@ fun TeamsContent(
                 if (state.userTeams.isEmpty()) {
                     EmptyStateCard(
                         icon = Icons.Default.Group,
-                        title = "У вас пока нет команд",
-                        description = "Создайте команду или присоединитесь к существующей"
+                        title = stringResource(Res.string.teams_empty_title),
+                        description = stringResource(Res.string.teams_empty_desc)
                     )
                 } else {
                     LazyColumn(
@@ -84,7 +86,7 @@ fun TeamsContent(
                 ) {
                     Icon(
                         if (fabExpanded) Icons.Default.Close else Icons.Default.Add,
-                        contentDescription = "Действия с командами"
+                        contentDescription = stringResource(Res.string.teams_fab_desc)
                     )
                 }
             }
@@ -95,7 +97,7 @@ fun TeamsContent(
                     onNavigateToJoinTeam()
                 },
                 icon = { Icon(Icons.AutoMirrored.Filled.Login, null) },
-                text = { Text("Присоединиться") }
+                text = { Text(stringResource(Res.string.teams_join)) }
             )
             FloatingActionButtonMenuItem(
                 onClick = {
@@ -103,7 +105,7 @@ fun TeamsContent(
                     onNavigateToCreateTeam()
                 },
                 icon = { Icon(Icons.Default.Add, null) },
-                text = { Text("Создать") }
+                text = { Text(stringResource(Res.string.teams_create)) }
             )
         }
     }

@@ -15,6 +15,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import chimu.composeapp.generated.resources.*
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import software.setixx.chimu.api.domain.UserRole
 import software.setixx.chimu.domain.model.Skill
@@ -56,16 +58,16 @@ fun ProfileScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Профиль") },
+                title = { Text(stringResource(Res.string.profile_title)) },
                 navigationIcon = {
                     FilledTonalIconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Назад")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(Res.string.back))
                     }
                 },
                 actions = {
                     if (state.isEditing) {
                         TextButton(onClick = { viewModel.toggleEditMode() }) {
-                            Text("Отмена")
+                            Text(stringResource(Res.string.cancel))
                         }
                         TextButton(
                             onClick = { viewModel.saveProfile() },
@@ -74,12 +76,12 @@ fun ProfileScreen(
                             if (state.isSaving) {
                                 CircularProgressIndicator(modifier = Modifier.size(24.dp))
                             } else {
-                                Text("Сохранить")
+                                Text(stringResource(Res.string.save))
                             }
                         }
                     } else {
                         FilledTonalIconButton(onClick = { viewModel.toggleEditMode() }) {
-                            Icon(Icons.Default.Edit, "Редактировать")
+                            Icon(Icons.Default.Edit, stringResource(Res.string.edit))
                         }
 
                         if (state.user?.role != UserRole.GUEST) {
@@ -88,7 +90,7 @@ fun ProfileScreen(
                             ) {
                                 Icon(
                                     Icons.Default.AdminPanelSettings,
-                                    contentDescription = "Повышение роли"
+                                    contentDescription = stringResource(Res.string.profile_role_upgrade_desc)
                                 )
                             }
                         }
@@ -104,7 +106,7 @@ fun ProfileScreen(
                         ) {
                             Icon(
                                 Icons.Default.Delete,
-                                "Удалить аккаунт",
+                                stringResource(Res.string.profile_delete_account_desc),
                                 tint = MaterialTheme.colorScheme.error,
                             )
                         }
@@ -148,7 +150,7 @@ fun ProfileScreen(
                         EditableProfileField(
                             value = state.nickname,
                             onValueChange = { viewModel.updateNickname(it) },
-                            label = "Никнейм",
+                            label = stringResource(Res.string.profile_nickname_label),
                             leadingIcon = Icons.Default.AccountCircle,
                             isEditing = state.isEditing,
                             enabled = !state.isSaving,
@@ -161,7 +163,7 @@ fun ProfileScreen(
                         EditableProfileField(
                             value = state.firstName,
                             onValueChange = { viewModel.updateFirstName(it) },
-                            label = "Имя",
+                            label = stringResource(Res.string.profile_first_name_label),
                             leadingIcon = Icons.Default.Person,
                             isEditing = state.isEditing,
                             enabled = !state.isSaving,
@@ -172,7 +174,7 @@ fun ProfileScreen(
                         EditableProfileField(
                             value = state.lastName,
                             onValueChange = { viewModel.updateLastName(it) },
-                            label = "Фамилия",
+                            label = stringResource(Res.string.profile_last_name_label),
                             leadingIcon = Icons.Default.Person,
                             isEditing = state.isEditing,
                             enabled = !state.isSaving,
@@ -183,7 +185,7 @@ fun ProfileScreen(
                         EditableProfileField(
                             value = state.bio,
                             onValueChange = { viewModel.updateBio(it) },
-                            label = "О себе",
+                            label = stringResource(Res.string.profile_bio_label),
                             leadingIcon = Icons.Default.Info,
                             isEditing = state.isEditing,
                             enabled = !state.isSaving,
@@ -200,9 +202,9 @@ fun ProfileScreen(
                                 onExpandedChange = { expandedSpec = !state.isSaving && it }
                             ) {
                                 EditableProfileField(
-                                    value = state.selectedSpecialization?.name ?: "Не выбрано",
+                                    value = state.selectedSpecialization?.name ?: stringResource(Res.string.profile_not_selected),
                                     onValueChange = {},
-                                    label = "Специализация",
+                                    label = stringResource(Res.string.profile_specialization_label),
                                     leadingIcon = Icons.Default.Work,
                                     isEditing = true,
                                     readOnly = true,
@@ -222,7 +224,7 @@ fun ProfileScreen(
                                     modifier = Modifier.padding(horizontal = 4.dp)
                                 ) {
                                     DropdownMenuItem(
-                                        text = { Text("Не выбрано") },
+                                        text = { Text(stringResource(Res.string.profile_not_selected)) },
                                         onClick = {
                                             viewModel.updateSpecialization(null)
                                             expandedSpec = false
@@ -256,7 +258,7 @@ fun ProfileScreen(
                                                 Modifier
                                             },
                                             leadingIcon = if (state.selectedSpecialization == specialization) {
-                                                { Icon(imageVector = Icons.Default.Check, contentDescription = "Selected") }
+                                                { Icon(imageVector = Icons.Default.Check, contentDescription = stringResource(Res.string.profile_selected)) }
                                             } else null,
                                             colors = if (state.selectedSpecialization == specialization) {
                                                 MenuDefaults.itemColors(
@@ -279,7 +281,7 @@ fun ProfileScreen(
                             EditableProfileField(
                                 value = state.selectedSpecialization?.name ?: "",
                                 onValueChange = {},
-                                label = "Специализация",
+                                label = stringResource(Res.string.profile_specialization_label),
                                 leadingIcon = Icons.Default.Work,
                                 isEditing = false,
                                 itemIndex = 4,
@@ -290,13 +292,13 @@ fun ProfileScreen(
                         EditableProfileField(
                             value = state.githubUrl,
                             onValueChange = { viewModel.updateGithubUrl(it) },
-                            label = "GitHub",
+                            label = stringResource(Res.string.profile_github_label),
                             leadingIcon = Icons.Default.Code,
                             isEditing = state.isEditing,
                             enabled = !state.isSaving,
                             isError = state.githubError != null,
                             supportingText = state.githubError,
-                            placeholder = "https://github.com/username",
+                            placeholder = stringResource(Res.string.profile_github_placeholder),
                             itemIndex = 5,
                             listCount = totalFields
                         )
@@ -319,7 +321,7 @@ fun ProfileScreen(
                     }
 
                     Text(
-                        text = "Зарегистрирован: ${DateTimeUtils.formatDateTime(state.user?.createdAt)}",
+                        text = stringResource(Res.string.profile_registered_at, DateTimeUtils.formatDateTime(state.user?.createdAt)),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         textAlign = TextAlign.Center
@@ -332,8 +334,8 @@ fun ProfileScreen(
     if (showDeleteDialog) {
         AlertDialog(
             onDismissRequest = { showDeleteDialog = false },
-            title = { Text("Удалить аккаунт?") },
-            text = { Text("Все данные будут безвозвратно удалены.") },
+            title = { Text(stringResource(Res.string.profile_delete_title)) },
+            text = { Text(stringResource(Res.string.profile_delete_message)) },
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -343,10 +345,10 @@ fun ProfileScreen(
                     colors = ButtonDefaults.textButtonColors(
                         contentColor = MaterialTheme.colorScheme.error
                     )
-                ) { Text("Удалить") }
+                ) { Text(stringResource(Res.string.delete)) }
             },
             dismissButton = {
-                TextButton(onClick = { showDeleteDialog = false }) { Text("Отмена") }
+                TextButton(onClick = { showDeleteDialog = false }) { Text(stringResource(Res.string.cancel)) }
             }
         )
     }
@@ -378,7 +380,7 @@ fun SkillsSelector(
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         Text(
-            "Навыки",
+            stringResource(Res.string.profile_skills_label),
             style = MaterialTheme.typography.titleSmall
         )
 
@@ -400,9 +402,9 @@ fun SkillsSelector(
                 ) {
                     Text(
                         if (selectedSkills.isEmpty())
-                            "Выберите навыки"
+                            stringResource(Res.string.profile_choose_skills)
                         else
-                            "${selectedSkills.size} выбрано"
+                            stringResource(Res.string.profile_skills_selected_count, selectedSkills.size)
                     )
                     Icon(
                         if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
@@ -453,7 +455,7 @@ fun SkillsSelector(
                             if (enabled) {
                                 Icon(
                                     Icons.Default.Close,
-                                    contentDescription = "Удалить",
+                                    contentDescription = stringResource(Res.string.delete),
                                     modifier = Modifier.size(18.dp)
                                 )
                             }
