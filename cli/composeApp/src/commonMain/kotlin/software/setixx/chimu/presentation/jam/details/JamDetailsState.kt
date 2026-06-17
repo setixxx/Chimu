@@ -43,22 +43,22 @@ data class JamDetailsState(
 
     ) {
     val canCancel: Boolean
-        get() = jamDetails?.status in listOf(
+        get() = (jamDetails?.status in listOf(
             GameJamStatus.ANNOUNCED,
             GameJamStatus.REGISTRATION_OPEN,
             GameJamStatus.REGISTRATION_CLOSED
-        ) && isAdminOrOrganizer
+        ) && isAdminOrOrganizer) || isAdmin
 
     val canDelete: Boolean
         get() = jamDetails?.status == GameJamStatus.DRAFT && isAdminOrOrganizer
 
     val canEdit: Boolean
-        get() = jamDetails?.status in listOf(
+        get() = (jamDetails?.status in listOf(
             GameJamStatus.DRAFT,
             GameJamStatus.ANNOUNCED,
             GameJamStatus.REGISTRATION_OPEN,
             GameJamStatus.REGISTRATION_CLOSED
-        ) && isAdminOrOrganizer
+        ) && isAdminOrOrganizer) || isAdmin
 
     val isAdminOrOrganizer: Boolean
         get() = userRole == UserRole.ADMIN ||
