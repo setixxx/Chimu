@@ -24,6 +24,8 @@ fun GameJamCard(
     jam: GameJam,
     onDetailsClick: (String) -> Unit = {}
 ) {
+    val localizedTheme = if (jam.theme == "unknown") stringResource(Res.string.jam_theme_unknown) else jam.theme
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.extraLarge,
@@ -67,7 +69,7 @@ fun GameJamCard(
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = stringResource(Res.string.jam_card_theme_label, jam.theme),
+                    text = stringResource(Res.string.jam_card_theme_label, localizedTheme),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 2,
