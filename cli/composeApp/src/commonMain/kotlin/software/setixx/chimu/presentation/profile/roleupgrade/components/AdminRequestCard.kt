@@ -17,10 +17,10 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -165,10 +165,8 @@ fun AdminRequestCard(
                         )
                     ) {
                         if (state.isSubmitting) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(16.dp),
-                                strokeWidth = 2.dp,
-                                color = MaterialTheme.colorScheme.error
+                            LoadingIndicator(
+                                modifier = Modifier.size(16.dp)
                             )
                         } else {
                             Icon(
@@ -185,10 +183,8 @@ fun AdminRequestCard(
                         enabled = !state.isSubmitting
                     ) {
                         if (state.isSubmitting) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(16.dp),
-                                strokeWidth = 2.dp,
-                                color = MaterialTheme.colorScheme.onPrimary
+                            LoadingIndicator(
+                                modifier = Modifier.size(16.dp)
                             )
                         } else {
                             Icon(

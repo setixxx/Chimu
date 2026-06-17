@@ -184,9 +184,8 @@ fun RegisterScreen(
                         enabled = !state.isLoading
                     ) {
                         if (state.isLoading) {
-                            CircularProgressIndicator(
+                            LoadingIndicator(
                                 modifier = Modifier.size(24.dp),
-                                color = MaterialTheme.colorScheme.onPrimary
                             )
                         } else {
                             Text(stringResource(Res.string.sign_up_button))

@@ -69,7 +69,7 @@ fun EditJamScreen(
     ) { paddingValues ->
         if (state.isLoading) {
             Box(modifier = Modifier.fillMaxSize().padding(paddingValues), contentAlignment = androidx.compose.ui.Alignment.Center) {
-                CircularProgressIndicator()
+                LoadingIndicator()
             }
         } else {
 
@@ -175,7 +175,7 @@ fun EditJamScreen(
                     enabled = !state.isUpdating
                 ) {
                     if (state.isUpdating) {
-                        CircularProgressIndicator(modifier = Modifier.size(24.dp))
+                        LoadingIndicator(modifier = Modifier.size(24.dp))
                     } else {
                         Text(stringResource(Res.string.jam_save_changes_button))
                     }

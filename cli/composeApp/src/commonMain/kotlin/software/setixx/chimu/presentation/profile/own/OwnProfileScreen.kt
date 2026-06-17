@@ -74,7 +74,7 @@ fun ProfileScreen(
                             enabled = !state.isSaving
                         ) {
                             if (state.isSaving) {
-                                CircularProgressIndicator(modifier = Modifier.size(24.dp))
+                                LoadingIndicator(modifier = Modifier.size(24.dp))
                             } else {
                                 Text(stringResource(Res.string.save))
                             }
@@ -335,7 +335,7 @@ fun ProfileScreen(
         AlertDialog(
             onDismissRequest = { showDeleteDialog = false },
             title = { Text(stringResource(Res.string.profile_delete_title)) },
-            text = { Text(stringResource(Res.string.profile_delete_message)) },
+            text = { Text(stringResource(Res.string.profile_delete_message), textAlign = TextAlign.Center) },
             confirmButton = {
                 TextButton(
                     onClick = {

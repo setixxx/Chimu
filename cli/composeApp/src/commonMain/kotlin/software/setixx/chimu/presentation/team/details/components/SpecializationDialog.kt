@@ -22,6 +22,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import chimu.composeapp.generated.resources.*
 import org.jetbrains.compose.resources.stringResource
@@ -39,12 +40,13 @@ fun SpecializationDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         icon = { Icon(Icons.Default.Work, null) },
-        title = { Text(stringResource(Res.string.team_specialization_title)) },
+        title = { Text(stringResource(Res.string.team_specialization_title), textAlign = TextAlign.Center) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(
                     stringResource(Res.string.team_specialization_message),
-                    style = MaterialTheme.typography.bodyMedium
+                    style = MaterialTheme.typography.bodyMedium,
+                    textAlign = TextAlign.Center
                 )
 
                 var expanded by remember { mutableStateOf(false) }

@@ -162,9 +162,8 @@ private fun FilledPlaceholderTile(
                     contentScale = ContentScale.Crop,
                     loading = {
                         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            CircularProgressIndicator(
+                            LoadingIndicator(
                                 modifier = Modifier.size(24.dp),
-                                strokeWidth = 2.dp
                             )
                         }
                     },

@@ -228,7 +228,7 @@ private fun PendingContent(
                 )
             ) {
                 if (isLoading) {
-                    CircularProgressIndicator(modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
+                    LoadingIndicator(modifier = Modifier.size(18.dp))
                 } else {
                     Icon(Icons.Default.Cancel, null, modifier = Modifier.size(18.dp))
                     Spacer(Modifier.width(6.dp))

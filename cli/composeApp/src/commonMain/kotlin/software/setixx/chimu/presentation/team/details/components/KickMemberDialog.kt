@@ -8,6 +8,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.text.style.TextAlign
 import chimu.composeapp.generated.resources.*
 import org.jetbrains.compose.resources.stringResource
 import software.setixx.chimu.domain.model.TeamMember
@@ -22,7 +23,7 @@ fun KickMemberDialog(
         onDismissRequest = onDismiss,
         icon = { Icon(Icons.Default.PersonRemove, null) },
         title = { Text(stringResource(Res.string.team_kick_title)) },
-        text = { Text(stringResource(Res.string.team_kick_message, member.nickname)) },
+        text = { Text(stringResource(Res.string.team_kick_message, member.nickname), textAlign = TextAlign.Center) },
         confirmButton = {
             TextButton(onClick = onConfirm) {
                 Text(stringResource(Res.string.team_kick_button), color = MaterialTheme.colorScheme.error)

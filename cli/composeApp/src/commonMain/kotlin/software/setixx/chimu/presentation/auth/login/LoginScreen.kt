@@ -158,9 +158,8 @@ fun LoginScreen(
                         enabled = !state.isLoading
                     ) {
                         if (state.isLoading) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(24.dp),
-                                color = MaterialTheme.colorScheme.onPrimary
+                            LoadingIndicator(
+                                modifier = Modifier.size(24.dp)
                             )
                         } else {
                             Text(stringResource(Res.string.sign_in_button))
