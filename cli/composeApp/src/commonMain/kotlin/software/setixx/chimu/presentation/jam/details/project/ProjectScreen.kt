@@ -32,10 +32,10 @@ fun ProjectScreen(
     userId: String?,
     onNavigateToProject: (projectId: String, roleStr: String?, isAdminOrOrganizer: Boolean) -> Unit,
     viewModel: ProjectViewModel = koinViewModel(),
-    paddingValues: PaddingValues
+    paddingValues: PaddingValues,
+    snackbarHostState: SnackbarHostState
 ) {
     val state by viewModel.state.collectAsState()
-    val snackbarHostState = remember { SnackbarHostState() }
     val scrollState = rememberScrollState()
     val isAdminOrOrganizer = userRole == UserRole.ADMIN ||
             (userRole == UserRole.ORGANIZER && jam.organizerId == userId)
@@ -119,11 +119,6 @@ fun ProjectScreen(
                 }
             }
         }
-
-        SnackbarHost(
-            hostState = snackbarHostState,
-            modifier = Modifier.align(Alignment.BottomCenter)
-        )
     }
 
     if (showCreateDialog) {

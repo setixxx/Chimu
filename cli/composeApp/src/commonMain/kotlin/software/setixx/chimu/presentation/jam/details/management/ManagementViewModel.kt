@@ -117,7 +117,7 @@ class ManagementViewModel(
 
     fun uploadBanner(jamId: String, file: FileUpload) {
         viewModelScope.launch {
-            _state.update { it.copy(isActionLoading = true) }
+            _state.update { it.copy(isBannerUploading = true) }
             when (val result = uploadJamBannerUseCase(jamId, file)) {
                 is ApiResult.Success -> {
                     when (val jamResult = getJamDetailsUseCase(jamId)) {
@@ -125,7 +125,7 @@ class ManagementViewModel(
                             _state.update {
                                 it.copy(
                                     jam = jamResult.data,
-                                    isActionLoading = false,
+                                    isBannerUploading = false,
                                     successMessage = "Баннер загружен"
                                 )
                             }
@@ -133,7 +133,7 @@ class ManagementViewModel(
                         is ApiResult.Error -> {
                             _state.update {
                                 it.copy(
-                                    isLoading = false,
+                                    isBannerUploading = false,
                                     errorMessage = "Ошибка при обновлении данных джема"
                                 )
                             }
@@ -143,7 +143,7 @@ class ManagementViewModel(
                 is ApiResult.Error -> {
                     _state.update {
                         it.copy(
-                            isLoading = false,
+                            isBannerUploading = false,
                             errorMessage = result.message
                         )
                     }
@@ -154,7 +154,7 @@ class ManagementViewModel(
 
     fun deleteBanner(jamId: String) {
         viewModelScope.launch {
-            _state.update { it.copy(isActionLoading = true) }
+            _state.update { it.copy(isBannerDeleting = true) }
             when (val result = deleteJamBannerUseCase(jamId)) {
                 is ApiResult.Success -> {
                     when (val jamResult = getJamDetailsUseCase(jamId)) {
@@ -162,7 +162,7 @@ class ManagementViewModel(
                             _state.update {
                                 it.copy(
                                     jam = jamResult.data,
-                                    isActionLoading = false,
+                                    isBannerDeleting = false,
                                     successMessage = "Баннер удален"
                                 )
                             }
@@ -170,7 +170,7 @@ class ManagementViewModel(
                         is ApiResult.Error -> {
                             _state.update {
                                 it.copy(
-                                    isActionLoading = false,
+                                    isBannerDeleting = false,
                                     errorMessage = "Ошибка при обновлении данных джема"
                                 )
                             }
@@ -180,7 +180,7 @@ class ManagementViewModel(
                 is ApiResult.Error -> {
                     _state.update {
                         it.copy(
-                            isActionLoading = false,
+                            isBannerDeleting = false,
                             errorMessage = result.message
                         )
                     }

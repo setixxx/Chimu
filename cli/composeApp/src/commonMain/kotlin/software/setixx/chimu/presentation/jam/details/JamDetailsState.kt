@@ -80,8 +80,7 @@ data class JamDetailsState(
         get() = userRole == UserRole.PARTICIPANT
 
     val isJudge: Boolean
-        get() = userRole == UserRole.JUDGE ||
-                jamDetails?.judges?.any { it.userId == userId } == true
+        get() = jamDetails?.judges?.any { it.userId == userId } == true
 
     val isAdmin: Boolean
         get() = userRole == UserRole.ADMIN

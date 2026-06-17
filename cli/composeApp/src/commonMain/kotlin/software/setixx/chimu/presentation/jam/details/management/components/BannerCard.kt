@@ -17,6 +17,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -39,7 +40,9 @@ fun BannerCard(
     bannerUrl: String?,
     onOpenBannerPicker: () -> Unit,
     onDeleteBanner: () -> Unit,
-    isEditable: Boolean
+    isEditable: Boolean,
+    isBannerUploading: Boolean,
+    isBannerDeleting: Boolean
 ){
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -93,9 +96,14 @@ fun BannerCard(
                 if (isEditable){
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         OutlinedButton(onClick = onOpenBannerPicker) {
-                            Icon(Icons.Default.Upload, null, modifier = Modifier.size(18.dp))
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Text(if (bannerUrl != null) stringResource(Res.string.management_banner_replace) else stringResource(Res.string.management_banner_upload))
+                            if (isBannerUploading){
+                                LoadingIndicator(modifier = Modifier.size(24.dp))
+                            } else {
+                                Icon(Icons.Default.Upload, null, modifier = Modifier.size(18.dp))
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text(if (bannerUrl != null) stringResource(Res.string.management_banner_replace)
+                                else stringResource(Res.string.management_banner_upload))
+                            }
                         }
                         if (bannerUrl != null) {
                             OutlinedButton(
@@ -104,9 +112,16 @@ fun BannerCard(
                                     contentColor = MaterialTheme.colorScheme.error
                                 )
                             ) {
-                                Icon(Icons.Default.Delete, null, modifier = Modifier.size(18.dp))
-                                Spacer(modifier = Modifier.width(6.dp))
-                                Text(stringResource(Res.string.delete))
+                                if (isBannerDeleting){
+                                    LoadingIndicator(
+                                        modifier = Modifier.size(24.dp),
+                                        color = MaterialTheme.colorScheme.error
+                                    )
+                                } else {
+                                    Icon(Icons.Default.Delete, null, modifier = Modifier.size(18.dp))
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Text(stringResource(Res.string.delete))
+                                }
                             }
                         }
                     }

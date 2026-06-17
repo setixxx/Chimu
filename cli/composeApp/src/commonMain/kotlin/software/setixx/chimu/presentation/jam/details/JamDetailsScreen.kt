@@ -169,7 +169,11 @@ fun JamDetailsScreen(
                 tabs = state.availableTabs
             )
         },
-        snackbarHost = { SnackbarHost(snackBarHostState) }
+        snackbarHost = {
+            SnackbarHost(
+                hostState = snackBarHostState
+            )
+        }
     ) { paddingValues ->
         if (state.isLoading) {
             Box(
@@ -210,7 +214,8 @@ fun JamDetailsScreen(
                                         onNavigateToOwnProfile = onNavigateToOwnProfile,
                                         onNavigateToAlienProfile = { userId ->
                                             onNavigateToAlienProfile(userId)
-                                        }
+                                        },
+                                        snackbarHostState = snackBarHostState
                                     )
                                 }
                                 JamDetailsTab.Project -> {
@@ -220,7 +225,8 @@ fun JamDetailsScreen(
                                         userRole = state.userRole,
                                         userId = state.userId,
                                         onNavigateToProject = onNavigateToProject,
-                                        paddingValues = paddingValues
+                                        paddingValues = paddingValues,
+                                        snackbarHostState = snackBarHostState
                                     )
                                 }
                                 JamDetailsTab.Judging -> {
@@ -240,7 +246,8 @@ fun JamDetailsScreen(
                                         paddingValues = paddingValues,
                                         onNavigateToAlienProfile = { judge ->
                                             onNavigateToAlienProfile(judge)
-                                        }
+                                        },
+                                        snackbarHostState = snackBarHostState
                                     )
                                 }
                                 JamDetailsTab.AccessDenied -> {
@@ -251,7 +258,8 @@ fun JamDetailsScreen(
                                         jamId = jamId,
                                         jam = jam,
                                         isAdminOrOrganizer = state.isAdminOrOrganizer,
-                                        paddingValues = paddingValues
+                                        paddingValues = paddingValues,
+                                        snackbarHostState = snackBarHostState
                                     )
                                 }
                             }

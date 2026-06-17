@@ -19,6 +19,8 @@ data class ManagementState(
     val isPublished: Boolean = false,
     val errorMessage: String? = null,
     val successMessage: String? = null,
+    val isBannerUploading: Boolean = false,
+    val isBannerDeleting: Boolean = false,
 
 
     val judgeSearchQuery: String = "",

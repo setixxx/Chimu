@@ -1,3 +1,3 @@
 package software.setixx.chimu.data.util
 
-actual fun getBaseUrl(): String = "http://localhost:8080"
+actual fun getBaseUrl(): String = "https://destiny.desperatio.com"

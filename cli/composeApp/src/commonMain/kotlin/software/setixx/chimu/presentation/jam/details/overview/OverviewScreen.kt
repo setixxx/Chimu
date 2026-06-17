@@ -28,10 +28,10 @@ fun OverviewScreen(
     userId: String?,
     onNavigateToAlienProfile: (String) -> Unit,
     onNavigateToOwnProfile: () -> Unit,
-    viewModel: OverviewViewModel = koinViewModel()
+    viewModel: OverviewViewModel = koinViewModel(),
+    snackbarHostState: SnackbarHostState
 ) {
     val state by viewModel.state.collectAsState()
-    val snackbarHostState = remember { SnackbarHostState() }
     var showRegisterDialog by remember { mutableStateOf(false) }
     val scrollState = rememberScrollState()
 
@@ -181,11 +181,6 @@ fun OverviewScreen(
                     Spacer(modifier = Modifier.height(80.dp))
                 }
             }
-
-            SnackbarHost(
-                hostState = snackbarHostState,
-                modifier = Modifier.align(Alignment.BottomCenter)
-            )
         }
     }
 

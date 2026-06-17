@@ -148,7 +148,7 @@ fun ForceStatusDialog(
                 DialogActions(
                     onDismiss = onDismiss,
                     confirmText = stringResource(Res.string.force_status_button),
-                    confirmEnabled = state.selectedForceStatus != null && !state.isTransferActionLoading,
+                    confirmEnabled = state.selectedForceStatus != null && !state.isForceStatusActionIsLoading,
                     isLoading = state.isForceStatusActionIsLoading,
                     onConfirm = { state.selectedForceStatus?.let { onSubmit(it) } }
                 )

@@ -45,10 +45,10 @@ fun ManagementScreen(
     jam: GameJamDetails,
     viewModel: ManagementViewModel = koinViewModel(),
     paddingValues: PaddingValues,
-    onNavigateToAlienProfile: (String) -> Unit
+    onNavigateToAlienProfile: (String) -> Unit,
+    snackbarHostState: SnackbarHostState
 ) {
     val state by viewModel.state.collectAsState()
-    val snackbarHostState = remember { SnackbarHostState() }
     val scrollState = rememberScrollState()
 
     var showUnassignJudgeDialog by remember { mutableStateOf(false) }
@@ -129,7 +129,9 @@ fun ManagementScreen(
                         bannerUrl = bannerUrl,
                         onOpenBannerPicker = bannerPicker,
                         onDeleteBanner = { state.jam?.id?.let { viewModel.deleteBanner(it) } },
-                        isEditable = jam.status in editableStates
+                        isEditable = jam.status in editableStates,
+                        isBannerUploading = state.isBannerUploading,
+                        isBannerDeleting = state.isBannerDeleting
                     )
 
                     state.statistics?.let { stats ->
@@ -251,12 +253,6 @@ fun ManagementScreen(
                     Spacer(modifier = Modifier.height(80.dp))
                 }
             }
-            SnackbarHost(
-                hostState = snackbarHostState,
-                modifier = Modifier
-                    .padding(paddingValues)
-                    .align(Alignment.BottomCenter)
-            )
         }
     }
 

@@ -34,10 +34,10 @@ fun LeaderboardScreen(
     jam: GameJamDetails,
     isAdminOrOrganizer: Boolean,
     viewModel: LeaderboardViewModel = koinViewModel(),
-    paddingValues: PaddingValues
+    paddingValues: PaddingValues,
+    snackbarHostState: SnackbarHostState
 ) {
     val state by viewModel.state.collectAsState()
-    val snackbarHostState = remember { SnackbarHostState() }
     val scrollState = rememberScrollState()
 
     LaunchedEffect(jamId) {
