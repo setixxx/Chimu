@@ -30,7 +30,10 @@ class AdminJamService(
         val jam = gameJamRepository.findByPublicIdAndDeletedAtIsNull(UUID.fromString(jamId))
             ?: throw IllegalArgumentException("Game jam not found")
 
-        val forbidden = setOf(GameJamStatus.CANCELLED, GameJamStatus.COMPLETED)
+        val forbidden = setOf(
+            GameJamStatus.CANCELLED
+            /*GameJamStatus.COMPLETED*/
+        )
         if (jam.status in forbidden) {
             throw IllegalArgumentException("Cannot force-transition from ${jam.status}")
         }
