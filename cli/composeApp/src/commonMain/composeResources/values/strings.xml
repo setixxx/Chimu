@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Chimu</string>
-    <string name="sign_in_title">Вход в учетную запись\nChimu</string>
-    <string name="sign_up_title">Зарегистрироваться в\nChimu</string>
+    <string name="sign_in_title">Вход в учетную запись Chimu</string>
+    <string name="sign_up_title">Зарегистрироваться в Chimu</string>
     <string name="email_hint">Адрес почты</string>
     <string name="password_hint">Пароль</string>
     <string name="password_confirm_hint">Подтверждение пароля</string>
@@ -31,7 +31,7 @@
     <string name="choose_date">Выбрать дату</string>
     <string name="choose_time">Выбрать время</string>
     <string name="score_format">%1$s / %2$s</string>
-    <string name="percentage_format">%1$d%%</string>
+    <string name="percentage_format">%1$d%</string>
     <string name="rank_format">#%1$d</string>
     <string name="date_range_format">%1$s - %2$s</string>
     <string name="max_score_and_weight_format">%1$s • %2$s</string>

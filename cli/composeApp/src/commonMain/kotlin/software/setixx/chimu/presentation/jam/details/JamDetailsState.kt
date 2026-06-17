@@ -95,12 +95,7 @@ data class JamDetailsState(
                 )
 
     val canForceJamStatus: Boolean
-        get() = isAdmin && jamDetails?.status in setOf(
-            GameJamStatus.DRAFT,
-            GameJamStatus.ANNOUNCED,
-            GameJamStatus.REGISTRATION_OPEN,
-            GameJamStatus.REGISTRATION_CLOSED
-        )
+        get() = isAdmin && jamDetails?.status != GameJamStatus.CANCELLED
 
     val availableForceStatuses: List<GameJamStatus>
         get() = listOf(
